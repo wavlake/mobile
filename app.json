@@ -7,6 +7,7 @@
     "icon": "./assets/icon.png",
     "scheme": "wavlake",
     "userInterfaceStyle": "dark",
+    "backgroundColor": "#000000",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
