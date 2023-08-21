@@ -1,5 +1,9 @@
-import { Text } from "../components";
+import { Center, Text } from "../components";
 
 export default function Page() {
-  return <Text>Home page</Text>;
+  return (
+    <Center>
+      <Text>Home page</Text>
+    </Center>
+  );
 }

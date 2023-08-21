@@ -1,2 +1,3 @@
 export * from "./HeaderTitleLogo";
 export * from "./Text";
+export * from "./Center";
