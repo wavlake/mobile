@@ -2,7 +2,7 @@ import { PropsWithChildren, useState } from "react";
 import { Tab, TabView } from "@rneui/themed";
 import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { PURPLE } from "../constants";
+import { brandColors } from "../constants";
 
 export const PillTabView = ({ children }: PropsWithChildren) => {
   const [index, setIndex] = useState(0);
@@ -22,7 +22,9 @@ export const PillTabView = ({ children }: PropsWithChildren) => {
           onChange={setIndex}
           variant="primary"
           buttonStyle={(active) => ({
-            backgroundColor: active ? PURPLE : colors.background,
+            backgroundColor: active
+              ? brandColors.purple.DEFAULT
+              : colors.background,
             borderRadius: 20,
             padding: 2,
           })}
