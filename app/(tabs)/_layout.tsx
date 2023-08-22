@@ -13,6 +13,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: colors.text,
         tabBarLabelStyle: {
           fontFamily: "Poppins_700Bold",
@@ -28,7 +29,6 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          headerShown: false,
           tabBarIcon: ({ color }) => <HomeIcon color={color} />,
         }}
       />
@@ -36,7 +36,6 @@ export default function TabLayout() {
         name="search"
         options={{
           title: "Search",
-          headerShown: false,
           tabBarIcon: ({ color }) => <MagnifyingGlassIcon color={color} />,
         }}
       />
@@ -44,7 +43,6 @@ export default function TabLayout() {
         name="library"
         options={{
           title: "Library",
-          headerShown: false,
           tabBarIcon: ({ color }) => <MusicalNoteIcon color={color} />,
         }}
       />
@@ -52,7 +50,6 @@ export default function TabLayout() {
         name="radio"
         options={{
           title: "Radio",
-          headerShown: false,
           tabBarIcon: ({ color }) => <SignalIcon color={color} />,
         }}
       />
