@@ -3,6 +3,7 @@ import { Tab, TabView } from "@rneui/themed";
 import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "../constants";
+import { SearchBar } from "./SearchBar";
 
 export const PillTabView = ({ children }: PropsWithChildren) => {
   const [index, setIndex] = useState(0);
@@ -14,7 +15,7 @@ export const PillTabView = ({ children }: PropsWithChildren) => {
         style={{
           width: 300,
           alignSelf: "center",
-          padding: 16,
+          paddingTop: 16,
         }}
       >
         <Tab
@@ -40,6 +41,9 @@ export const PillTabView = ({ children }: PropsWithChildren) => {
           <Tab.Item title="Music" />
           <Tab.Item title="Podcasts" />
         </Tab>
+      </View>
+      <View style={{ padding: 8 }}>
+        <SearchBar />
       </View>
       <TabView value={index} onChange={setIndex} animationType="spring">
         {children}
