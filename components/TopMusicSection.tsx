@@ -19,12 +19,7 @@ export const TopMusicSection = () => {
   };
 
   return (
-    <View
-      onMoveShouldSetResponder={(e) => {
-        e.stopPropagation();
-        return false;
-      }}
-    >
+    <View>
       <View style={{ paddingBottom: 16 }}>
         <SectionHeader
           title="Trending"
