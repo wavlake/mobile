@@ -9,3 +9,9 @@ export const getNewMusic = async () => {
 
   return data.data;
 };
+
+export const getTopMusic = async () => {
+  const { data } = await apiClient.get("/charts/music/top");
+
+  return data.data;
+};

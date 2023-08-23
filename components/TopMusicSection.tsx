@@ -1,0 +1,100 @@
+import { brandColors } from "../constants";
+import { SectionHeader } from "./SectionHeader";
+import { useQuery } from "@tanstack/react-query";
+import { getTopMusic } from "../utils";
+import { FlatList, Image, View } from "react-native";
+import { FireIcon } from "./FireIcon";
+import { Text } from "./Text";
+import { BadgeIcon } from "./BadgeIcon";
+
+export const TopMusicSection = () => {
+  const { data } = useQuery({ queryKey: ["topMusic"], queryFn: getTopMusic });
+
+  return (
+    <View
+      onMoveShouldSetResponder={(e) => {
+        e.stopPropagation();
+        return false;
+      }}
+    >
+      <View style={{ paddingBottom: 16 }}>
+        <SectionHeader
+          title="Trending"
+          icon={
+            <FireIcon
+              fill={brandColors.orange.DEFAULT}
+              width={30}
+              height={30}
+            />
+          }
+          rightNavText="Top 40"
+          rightNavHref="/top-40"
+        />
+      </View>
+      <FlatList
+        data={data}
+        renderItem={({ item, index }) => {
+          const { artworkUrl, title, artist } = item;
+          const isFirstRow = index === 0;
+          const artworkSize = isFirstRow ? 154 : 100;
+
+          return (
+            <View
+              style={{
+                flexDirection: "row",
+                marginBottom: 16,
+              }}
+            >
+              {!isFirstRow && (
+                <Text
+                  style={{
+                    fontSize: 36,
+                    width: 48,
+                    marginRight: 8,
+                    textAlign: "center",
+                    alignSelf: "center",
+                  }}
+                  bold
+                >
+                  {index + 1}
+                </Text>
+              )}
+              <Image
+                source={{ uri: artworkUrl }}
+                style={{ width: artworkSize, height: artworkSize }}
+              />
+              <View style={{ marginLeft: 10 }}>
+                {isFirstRow && (
+                  <View style={{ marginVertical: 8 }}>
+                    <BadgeIcon
+                      fill={brandColors.mint.DEFAULT}
+                      width={48}
+                      height={48}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 28,
+                        position: "absolute",
+                        top: 5,
+                        left: 18,
+                      }}
+                      bold
+                    >
+                      1
+                    </Text>
+                  </View>
+                )}
+                <Text style={{ fontSize: 18 }} bold>
+                  {title}
+                </Text>
+                <Text>{artist}</Text>
+              </View>
+            </View>
+          );
+        }}
+        scrollEnabled
+        showsHorizontalScrollIndicator={false}
+      />
+    </View>
+  );
+};

@@ -3,13 +3,17 @@ import {
   Text,
   Center,
   NewMusicSection,
+  TopMusicSection,
 } from "../../../components";
 
 export default function HomePage() {
   return (
     <PillTabView>
       <PillTabView.Item style={{ width: "100%" }}>
-        <NewMusicSection />
+        <>
+          <NewMusicSection />
+          <TopMusicSection />
+        </>
       </PillTabView.Item>
       <PillTabView.Item style={{ backgroundColor: "gray", width: "100%" }}>
         <Center>

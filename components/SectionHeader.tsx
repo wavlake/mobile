@@ -23,7 +23,17 @@ export const SectionHeader = ({
         alignItems: "center",
       }}
     >
-      {icon && <View style={{ width: 24, marginRight: 8 }}>{icon}</View>}
+      {icon && (
+        <View
+          style={{
+            width: 24,
+            marginRight: 8,
+            alignItems: "center",
+          }}
+        >
+          {icon}
+        </View>
+      )}
       <View
         style={{
           flexDirection: "row",
