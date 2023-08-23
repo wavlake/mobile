@@ -50,7 +50,6 @@ export const NewMusicSection = () => {
         }}
         scrollEnabled
         showsHorizontalScrollIndicator={false}
-        scrollEventThrottle={16}
       />
     </View>
   );
