@@ -2,13 +2,21 @@ import { brandColors } from "../constants";
 import { SectionHeader } from "./SectionHeader";
 import { useQuery } from "@tanstack/react-query";
 import { getTopMusic } from "../utils";
-import { FlatList, Image, View } from "react-native";
+import { FlatList, Image, LayoutChangeEvent, View } from "react-native";
 import { FireIcon } from "./FireIcon";
 import { Text } from "./Text";
 import { BadgeIcon } from "./BadgeIcon";
+import { useState } from "react";
 
 export const TopMusicSection = () => {
   const { data } = useQuery({ queryKey: ["topMusic"], queryFn: getTopMusic });
+  const [songMetadataContainerWidth, setSongMetadataContainerWidth] =
+    useState(0);
+
+  const handleSongMetadataContainerLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setSongMetadataContainerWidth(width);
+  };
 
   return (
     <View
@@ -63,7 +71,10 @@ export const TopMusicSection = () => {
                 source={{ uri: artworkUrl }}
                 style={{ width: artworkSize, height: artworkSize }}
               />
-              <View style={{ marginLeft: 10 }}>
+              <View
+                style={{ marginLeft: 10, flex: 1 }}
+                onLayout={handleSongMetadataContainerLayout}
+              >
                 {isFirstRow && (
                   <View style={{ marginVertical: 8 }}>
                     <BadgeIcon
@@ -84,7 +95,11 @@ export const TopMusicSection = () => {
                     </Text>
                   </View>
                 )}
-                <Text style={{ fontSize: 18 }} bold>
+                <Text
+                  style={{ fontSize: 18, maxWidth: songMetadataContainerWidth }}
+                  numberOfLines={3}
+                  bold
+                >
                   {title}
                 </Text>
                 <Text>{artist}</Text>
