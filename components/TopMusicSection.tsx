@@ -41,6 +41,7 @@ export const TopMusicSection = () => {
       </View>
       <FlatList
         data={data}
+        contentContainerStyle={{ paddingBottom: 236 }}
         renderItem={({ item, index }) => {
           const { artworkUrl, title, artist } = item;
           const isFirstRow = index === 0;
