@@ -109,7 +109,7 @@ export const TopMusicSection = () => {
           );
         }}
         scrollEnabled
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
