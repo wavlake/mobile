@@ -5,3 +5,4 @@ export * from "./PillTabView";
 export * from "./SearchBar";
 export * from "./SectionHeader";
 export * from "./NewBadgeIcon";
+export * from "./NewMusicSection";

@@ -2,27 +2,14 @@ import {
   PillTabView,
   Text,
   Center,
-  SectionHeader,
-  NewBadgeIcon,
+  NewMusicSection,
 } from "../../../components";
-import { brandColors } from "../../../constants";
 
 export default function HomePage() {
   return (
     <PillTabView>
       <PillTabView.Item style={{ width: "100%" }}>
-        <SectionHeader
-          title="Out Now"
-          icon={
-            <NewBadgeIcon
-              fill={brandColors.pink.DEFAULT}
-              width={24}
-              height={24}
-            />
-          }
-          rightNavText="Discover"
-          rightNavHref="/discover"
-        />
+        <NewMusicSection />
       </PillTabView.Item>
       <PillTabView.Item style={{ backgroundColor: "gray", width: "100%" }}>
         <Center>

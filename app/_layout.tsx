@@ -6,6 +6,7 @@ import {
   Poppins_400Regular,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeaderTitleLogo } from "../components";
 
 // Catch any errors thrown by the Layout component.
@@ -13,6 +14,8 @@ export { ErrorBoundary } from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function Layout() {
   const [loaded, error] = useFonts({
@@ -33,17 +36,19 @@ export default function Layout() {
 
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: "black",
-          },
-          headerShadowVisible: false,
-          headerTitle: HeaderTitleLogo,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-      </Stack>
+      <QueryClientProvider client={queryClient}>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: "black",
+            },
+            headerShadowVisible: false,
+            headerTitle: HeaderTitleLogo,
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </QueryClientProvider>
     </ThemeProvider>
   ) : null;
 }
