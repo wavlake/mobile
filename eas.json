@@ -2,7 +2,7 @@
   "build": {
     "production": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com"
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       }
     }
   }
