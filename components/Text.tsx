@@ -1,13 +1,26 @@
-import { Text as BaseText, TextProps } from "react-native";
+import {
+  Text as BaseText,
+  TextProps as BaseTextProps,
+  TextStyle,
+} from "react-native";
 import { useTheme } from "@react-navigation/native";
 
-export const Text = (props: TextProps) => {
+interface TextProps extends BaseTextProps {
+  bold?: boolean;
+  style?: TextStyle;
+}
+
+export const Text = ({ bold, style, ...rest }: TextProps) => {
   const { colors } = useTheme();
 
   return (
     <BaseText
-      style={{ color: colors.text, fontFamily: "Poppins_400Regular" }}
-      {...props}
+      {...rest}
+      style={{
+        color: colors.text,
+        fontFamily: bold ? "Poppins_700Bold" : "Poppins_400Regular",
+        ...style,
+      }}
     />
   );
 };
