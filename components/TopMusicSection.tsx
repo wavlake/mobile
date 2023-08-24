@@ -94,7 +94,7 @@ export const TopMusicSection = () => {
               )}
               <Text
                 style={{ fontSize: 18, maxWidth: songMetadataContainerWidth }}
-                numberOfLines={3}
+                numberOfLines={2}
                 bold
               >
                 {title}
