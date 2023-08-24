@@ -3,7 +3,8 @@ import { brandColors } from "../constants";
 import { SectionHeader } from "./SectionHeader";
 import { useQuery } from "@tanstack/react-query";
 import { getNewMusic } from "../utils";
-import { FlatList, Image, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { SongArtwork } from "./SongArtwork";
 
 export const NewMusicSection = () => {
   const { data } = useQuery({ queryKey: ["newMusic"], queryFn: getNewMusic });
@@ -27,20 +28,17 @@ export const NewMusicSection = () => {
         data={data}
         contentContainerStyle={{ paddingVertical: 16 }}
         renderItem={({ item, index }) => {
-          const { artworkUrl } = item;
+          const { artworkUrl, id } = item;
 
           return (
-            <Image
-              source={{
-                uri: artworkUrl,
-              }}
+            <View
+              key={id}
               style={{
-                width: 124,
-                height: 124,
                 marginRight: index === data.length - 1 ? 0 : 16,
               }}
-              key={index}
-            />
+            >
+              <SongArtwork size={124} url={artworkUrl} />
+            </View>
           );
         }}
         scrollEnabled

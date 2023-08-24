@@ -2,11 +2,12 @@ import { brandColors } from "../constants";
 import { SectionHeader } from "./SectionHeader";
 import { useQuery } from "@tanstack/react-query";
 import { getTopMusic } from "../utils";
-import { Image, LayoutChangeEvent, View } from "react-native";
+import { LayoutChangeEvent, View } from "react-native";
 import { FireIcon } from "./FireIcon";
 import { Text } from "./Text";
 import { BadgeIcon } from "./BadgeIcon";
 import { useState } from "react";
+import { SongArtwork } from "./SongArtwork";
 
 export const TopMusicSection = () => {
   const { data = [] } = useQuery({
@@ -38,13 +39,13 @@ export const TopMusicSection = () => {
         />
       </View>
       {data.map((item, index) => {
-        const { artworkUrl, title, artist } = item;
+        const { artworkUrl, title, artist, id } = item;
         const isFirstRow = index === 0;
         const artworkSize = isFirstRow ? 154 : 100;
 
         return (
           <View
-            key={index}
+            key={id}
             style={{
               flexDirection: "row",
               marginBottom: 16,
@@ -64,10 +65,7 @@ export const TopMusicSection = () => {
                 {index + 1}
               </Text>
             )}
-            <Image
-              source={{ uri: artworkUrl }}
-              style={{ width: artworkSize, height: artworkSize }}
-            />
+            <SongArtwork size={artworkSize} url={artworkUrl} />
             <View
               style={{ marginLeft: 10, flex: 1 }}
               onLayout={handleSongMetadataContainerLayout}
