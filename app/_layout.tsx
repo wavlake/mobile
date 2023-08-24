@@ -44,6 +44,8 @@ export default function Layout() {
             },
             headerShadowVisible: false,
             headerTitle: HeaderTitleLogo,
+            headerBackTitleVisible: false,
+            headerTintColor: "white",
           }}
         >
           <Stack.Screen name="(tabs)" />
