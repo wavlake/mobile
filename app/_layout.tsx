@@ -7,7 +7,7 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HeaderTitleLogo } from "../components";
+import { HeaderTitleLogo, MusicPlayerProvider } from "../components";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -37,19 +37,21 @@ export default function Layout() {
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
       <QueryClientProvider client={queryClient}>
-        <Stack
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: "black",
-            },
-            headerShadowVisible: false,
-            headerTitle: HeaderTitleLogo,
-            headerBackTitleVisible: false,
-            headerTintColor: "white",
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+        <MusicPlayerProvider>
+          <Stack
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: "black",
+              },
+              headerShadowVisible: false,
+              headerTitle: HeaderTitleLogo,
+              headerBackTitleVisible: false,
+              headerTintColor: "white",
+            }}
+          >
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </MusicPlayerProvider>
       </QueryClientProvider>
     </ThemeProvider>
   ) : null;

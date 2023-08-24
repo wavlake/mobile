@@ -7,3 +7,5 @@ export * from "./SectionHeader";
 export * from "./NewBadgeIcon";
 export * from "./NewMusicSection";
 export * from "./TopMusicSection";
+export * from "./MiniMusicPlayer";
+export * from "./MusicPlayerProvider";
