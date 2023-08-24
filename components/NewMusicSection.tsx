@@ -9,12 +9,7 @@ export const NewMusicSection = () => {
   const { data } = useQuery({ queryKey: ["newMusic"], queryFn: getNewMusic });
 
   return (
-    <View
-      onMoveShouldSetResponder={(e) => {
-        e.stopPropagation();
-        return false;
-      }}
-    >
+    <View>
       <SectionHeader
         title="Out Now"
         icon={

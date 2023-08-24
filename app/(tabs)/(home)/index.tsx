@@ -5,15 +5,16 @@ import {
   NewMusicSection,
   TopMusicSection,
 } from "../../../components";
+import { ScrollView } from "react-native";
 
 export default function HomePage() {
   return (
     <PillTabView>
       <PillTabView.Item style={{ width: "100%" }}>
-        <>
+        <ScrollView>
           <NewMusicSection />
           <TopMusicSection />
-        </>
+        </ScrollView>
       </PillTabView.Item>
       <PillTabView.Item style={{ backgroundColor: "gray", width: "100%" }}>
         <Center>

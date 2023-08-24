@@ -45,7 +45,12 @@ export const PillTabView = ({ children }: PropsWithChildren) => {
       <View style={{ padding: 8 }}>
         <SearchBar />
       </View>
-      <TabView value={index} onChange={setIndex} animationType="spring">
+      <TabView
+        value={index}
+        onChange={setIndex}
+        animationType="spring"
+        disableSwipe
+      >
         {children}
       </TabView>
     </>
