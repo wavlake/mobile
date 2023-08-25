@@ -63,9 +63,13 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     await sound.playAsync();
     setIsPlaying(true);
   };
-  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+  const onPlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
     if (status.isLoaded) {
       setPositionInMs(status.positionMillis);
+    }
+
+    if (status.isLoaded && status.didJustFinish) {
+      await clear();
     }
   };
   const play = async () => {
