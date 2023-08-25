@@ -6,8 +6,13 @@ import {
   Poppins_400Regular,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+} from "@tanstack/react-query";
 import { HeaderTitleLogo, MusicPlayerProvider } from "../components";
+import { AppState, Platform, AppStateStatus } from "react-native";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -33,6 +38,18 @@ export default function Layout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  const onAppStateChange = (status: AppStateStatus) => {
+    if (Platform.OS !== "web") {
+      focusManager.setFocused(status === "active");
+    }
+  };
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", onAppStateChange);
+
+    return () => subscription.remove();
+  }, []);
 
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
