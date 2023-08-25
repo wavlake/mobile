@@ -35,7 +35,7 @@ export const NewMusicSection = () => {
         renderItem={({ item, index }) => {
           const { liveUrl, artworkUrl, title, artist, duration, id } = item;
 
-          return liveUrl.endsWith("mp3") ? (
+          return (
             <TouchableOpacity
               key={id}
               onPress={() =>
@@ -56,7 +56,7 @@ export const NewMusicSection = () => {
                 <SongArtwork size={124} url={artworkUrl} />
               </View>
             </TouchableOpacity>
-          ) : null;
+          );
         }}
         scrollEnabled
         showsHorizontalScrollIndicator={false}
