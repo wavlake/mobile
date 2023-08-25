@@ -17,14 +17,14 @@ export const TopMusicSection = () => {
   });
   const [songMetadataContainerWidth, setSongMetadataContainerWidth] =
     useState(0);
-  const { load } = useMusicPlayer();
+  const { loadSong } = useMusicPlayer();
 
   const handleSongMetadataContainerLayout = (event: LayoutChangeEvent) => {
     const { width } = event.nativeEvent.layout;
     setSongMetadataContainerWidth(width);
   };
   const handleRowPress = async (loadParams: LoadParams) => {
-    await load(loadParams);
+    await loadSong(loadParams);
   };
 
   return (

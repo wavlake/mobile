@@ -35,3 +35,9 @@ export const getTopMusic = async (): Promise<MusicItem[]> => {
 
   return data.data;
 };
+
+export const getRandomMusic = async (): Promise<MusicItem[]> => {
+  const { data } = await apiClient.get("/tracks/random");
+
+  return data;
+};

@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
 } from "react";
 import { Audio, AVPlaybackStatus } from "expo-av";
 
@@ -27,7 +28,8 @@ interface MusicPlayerContextProps {
   currentSong: Omit<Song, "sound"> | null;
   isPlaying: boolean;
   positionInMs: number;
-  load: (params: LoadParams) => Promise<void>;
+  loadSong: (params: LoadParams) => Promise<void>;
+  loadSongList: (params: LoadParams[]) => Promise<void>;
   play: () => Promise<void>;
   pause: () => Promise<void>;
   clear: () => Promise<void>;
@@ -36,10 +38,11 @@ interface MusicPlayerContextProps {
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
+  const songQueue = useRef<LoadParams[]>([]);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [positionInMs, setPositionInMs] = useState<number>(0);
-  const load = async ({
+  const loadSong = async ({
     liveUrl,
     artworkUrl,
     title,
@@ -63,12 +66,31 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     await sound.playAsync();
     setIsPlaying(true);
   };
+  const loadSongList = async (songList: LoadParams[]) => {
+    songQueue.current = songList.slice(1);
+
+    if (songList[0]) {
+      await loadSong(songList[0]);
+    }
+  };
   const onPlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
     if (status.isLoaded) {
       setPositionInMs(status.positionMillis);
     }
 
-    if (status.isLoaded && status.didJustFinish) {
+    if (
+      status.isLoaded &&
+      status.didJustFinish &&
+      songQueue.current.length > 0
+    ) {
+      await loadSong(songQueue.current.shift()!);
+    }
+
+    if (
+      status.isLoaded &&
+      status.didJustFinish &&
+      songQueue.current.length === 0
+    ) {
       await clear();
     }
   };
@@ -83,6 +105,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const clear = async () => {
     await currentSong?.sound.unloadAsync();
     setCurrentSong(null);
+    songQueue.current = [];
+    setIsPlaying(false);
   };
 
   useEffect(() => {
@@ -106,7 +130,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
           : null,
         isPlaying,
         positionInMs,
-        load,
+        loadSong,
+        loadSongList,
         play,
         pause,
         clear,

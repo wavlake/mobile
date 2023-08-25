@@ -9,9 +9,9 @@ import { useMusicPlayer, LoadParams } from "./MusicPlayerProvider";
 
 export const NewMusicSection = () => {
   const { data } = useQuery({ queryKey: ["newMusic"], queryFn: getNewMusic });
-  const { load } = useMusicPlayer();
+  const { loadSong } = useMusicPlayer();
   const handleRowPress = async (loadParams: LoadParams) => {
-    await load(loadParams);
+    await loadSong(loadParams);
   };
 
   return (

@@ -7,10 +7,12 @@ import {
 import { Tabs } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
-import { MiniMusicPlayer } from "../../components";
+import { MiniMusicPlayer, useMusicPlayer } from "../../components";
+import { getRandomMusic } from "../../utils";
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const { loadSongList, isPlaying } = useMusicPlayer();
 
   return (
     <View style={{ flex: 1 }}>
@@ -55,6 +57,25 @@ export default function TabLayout() {
             title: "Radio",
             tabBarIcon: ({ color }) => <SignalIcon color={color} />,
           }}
+          listeners={() => ({
+            tabPress: async () => {
+              if (!isPlaying) {
+                const radomMusic = await getRandomMusic();
+
+                await loadSongList(
+                  radomMusic.map(
+                    ({ liveUrl, artworkUrl, title, artist, duration }) => ({
+                      liveUrl,
+                      artworkUrl,
+                      title,
+                      artist,
+                      durationInMs: duration * 1000,
+                    }),
+                  ),
+                );
+              }
+            },
+          })}
         />
       </Tabs>
       <View
