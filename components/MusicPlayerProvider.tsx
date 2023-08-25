@@ -62,9 +62,9 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       staysActiveInBackground: true,
     });
     sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+    setIsPlaying(true);
     setCurrentSong({ artworkUrl, title, artist, durationInMs, sound });
     await sound.playAsync();
-    setIsPlaying(true);
   };
   const loadSongList = async (songList: LoadParams[]) => {
     songQueue.current = songList.slice(1);
