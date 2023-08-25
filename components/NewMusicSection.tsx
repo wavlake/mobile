@@ -26,7 +26,7 @@ export const NewMusicSection = () => {
           />
         }
         rightNavText="Discover"
-        rightNavHref="/discover"
+        rightNavHref="/music/discover"
       />
       <FlatList
         horizontal

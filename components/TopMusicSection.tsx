@@ -40,7 +40,7 @@ export const TopMusicSection = () => {
             />
           }
           rightNavText="Top 40"
-          rightNavHref="/top-40"
+          rightNavHref="/music/top-40"
         />
       </View>
       {data.map((item, index) => {
