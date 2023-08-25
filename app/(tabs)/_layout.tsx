@@ -13,6 +13,7 @@ import { getRandomMusic } from "../../utils";
 export default function TabLayout() {
   const { colors } = useTheme();
   const { loadSongList, isPlaying } = useMusicPlayer();
+  const height = 88;
 
   return (
     <View style={{ flex: 1 }}>
@@ -26,7 +27,7 @@ export default function TabLayout() {
           tabBarStyle: {
             backgroundColor: colors.background,
             paddingTop: 8,
-            height: 88,
+            height,
           },
         }}
       >
@@ -82,7 +83,7 @@ export default function TabLayout() {
         style={{
           width: "100%",
           position: "absolute",
-          bottom: 88,
+          bottom: height,
         }}
       >
         <MiniMusicPlayer />
