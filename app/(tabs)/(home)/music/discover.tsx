@@ -1,4 +1,4 @@
-import { Center, Text } from "../../../../components";
+import { Center, Text } from "@/components";
 
 export default function DiscoverPage() {
   return (
