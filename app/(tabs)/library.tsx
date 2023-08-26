@@ -1,4 +1,4 @@
-import { Center, PillTabView, Text } from "../../components";
+import { Center, PillTabView, Text } from "@/components";
 
 export default function LibraryPage() {
   return (

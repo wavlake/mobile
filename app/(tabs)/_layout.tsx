@@ -7,8 +7,8 @@ import {
 import { Tabs } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
-import { MiniMusicPlayer, useMusicPlayer } from "../../components";
-import { getRandomMusic } from "../../utils";
+import { MiniMusicPlayer, useMusicPlayer } from "@/components";
+import { getRandomMusic } from "@/utils";
 
 export default function TabLayout() {
   const { colors } = useTheme();

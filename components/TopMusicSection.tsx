@@ -1,7 +1,7 @@
-import { brandColors } from "../constants";
+import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
 import { useQuery } from "@tanstack/react-query";
-import { getTopMusic } from "../utils";
+import { getTopMusic } from "@/utils";
 import { LayoutChangeEvent, View, TouchableOpacity } from "react-native";
 import { FireIcon } from "./FireIcon";
 import { Text } from "./Text";

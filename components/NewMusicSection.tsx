@@ -1,8 +1,8 @@
 import { NewBadgeIcon } from "./NewBadgeIcon";
-import { brandColors } from "../constants";
+import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
 import { useQuery } from "@tanstack/react-query";
-import { getNewMusic } from "../utils";
+import { getNewMusic } from "@/utils";
 import { FlatList, View, TouchableOpacity } from "react-native";
 import { SongArtwork } from "./SongArtwork";
 import { useMusicPlayer, LoadParams } from "./MusicPlayerProvider";

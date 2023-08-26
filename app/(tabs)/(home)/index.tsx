@@ -4,7 +4,7 @@ import {
   Center,
   NewMusicSection,
   TopMusicSection,
-} from "../../../components";
+} from "@/components";
 import { ScrollView } from "react-native";
 
 export default function HomePage() {

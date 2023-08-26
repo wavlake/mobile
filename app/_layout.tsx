@@ -11,7 +11,7 @@ import {
   QueryClientProvider,
   focusManager,
 } from "@tanstack/react-query";
-import { HeaderTitleLogo, MusicPlayerProvider } from "../components";
+import { HeaderTitleLogo, MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus } from "react-native";
 
 // Catch any errors thrown by the Layout component.

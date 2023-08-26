@@ -2,7 +2,7 @@ import { PropsWithChildren, useState } from "react";
 import { Tab, TabView } from "@rneui/themed";
 import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { brandColors } from "../constants";
+import { brandColors } from "@/constants";
 import { SearchBar } from "./SearchBar";
 
 export const PillTabView = ({ children }: PropsWithChildren) => {
