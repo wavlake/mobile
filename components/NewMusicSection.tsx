@@ -1,17 +1,16 @@
 import { NewBadgeIcon } from "./NewBadgeIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
-import { useQuery } from "@tanstack/react-query";
-import { getNewMusic } from "@/utils";
 import { FlatList, View, TouchableOpacity } from "react-native";
 import { SongArtwork } from "./SongArtwork";
-import { useMusicPlayer, LoadParams } from "./MusicPlayerProvider";
+import { useMusicPlayer, MusicPlayerItem } from "./MusicPlayerProvider";
+import { useNewMusic } from "@/hooks";
 
 export const NewMusicSection = () => {
-  const { data } = useQuery({ queryKey: ["newMusic"], queryFn: getNewMusic });
-  const { loadSong } = useMusicPlayer();
-  const handleRowPress = async (loadParams: LoadParams) => {
-    await loadSong(loadParams);
+  const { data } = useNewMusic();
+  const { loadItem } = useMusicPlayer();
+  const handleRowPress = async (item: MusicPlayerItem) => {
+    await loadItem(item);
   };
 
   return (

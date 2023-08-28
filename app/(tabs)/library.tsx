@@ -8,9 +8,9 @@ export default function LibraryPage() {
           <Text>Music library</Text>
         </Center>
       </PillTabView.Item>
-      <PillTabView.Item style={{ backgroundColor: "gray", width: "100%" }}>
+      <PillTabView.Item style={{ width: "100%" }}>
         <Center>
-          <Text>Podcast library</Text>
+          <Text>Podcast library coming soon</Text>
         </Center>
       </PillTabView.Item>
     </PillTabView>

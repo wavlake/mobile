@@ -9,3 +9,4 @@ export * from "./NewMusicSection";
 export * from "./TopMusicSection";
 export * from "./MiniMusicPlayer";
 export * from "./MusicPlayerProvider";
+export * from "./SongArtwork";

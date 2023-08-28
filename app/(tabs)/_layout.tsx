@@ -7,19 +7,23 @@ import {
 import { Tabs } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
-import { MiniMusicPlayer, useMusicPlayer } from "@/components";
+import { HeaderTitleLogo, MiniMusicPlayer, useMusicPlayer } from "@/components";
 import { getRandomMusic } from "@/utils";
 
 export default function TabLayout() {
   const { colors } = useTheme();
-  const { loadSongList, isPlaying } = useMusicPlayer();
+  const { loadItemList, isPlaying } = useMusicPlayer();
   const height = 88;
 
   return (
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          headerShown: false,
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
+          headerShadowVisible: false,
+          headerTitle: HeaderTitleLogo,
           tabBarActiveTintColor: colors.text,
           tabBarLabelStyle: {
             fontFamily: "Poppins_700Bold",
@@ -36,6 +40,7 @@ export default function TabLayout() {
           options={{
             title: "Home",
             tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+            headerShown: false,
           }}
         />
         <Tabs.Screen
@@ -63,7 +68,7 @@ export default function TabLayout() {
               if (!isPlaying) {
                 const radomMusic = await getRandomMusic();
 
-                await loadSongList(
+                await loadItemList(
                   radomMusic.map(
                     ({ liveUrl, artworkUrl, title, artist, duration }) => ({
                       liveUrl,

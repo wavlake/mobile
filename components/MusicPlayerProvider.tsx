@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Audio, AVPlaybackStatus } from "expo-av";
 
-export interface LoadParams {
+export interface MusicPlayerItem {
   liveUrl: string;
   artworkUrl: string;
   title: string;
@@ -28,8 +28,8 @@ interface MusicPlayerContextProps {
   currentSong: Omit<Song, "sound"> | null;
   isPlaying: boolean;
   positionInMs: number;
-  loadSong: (params: LoadParams) => Promise<void>;
-  loadSongList: (params: LoadParams[]) => Promise<void>;
+  loadItem: (item: MusicPlayerItem) => Promise<void>;
+  loadItemList: (itemList: MusicPlayerItem[]) => Promise<void>;
   play: () => Promise<void>;
   pause: () => Promise<void>;
   clear: () => Promise<void>;
@@ -38,17 +38,17 @@ interface MusicPlayerContextProps {
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
-  const songQueue = useRef<LoadParams[]>([]);
+  const songQueue = useRef<MusicPlayerItem[]>([]);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [positionInMs, setPositionInMs] = useState<number>(0);
-  const loadSong = async ({
+  const loadItem = async ({
     liveUrl,
     artworkUrl,
     title,
     artist,
     durationInMs,
-  }: LoadParams) => {
+  }: MusicPlayerItem) => {
     if (currentSong) {
       await currentSong.sound.unloadAsync();
     }
@@ -66,11 +66,11 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setCurrentSong({ artworkUrl, title, artist, durationInMs, sound });
     await sound.playAsync();
   };
-  const loadSongList = async (songList: LoadParams[]) => {
-    songQueue.current = songList.slice(1);
+  const loadItemList = async (itemList: MusicPlayerItem[]) => {
+    songQueue.current = itemList.slice(1);
 
-    if (songList[0]) {
-      await loadSong(songList[0]);
+    if (itemList[0]) {
+      await loadItem(itemList[0]);
     }
   };
   const onPlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
@@ -83,7 +83,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       status.didJustFinish &&
       songQueue.current.length > 0
     ) {
-      await loadSong(songQueue.current.shift()!);
+      await loadItem(songQueue.current.shift()!);
     }
 
     if (
@@ -130,8 +130,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
           : null,
         isPlaying,
         positionInMs,
-        loadSong,
-        loadSongList,
+        loadItem,
+        loadItemList,
         play,
         pause,
         clear,
