@@ -1,14 +1,21 @@
 {
   "build": {
     "production": {
+      "channel": "production",
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       }
     },
-    "development": {
+    "testflight": {
+      "channel": "testflight",
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
-      }
+      },
+      "distribution": "store"
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview"
     }
   }
 }
