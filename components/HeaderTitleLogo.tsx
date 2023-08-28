@@ -1,19 +1,10 @@
-import { Image, View, StyleSheet } from "react-native";
+import { View } from "react-native";
+import { LogoIcon } from "@/components/LogoIcon";
 
 export const HeaderTitleLogo = () => {
   return (
     <View>
-      <Image
-        style={styles.logo}
-        source={require("../assets/wavlake-sm-header-icon.png")}
-      />
+      <LogoIcon fill="white" width={37} height={31} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  logo: {
-    width: 37,
-    height: 31,
-  },
-});

@@ -7,7 +7,7 @@ import {
 import { Tabs } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
-import { MiniMusicPlayer, useMusicPlayer } from "@/components";
+import { HeaderTitleLogo, MiniMusicPlayer, useMusicPlayer } from "@/components";
 import { getRandomMusic } from "@/utils";
 
 export default function TabLayout() {
@@ -19,7 +19,11 @@ export default function TabLayout() {
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
-          headerShown: false,
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
+          headerShadowVisible: false,
+          headerTitle: HeaderTitleLogo,
           tabBarActiveTintColor: colors.text,
           tabBarLabelStyle: {
             fontFamily: "Poppins_700Bold",
@@ -36,6 +40,7 @@ export default function TabLayout() {
           options={{
             title: "Home",
             tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+            headerShown: false,
           }}
         />
         <Tabs.Screen
