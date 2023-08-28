@@ -4,6 +4,11 @@
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       }
+    },
+    "development": {
+      "env": {
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
+      }
     }
   }
 }
