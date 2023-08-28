@@ -5,7 +5,14 @@ import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
 import { SearchBar } from "./SearchBar";
 
-export const PillTabView = ({ children }: PropsWithChildren) => {
+interface PillTabViewProps {
+  searchShown?: boolean;
+}
+
+export const PillTabView = ({
+  searchShown = false,
+  children,
+}: PropsWithChildren<PillTabViewProps>) => {
   const [index, setIndex] = useState(0);
   const { colors } = useTheme();
 
@@ -16,6 +23,7 @@ export const PillTabView = ({ children }: PropsWithChildren) => {
           width: 300,
           alignSelf: "center",
           paddingTop: 16,
+          paddingBottom: searchShown ? 0 : 16,
         }}
       >
         <Tab
@@ -42,9 +50,11 @@ export const PillTabView = ({ children }: PropsWithChildren) => {
           <Tab.Item title="Podcasts" />
         </Tab>
       </View>
-      <View style={{ padding: 8 }}>
-        <SearchBar />
-      </View>
+      {searchShown && (
+        <View style={{ padding: 8 }}>
+          <SearchBar />
+        </View>
+      )}
       <TabView
         value={index}
         onChange={setIndex}

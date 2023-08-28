@@ -9,7 +9,7 @@ import { ScrollView } from "react-native";
 
 export default function HomePage() {
   return (
-    <PillTabView>
+    <PillTabView searchShown>
       <PillTabView.Item style={{ width: "100%" }}>
         <ScrollView>
           <NewMusicSection />
