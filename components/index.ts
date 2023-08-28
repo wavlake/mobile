@@ -10,3 +10,8 @@ export * from "./TopMusicSection";
 export * from "./MiniMusicPlayer";
 export * from "./MusicPlayerProvider";
 export * from "./SongArtwork";
+export * from "./LibraryMenu";
+export * from "./ArtistsIcon";
+export * from "./AlbumsIcon";
+export * from "./SongsIcon";
+export * from "./PlaylistsIcon";
