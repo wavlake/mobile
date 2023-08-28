@@ -16,9 +16,9 @@ export default function HomePage() {
           <TopMusicSection />
         </ScrollView>
       </PillTabView.Item>
-      <PillTabView.Item style={{ backgroundColor: "gray", width: "100%" }}>
+      <PillTabView.Item style={{ width: "100%" }}>
         <Center>
-          <Text>New and trending podcasts</Text>
+          <Text>New and trending podcasts coming soon</Text>
         </Center>
       </PillTabView.Item>
     </PillTabView>
