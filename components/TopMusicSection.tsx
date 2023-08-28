@@ -39,8 +39,6 @@ export const TopMusicSection = () => {
               height={30}
             />
           }
-          rightNavText="Top 40"
-          rightNavHref="/music/top-40"
         />
       </View>
       {data.map((item, index) => {
