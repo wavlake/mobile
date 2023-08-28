@@ -55,6 +55,7 @@ export default function TabLayout() {
           options={{
             title: "Library",
             tabBarIcon: ({ color }) => <MusicalNoteIcon color={color} />,
+            headerShown: false,
           }}
         />
         <Tabs.Screen
