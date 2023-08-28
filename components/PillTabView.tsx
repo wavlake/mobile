@@ -60,6 +60,7 @@ export const PillTabView = ({
         onChange={setIndex}
         animationType="spring"
         disableSwipe
+        disableTransition
       >
         {children}
       </TabView>
