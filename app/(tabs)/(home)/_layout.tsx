@@ -19,7 +19,7 @@ export default function HomeLayout() {
       <Stack.Screen name="index" options={{ headerTitle: HeaderTitleLogo }} />
       <Stack.Screen
         name="music/discover"
-        options={{ headerTitle: "Discover music" }}
+        options={{ headerTitle: "New music" }}
       />
     </Stack>
   );

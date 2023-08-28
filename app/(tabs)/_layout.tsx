@@ -12,7 +12,7 @@ import { getRandomMusic } from "@/utils";
 
 export default function TabLayout() {
   const { colors } = useTheme();
-  const { loadSongList, isPlaying } = useMusicPlayer();
+  const { loadItemList, isPlaying } = useMusicPlayer();
   const height = 88;
 
   return (
@@ -68,7 +68,7 @@ export default function TabLayout() {
               if (!isPlaying) {
                 const radomMusic = await getRandomMusic();
 
-                await loadSongList(
+                await loadItemList(
                   radomMusic.map(
                     ({ liveUrl, artworkUrl, title, artist, duration }) => ({
                       liveUrl,

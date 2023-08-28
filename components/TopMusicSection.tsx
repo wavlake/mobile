@@ -8,7 +8,7 @@ import { Text } from "./Text";
 import { BadgeIcon } from "./BadgeIcon";
 import { useState } from "react";
 import { SongArtwork } from "./SongArtwork";
-import { useMusicPlayer, LoadParams } from "./MusicPlayerProvider";
+import { useMusicPlayer, MusicPlayerItem } from "./MusicPlayerProvider";
 
 export const TopMusicSection = () => {
   const { data = [] } = useQuery({
@@ -17,14 +17,14 @@ export const TopMusicSection = () => {
   });
   const [songMetadataContainerWidth, setSongMetadataContainerWidth] =
     useState(0);
-  const { loadSong } = useMusicPlayer();
+  const { loadItem } = useMusicPlayer();
 
   const handleSongMetadataContainerLayout = (event: LayoutChangeEvent) => {
     const { width } = event.nativeEvent.layout;
     setSongMetadataContainerWidth(width);
   };
-  const handleRowPress = async (loadParams: LoadParams) => {
-    await loadSong(loadParams);
+  const handleRowPress = async (loadParams: MusicPlayerItem) => {
+    await loadItem(loadParams);
   };
 
   return (
