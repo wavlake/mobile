@@ -1,19 +1,22 @@
 {
   "build": {
     "production": {
-      "channel": "production",
-      "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
-      }
-    },
-    "testflight": {
-      "channel": "testflight",
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
+      "channel": "production"
+    },
+    "testflight": {
+      "env": {
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
+      },
+      "channel": "testflight",
       "distribution": "store"
     },
     "preview": {
+      "env": {
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
+      },
       "distribution": "internal",
       "channel": "preview"
     }
