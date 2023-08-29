@@ -19,7 +19,6 @@
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       },
-      "buildNumber": "2",
       "bundleIdentifier": "com.wavlake.mobile"
     },
     "android": {
