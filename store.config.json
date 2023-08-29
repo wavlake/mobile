@@ -1,0 +1,40 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-US": {
+        "title": "Wavlake",
+        "description": "A music app powered by value 4 value",
+        "keywords": ["wavlake", "music", "v4v"],
+        "marketingUrl": "https://www.wavlake.com/",
+        "supportUrl": "https://wavlake.notion.site/",
+        "privacyPolicyUrl": "https://wavlake.notion.site/Privacy-Policy-c1990e5139dc4c3dbe43343dceee15e1"
+      }
+    },
+    "categories": ["MUSIC", "ENTERTAINMENT"],
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "gambling": false,
+      "unrestrictedWebAccess": false,
+      "kidsAgeBand": null,
+      "seventeenPlus": false
+    },
+    "review": {
+      "firstName": "Josh",
+      "lastName": "Remaley",
+      "email": "josh@wavlake.com",
+      "phone": "+1 508 641 0816"
+    }
+  }
+}

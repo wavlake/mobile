@@ -36,3 +36,6 @@ yarn-error.*
 
 # WebStorm configs
 .idea
+
+# appstore key
+.appstorekey
