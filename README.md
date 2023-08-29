@@ -32,7 +32,7 @@ These are directions to build the app with EAS and then publish to testflight. T
    ```bash
    eas login
    ```
-1. Create a testflight build
+1. Create a testflight build (once an appstore connect key is set, you can auto submit by adding this flag `--auto-submit`)
    ```bash
    eas build --platform ios --profile testflight
    ```
@@ -40,3 +40,7 @@ These are directions to build the app with EAS and then publish to testflight. T
    ```bash
    eas submit --platform ios
    ```
+
+The app store metadata is saved within the `store.config.json` file. If this file is changed, you will need to push the updates to the app store using `eas metadata:push`
+
+An important thing to remember from the above example is the configVersion property. It helps with versioning changes that are not backward compatible.

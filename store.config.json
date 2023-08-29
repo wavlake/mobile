@@ -1,0 +1,16 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-US": {
+        "title": "Wavlake",
+        "subtitle": "Turn up the value for your biggest fans",
+        "description": "A music app powered by value 4 value",
+        "keywords": ["wavlake", "music", "v4v"],
+        "marketingUrl": "https://www.wavlake.com/",
+        "supportUrl": "https://wavlake.notion.site/",
+        "privacyPolicyUrl": "https://wavlake.notion.site/Privacy-Policy-c1990e5139dc4c3dbe43343dceee15e1"
+      }
+    }
+  }
+}
