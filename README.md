@@ -22,6 +22,8 @@ npx expo start --tunnel
 
 https://docs.expo.dev/build/setup/
 
+These are directions to build the app with EAS and then publish to testflight. The first time this process is done, EAS will prompt you for an appstore key file which can be obtained from an admin of the appstore account. This assumes you already have an appstore account that you can login with.
+
 1. Install eas cli tool
    ```bash
    npm install -g expo-cli
@@ -30,9 +32,9 @@ https://docs.expo.dev/build/setup/
    ```bash
    eas login
    ```
-1. Create a build
+1. Create a testflight build
    ```bash
-   eas build --platform ios
+   eas build --platform ios --profile testflight
    ```
 1. Submit to appstore
    ```bash
