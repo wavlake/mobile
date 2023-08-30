@@ -13,7 +13,7 @@ import { formatMusicItemForMusicPlayer, getRandomMusic } from "@/utils";
 export default function TabLayout() {
   const pathname = usePathname();
   const { colors } = useTheme();
-  const { loadItemList } = useMusicPlayer();
+  const { loadItemList, clear } = useMusicPlayer();
   const height = 88;
 
   return (
@@ -67,6 +67,8 @@ export default function TabLayout() {
           }}
           listeners={() => ({
             tabPress: async () => {
+              await clear();
+
               const radomMusic = await getRandomMusic();
 
               await loadItemList({

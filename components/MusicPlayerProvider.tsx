@@ -121,11 +121,11 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setIsPlaying(false);
   };
   const clear = async () => {
-    await currentSound.current?.unloadAsync();
     setCurrentSong(null);
     currentSongIndex.current = 0;
     songQueue.current = [];
     setIsPlaying(false);
+    await currentSound.current?.unloadAsync();
   };
   const pauseStatusUpdates = () => {
     isStatusUpdatesPaused.current = true;
