@@ -19,6 +19,7 @@
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       },
+      "buildNumber": "3",
       "bundleIdentifier": "com.wavlake.mobile"
     },
     "android": {
@@ -44,6 +45,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/4e7134dc-ace8-44ff-96ee-625eebfc4d7c"
-    }
+    },
+    "owner": "wavlake"
   }
 }
