@@ -1,6 +1,6 @@
 import axios from "axios";
 
-interface MusicItem {
+export interface MusicItem {
   id: string;
   title: string;
   artist: string;

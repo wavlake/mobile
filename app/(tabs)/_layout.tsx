@@ -8,7 +8,7 @@ import { Tabs } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
 import { HeaderTitleLogo, MiniMusicPlayer, useMusicPlayer } from "@/components";
-import { getRandomMusic } from "@/utils";
+import { formatMusicItemForMusicPlayer, getRandomMusic } from "@/utils";
 
 export default function TabLayout() {
   const { colors } = useTheme();
@@ -69,17 +69,10 @@ export default function TabLayout() {
               if (!isPlaying) {
                 const radomMusic = await getRandomMusic();
 
-                await loadItemList(
-                  radomMusic.map(
-                    ({ liveUrl, artworkUrl, title, artist, duration }) => ({
-                      liveUrl,
-                      artworkUrl,
-                      title,
-                      artist,
-                      durationInMs: duration * 1000,
-                    }),
-                  ),
-                );
+                await loadItemList({
+                  itemList: formatMusicItemForMusicPlayer(radomMusic),
+                  playerTitle: "Radio",
+                });
               }
             },
           })}

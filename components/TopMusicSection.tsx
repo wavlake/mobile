@@ -1,14 +1,14 @@
 import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
 import { useQuery } from "@tanstack/react-query";
-import { getTopMusic } from "@/utils";
+import { formatMusicItemForMusicPlayer, getTopMusic } from "@/utils";
 import { LayoutChangeEvent, View, TouchableOpacity } from "react-native";
 import { FireIcon } from "./FireIcon";
 import { Text } from "./Text";
 import { BadgeIcon } from "./BadgeIcon";
 import { useState } from "react";
 import { SongArtwork } from "./SongArtwork";
-import { useMusicPlayer, MusicPlayerItem } from "./MusicPlayerProvider";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 
 export const TopMusicSection = () => {
   const { data = [] } = useQuery({
@@ -17,14 +17,18 @@ export const TopMusicSection = () => {
   });
   const [songMetadataContainerWidth, setSongMetadataContainerWidth] =
     useState(0);
-  const { loadItem } = useMusicPlayer();
+  const { loadItemList } = useMusicPlayer();
 
   const handleSongMetadataContainerLayout = (event: LayoutChangeEvent) => {
     const { width } = event.nativeEvent.layout;
     setSongMetadataContainerWidth(width);
   };
-  const handleRowPress = async (loadParams: MusicPlayerItem) => {
-    await loadItem(loadParams);
+  const handleRowPress = async (index: number) => {
+    await loadItemList({
+      itemList: formatMusicItemForMusicPlayer(data),
+      startIndex: index,
+      playerTitle: "Trending",
+    });
   };
 
   return (
@@ -42,23 +46,12 @@ export const TopMusicSection = () => {
         />
       </View>
       {data.map((item, index) => {
-        const { liveUrl, artworkUrl, title, artist, duration, id } = item;
+        const { artworkUrl, title, artist, id } = item;
         const isFirstRow = index === 0;
         const artworkSize = isFirstRow ? 154 : 100;
 
         return (
-          <TouchableOpacity
-            key={id}
-            onPress={() =>
-              handleRowPress({
-                liveUrl,
-                artworkUrl,
-                title,
-                artist,
-                durationInMs: duration * 1000,
-              })
-            }
-          >
+          <TouchableOpacity key={id} onPress={() => handleRowPress(index)}>
             <View
               style={{
                 flexDirection: "row",
