@@ -32,11 +32,14 @@ interface MusicPlayerContextProps {
   isPlaying: boolean;
   positionInMs: number;
   loadItemList: LoadItemList;
+  togglePlayPause: () => Promise<void>;
   play: () => Promise<void>;
   pause: () => Promise<void>;
   clear: () => Promise<void>;
   pauseStatusUpdates: () => void;
   setPosition: (positionInMs: number) => Promise<void>;
+  back: () => Promise<void>;
+  forward: () => Promise<void>;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
@@ -51,6 +54,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [currentSong, setCurrentSong] = useState<MusicPlayerItem | null>(null);
   const [playerTitle, setPlayerTitle] = useState<string>();
 
+  const hasNext = () => currentSongIndex.current < songQueue.current.length - 1;
   const loadItem = async (item: MusicPlayerItem) => {
     if (currentSound.current) {
       await currentSound.current.unloadAsync();
@@ -95,15 +99,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       setPositionInMs(status.positionMillis);
     }
 
-    if (
-      status.isLoaded &&
-      status.didJustFinish &&
-      currentSongIndex.current < songQueue.current.length - 1
-    ) {
-      const nextSongIndex = currentSongIndex.current + 1;
-
-      await loadItem(songQueue.current[nextSongIndex]);
-      currentSongIndex.current = nextSongIndex;
+    if (status.isLoaded && status.didJustFinish && hasNext()) {
+      await forward();
     }
 
     if (
@@ -137,6 +134,41 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     await currentSound.current?.setPositionAsync(positionInMs);
     isStatusUpdatesPaused.current = false;
   };
+  const togglePlayPause = async () => {
+    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      await pause();
+    } else {
+      await play();
+    }
+  };
+  const back = async () => {
+    isStatusUpdatesPaused.current = true;
+    setPositionInMs(0);
+
+    if (positionInMs < 5000 && currentSongIndex.current > 0) {
+      const previousSongIndex = currentSongIndex.current - 1;
+
+      await loadItem(songQueue.current[previousSongIndex]);
+      currentSongIndex.current = previousSongIndex;
+    } else {
+      await currentSound.current?.replayAsync();
+    }
+    isStatusUpdatesPaused.current = false;
+  };
+  const forward = async () => {
+    if (!hasNext()) {
+      return;
+    }
+
+    const nextSongIndex = currentSongIndex.current + 1;
+
+    isStatusUpdatesPaused.current = true;
+    setPositionInMs(0);
+    await loadItem(songQueue.current[nextSongIndex]);
+    currentSongIndex.current = nextSongIndex;
+    isStatusUpdatesPaused.current = false;
+  };
 
   useEffect(() => {
     return () => {
@@ -154,9 +186,12 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         loadItemList,
         play,
         pause,
+        togglePlayPause,
         clear,
         pauseStatusUpdates,
         setPosition,
+        back,
+        forward,
       }}
     >
       {children}

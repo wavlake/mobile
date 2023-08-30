@@ -1,21 +1,21 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, Pressable } from "react-native";
 import { SongArtwork } from "./SongArtwork";
 import { Text } from "./Text";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useTheme } from "@react-navigation/native";
-import { PlayIcon, PauseIcon, XMarkIcon } from "react-native-heroicons/solid";
-import { ElementType } from "react";
+import { useRouter } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface PlayerButtonProps {
   onPress: () => void;
-  Icon: ElementType;
+  iconName: "ios-play-sharp" | "ios-pause-sharp" | "ios-close-sharp";
 }
 
-const PlayerButton = ({ onPress, Icon }: PlayerButtonProps) => {
+const PlayerButton = ({ onPress, iconName }: PlayerButtonProps) => {
   const { colors } = useTheme();
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <Pressable onPress={onPress}>
       <View
         style={{
           width: 50,
@@ -24,80 +24,78 @@ const PlayerButton = ({ onPress, Icon }: PlayerButtonProps) => {
           justifyContent: "center",
         }}
       >
-        <Icon fill={colors.text} size={36} />
+        <Ionicons name={iconName} size={36} color={colors.text} />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
 export const MiniMusicPlayer = () => {
+  const router = useRouter();
   const { colors } = useTheme();
-  const { currentSong, isPlaying, positionInMs, play, pause, clear } =
+  const { currentSong, isPlaying, positionInMs, togglePlayPause, clear } =
     useMusicPlayer();
   const { artworkUrl, title, artist, durationInMs } = currentSong || {};
   const progressBarWidth = durationInMs
     ? (positionInMs / durationInMs) * 100 || 0
     : 0;
-  const togglePlayPause = async () => {
-    if (!currentSong) {
-      return;
-    }
-
-    if (isPlaying) {
-      await pause();
-    } else {
-      await play();
-    }
-  };
 
   return currentSong ? (
-    <View style={{ backgroundColor: colors.background }}>
-      <View
-        style={{
-          flexDirection: "row",
-          padding: 10,
-        }}
-      >
-        {artworkUrl && <SongArtwork size={50} url={artworkUrl} />}
+    <Pressable onPress={() => router.push("/player")}>
+      <View style={{ backgroundColor: colors.background }}>
         <View
           style={{
             flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flex: 1,
+            padding: 10,
           }}
         >
-          <View
-            style={{ alignSelf: "flex-start", marginLeft: 10, maxWidth: 200 }}
-          >
-            <Text numberOfLines={1} bold>
-              {title}
-            </Text>
-            <Text numberOfLines={1}>{artist}</Text>
-          </View>
+          {artworkUrl && <SongArtwork size={50} url={artworkUrl} />}
           <View
             style={{
               flexDirection: "row",
+              justifyContent: "space-between",
               alignItems: "center",
-              gap: 10,
+              flex: 1,
             }}
           >
-            {isPlaying ? (
-              <PlayerButton onPress={togglePlayPause} Icon={PauseIcon} />
-            ) : (
-              <PlayerButton onPress={togglePlayPause} Icon={PlayIcon} />
-            )}
-            <PlayerButton onPress={clear} Icon={XMarkIcon} />
+            <View
+              style={{ alignSelf: "flex-start", marginLeft: 10, maxWidth: 200 }}
+            >
+              <Text numberOfLines={1} bold>
+                {title}
+              </Text>
+              <Text numberOfLines={1}>{artist}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              {isPlaying ? (
+                <PlayerButton
+                  onPress={togglePlayPause}
+                  iconName="ios-pause-sharp"
+                />
+              ) : (
+                <PlayerButton
+                  onPress={togglePlayPause}
+                  iconName="ios-play-sharp"
+                />
+              )}
+              <PlayerButton onPress={clear} iconName="ios-close-sharp" />
+            </View>
           </View>
         </View>
+        <View
+          style={{
+            height: 1,
+            backgroundColor: "gray",
+            width: `${progressBarWidth}%`,
+          }}
+        />
       </View>
-      <View
-        style={{
-          height: 1,
-          backgroundColor: "gray",
-          width: `${progressBarWidth}%`,
-        }}
-      />
-    </View>
+    </Pressable>
   ) : null;
 };

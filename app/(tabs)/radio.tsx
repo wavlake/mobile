@@ -1,9 +1,5 @@
-import { Center, Text } from "@/components";
+import { FullSizeMusicPlayer } from "@/components";
 
 export default function RadioPage() {
-  return (
-    <Center>
-      <Text>Radio page</Text>
-    </Center>
-  );
+  return <FullSizeMusicPlayer />;
 }
