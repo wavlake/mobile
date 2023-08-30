@@ -4,15 +4,16 @@ import {
   MusicalNoteIcon,
   SignalIcon,
 } from "react-native-heroicons/solid";
-import { Tabs } from "expo-router";
+import { Tabs, usePathname } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
 import { HeaderTitleLogo, MiniMusicPlayer, useMusicPlayer } from "@/components";
-import { getRandomMusic } from "@/utils";
+import { formatMusicItemForMusicPlayer, getRandomMusic } from "@/utils";
 
 export default function TabLayout() {
+  const pathname = usePathname();
   const { colors } = useTheme();
-  const { loadItemList, isPlaying } = useMusicPlayer();
+  const { loadItemList, clear } = useMusicPlayer();
   const height = 88;
 
   return (
@@ -66,34 +67,29 @@ export default function TabLayout() {
           }}
           listeners={() => ({
             tabPress: async () => {
-              if (!isPlaying) {
-                const radomMusic = await getRandomMusic();
+              await clear();
 
-                await loadItemList(
-                  radomMusic.map(
-                    ({ liveUrl, artworkUrl, title, artist, duration }) => ({
-                      liveUrl,
-                      artworkUrl,
-                      title,
-                      artist,
-                      durationInMs: duration * 1000,
-                    }),
-                  ),
-                );
-              }
+              const radomMusic = await getRandomMusic();
+
+              await loadItemList({
+                itemList: formatMusicItemForMusicPlayer(radomMusic),
+                playerTitle: "Radio",
+              });
             },
           })}
         />
       </Tabs>
-      <View
-        style={{
-          width: "100%",
-          position: "absolute",
-          bottom: height,
-        }}
-      >
-        <MiniMusicPlayer />
-      </View>
+      {pathname !== "/radio" && (
+        <View
+          style={{
+            width: "100%",
+            position: "absolute",
+            bottom: height,
+          }}
+        >
+          <MiniMusicPlayer />
+        </View>
+      )}
     </View>
   );
 }

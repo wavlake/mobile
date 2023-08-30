@@ -3,14 +3,19 @@ import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
 import { FlatList, View, TouchableOpacity } from "react-native";
 import { SongArtwork } from "./SongArtwork";
-import { useMusicPlayer, MusicPlayerItem } from "./MusicPlayerProvider";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useNewMusic } from "@/hooks";
+import { formatMusicItemForMusicPlayer } from "@/utils";
 
 export const NewMusicSection = () => {
   const { data } = useNewMusic();
-  const { loadItem } = useMusicPlayer();
-  const handleRowPress = async (item: MusicPlayerItem) => {
-    await loadItem(item);
+  const { loadItemList } = useMusicPlayer();
+  const handleRowPress = async (index: number) => {
+    await loadItemList({
+      itemList: formatMusicItemForMusicPlayer(data),
+      startIndex: index,
+      playerTitle: "New music",
+    });
   };
 
   return (
@@ -32,21 +37,10 @@ export const NewMusicSection = () => {
         data={data}
         contentContainerStyle={{ paddingVertical: 16 }}
         renderItem={({ item, index }) => {
-          const { liveUrl, artworkUrl, title, artist, duration, id } = item;
+          const { artworkUrl, id } = item;
 
           return (
-            <TouchableOpacity
-              key={id}
-              onPress={() =>
-                handleRowPress({
-                  liveUrl,
-                  artworkUrl,
-                  title,
-                  artist,
-                  durationInMs: duration * 1000,
-                })
-              }
-            >
+            <TouchableOpacity key={id} onPress={() => handleRowPress(index)}>
               <View
                 style={{
                   marginRight: index === data.length - 1 ? 0 : 16,
