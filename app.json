@@ -13,11 +13,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       },
       "bundleIdentifier": "com.wavlake.mobile"
     },
@@ -27,7 +31,9 @@
         "backgroundColor": "#000000"
       }
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router"
+    ],
     "experiments": {
       "tsconfigPaths": true
     },
@@ -44,6 +50,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/4e7134dc-ace8-44ff-96ee-625eebfc4d7c"
-    }
+    },
+    "owner": "wavlake"
   }
 }
