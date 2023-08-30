@@ -14,6 +14,7 @@ import { Text } from "./Text";
 import { Center } from "./Center";
 import { formatTime } from "@/utils";
 import { useTheme } from "@react-navigation/native";
+import { MarqueeText } from "@/components/MarqueeText";
 
 export const FullSizeMusicPlayer = () => {
   const { colors } = useTheme();
@@ -36,12 +37,10 @@ export const FullSizeMusicPlayer = () => {
       {artworkUrl && <SongArtwork size={screenWidth} url={artworkUrl} />}
       <View style={{ padding }}>
         <View style={{ maxWidth: screenWidth - padding * 2 }}>
-          <Text numberOfLines={2} bold style={{ fontSize: 20 }}>
+          <MarqueeText style={{ fontSize: 20 }} bold>
             {title}
-          </Text>
-          <Text numberOfLines={1} style={{ fontSize: 18 }}>
-            {artist}
-          </Text>
+          </MarqueeText>
+          <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
         </View>
         <View style={{ paddingVertical: padding }}>
           <Slider

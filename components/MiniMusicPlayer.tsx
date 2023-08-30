@@ -1,10 +1,10 @@
 import { View, Pressable } from "react-native";
 import { SongArtwork } from "./SongArtwork";
-import { Text } from "./Text";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { MarqueeText } from "@/components/MarqueeText";
 
 interface PlayerButtonProps {
   onPress: () => void;
@@ -61,10 +61,8 @@ export const MiniMusicPlayer = () => {
             <View
               style={{ alignSelf: "flex-start", marginLeft: 10, maxWidth: 200 }}
             >
-              <Text numberOfLines={1} bold>
-                {title}
-              </Text>
-              <Text numberOfLines={1}>{artist}</Text>
+              <MarqueeText bold>{title}</MarqueeText>
+              <MarqueeText>{artist}</MarqueeText>
             </View>
             <View
               style={{
