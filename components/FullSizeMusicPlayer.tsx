@@ -16,7 +16,7 @@ import { Center } from "./Center";
 import { formatTime } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { MarqueeText } from "@/components/MarqueeText";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 
 export const FullSizeMusicPlayer = () => {
   const { colors } = useTheme();
@@ -32,6 +32,7 @@ export const FullSizeMusicPlayer = () => {
     back,
     forward,
   } = useMusicPlayer();
+  const [isChangingSong, setIsChangingSong] = useState(false);
   const artworkUrlListRef = useRef<FlatList>(null);
   const currentSong = songQueue[currentSongIndex];
   const songQueueArtworkUrls = useMemo(
@@ -41,23 +42,37 @@ export const FullSizeMusicPlayer = () => {
   const { title, artist, durationInMs } = currentSong || {};
   const screenWidth = Dimensions.get("window").width;
   const padding = 24;
-  const handleBackPress = () => {
+  const handleBackPress = async () => {
+    if (isChangingSong) {
+      return;
+    }
+
+    setIsChangingSong(true);
+
     if (canGoBack() && artworkUrlListRef.current) {
       artworkUrlListRef.current.scrollToIndex({
         index: currentSongIndex - 1,
       });
     }
 
-    back();
+    await back();
+    setIsChangingSong(false);
   };
-  const handleForwardPress = () => {
+  const handleForwardPress = async () => {
+    if (isChangingSong) {
+      return;
+    }
+
+    setIsChangingSong(true);
+
     if (currentSongIndex < songQueue.length - 1 && artworkUrlListRef.current) {
       artworkUrlListRef.current.scrollToIndex({
         index: currentSongIndex + 1,
       });
     }
 
-    forward();
+    await forward();
+    setIsChangingSong(false);
   };
 
   return currentSong ? (
