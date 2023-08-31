@@ -34,7 +34,11 @@ export const FullSizeMusicPlayer = () => {
 
   return currentSong ? (
     <View style={{ paddingTop: 8 }}>
-      {artworkUrl && <SongArtwork size={screenWidth} url={artworkUrl} />}
+      {artworkUrl && (
+        <View style={{ alignItems: "center" }}>
+          <SongArtwork size={screenWidth - padding * 2} url={artworkUrl} />
+        </View>
+      )}
       <View style={{ padding }}>
         <View style={{ maxWidth: screenWidth - padding * 2 }}>
           <MarqueeText style={{ fontSize: 20 }} bold>
