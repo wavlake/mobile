@@ -11,7 +11,7 @@ export const formatMusicItemForMusicPlayer = (itemList: MusicItem[]) => {
 };
 
 export const formatTime = (milliseconds: number) => {
-  const totalSeconds = Math.floor(milliseconds / 1000);
+  const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
