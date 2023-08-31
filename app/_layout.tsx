@@ -11,7 +11,7 @@ import {
   QueryClientProvider,
   focusManager,
 } from "@tanstack/react-query";
-import { ModalCloseButton, MusicPlayerProvider } from "@/components";
+import { MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus } from "react-native";
 
 // Catch any errors thrown by the Layout component.
@@ -64,15 +64,8 @@ export default function Layout() {
             <Stack.Screen
               name="player"
               options={{
-                presentation: "modal",
-                headerShown: true,
-                headerStyle: {
-                  backgroundColor: "black",
-                },
-                headerShadowVisible: false,
-                headerTitle: "",
-                headerLeft: () => <ModalCloseButton />,
-                headerTintColor: "white",
+                gestureDirection: "vertical",
+                headerShown: false,
               }}
             />
           </Stack>
