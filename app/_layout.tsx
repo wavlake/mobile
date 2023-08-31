@@ -64,8 +64,13 @@ export default function Layout() {
             <Stack.Screen
               name="player"
               options={{
-                gestureDirection: "vertical",
-                headerShown: false,
+                headerShown: true,
+                headerStyle: {
+                  backgroundColor: "black",
+                },
+                headerShadowVisible: false,
+                headerTintColor: "white",
+                headerBackTitleVisible: false,
               }}
             />
           </Stack>
