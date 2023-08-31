@@ -1,8 +1,10 @@
 import { Pressable } from "react-native";
 import { ChevronDownIcon } from "react-native-heroicons/solid";
 import { useRouter } from "expo-router";
+import { useTheme } from "@react-navigation/native";
 
 export const ModalCloseButton = () => {
+  const { colors } = useTheme();
   const router = useRouter();
   const isPresented = router.canGoBack();
   const handlePress = () => {
@@ -15,7 +17,7 @@ export const ModalCloseButton = () => {
 
   return (
     <Pressable onPress={handlePress}>
-      <ChevronDownIcon />
+      <ChevronDownIcon fill={colors.text} />
     </Pressable>
   );
 };

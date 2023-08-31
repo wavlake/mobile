@@ -33,8 +33,15 @@ const PlayerButton = ({ onPress, iconName }: PlayerButtonProps) => {
 export const MiniMusicPlayer = () => {
   const router = useRouter();
   const { colors } = useTheme();
-  const { currentSong, isPlaying, positionInMs, togglePlayPause, clear } =
-    useMusicPlayer();
+  const {
+    songQueue,
+    currentSongIndex,
+    isPlaying,
+    positionInMs,
+    togglePlayPause,
+    clear,
+  } = useMusicPlayer();
+  const currentSong = songQueue[currentSongIndex];
   const { artworkUrl, title, artist, durationInMs } = currentSong || {};
   const progressBarWidth = durationInMs
     ? (positionInMs / durationInMs) * 100 || 0
