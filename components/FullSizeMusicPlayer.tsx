@@ -26,7 +26,7 @@ export const FullSizeMusicPlayer = () => {
     positionInMs,
     pauseStatusUpdates,
     setPosition,
-    isPlaying,
+    status,
     togglePlayPause,
     canGoBack,
     back,
@@ -155,13 +155,14 @@ export const FullSizeMusicPlayer = () => {
                   paddingLeft: 4,
                 }}
               >
-                {isPlaying ? (
+                {status === "playing" && (
                   <Ionicons
                     name="ios-pause-circle-sharp"
                     size={80}
                     color={colors.text}
                   />
-                ) : (
+                )}
+                {status === "paused" && (
                   <Ionicons
                     name="ios-play-circle-sharp"
                     size={80}

@@ -36,7 +36,7 @@ export const MiniMusicPlayer = () => {
   const {
     songQueue,
     currentSongIndex,
-    isPlaying,
+    status,
     positionInMs,
     togglePlayPause,
     clear,
@@ -78,12 +78,13 @@ export const MiniMusicPlayer = () => {
                 gap: 10,
               }}
             >
-              {isPlaying ? (
+              {status === "playing" && (
                 <PlayerButton
                   onPress={togglePlayPause}
                   iconName="ios-pause-sharp"
                 />
-              ) : (
+              )}
+              {status === "paused" && (
                 <PlayerButton
                   onPress={togglePlayPause}
                   iconName="ios-play-sharp"
