@@ -16,7 +16,8 @@ import { Center } from "./Center";
 import { formatTime } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { MarqueeText } from "@/components/MarqueeText";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePrevious } from "@/hooks";
 
 export const FullSizeMusicPlayer = () => {
   const { colors } = useTheme();
@@ -32,6 +33,7 @@ export const FullSizeMusicPlayer = () => {
     back,
     forward,
   } = useMusicPlayer();
+  const previousSongIndex = usePrevious(currentSongIndex);
   const [isChangingSong, setIsChangingSong] = useState(false);
   const artworkUrlListRef = useRef<FlatList>(null);
   const currentSong = songQueue[currentSongIndex];
@@ -74,6 +76,18 @@ export const FullSizeMusicPlayer = () => {
     await forward();
     setIsChangingSong(false);
   };
+
+  useEffect(() => {
+    if (
+      previousSongIndex !== undefined &&
+      currentSongIndex > previousSongIndex &&
+      artworkUrlListRef.current
+    ) {
+      artworkUrlListRef.current.scrollToIndex({
+        index: currentSongIndex,
+      });
+    }
+  }, [previousSongIndex, currentSongIndex]);
 
   return currentSong ? (
     <View style={{ paddingTop: 8 }}>
