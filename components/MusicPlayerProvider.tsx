@@ -26,11 +26,13 @@ type LoadItemList = ({
   startIndex?: number;
 }) => Promise<void>;
 
+type Status = "playing" | "paused" | "off";
+
 interface MusicPlayerContextProps {
   songQueue: MusicPlayerItem[];
   currentSongIndex: number;
   playerTitle?: string;
-  isPlaying: boolean;
+  status: Status;
   positionInMs: number;
   loadItemList: LoadItemList;
   togglePlayPause: () => Promise<void>;
@@ -51,7 +53,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const currentSound = useRef<Audio.Sound | null>(null);
   const currentSongIndex = useRef(0);
   const isStatusUpdatesPaused = useRef(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [status, setStatus] = useState<Status>("off");
   const [positionInMs, setPositionInMs] = useState<number>(0);
   const [playerTitle, setPlayerTitle] = useState<string>();
 
@@ -71,7 +73,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       staysActiveInBackground: true,
     });
     sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
-    setIsPlaying(true);
+    setStatus("playing");
     await sound.playAsync();
   };
   const loadItemList: LoadItemList = async ({
@@ -108,22 +110,22 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       status.didJustFinish &&
       currentSongIndex.current >= songQueue.current.length - 1
     ) {
-      setIsPlaying(false);
+      setStatus("paused");
       await currentSound.current?.setPositionAsync(0);
     }
   };
   const play = async () => {
     await currentSound.current?.playAsync();
-    setIsPlaying(true);
+    setStatus("playing");
   };
   const pause = async () => {
     await currentSound.current?.pauseAsync();
-    setIsPlaying(false);
+    setStatus("paused");
   };
   const clear = async () => {
     currentSongIndex.current = 0;
     songQueue.current = [];
-    setIsPlaying(false);
+    setStatus("off");
     await currentSound.current?.unloadAsync();
   };
   const pauseStatusUpdates = () => {
@@ -134,10 +136,11 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     isStatusUpdatesPaused.current = false;
   };
   const togglePlayPause = async () => {
-    setIsPlaying(!isPlaying);
-    if (isPlaying) {
+    if (status === "playing") {
+      setStatus("paused");
       await pause();
-    } else {
+    } else if (status === "paused") {
+      setStatus("playing");
       await play();
     }
   };
@@ -184,7 +187,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         songQueue: songQueue.current,
         currentSongIndex: currentSongIndex.current,
         playerTitle,
-        isPlaying,
+        status,
         positionInMs,
         loadItemList,
         play,
