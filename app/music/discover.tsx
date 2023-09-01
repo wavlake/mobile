@@ -8,6 +8,7 @@ import {
 import { Text, SongArtwork, useMusicPlayer } from "@/components";
 import { useNewMusic } from "@/hooks";
 import { formatMusicItemForMusicPlayer } from "@/utils";
+import { Stack } from "expo-router";
 
 export default function DiscoverPage() {
   const { data } = useNewMusic();
@@ -29,6 +30,7 @@ export default function DiscoverPage() {
 
   return (
     <View style={{ height: "100%", paddingTop: 16 }}>
+      <Stack.Screen options={{ headerTitle: "New music" }} />
       <FlatList
         data={data}
         renderItem={({ item, index }) => {

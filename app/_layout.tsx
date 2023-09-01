@@ -57,22 +57,15 @@ export default function Layout() {
         <MusicPlayerProvider>
           <Stack
             screenOptions={{
-              headerShown: false,
+              headerStyle: {
+                backgroundColor: "black",
+              },
+              headerShadowVisible: false,
+              headerTintColor: "white",
+              headerBackTitleVisible: false,
             }}
           >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen
-              name="player"
-              options={{
-                headerShown: true,
-                headerStyle: {
-                  backgroundColor: "black",
-                },
-                headerShadowVisible: false,
-                headerTintColor: "white",
-                headerBackTitleVisible: false,
-              }}
-            />
+            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
           </Stack>
         </MusicPlayerProvider>
       </QueryClientProvider>
