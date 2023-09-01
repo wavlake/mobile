@@ -7,15 +7,7 @@ import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { useState } from "react";
 
-interface PlayerControlsProps {
-  onBackPress?: () => void;
-  onForwardPress?: () => void;
-}
-
-export const PlayerControls = ({
-  onBackPress = () => {},
-  onForwardPress = () => {},
-}: PlayerControlsProps) => {
+export const PlayerControls = () => {
   const { colors } = useTheme();
   const {
     songQueue,
@@ -38,7 +30,6 @@ export const PlayerControls = ({
     }
 
     setIsChangingSong(true);
-    onBackPress();
     await back();
     setIsChangingSong(false);
   };
@@ -48,7 +39,6 @@ export const PlayerControls = ({
     }
 
     setIsChangingSong(true);
-    onForwardPress();
     await forward();
     setIsChangingSong(false);
   };
