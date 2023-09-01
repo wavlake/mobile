@@ -20,7 +20,10 @@
         "UIBackgroundModes": ["audio"]
       },
       "buildNumber": "2",
-      "bundleIdentifier": "com.wavlake.mobile"
+      "bundleIdentifier": "com.wavlake.mobile",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
