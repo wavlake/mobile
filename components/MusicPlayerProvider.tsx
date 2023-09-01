@@ -101,17 +101,18 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       setPositionInMs(status.positionMillis);
     }
 
-    if (status.isLoaded && status.didJustFinish && hasNext()) {
-      await forward();
-    }
-
-    if (
+    const hasLastTrackInQueueJustFinished =
       status.isLoaded &&
       status.didJustFinish &&
-      currentSongIndex.current >= songQueue.current.length - 1
-    ) {
+      currentSongIndex.current >= songQueue.current.length - 1;
+
+    if (hasLastTrackInQueueJustFinished) {
       setStatus("paused");
       await currentSound.current?.setPositionAsync(0);
+    }
+
+    if (status.isLoaded && status.didJustFinish && hasNext()) {
+      await forward();
     }
   };
   const play = async () => {
