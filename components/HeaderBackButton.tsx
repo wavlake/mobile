@@ -2,8 +2,13 @@ import { Pressable } from "react-native";
 import { ChevronDownIcon } from "react-native-heroicons/solid";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-export const ModalCloseButton = () => {
+interface HeaderTitleProps {
+  direction?: "left" | "down";
+}
+
+export const HeaderBackButton = ({ direction = "left" }: HeaderTitleProps) => {
   const { colors } = useTheme();
   const router = useRouter();
   const isPresented = router.canGoBack();
@@ -17,7 +22,10 @@ export const ModalCloseButton = () => {
 
   return (
     <Pressable onPress={handlePress}>
-      <ChevronDownIcon fill={colors.text} />
+      {direction === "left" && (
+        <Icon name="chevron-left" size={40} color={colors.text} />
+      )}
+      {direction === "down" && <ChevronDownIcon fill={colors.text} />}
     </Pressable>
   );
 };

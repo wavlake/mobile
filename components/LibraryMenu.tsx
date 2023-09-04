@@ -29,7 +29,12 @@ const LibraryMenuItem = ({
         alignItems: "center",
         flexDirection: "row",
       }}
-      onPress={() => router.push(href)}
+      onPress={() => {
+        router.push({
+          pathname: href,
+          params: { headerTitle: title, includeBackButton: true },
+        });
+      }}
     >
       <View style={{ marginLeft: -34 }}>
         <Icon fill={colors.background} width={120} height={120} />

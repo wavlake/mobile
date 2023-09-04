@@ -17,4 +17,4 @@ export * from "./ArtistsIcon";
 export * from "./AlbumsIcon";
 export * from "./SongsIcon";
 export * from "./PlaylistsIcon";
-export * from "./ModalCloseButton";
+export * from "./HeaderBackButton";
