@@ -28,6 +28,7 @@ export default function DrawerLayout() {
         headerTintColor: colors.text,
         drawerLabelStyle: { color: colors.text },
         drawerStatusBarAnimation: "none",
+        swipeEdgeWidth: 0,
       }}
       drawerContent={(props) => {
         return (
