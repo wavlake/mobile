@@ -30,7 +30,10 @@ export const NewMusicSection = () => {
           />
         }
         rightNavText="Discover"
-        rightNavHref="/music/discover"
+        rightNavHref={{
+          pathname: "/music/discover",
+          params: { headerTitle: "New music", includeBackButton: true },
+        }}
       />
       <FlatList
         horizontal

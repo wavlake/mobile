@@ -1,12 +1,20 @@
 import { Drawer } from "expo-router/drawer";
-import { HeaderTitleLogo, Text } from "@/components";
+import { HeaderBackButton, HeaderTitleLogo, Text } from "@/components";
 import { useTheme } from "@react-navigation/native";
-import { useRouter } from "expo-router";
+import { useRouter, useGlobalSearchParams } from "expo-router";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 
 export default function DrawerLayout() {
   const { colors } = useTheme();
   const router = useRouter();
+  const globalSearchParams = useGlobalSearchParams();
+  const headerTitle =
+    typeof globalSearchParams.headerTitle === "string"
+      ? globalSearchParams.headerTitle
+      : HeaderTitleLogo;
+  const headerLeft = globalSearchParams.includeBackButton
+    ? () => <HeaderBackButton />
+    : undefined;
 
   return (
     <Drawer
@@ -15,9 +23,11 @@ export default function DrawerLayout() {
           backgroundColor: colors.background,
         },
         headerShadowVisible: false,
-        headerTitle: HeaderTitleLogo,
+        headerTitle,
+        headerLeft,
         headerTintColor: colors.text,
         drawerLabelStyle: { color: colors.text },
+        drawerStatusBarAnimation: "none",
       }}
       drawerContent={(props) => {
         return (

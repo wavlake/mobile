@@ -2,7 +2,7 @@ import { View, Pressable } from "react-native";
 import { SongArtwork } from "./SongArtwork";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useTheme } from "@react-navigation/native";
-import { useRouter } from "expo-router";
+import { useRouter, useGlobalSearchParams } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { MarqueeText } from "@/components/MarqueeText";
 
@@ -31,6 +31,7 @@ const PlayerButton = ({ onPress, iconName }: PlayerButtonProps) => {
 };
 
 export const MiniMusicPlayer = () => {
+  const globalSearchParams = useGlobalSearchParams();
   const router = useRouter();
   const { colors } = useTheme();
   const {
@@ -48,7 +49,11 @@ export const MiniMusicPlayer = () => {
     : 0;
 
   return currentSong ? (
-    <Pressable onPress={() => router.push("/player")}>
+    <Pressable
+      onPress={() =>
+        router.push({ pathname: "/player", params: globalSearchParams })
+      }
+    >
       <View style={{ backgroundColor: colors.background }}>
         <View
           style={{

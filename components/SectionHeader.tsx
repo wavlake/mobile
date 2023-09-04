@@ -7,7 +7,7 @@ interface SectionHeaderProps {
   title: string;
   icon?: ReactNode;
   rightNavText?: string;
-  rightNavHref?: string;
+  rightNavHref?: { pathname: string; params: Record<string, any> };
 }
 
 export const SectionHeader = ({
