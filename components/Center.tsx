@@ -1,8 +1,13 @@
-import { StyleSheet, View } from "react-native";
-import { PropsWithChildren } from "react";
+import { StyleSheet, View, ViewProps } from "react-native";
 
-export const Center = ({ children }: PropsWithChildren) => {
-  return <View style={styles.container}>{children}</View>;
+interface CenterProps extends ViewProps {}
+
+export const Center = ({ children, style, ...rest }: CenterProps) => {
+  return (
+    <View {...rest} style={[style, styles.container]}>
+      {children}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
