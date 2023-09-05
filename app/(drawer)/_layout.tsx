@@ -36,7 +36,7 @@ export default function DrawerLayout() {
             <DrawerItem
               label={() => <Text style={{ fontSize: 24 }}>Login</Text>}
               onPress={() => {
-                router.push("/login");
+                router.push("/auth");
                 props.navigation.closeDrawer();
               }}
             />
