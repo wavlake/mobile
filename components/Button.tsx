@@ -1,10 +1,12 @@
-import { Button as BaseButton } from "@rneui/themed";
+import {
+  Button as BaseButton,
+  ButtonProps as BaseButtonProps,
+} from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { Text } from "@/components/Text";
 import { PropsWithChildren } from "react";
-import { TouchableOpacityProps } from "react-native";
 
-interface ButtonProps extends TouchableOpacityProps {
+interface ButtonProps extends BaseButtonProps {
   color?: string;
   fullWidth?: boolean;
 }

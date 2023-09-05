@@ -20,3 +20,4 @@ export * from "./PlaylistsIcon";
 export * from "./HeaderBackButton";
 export * from "./LogoIcon";
 export * from "./Button";
+export * from "./TextInput";

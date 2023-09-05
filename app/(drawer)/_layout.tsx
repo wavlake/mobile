@@ -3,6 +3,7 @@ import { HeaderBackButton, HeaderTitleLogo, Text } from "@/components";
 import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
+import { useAuth } from "@/hooks";
 
 export default function DrawerLayout() {
   const { colors } = useTheme();
@@ -15,6 +16,7 @@ export default function DrawerLayout() {
   const headerLeft = globalSearchParams.includeBackButton
     ? () => <HeaderBackButton />
     : undefined;
+  const { isLoggedIn, logout } = useAuth();
 
   return (
     <Drawer
@@ -34,10 +36,18 @@ export default function DrawerLayout() {
         return (
           <DrawerContentScrollView {...props}>
             <DrawerItem
-              label={() => <Text style={{ fontSize: 24 }}>Login</Text>}
-              onPress={() => {
-                router.push("/auth");
-                props.navigation.closeDrawer();
+              label={() => (
+                <Text style={{ fontSize: 24 }}>
+                  {isLoggedIn ? "Logout" : "Login"}
+                </Text>
+              )}
+              onPress={async () => {
+                if (isLoggedIn) {
+                  await logout();
+                } else {
+                  router.push("/auth");
+                  props.navigation.closeDrawer();
+                }
               }}
             />
           </DrawerContentScrollView>

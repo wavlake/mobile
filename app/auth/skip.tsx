@@ -1,9 +1,10 @@
 import { Button, Center, Text } from "@/components";
-import { Stack, useNavigation } from "expo-router";
+import { Stack } from "expo-router";
 import { View } from "react-native";
+import { useAuth } from "@/hooks";
 
 export default function Skip() {
-  const navigation = useNavigation();
+  const { goToRoot } = useAuth();
 
   return (
     <>
@@ -18,13 +19,7 @@ export default function Skip() {
             later if you wish.
           </Text>
         </View>
-        <Button
-          onPress={() => {
-            navigation.getParent()?.goBack();
-          }}
-        >
-          Just let me in
-        </Button>
+        <Button onPress={goToRoot}>Just let me in</Button>
       </Center>
     </>
   );
