@@ -1,7 +1,8 @@
-import { decodeNsec } from "@/utils";
+import { decodeNsec, getPublicKey } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { useMemo } from "react";
 
 const seckey = "seckey";
 
@@ -24,6 +25,13 @@ export const useAuth = () => {
     queryFn: getSeckey,
     staleTime: Infinity,
   });
+  const pubkey = useMemo(() => {
+    try {
+      return data ? getPublicKey(data) : null;
+    } catch {
+      return null;
+    }
+  }, [data]);
   const login = async (nsec: string) => {
     const seckey = decodeNsec(nsec);
 
@@ -44,5 +52,5 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, isLoggedIn: Boolean(data), goToRoot };
+  return { login, logout, pubkey, goToRoot };
 };

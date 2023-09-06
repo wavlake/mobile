@@ -16,7 +16,7 @@ export default function DrawerLayout() {
   const headerLeft = globalSearchParams.includeBackButton
     ? () => <HeaderBackButton />
     : undefined;
-  const { isLoggedIn, logout } = useAuth();
+  const { pubkey, logout } = useAuth();
 
   return (
     <Drawer
@@ -38,11 +38,11 @@ export default function DrawerLayout() {
             <DrawerItem
               label={() => (
                 <Text style={{ fontSize: 24 }}>
-                  {isLoggedIn ? "Logout" : "Login"}
+                  {pubkey ? "Logout" : "Login"}
                 </Text>
               )}
               onPress={async () => {
-                if (isLoggedIn) {
+                if (pubkey) {
                   await logout();
                 } else {
                   router.push("/auth");
