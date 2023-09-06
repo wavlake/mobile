@@ -1,14 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProfileMetadata } from "@/utils";
+import { getCachedNostrProfile, getProfileMetadata } from "@/utils";
 
-export const useNostrProfile = (pubkey: string | null) => {
+const useFreshNostrProfile = (pubkey: string | null) => {
   const { data } = useQuery({
-    queryKey: ["nostrProfile", pubkey],
+    queryKey: ["freshNostrProfile", pubkey],
     queryFn: () => getProfileMetadata(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  return data
-    ? { avatarUrl: data.picture, username: data.display_name || data.name }
-    : null;
+  return data;
+};
+
+const useCachedNostrProfile = (pubkey: string | null) => {
+  const { data } = useQuery({
+    queryKey: ["cachedNostrProfile", pubkey],
+    queryFn: () => getCachedNostrProfile(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  return data;
+};
+
+export const useNostrProfile = (pubkey: string | null) => {
+  const freshNostrProfile = useFreshNostrProfile(pubkey);
+  const cachedNostrProfile = useCachedNostrProfile(pubkey);
+  const profile = freshNostrProfile ?? cachedNostrProfile;
+
+  if (!profile) {
+    return null;
+  }
+
+  return {
+    avatarUrl: profile.picture,
+    username: profile.display_name || profile.name,
+  };
 };

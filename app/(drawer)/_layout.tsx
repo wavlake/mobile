@@ -24,6 +24,7 @@ export default function DrawerLayout() {
     if (!pubkey) {
       return null;
     }
+
     return (
       <View style={{ marginRight: 16 }}>
         {avatarUrl ? (

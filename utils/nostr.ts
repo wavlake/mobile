@@ -2,6 +2,7 @@
 import "fast-text-encoding";
 
 import { nip19, relayInit, Filter, Event } from "nostr-tools";
+import { cacheNostrProfile } from "@/utils/cache";
 
 export { getPublicKey } from "nostr-tools";
 
@@ -71,6 +72,8 @@ export const getProfileMetadata = async (pubkey: string) => {
     const mostRecentProfileEvent = events.sort(
       (a, b) => b.created_at - a.created_at,
     )[0];
+
+    cacheNostrProfile(pubkey, mostRecentProfileEvent.content);
 
     return JSON.parse(mostRecentProfileEvent.content);
   } catch {
