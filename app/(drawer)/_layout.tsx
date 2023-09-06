@@ -3,12 +3,15 @@ import { HeaderBackButton, HeaderTitleLogo, Text } from "@/components";
 import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-import { useAuth } from "@/hooks";
+import { useAuth, useNostrProfile } from "@/hooks";
+import { Avatar } from "@rneui/themed";
+import { View } from "react-native";
 
 export default function DrawerLayout() {
   const { colors } = useTheme();
   const router = useRouter();
   const globalSearchParams = useGlobalSearchParams();
+  const { pubkey, logout } = useAuth();
   const headerTitle =
     typeof globalSearchParams.headerTitle === "string"
       ? globalSearchParams.headerTitle
@@ -16,7 +19,26 @@ export default function DrawerLayout() {
   const headerLeft = globalSearchParams.includeBackButton
     ? () => <HeaderBackButton />
     : undefined;
-  const { pubkey, logout } = useAuth();
+  const { avatarUrl } = useNostrProfile(pubkey) ?? {};
+  const headerRight = () => {
+    if (!pubkey) {
+      return null;
+    }
+    return (
+      <View style={{ marginRight: 16 }}>
+        {avatarUrl ? (
+          <Avatar size={24} rounded source={{ uri: avatarUrl }} />
+        ) : (
+          <Avatar
+            size={32}
+            rounded
+            icon={{ name: "user", type: "font-awesome" }}
+            containerStyle={{ backgroundColor: "#696969" }}
+          />
+        )}
+      </View>
+    );
+  };
 
   return (
     <Drawer
@@ -27,6 +49,7 @@ export default function DrawerLayout() {
         headerShadowVisible: false,
         headerTitle,
         headerLeft,
+        headerRight,
         headerTintColor: colors.text,
         drawerLabelStyle: { color: colors.text },
         drawerStatusBarAnimation: "none",
