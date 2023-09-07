@@ -16,7 +16,7 @@ export const decodeNsec = (nsec: string) => {
   }
 };
 
-const getEventFromRelay = async (
+const getEventFromRelay = (
   relayUri: string,
   filter: Filter,
 ): Promise<Event | null> => {
@@ -42,36 +42,47 @@ const getEventFromRelay = async (
  * This function is more complicated than it needs to be because SimplePool would not work for some reason.
  * TODO: make an endpoint to fetch nostr profile metadata and remove this function.
  */
+const getEventFromPool = async (
+  filter: Filter,
+  relayUris: string[] = [
+    "wss://purplepag.es",
+    "wss://relay.nostr.band",
+    "wss://relay.damus.io",
+    "wss://nostr.wine",
+    "wss://relay.snort.social",
+    "wss://relay.wavlake.com",
+  ],
+) => {
+  const promises = relayUris.map((relayUri) =>
+    getEventFromRelay(relayUri, filter),
+  );
+  const events = (await Promise.allSettled(promises))
+    .map((result) => {
+      if (result.status === "fulfilled") {
+        return result.value;
+      }
+    })
+    .filter((result) => {
+      return result !== undefined && result !== null;
+    }) as Event[];
+
+  if (events.length === 0) {
+    return null;
+  }
+
+  return events.sort((a, b) => b.created_at - a.created_at)[0];
+};
+
 export const getProfileMetadata = async (pubkey: string) => {
   try {
-    const relays = [
-      "wss://purplepag.es",
-      "wss://relay.nostr.band",
-      "wss://relay.damus.io",
-      "wss://nostr.wine",
-      "wss://relay.snort.social",
-      "wss://relay.wavlake.com",
-    ];
-    const promises = relays.map((relayUri) =>
-      getEventFromRelay(relayUri, { kinds: [0], authors: [pubkey] }),
-    );
-    const events = (await Promise.allSettled(promises))
-      .map((result) => {
-        if (result.status === "fulfilled") {
-          return result.value;
-        }
-      })
-      .filter((result) => {
-        return result !== undefined && result !== null;
-      }) as Event[];
+    const mostRecentProfileEvent = await getEventFromPool({
+      kinds: [0],
+      authors: [pubkey],
+    });
 
-    if (events.length === 0) {
+    if (mostRecentProfileEvent === null) {
       return null;
     }
-
-    const mostRecentProfileEvent = events.sort(
-      (a, b) => b.created_at - a.created_at,
-    )[0];
 
     cacheNostrProfile(pubkey, mostRecentProfileEvent.content);
 
