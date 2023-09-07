@@ -10,7 +10,8 @@ interface AvatarProps {
 }
 
 export const Avatar = ({ size }: AvatarProps) => {
-  const { avatarUrl } = useNostrProfile() ?? {};
+  const profile = useNostrProfile();
+  const avatarUrl = profile?.picture;
 
   return (
     <>

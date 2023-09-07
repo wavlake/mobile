@@ -47,12 +47,7 @@ export const useNostrProfile = () => {
   }
 
   try {
-    const profile = JSON.parse(mostRecentProfileEvent.content);
-
-    return {
-      avatarUrl: profile.picture,
-      username: profile.display_name || profile.name,
-    };
+    return JSON.parse(mostRecentProfileEvent.content);
   } catch {
     return null;
   }
