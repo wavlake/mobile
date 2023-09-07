@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Event } from "nostr-tools";
 
 const storeData = async (key: string, value: string) => {
   await AsyncStorage.setItem(key, value);
@@ -8,19 +9,19 @@ const getData = async (key: string) => {
   return await AsyncStorage.getItem(key);
 };
 
-const makeNostrProfileKey = (pubkey: string) => `${pubkey}.profile`;
+const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 
-export const cacheNostrProfile = async (pubkey: string, profile: string) => {
-  const nostrProfileKey = makeNostrProfileKey(pubkey);
+export const cacheNostrProfileEvent = async (pubkey: string, event: Event) => {
+  const nostrProfileEventKey = makeNostrProfileEventKey(pubkey);
 
-  await storeData(nostrProfileKey, profile);
+  await storeData(nostrProfileEventKey, JSON.stringify(event));
 };
 
-export const getCachedNostrProfile = async (pubkey: string) => {
-  const nostrProfileKey = makeNostrProfileKey(pubkey);
+export const getCachedNostrProfileEvent = async (pubkey: string) => {
+  const nostrProfileEventKey = makeNostrProfileEventKey(pubkey);
 
   try {
-    const profile = await getData(nostrProfileKey);
+    const profile = await getData(nostrProfileEventKey);
 
     return profile ? JSON.parse(profile) : null;
   } catch {

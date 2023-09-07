@@ -2,7 +2,10 @@
 import "fast-text-encoding";
 
 import { nip19, relayInit, Filter, Event } from "nostr-tools";
-import { cacheNostrProfile } from "@/utils/cache";
+import {
+  cacheNostrProfileEvent,
+  getCachedNostrProfileEvent,
+} from "@/utils/cache";
 
 export { getPublicKey } from "nostr-tools";
 
@@ -14,6 +17,10 @@ export const decodeNsec = (nsec: string) => {
   } catch {
     return null;
   }
+};
+
+export const getMostRecentEvent = (events: Event[]) => {
+  return events.sort((a, b) => b.created_at - a.created_at)[0];
 };
 
 const getEventFromRelay = (
@@ -70,11 +77,12 @@ const getEventFromPool = async (
     return null;
   }
 
-  return events.sort((a, b) => b.created_at - a.created_at)[0];
+  return getMostRecentEvent(events);
 };
 
 export const getProfileMetadata = async (pubkey: string) => {
   try {
+    const cachedNostrProfileEvent = await getCachedNostrProfileEvent(pubkey);
     const mostRecentProfileEvent = await getEventFromPool({
       kinds: [0],
       authors: [pubkey],
@@ -84,9 +92,14 @@ export const getProfileMetadata = async (pubkey: string) => {
       return null;
     }
 
-    cacheNostrProfile(pubkey, mostRecentProfileEvent.content);
+    if (
+      !cachedNostrProfileEvent ||
+      mostRecentProfileEvent.created_at > cachedNostrProfileEvent.created_at
+    ) {
+      await cacheNostrProfileEvent(pubkey, mostRecentProfileEvent);
+    }
 
-    return JSON.parse(mostRecentProfileEvent.content);
+    return mostRecentProfileEvent;
   } catch {
     return null;
   }

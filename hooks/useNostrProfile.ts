@@ -1,9 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCachedNostrProfile, getProfileMetadata } from "@/utils";
+import {
+  getCachedNostrProfileEvent,
+  getMostRecentEvent,
+  getProfileMetadata,
+} from "@/utils";
+import { useAuth } from "@/hooks/useAuth";
 
-const useFreshNostrProfile = (pubkey: string | null) => {
+const useNostrProfileEvent = (pubkey: string | null) => {
   const { data } = useQuery({
-    queryKey: ["freshNostrProfile", pubkey],
+    queryKey: ["nostrProfileEvent", pubkey],
     queryFn: () => getProfileMetadata(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
@@ -11,27 +16,44 @@ const useFreshNostrProfile = (pubkey: string | null) => {
   return data;
 };
 
-const useCachedNostrProfile = (pubkey: string | null) => {
+const useCachedNostrProfileEvent = (pubkey: string | null) => {
   const { data } = useQuery({
-    queryKey: ["cachedNostrProfile", pubkey],
-    queryFn: () => getCachedNostrProfile(pubkey ?? ""),
+    queryKey: ["cachedNostrProfileEvent", pubkey],
+    queryFn: () => getCachedNostrProfileEvent(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
   return data;
 };
 
-export const useNostrProfile = (pubkey: string | null) => {
-  const freshNostrProfile = useFreshNostrProfile(pubkey);
-  const cachedNostrProfile = useCachedNostrProfile(pubkey);
-  const profile = freshNostrProfile ?? cachedNostrProfile;
+export const useNostrProfile = () => {
+  const { pubkey } = useAuth();
+  const nostrProfileEvent = useNostrProfileEvent(pubkey);
+  const cachedNostrProfileEvent = useCachedNostrProfileEvent(pubkey);
+  const events = [];
 
-  if (!profile) {
+  if (nostrProfileEvent) {
+    events.push(nostrProfileEvent);
+  }
+
+  if (cachedNostrProfileEvent) {
+    events.push(cachedNostrProfileEvent);
+  }
+
+  const mostRecentProfileEvent = getMostRecentEvent(events);
+
+  if (!mostRecentProfileEvent) {
     return null;
   }
 
-  return {
-    avatarUrl: profile.picture,
-    username: profile.display_name || profile.name,
-  };
+  try {
+    const profile = JSON.parse(mostRecentProfileEvent.content);
+
+    return {
+      avatarUrl: profile.picture,
+      username: profile.display_name || profile.name,
+    };
+  } catch {
+    return null;
+  }
 };
