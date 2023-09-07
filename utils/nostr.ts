@@ -4,7 +4,9 @@ import "fast-text-encoding";
 import { nip19, relayInit, Filter, Event } from "nostr-tools";
 import {
   cacheNostrProfileEvent,
+  cacheNostrRelayListEvent,
   getCachedNostrProfileEvent,
+  getCachedNostrRelayListEvent,
 } from "@/utils/cache";
 
 export { getPublicKey } from "nostr-tools";
@@ -80,27 +82,57 @@ const getEventFromPool = async (
   return getMostRecentEvent(events);
 };
 
-export const getProfileMetadata = async (pubkey: string) => {
+const getEventFromPoolAndCacheItIfNecessary = async ({
+  pubkey,
+  filter,
+  cachedEvent,
+  cache,
+}: {
+  pubkey: string;
+  filter: Filter;
+  cachedEvent: Event | null;
+  cache: Function;
+}) => {
   try {
-    const cachedNostrProfileEvent = await getCachedNostrProfileEvent(pubkey);
-    const mostRecentProfileEvent = await getEventFromPool({
-      kinds: [0],
-      authors: [pubkey],
-    });
+    const event = await getEventFromPool(filter);
 
-    if (mostRecentProfileEvent === null) {
+    if (event === null) {
       return null;
     }
 
-    if (
-      !cachedNostrProfileEvent ||
-      mostRecentProfileEvent.created_at > cachedNostrProfileEvent.created_at
-    ) {
-      await cacheNostrProfileEvent(pubkey, mostRecentProfileEvent);
+    if (!cachedEvent || event.created_at > cachedEvent.created_at) {
+      await cache(pubkey, event);
     }
 
-    return mostRecentProfileEvent;
+    return event;
   } catch {
     return null;
   }
+};
+
+export const getProfileMetadata = async (pubkey: string) => {
+  const filter = {
+    kinds: [0],
+    authors: [pubkey],
+  };
+  return getEventFromPoolAndCacheItIfNecessary({
+    pubkey,
+    filter,
+    cachedEvent: await getCachedNostrProfileEvent(pubkey),
+    cache: cacheNostrProfileEvent,
+  });
+};
+
+export const getRelayListMetadata = async (pubkey: string) => {
+  const filter = {
+    kinds: [10002],
+    authors: [pubkey],
+  };
+
+  return getEventFromPoolAndCacheItIfNecessary({
+    pubkey,
+    filter,
+    cachedEvent: await getCachedNostrRelayListEvent(pubkey),
+    cache: cacheNostrRelayListEvent,
+  });
 };
