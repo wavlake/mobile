@@ -4,7 +4,7 @@ import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { useAuth } from "@/hooks";
-import { View } from "react-native";
+import { View, Pressable } from "react-native";
 
 export default function DrawerLayout() {
   const { colors } = useTheme();
@@ -25,7 +25,9 @@ export default function DrawerLayout() {
 
     return (
       <View style={{ marginRight: 16 }}>
-        <Avatar size={24} />
+        <Pressable onPress={() => router.push("/profile")}>
+          <Avatar size={24} />
+        </Pressable>
       </View>
     );
   };

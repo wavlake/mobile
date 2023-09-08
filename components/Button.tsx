@@ -25,6 +25,7 @@ export const Button = ({
         borderRadius: 8,
         width: fullWidth ? "100%" : 200,
       }}
+      disabledStyle={{ opacity: 0.5, backgroundColor: color }}
       {...rest}
     >
       <Text style={{ color: brandColors.black.DEFAULT, fontSize: 18 }} bold>

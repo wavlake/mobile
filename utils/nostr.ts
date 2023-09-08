@@ -1,6 +1,9 @@
 // this is needed to polyfill TextDecoder which nostr-tools uses
 import "fast-text-encoding";
 
+// this is needed to polyfill crypto.getRandomValues which nostr-tools uses
+import "react-native-get-random-values";
+
 import { nip19, relayInit, Filter, Event } from "nostr-tools";
 import {
   cacheNostrProfileEvent,
@@ -135,4 +138,41 @@ export const getRelayListMetadata = async (pubkey: string) => {
     cachedEvent: await getCachedNostrRelayListEvent(pubkey),
     cache: cacheNostrRelayListEvent,
   });
+};
+
+const publishEventToRelay = (relayUri: string, event: Event): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const relay = relayInit(relayUri);
+
+    relay.on("connect", async () => {
+      await relay.publish(event);
+      relay.close();
+      resolve();
+    });
+    relay.on("error", () => {
+      relay.close();
+      reject(new Error(`failed to connect to ${relay.url}`));
+    });
+
+    relay.connect();
+  });
+};
+
+export const publishEvent = async (relayUris: string[], event: Event) => {
+  return Promise.any(
+    relayUris.map((relayUri) => publishEventToRelay(relayUri, event)),
+  );
+};
+
+export const makeProfileEvent = (
+  pubkey: string,
+  profile: Record<string, string>,
+) => {
+  return {
+    kind: 0,
+    pubkey,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: [],
+    content: JSON.stringify(profile),
+  };
 };

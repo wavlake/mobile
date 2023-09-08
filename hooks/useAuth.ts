@@ -3,19 +3,28 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useMemo } from "react";
+import { EventTemplate, finishEvent } from "nostr-tools";
 
 const seckey = "seckey";
 
-export const saveSeckey = async (value: string) => {
+const saveSeckey = async (value: string) => {
   await SecureStore.setItemAsync(seckey, value);
 };
 
-export const getSeckey = async () => {
+const getSeckey = async () => {
   return await SecureStore.getItemAsync(seckey);
 };
 
-export const deleteSeckey = async () => {
+const deleteSeckey = async () => {
   await SecureStore.deleteItemAsync(seckey);
+};
+
+const signEvent = async (event: EventTemplate) => {
+  const seckey = await getSeckey();
+
+  if (seckey) {
+    return finishEvent(event, seckey);
+  }
 };
 
 export const useAuth = () => {
@@ -52,5 +61,5 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, pubkey, goToRoot };
+  return { login, logout, pubkey, goToRoot, signEvent };
 };

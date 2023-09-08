@@ -5,10 +5,12 @@ import {
   getProfileMetadata,
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
 const useNostrProfileEvent = (pubkey: string | null) => {
+  const queryKey = useNostrProfileQueryKey();
   const { data } = useQuery({
-    queryKey: ["nostrProfileEvent", pubkey],
+    queryKey,
     queryFn: () => getProfileMetadata(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
