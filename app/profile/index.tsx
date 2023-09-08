@@ -1,6 +1,6 @@
-import { Button, Avatar, TextInput } from "@/components";
+import { Button, Avatar, TextInput, Text } from "@/components";
 import { Stack } from "expo-router";
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useState } from "react";
 import {
   useAuth,
@@ -60,12 +60,18 @@ export default function ProfilePage() {
       <Button onPress={handleSave} disabled={isSaveDisabled} loading={isSaving}>
         Save
       </Button>
-      <TextInput
-        label="npub"
-        value={npub}
-        editable={false}
-        rightIcon={<CopyButton value={npub} />}
-      />
+      <View style={{ width: "100%" }}>
+        <TextInput
+          label="npub"
+          value={npub}
+          editable={false}
+          rightIcon={<CopyButton value={npub} />}
+        />
+        <Text style={{ fontSize: 18 }}>
+          Your npub is safe to share with friends and others you want to
+          interact with.
+        </Text>
+      </View>
     </ScrollView>
   );
 }
