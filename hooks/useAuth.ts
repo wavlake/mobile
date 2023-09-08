@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useMemo } from "react";
-import { EventTemplate, finishEvent } from "nostr-tools";
+import { EventTemplate, finishEvent, nip19 } from "nostr-tools";
 
 const seckey = "seckey";
 
@@ -36,11 +36,18 @@ export const useAuth = () => {
   });
   const pubkey = useMemo(() => {
     try {
-      return data ? getPublicKey(data) : null;
+      return data ? getPublicKey(data) : "";
     } catch {
-      return null;
+      return "";
     }
   }, [data]);
+  const npub = useMemo(() => {
+    try {
+      return pubkey ? nip19.npubEncode(pubkey) : "";
+    } catch {
+      return "";
+    }
+  }, [pubkey]);
   const login = async (nsec: string) => {
     const seckey = decodeNsec(nsec);
 
@@ -61,5 +68,5 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, pubkey, goToRoot, signEvent };
+  return { login, logout, pubkey, npub, goToRoot, signEvent };
 };

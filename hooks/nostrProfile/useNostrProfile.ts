@@ -7,21 +7,21 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
-const useNostrProfileEvent = (pubkey: string | null) => {
+const useNostrProfileEvent = (pubkey: string) => {
   const queryKey = useNostrProfileQueryKey();
   const { data } = useQuery({
     queryKey,
-    queryFn: () => getProfileMetadata(pubkey ?? ""),
+    queryFn: () => getProfileMetadata(pubkey),
     enabled: Boolean(pubkey),
   });
 
   return data;
 };
 
-const useCachedNostrProfileEvent = (pubkey: string | null) => {
+const useCachedNostrProfileEvent = (pubkey: string) => {
   const { data } = useQuery({
     queryKey: ["cachedNostrProfileEvent", pubkey],
-    queryFn: () => getCachedNostrProfileEvent(pubkey ?? ""),
+    queryFn: () => getCachedNostrProfileEvent(pubkey),
     enabled: Boolean(pubkey),
   });
 

@@ -6,20 +6,20 @@ import {
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 
-const useNostrRelayListEvent = (pubkey: string | null) => {
+const useNostrRelayListEvent = (pubkey: string) => {
   const { data } = useQuery({
     queryKey: ["nostrRelayListEvent", pubkey],
-    queryFn: () => getRelayListMetadata(pubkey ?? ""),
+    queryFn: () => getRelayListMetadata(pubkey),
     enabled: Boolean(pubkey),
   });
 
   return data;
 };
 
-const useCachedNostrRelayListEvent = (pubkey: string | null) => {
+const useCachedNostrRelayListEvent = (pubkey: string) => {
   const { data } = useQuery({
     queryKey: ["cachedNostrRelayListEvent", pubkey],
-    queryFn: () => getCachedNostrRelayListEvent(pubkey ?? ""),
+    queryFn: () => getCachedNostrRelayListEvent(pubkey),
     enabled: Boolean(pubkey),
   });
 

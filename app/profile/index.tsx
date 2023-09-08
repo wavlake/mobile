@@ -1,12 +1,13 @@
 import { Button, Avatar, TextInput } from "@/components";
 import { Stack } from "expo-router";
-import { View, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useState } from "react";
 import { useAuth, useNostrProfile, useNostrProfileMutation } from "@/hooks";
 import { makeProfileEvent } from "@/utils";
+import { CopyButton } from "@/components/CopyButton";
 
 export default function ProfilePage() {
-  const { pubkey, signEvent } = useAuth();
+  const { pubkey, npub, signEvent } = useAuth();
   const profile = useNostrProfile();
   const [isSaving, setIsSaving] = useState(false);
   const defaultSaveButtonText = "Save";
@@ -43,16 +44,24 @@ export default function ProfilePage() {
 
   return (
     <ScrollView
-      contentContainerStyle={{ padding: 24, alignItems: "center", gap: 24 }}
+      contentContainerStyle={{
+        padding: 24,
+        alignItems: "center",
+        gap: 24,
+      }}
     >
       <Stack.Screen options={{ headerTitle: "Profile" }} />
       <Avatar size={120} />
-      <View style={{ width: "100%" }}>
-        <TextInput label="username" value={name} onChangeText={setName} />
-      </View>
+      <TextInput label="username" value={name} onChangeText={setName} />
       <Button onPress={handleSave} disabled={isSaveDisabled} loading={isSaving}>
         {saveButtonText}
       </Button>
+      <TextInput
+        label="npub"
+        value={npub}
+        editable={false}
+        rightIcon={<CopyButton value={npub} />}
+      />
     </ScrollView>
   );
 }
