@@ -13,6 +13,7 @@ import {
 } from "@tanstack/react-query";
 import { MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus } from "react-native";
+import { RootSiblingParent } from "react-native-root-siblings";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -35,7 +36,9 @@ export default function Layout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      setTimeout(() => {
+        SplashScreen.hideAsync();
+      }, 2000);
     }
   }, [loaded]);
 
@@ -55,22 +58,27 @@ export default function Layout() {
     <ThemeProvider value={DarkTheme}>
       <QueryClientProvider client={queryClient}>
         <MusicPlayerProvider>
-          <Stack
-            screenOptions={{
-              headerStyle: {
-                backgroundColor: "black",
-              },
-              headerShadowVisible: false,
-              headerTintColor: "white",
-              headerBackTitleVisible: false,
-            }}
-          >
-            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="auth"
-              options={{ headerShown: false, presentation: "fullScreenModal" }}
-            />
-          </Stack>
+          <RootSiblingParent>
+            <Stack
+              screenOptions={{
+                headerStyle: {
+                  backgroundColor: "black",
+                },
+                headerShadowVisible: false,
+                headerTintColor: "white",
+                headerBackTitleVisible: false,
+              }}
+            >
+              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="auth"
+                options={{
+                  headerShown: false,
+                  presentation: "fullScreenModal",
+                }}
+              />
+            </Stack>
+          </RootSiblingParent>
         </MusicPlayerProvider>
       </QueryClientProvider>
     </ThemeProvider>

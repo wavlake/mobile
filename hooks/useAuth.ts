@@ -3,35 +3,58 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useMemo } from "react";
+import { EventTemplate, finishEvent, nip19 } from "nostr-tools";
 
 const seckey = "seckey";
 
-export const saveSeckey = async (value: string) => {
+const saveSeckey = async (value: string) => {
   await SecureStore.setItemAsync(seckey, value);
 };
 
-export const getSeckey = async () => {
+const getSeckey = async () => {
   return await SecureStore.getItemAsync(seckey);
 };
 
-export const deleteSeckey = async () => {
+const deleteSeckey = async () => {
   await SecureStore.deleteItemAsync(seckey);
+};
+
+const signEvent = async (event: EventTemplate) => {
+  const seckey = await getSeckey();
+
+  if (seckey) {
+    return finishEvent(event, seckey);
+  }
 };
 
 export const useAuth = () => {
   const navigation = useNavigation();
-  const { data, refetch } = useQuery({
+  const { data: seckey, refetch } = useQuery({
     queryKey: ["auth"],
     queryFn: getSeckey,
     staleTime: Infinity,
   });
   const pubkey = useMemo(() => {
     try {
-      return data ? getPublicKey(data) : null;
+      return seckey ? getPublicKey(seckey) : "";
     } catch {
-      return null;
+      return "";
     }
-  }, [data]);
+  }, [seckey]);
+  const npub = useMemo(() => {
+    try {
+      return pubkey ? nip19.npubEncode(pubkey) : "";
+    } catch {
+      return "";
+    }
+  }, [pubkey]);
+  const nsec = useMemo(() => {
+    try {
+      return seckey ? nip19.nsecEncode(seckey) : "";
+    } catch {
+      return "";
+    }
+  }, [seckey]);
   const login = async (nsec: string) => {
     const seckey = decodeNsec(nsec);
 
@@ -52,5 +75,5 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, pubkey, goToRoot };
+  return { login, logout, pubkey, npub, nsec, goToRoot, signEvent };
 };

@@ -1,6 +1,6 @@
 import { Avatar as BaseAvatar } from "@rneui/themed";
 import { Image } from "expo-image";
-import { useAuth, useNostrProfile } from "@/hooks";
+import { useNostrProfile } from "@/hooks";
 
 // just using a sample blurhash to resemble a loading state
 const blurhash = "L6PZfSi_.AyE_3t7t7R**0o#DgR4";
@@ -10,8 +10,8 @@ interface AvatarProps {
 }
 
 export const Avatar = ({ size }: AvatarProps) => {
-  const { pubkey } = useAuth();
-  const { avatarUrl } = useNostrProfile(pubkey) ?? {};
+  const profile = useNostrProfile();
+  const avatarUrl = profile?.picture;
 
   return (
     <>
