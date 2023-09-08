@@ -1,6 +1,6 @@
 import { Button, Avatar, TextInput, Text } from "@/components";
 import { Stack } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import { useState } from "react";
 import {
   useAuth,
@@ -10,15 +10,17 @@ import {
 } from "@/hooks";
 import { makeProfileEvent } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
+import { brandColors } from "@/constants";
 
 export default function ProfilePage() {
-  const { pubkey, npub, signEvent } = useAuth();
+  const { pubkey, npub, nsec, signEvent } = useAuth();
   const profile = useNostrProfile();
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState(profile?.name ?? "");
   const isSaveDisabled =
     profile?.name === name || name.length === 0 || isSaving;
   const toast = useToast();
+  const [isNsecVisible, setIsNsecVisible] = useState(false);
   const nostrProfileMutation = useNostrProfileMutation({
     onSuccess: () => {
       toast.show("Profile saved");
@@ -45,6 +47,25 @@ export default function ProfilePage() {
       nostrProfileMutation.mutate(event);
     }
   };
+  const handleRevealNsec = () => {
+    Alert.alert(
+      "Are you sure?",
+      "Revealing your private key can compromise your account's security.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Continue",
+          style: "destructive",
+          onPress: () => {
+            setIsNsecVisible(true);
+          },
+        },
+      ],
+    );
+  };
 
   return (
     <ScrollView
@@ -52,6 +73,7 @@ export default function ProfilePage() {
         padding: 24,
         alignItems: "center",
         gap: 24,
+        paddingBottom: 80,
       }}
     >
       <Stack.Screen options={{ headerTitle: "Profile" }} />
@@ -60,7 +82,7 @@ export default function ProfilePage() {
       <Button onPress={handleSave} disabled={isSaveDisabled} loading={isSaving}>
         Save
       </Button>
-      <View style={{ width: "100%" }}>
+      <View style={{ width: "100%", marginTop: 24 }}>
         <TextInput
           label="npub"
           value={npub}
@@ -72,6 +94,42 @@ export default function ProfilePage() {
           interact with.
         </Text>
       </View>
+      {!isNsecVisible && (
+        <Button
+          color={brandColors.black.light}
+          onPress={handleRevealNsec}
+          fullWidth
+          style={{ marginTop: 24 }}
+        >
+          Reveal private key (nsec)
+        </Button>
+      )}
+      {isNsecVisible && (
+        <View style={{ width: "100%" }}>
+          <TextInput
+            label="nsec"
+            value={nsec}
+            editable={false}
+            rightIcon={<CopyButton value={nsec} />}
+          />
+          <View style={{ gap: 16 }}>
+            <Text style={{ fontSize: 18, color: "red" }} bold>
+              CAUTION!
+            </Text>
+            <Text style={{ fontSize: 18 }}>
+              Your private key (nsec) is stored securely on this device. Keep it
+              safe! Your nsec is a secret and should never be shared with
+              anyone.
+            </Text>
+            <Text style={{ fontSize: 18 }}>
+              Your nsec maintains your identify across all of Nostr, so be
+              mindful where you copy and paste it. It is typically not a good
+              idea to paste this into websites and other apps you are unsure
+              about.
+            </Text>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }

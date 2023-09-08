@@ -29,18 +29,18 @@ const signEvent = async (event: EventTemplate) => {
 
 export const useAuth = () => {
   const navigation = useNavigation();
-  const { data, refetch } = useQuery({
+  const { data: seckey, refetch } = useQuery({
     queryKey: ["auth"],
     queryFn: getSeckey,
     staleTime: Infinity,
   });
   const pubkey = useMemo(() => {
     try {
-      return data ? getPublicKey(data) : "";
+      return seckey ? getPublicKey(seckey) : "";
     } catch {
       return "";
     }
-  }, [data]);
+  }, [seckey]);
   const npub = useMemo(() => {
     try {
       return pubkey ? nip19.npubEncode(pubkey) : "";
@@ -48,6 +48,13 @@ export const useAuth = () => {
       return "";
     }
   }, [pubkey]);
+  const nsec = useMemo(() => {
+    try {
+      return seckey ? nip19.nsecEncode(seckey) : "";
+    } catch {
+      return "";
+    }
+  }, [seckey]);
   const login = async (nsec: string) => {
     const seckey = decodeNsec(nsec);
 
@@ -68,5 +75,5 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, pubkey, npub, goToRoot, signEvent };
+  return { login, logout, pubkey, npub, nsec, goToRoot, signEvent };
 };
