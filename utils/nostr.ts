@@ -4,15 +4,39 @@ import "fast-text-encoding";
 // this is needed to polyfill crypto.getRandomValues which nostr-tools uses
 import "react-native-get-random-values";
 
-import { nip19, relayInit, Filter, Event } from "nostr-tools";
+import {
+  nip19,
+  relayInit,
+  Filter,
+  Event,
+  finishEvent,
+  EventTemplate,
+} from "nostr-tools";
 import {
   cacheNostrProfileEvent,
   cacheNostrRelayListEvent,
   getCachedNostrProfileEvent,
   getCachedNostrRelayListEvent,
 } from "@/utils/cache";
+import { getSeckey } from "@/utils/secureStorage";
 
 export { getPublicKey } from "nostr-tools";
+
+export const encodeNpub = (pubkey: string) => {
+  try {
+    return nip19.npubEncode(pubkey);
+  } catch {
+    return null;
+  }
+};
+
+export const encodeNsec = (seckey: string) => {
+  try {
+    return nip19.nsecEncode(seckey);
+  } catch {
+    return null;
+  }
+};
 
 export const decodeNsec = (nsec: string) => {
   try {
@@ -175,4 +199,12 @@ export const makeProfileEvent = (
     tags: [],
     content: JSON.stringify(profile),
   };
+};
+
+export const signEvent = async (eventTemplate: EventTemplate) => {
+  const seckey = await getSeckey();
+
+  if (seckey) {
+    return finishEvent(eventTemplate, seckey);
+  }
 };
