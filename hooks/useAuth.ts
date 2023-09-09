@@ -1,60 +1,30 @@
-import { decodeNsec, getPublicKey } from "@/utils";
+import {
+  decodeNsec,
+  getPublicKey,
+  getSeckey,
+  saveSeckey,
+  deleteSeckey,
+} from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { useMemo } from "react";
-import { EventTemplate, finishEvent, nip19 } from "nostr-tools";
 
-const seckey = "seckey";
+const getPubkeyFromCachedSeckey = async () => {
+  try {
+    const seckey = await getSeckey();
 
-const saveSeckey = async (value: string) => {
-  await SecureStore.setItemAsync(seckey, value);
-};
-
-const getSeckey = async () => {
-  return await SecureStore.getItemAsync(seckey);
-};
-
-const deleteSeckey = async () => {
-  await SecureStore.deleteItemAsync(seckey);
-};
-
-const signEvent = async (event: EventTemplate) => {
-  const seckey = await getSeckey();
-
-  if (seckey) {
-    return finishEvent(event, seckey);
+    return seckey ? getPublicKey(seckey) : "";
+  } catch {
+    return "";
   }
 };
 
 export const useAuth = () => {
   const navigation = useNavigation();
-  const { data: seckey, refetch } = useQuery({
+  const { data: pubkey, refetch } = useQuery({
     queryKey: ["auth"],
-    queryFn: getSeckey,
+    queryFn: getPubkeyFromCachedSeckey,
     staleTime: Infinity,
   });
-  const pubkey = useMemo(() => {
-    try {
-      return seckey ? getPublicKey(seckey) : "";
-    } catch {
-      return "";
-    }
-  }, [seckey]);
-  const npub = useMemo(() => {
-    try {
-      return pubkey ? nip19.npubEncode(pubkey) : "";
-    } catch {
-      return "";
-    }
-  }, [pubkey]);
-  const nsec = useMemo(() => {
-    try {
-      return seckey ? nip19.nsecEncode(seckey) : "";
-    } catch {
-      return "";
-    }
-  }, [seckey]);
   const login = async (nsec: string) => {
     const seckey = decodeNsec(nsec);
 
@@ -75,5 +45,5 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, pubkey, npub, nsec, goToRoot, signEvent };
+  return { login, logout, pubkey, goToRoot };
 };

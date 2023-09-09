@@ -8,19 +8,26 @@ import {
   useNostrProfileMutation,
   useToast,
 } from "@/hooks";
-import { makeProfileEvent } from "@/utils";
+import {
+  encodeNsec,
+  encodeNpub,
+  getSeckey,
+  makeProfileEvent,
+  signEvent,
+} from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { brandColors } from "@/constants";
 
 export default function ProfilePage() {
-  const { pubkey, npub, nsec, signEvent } = useAuth();
+  const { pubkey } = useAuth();
+  const npub = encodeNpub(pubkey ?? "") ?? "";
   const profile = useNostrProfile();
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState(profile?.name ?? "");
   const isSaveDisabled =
     profile?.name === name || name.length === 0 || isSaving;
   const toast = useToast();
-  const [isNsecVisible, setIsNsecVisible] = useState(false);
+  const [nsec, setNsec] = useState("");
   const nostrProfileMutation = useNostrProfileMutation({
     onSuccess: () => {
       toast.show("Profile saved");
@@ -59,8 +66,13 @@ export default function ProfilePage() {
         {
           text: "Continue",
           style: "destructive",
-          onPress: () => {
-            setIsNsecVisible(true);
+          onPress: async () => {
+            const seckey = await getSeckey();
+            const nsec = encodeNsec(seckey ?? "");
+
+            if (nsec) {
+              setNsec(nsec);
+            }
           },
         },
       ],
@@ -94,7 +106,7 @@ export default function ProfilePage() {
           interact with.
         </Text>
       </View>
-      {!isNsecVisible && (
+      {!nsec && (
         <Button
           color={brandColors.black.light}
           onPress={handleRevealNsec}
@@ -104,7 +116,7 @@ export default function ProfilePage() {
           Reveal private key (nsec)
         </Button>
       )}
-      {isNsecVisible && (
+      {nsec && (
         <View style={{ width: "100%" }}>
           <TextInput
             label="nsec"
