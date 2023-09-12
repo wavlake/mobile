@@ -6,12 +6,14 @@ import {
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
+import { useNostrRelayList } from "@/hooks/nostrRelayList";
 
 const useNostrProfileEvent = (pubkey: string) => {
+  const { readRelayList } = useNostrRelayList();
   const queryKey = useNostrProfileQueryKey();
   const { data } = useQuery({
     queryKey,
-    queryFn: () => getProfileMetadata(pubkey),
+    queryFn: () => getProfileMetadata(pubkey, readRelayList),
     enabled: Boolean(pubkey),
     staleTime: 10000,
   });

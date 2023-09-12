@@ -22,6 +22,23 @@ import { getSeckey } from "@/utils/secureStorage";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
+export const DEFAULT_READ_RELAY_URIS = [
+  "wss://purplepag.es",
+  "wss://relay.nostr.band",
+  "wss://relay.damus.io",
+  "wss://nostr.wine",
+  "wss://relay.snort.social",
+  "wss://relay.wavlake.com",
+];
+
+export const DEFAULT_WRITE_RELAY_URIS = [
+  "wss://purplepag.es",
+  "wss://relay.nostr.band",
+  "wss://relay.damus.io",
+  "wss://relay.wavlake.com",
+  "wss://nostr.mutinywallet.com",
+];
+
 export const encodeNpub = (pubkey: string) => {
   try {
     return nip19.npubEncode(pubkey);
@@ -80,14 +97,7 @@ const getEventFromRelay = (
  */
 const getEventFromPool = async (
   filter: Filter,
-  relayUris: string[] = [
-    "wss://purplepag.es",
-    "wss://relay.nostr.band",
-    "wss://relay.damus.io",
-    "wss://nostr.wine",
-    "wss://relay.snort.social",
-    "wss://relay.wavlake.com",
-  ],
+  relayUris: string[] = DEFAULT_READ_RELAY_URIS,
 ) => {
   const promises = relayUris.map((relayUri) =>
     getEventFromRelay(relayUri, filter),
@@ -114,14 +124,16 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   filter,
   cachedEvent,
   cache,
+  relayUris,
 }: {
   pubkey: string;
   filter: Filter;
   cachedEvent: Event | null;
   cache: Function;
+  relayUris?: string[];
 }) => {
   try {
-    const event = await getEventFromPool(filter);
+    const event = await getEventFromPool(filter, relayUris);
 
     if (event === null) {
       return null;
@@ -137,7 +149,10 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   }
 };
 
-export const getProfileMetadata = async (pubkey: string) => {
+export const getProfileMetadata = async (
+  pubkey: string,
+  relayUris: string[],
+) => {
   const filter = {
     kinds: [0],
     authors: [pubkey],
@@ -147,6 +162,7 @@ export const getProfileMetadata = async (pubkey: string) => {
     filter,
     cachedEvent: await getCachedNostrProfileEvent(pubkey),
     cache: cacheNostrProfileEvent,
+    relayUris,
   });
 };
 

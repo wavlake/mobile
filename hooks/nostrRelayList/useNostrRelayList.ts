@@ -5,6 +5,8 @@ import {
   getRelayListMetadata,
   getReadRelayUris,
   getWriteRelayUris,
+  DEFAULT_READ_RELAY_URIS,
+  DEFAULT_WRITE_RELAY_URIS,
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayListQueryKey } from "./useNostrRelayListQueryKey";
@@ -46,19 +48,12 @@ export const useNostrRelayList = () => {
   }
 
   const mostRecentRelayListEvent = getMostRecentEvent(events);
-  const defaultRelays = [
-    "wss://purplepag.es",
-    "wss://relay.nostr.band",
-    "wss://relay.damus.io",
-    "wss://relay.wavlake.com",
-    "wss://nostr.mutinywallet.com",
-  ];
   const readRelayList = mostRecentRelayListEvent
     ? getReadRelayUris(mostRecentRelayListEvent)
-    : defaultRelays;
+    : DEFAULT_READ_RELAY_URIS;
   const writeRelayList = mostRecentRelayListEvent
     ? getWriteRelayUris(mostRecentRelayListEvent)
-    : defaultRelays;
+    : DEFAULT_WRITE_RELAY_URIS;
 
   return {
     readRelayList,
