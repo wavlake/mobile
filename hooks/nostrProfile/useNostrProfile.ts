@@ -6,13 +6,16 @@ import {
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
+import { useNostrRelayList } from "@/hooks/nostrRelayList";
 
 const useNostrProfileEvent = (pubkey: string) => {
+  const { readRelayList } = useNostrRelayList();
   const queryKey = useNostrProfileQueryKey();
   const { data } = useQuery({
     queryKey,
-    queryFn: () => getProfileMetadata(pubkey),
+    queryFn: () => getProfileMetadata(pubkey, readRelayList),
     enabled: Boolean(pubkey),
+    staleTime: 10000,
   });
 
   return data;
@@ -30,8 +33,8 @@ const useCachedNostrProfileEvent = (pubkey: string) => {
 
 export const useNostrProfile = () => {
   const { pubkey } = useAuth();
-  const nostrProfileEvent = useNostrProfileEvent(pubkey);
-  const cachedNostrProfileEvent = useCachedNostrProfileEvent(pubkey);
+  const nostrProfileEvent = useNostrProfileEvent(pubkey ?? "");
+  const cachedNostrProfileEvent = useCachedNostrProfileEvent(pubkey ?? "");
   const events = [];
 
   if (nostrProfileEvent) {

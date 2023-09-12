@@ -1,2 +1,2 @@
 export * from "./useNostrProfile";
-export * from "./useNostrProfileMutation";
+export * from "./useSaveNostrProfile";

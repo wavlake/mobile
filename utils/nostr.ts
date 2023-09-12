@@ -20,7 +20,24 @@ import {
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
 
-export { getPublicKey } from "nostr-tools";
+export { getPublicKey, generatePrivateKey } from "nostr-tools";
+
+export const DEFAULT_READ_RELAY_URIS = [
+  "wss://purplepag.es",
+  "wss://relay.nostr.band",
+  "wss://relay.damus.io",
+  "wss://nostr.wine",
+  "wss://relay.snort.social",
+  "wss://relay.wavlake.com",
+];
+
+export const DEFAULT_WRITE_RELAY_URIS = [
+  "wss://purplepag.es",
+  "wss://relay.nostr.band",
+  "wss://relay.damus.io",
+  "wss://relay.wavlake.com",
+  "wss://nostr.mutinywallet.com",
+];
 
 export const encodeNpub = (pubkey: string) => {
   try {
@@ -80,14 +97,7 @@ const getEventFromRelay = (
  */
 const getEventFromPool = async (
   filter: Filter,
-  relayUris: string[] = [
-    "wss://purplepag.es",
-    "wss://relay.nostr.band",
-    "wss://relay.damus.io",
-    "wss://nostr.wine",
-    "wss://relay.snort.social",
-    "wss://relay.wavlake.com",
-  ],
+  relayUris: string[] = DEFAULT_READ_RELAY_URIS,
 ) => {
   const promises = relayUris.map((relayUri) =>
     getEventFromRelay(relayUri, filter),
@@ -114,14 +124,16 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   filter,
   cachedEvent,
   cache,
+  relayUris,
 }: {
   pubkey: string;
   filter: Filter;
   cachedEvent: Event | null;
   cache: Function;
+  relayUris?: string[];
 }) => {
   try {
-    const event = await getEventFromPool(filter);
+    const event = await getEventFromPool(filter, relayUris);
 
     if (event === null) {
       return null;
@@ -137,7 +149,10 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   }
 };
 
-export const getProfileMetadata = async (pubkey: string) => {
+export const getProfileMetadata = async (
+  pubkey: string,
+  relayUris: string[],
+) => {
   const filter = {
     kinds: [0],
     authors: [pubkey],
@@ -147,6 +162,7 @@ export const getProfileMetadata = async (pubkey: string) => {
     filter,
     cachedEvent: await getCachedNostrProfileEvent(pubkey),
     cache: cacheNostrProfileEvent,
+    relayUris,
   });
 };
 
@@ -188,10 +204,22 @@ export const publishEvent = async (relayUris: string[], event: Event) => {
   );
 };
 
-export const makeProfileEvent = (
-  pubkey: string,
-  profile: Record<string, string>,
-) => {
+export interface NostrUserProfile {
+  [key: string]: string | undefined; // allows custom fields
+  name?: string;
+  displayName?: string;
+  image?: string;
+  banner?: string;
+  bio?: string;
+  nip05?: string;
+  lud06?: string;
+  lud16?: string;
+  about?: string;
+  zapService?: string;
+  website?: string;
+}
+
+export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
   return {
     kind: 0,
     pubkey,
@@ -207,4 +235,38 @@ export const signEvent = async (eventTemplate: EventTemplate) => {
   if (seckey) {
     return finishEvent(eventTemplate, seckey);
   }
+};
+
+export const makeRelayListEvent = (pubkey: string, relayUris: string[]) => {
+  return {
+    kind: 10002,
+    pubkey,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: relayUris.map((relay) => ["r", relay]),
+    content: "",
+  };
+};
+
+export const getReadRelayUris = (event: Event) => {
+  if (event.kind !== 10002) {
+    return [];
+  }
+
+  return event.tags
+    .filter(
+      (tag) => tag[0] === "r" && (tag[2] === "read" || tag[2] === undefined),
+    )
+    .map((tag) => tag[1]);
+};
+
+export const getWriteRelayUris = (event: Event) => {
+  if (event.kind !== 10002) {
+    return [];
+  }
+
+  return event.tags
+    .filter(
+      (tag) => tag[0] === "r" && (tag[2] === "write" || tag[2] === undefined),
+    )
+    .map((tag) => tag[1]);
 };

@@ -25,8 +25,8 @@ export const useAuth = () => {
     queryFn: getPubkeyFromCachedSeckey,
     staleTime: Infinity,
   });
-  const login = async (nsec: string) => {
-    const seckey = decodeNsec(nsec);
+  const login = async (privkey: string) => {
+    const seckey = privkey.startsWith("nsec") ? decodeNsec(privkey) : privkey;
 
     if (!seckey) {
       return false;

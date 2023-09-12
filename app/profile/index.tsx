@@ -5,55 +5,23 @@ import { useState } from "react";
 import {
   useAuth,
   useNostrProfile,
-  useNostrProfileMutation,
+  useSaveNostrProfile,
   useToast,
 } from "@/hooks";
-import {
-  encodeNsec,
-  encodeNpub,
-  getSeckey,
-  makeProfileEvent,
-  signEvent,
-} from "@/utils";
+import { encodeNsec, encodeNpub, getSeckey } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { brandColors } from "@/constants";
 
 export default function ProfilePage() {
-  const { pubkey } = useAuth();
-  const npub = encodeNpub(pubkey ?? "") ?? "";
+  const toast = useToast();
+  const { pubkey = "" } = useAuth();
+  const npub = encodeNpub(pubkey) ?? "";
   const profile = useNostrProfile();
-  const [isSaving, setIsSaving] = useState(false);
+  const { save, isSaving } = useSaveNostrProfile();
   const [name, setName] = useState(profile?.name ?? "");
   const isSaveDisabled =
     profile?.name === name || name.length === 0 || isSaving;
-  const toast = useToast();
   const [nsec, setNsec] = useState("");
-  const nostrProfileMutation = useNostrProfileMutation({
-    onSuccess: () => {
-      toast.show("Profile saved");
-    },
-    onError: () => {
-      toast.show("Failed to save profile");
-    },
-    onSettled: () => {
-      setIsSaving(false);
-    },
-  });
-  const handleSave = async () => {
-    if (!pubkey) {
-      return;
-    }
-
-    setIsSaving(true);
-
-    const event = await signEvent(
-      makeProfileEvent(pubkey, { ...profile, name }),
-    );
-
-    if (event) {
-      nostrProfileMutation.mutate(event);
-    }
-  };
   const handleRevealNsec = () => {
     Alert.alert(
       "Are you sure?",
@@ -77,6 +45,37 @@ export default function ProfilePage() {
         },
       ],
     );
+  };
+  const handleSave = () => {
+    const saveProfile = async () => {
+      try {
+        await save(pubkey, { name });
+        toast.show("Profile saved");
+      } catch {
+        toast.show("Failed to save profile");
+      }
+    };
+    if (profile) {
+      return saveProfile();
+    } else {
+      Alert.alert(
+        "Are you sure?",
+        "We were unable to find your profile on Nostr relays. Continuing to save will replace your profile on Nostr relays with this one.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Continue",
+            style: "destructive",
+            onPress: () => {
+              return saveProfile();
+            },
+          },
+        ],
+      );
+    }
   };
 
   return (
@@ -129,15 +128,14 @@ export default function ProfilePage() {
               CAUTION!
             </Text>
             <Text style={{ fontSize: 18 }}>
-              Your private key (nsec) is stored securely on this device. Keep it
-              safe! Your nsec is a secret and should never be shared with
-              anyone.
+              Your private key (nsec) is stored securely on this device. Your
+              nsec is a secret and should never be shared with anyone.
             </Text>
             <Text style={{ fontSize: 18 }}>
               Your nsec maintains your identify across all of Nostr, so be
               mindful where you copy and paste it. It is typically not a good
               idea to paste this into websites and other apps you are unsure
-              about.
+              about. Keep it safe!
             </Text>
           </View>
         </View>

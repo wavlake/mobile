@@ -3,14 +3,21 @@ import {
   getCachedNostrRelayListEvent,
   getMostRecentEvent,
   getRelayListMetadata,
+  getReadRelayUris,
+  getWriteRelayUris,
+  DEFAULT_READ_RELAY_URIS,
+  DEFAULT_WRITE_RELAY_URIS,
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useNostrRelayListQueryKey } from "./useNostrRelayListQueryKey";
 
 const useNostrRelayListEvent = (pubkey: string) => {
+  const queryKey = useNostrRelayListQueryKey();
   const { data } = useQuery({
-    queryKey: ["nostrRelayListEvent", pubkey],
+    queryKey,
     queryFn: () => getRelayListMetadata(pubkey),
     enabled: Boolean(pubkey),
+    staleTime: 10000,
   });
 
   return data;
@@ -26,10 +33,10 @@ const useCachedNostrRelayListEvent = (pubkey: string) => {
   return data;
 };
 
-export const useNostrPublishRelayList = () => {
+export const useNostrRelayList = () => {
   const { pubkey } = useAuth();
-  const nostrRelayListEvent = useNostrRelayListEvent(pubkey);
-  const cachedNostrRelayListEvent = useCachedNostrRelayListEvent(pubkey);
+  const nostrRelayListEvent = useNostrRelayListEvent(pubkey ?? "");
+  const cachedNostrRelayListEvent = useCachedNostrRelayListEvent(pubkey ?? "");
   const events = [];
 
   if (nostrRelayListEvent) {
@@ -41,18 +48,15 @@ export const useNostrPublishRelayList = () => {
   }
 
   const mostRecentRelayListEvent = getMostRecentEvent(events);
+  const readRelayList = mostRecentRelayListEvent
+    ? getReadRelayUris(mostRecentRelayListEvent)
+    : DEFAULT_READ_RELAY_URIS;
+  const writeRelayList = mostRecentRelayListEvent
+    ? getWriteRelayUris(mostRecentRelayListEvent)
+    : DEFAULT_WRITE_RELAY_URIS;
 
-  if (!mostRecentRelayListEvent) {
-    return [];
-  }
-
-  try {
-    return mostRecentRelayListEvent.tags
-      .filter(
-        (tag) => tag[0] === "r" && (tag[2] === "write" || tag[2] === undefined),
-      )
-      .map((tag) => tag[1]);
-  } catch {
-    return [];
-  }
+  return {
+    readRelayList,
+    writeRelayList,
+  };
 };
