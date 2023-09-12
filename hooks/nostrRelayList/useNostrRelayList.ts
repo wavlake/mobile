@@ -3,14 +3,19 @@ import {
   getCachedNostrRelayListEvent,
   getMostRecentEvent,
   getRelayListMetadata,
+  getReadRelayUris,
+  getWriteRelayUris,
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useNostrRelayListQueryKey } from "./useNostrRelayListQueryKey";
 
 const useNostrRelayListEvent = (pubkey: string) => {
+  const queryKey = useNostrRelayListQueryKey();
   const { data } = useQuery({
-    queryKey: ["nostrRelayListEvent", pubkey],
+    queryKey,
     queryFn: () => getRelayListMetadata(pubkey),
     enabled: Boolean(pubkey),
+    staleTime: 10000,
   });
 
   return data;
@@ -26,10 +31,10 @@ const useCachedNostrRelayListEvent = (pubkey: string) => {
   return data;
 };
 
-export const useNostrPublishRelayList = () => {
+export const useNostrRelayList = () => {
   const { pubkey } = useAuth();
-  const nostrRelayListEvent = useNostrRelayListEvent(pubkey);
-  const cachedNostrRelayListEvent = useCachedNostrRelayListEvent(pubkey);
+  const nostrRelayListEvent = useNostrRelayListEvent(pubkey ?? "");
+  const cachedNostrRelayListEvent = useCachedNostrRelayListEvent(pubkey ?? "");
   const events = [];
 
   if (nostrRelayListEvent) {
@@ -41,18 +46,22 @@ export const useNostrPublishRelayList = () => {
   }
 
   const mostRecentRelayListEvent = getMostRecentEvent(events);
+  const defaultRelays = [
+    "wss://purplepag.es",
+    "wss://relay.nostr.band",
+    "wss://relay.damus.io",
+    "wss://relay.wavlake.com",
+    "wss://nostr.mutinywallet.com",
+  ];
+  const readRelayList = mostRecentRelayListEvent
+    ? getReadRelayUris(mostRecentRelayListEvent)
+    : defaultRelays;
+  const writeRelayList = mostRecentRelayListEvent
+    ? getWriteRelayUris(mostRecentRelayListEvent)
+    : defaultRelays;
 
-  if (!mostRecentRelayListEvent) {
-    return [];
-  }
-
-  try {
-    return mostRecentRelayListEvent.tags
-      .filter(
-        (tag) => tag[0] === "r" && (tag[2] === "write" || tag[2] === undefined),
-      )
-      .map((tag) => tag[1]);
-  } catch {
-    return [];
-  }
+  return {
+    readRelayList,
+    writeRelayList,
+  };
 };

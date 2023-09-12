@@ -74,7 +74,8 @@ export default function Layout() {
                 name="auth"
                 options={{
                   headerShown: false,
-                  presentation: "fullScreenModal",
+                  gestureEnabled: false,
+                  gestureDirection: "vertical",
                 }}
               />
             </Stack>

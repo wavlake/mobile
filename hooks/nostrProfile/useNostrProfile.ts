@@ -13,6 +13,7 @@ const useNostrProfileEvent = (pubkey: string) => {
     queryKey,
     queryFn: () => getProfileMetadata(pubkey),
     enabled: Boolean(pubkey),
+    staleTime: 10000,
   });
 
   return data;
@@ -30,8 +31,8 @@ const useCachedNostrProfileEvent = (pubkey: string) => {
 
 export const useNostrProfile = () => {
   const { pubkey } = useAuth();
-  const nostrProfileEvent = useNostrProfileEvent(pubkey);
-  const cachedNostrProfileEvent = useCachedNostrProfileEvent(pubkey);
+  const nostrProfileEvent = useNostrProfileEvent(pubkey ?? "");
+  const cachedNostrProfileEvent = useCachedNostrProfileEvent(pubkey ?? "");
   const events = [];
 
   if (nostrProfileEvent) {
