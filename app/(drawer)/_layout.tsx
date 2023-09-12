@@ -1,16 +1,16 @@
 import { Drawer } from "expo-router/drawer";
-import { HeaderBackButton, HeaderTitleLogo, Text, Avatar } from "@/components";
+import { HeaderBackButton, HeaderTitleLogo, Avatar } from "@/components";
 import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
-import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { useAuth } from "@/hooks";
 import { View, Pressable } from "react-native";
+import { DrawerContent } from "@/components/DrawerContent";
 
 export default function DrawerLayout() {
   const { colors } = useTheme();
   const router = useRouter();
   const globalSearchParams = useGlobalSearchParams();
-  const { pubkey, logout } = useAuth();
+  const { pubkey } = useAuth();
   const headerTitle =
     typeof globalSearchParams.headerTitle === "string"
       ? globalSearchParams.headerTitle
@@ -47,27 +47,7 @@ export default function DrawerLayout() {
         drawerStatusBarAnimation: "none",
         swipeEdgeWidth: 0,
       }}
-      drawerContent={(props) => {
-        return (
-          <DrawerContentScrollView {...props}>
-            <DrawerItem
-              label={() => (
-                <Text style={{ fontSize: 24 }}>
-                  {pubkey ? "Logout" : "Login"}
-                </Text>
-              )}
-              onPress={async () => {
-                if (pubkey) {
-                  await logout();
-                } else {
-                  router.push("/auth");
-                  props.navigation.closeDrawer();
-                }
-              }}
-            />
-          </DrawerContentScrollView>
-        );
-      }}
+      drawerContent={DrawerContent}
     >
       <Drawer.Screen name="(tabs)" />
     </Drawer>
