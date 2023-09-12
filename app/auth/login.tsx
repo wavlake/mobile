@@ -11,15 +11,20 @@ export default function Login() {
   const { goToRoot, login } = useAuth();
 
   const handleLogin = async () => {
+    setIsLoggingIn(true);
+
     const success = await login(nsec);
 
     if (success) {
-      await goToRoot();
+      // add an artifical delay to allow time to fetch profile if it's not cached
+      setTimeout(async () => {
+        await goToRoot();
+        setIsLoggingIn(false);
+      }, 1000);
     } else {
       setErrorMessage("Invalid nostr nsec");
+      setIsLoggingIn(false);
     }
-
-    setIsLoggingIn(false);
   };
 
   return (
