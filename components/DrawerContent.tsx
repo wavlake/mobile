@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
@@ -65,9 +65,25 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             icon={({ color, size }) => (
               <Ionicons name="log-out-outline" size={size} color={color} />
             )}
-            onPress={async () => {
-              await logout();
-              props.navigation.closeDrawer();
+            onPress={() => {
+              Alert.alert(
+                "Confirm logout",
+                "Wavlake does not have access to your private key (nsec) so be sure to have it backed up before logging out.",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "OK",
+                    style: "destructive",
+                    onPress: async () => {
+                      await logout();
+                      props.navigation.closeDrawer();
+                    },
+                  },
+                ],
+              );
             }}
           />
         </View>
