@@ -1,6 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Event } from "nostr-tools";
 
+const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
+const makeNostrRelayListEventKey = (pubkey: string) =>
+  `${pubkey}.relayListEvent`;
+const makeDefaultZapAmountKey = (pubkey: string = "anonymous") =>
+  `${pubkey}.defaultZapAmount`;
+
 const storeData = async (key: string, value: string) => {
   await AsyncStorage.setItem(key, value);
 };
@@ -23,8 +29,6 @@ const getObjectData = async (cacheKey: string) => {
   }
 };
 
-const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
-
 export const cacheNostrProfileEvent = async (pubkey: string, event: Event) => {
   const nostrProfileEventKey = makeNostrProfileEventKey(pubkey);
 
@@ -36,9 +40,6 @@ export const getCachedNostrProfileEvent = async (pubkey: string) => {
 
   return getObjectData(nostrProfileEventKey);
 };
-
-const makeNostrRelayListEventKey = (pubkey: string) =>
-  `${pubkey}.relayListEvent`;
 
 export const cacheNostrRelayListEvent = async (
   pubkey: string,
@@ -53,4 +54,19 @@ export const getCachedNostrRelayListEvent = async (pubkey: string) => {
   const nostrRelayListEventKey = makeNostrRelayListEventKey(pubkey);
 
   return getObjectData(nostrRelayListEventKey);
+};
+
+export const cacheDefaultZapAmount = async (
+  defaultZapAmount: string,
+  pubkey?: string,
+) => {
+  const defaultZapAmountKey = makeDefaultZapAmountKey(pubkey);
+
+  await storeData(defaultZapAmountKey, defaultZapAmount);
+};
+
+export const getDefaultZapAmount = async (pubkey?: string) => {
+  const defaultZapAmountKey = makeDefaultZapAmountKey(pubkey);
+
+  return getData(defaultZapAmountKey);
 };

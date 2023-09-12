@@ -1,0 +1,77 @@
+import { View } from "react-native";
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  DrawerItem,
+} from "@react-navigation/drawer";
+import { Text } from "@/components/Text";
+import { Divider } from "@rneui/themed";
+import { brandColors } from "@/constants";
+import { useAuth } from "@/hooks";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { getDefaultZapAmount } from "@/utils";
+
+export const DrawerContent = (props: DrawerContentComponentProps) => {
+  const router = useRouter();
+  const { pubkey, logout } = useAuth();
+
+  return (
+    <DrawerContentScrollView
+      contentContainerStyle={{
+        justifyContent: "space-between",
+        flex: 1,
+        paddingBottom: 80,
+      }}
+      {...props}
+    >
+      <View>
+        {!pubkey && (
+          <DrawerItem
+            label={() => <Text style={{ fontSize: 24 }}>Login</Text>}
+            icon={({ color, size }) => (
+              <Ionicons name="log-in-outline" size={size} color={color} />
+            )}
+            onPress={() => {
+              router.push("/auth");
+              props.navigation.closeDrawer();
+            }}
+          />
+        )}
+        <DrawerItem
+          label={() => <Text style={{ fontSize: 24 }}>Settings</Text>}
+          icon={({ color, size }) => (
+            <Ionicons name="settings-outline" size={size} color={color} />
+          )}
+          onPress={async () => {
+            const defaultZapAmount = (await getDefaultZapAmount(pubkey)) ?? "";
+
+            router.push({
+              pathname: "/settings",
+              params: { defaultZapAmount },
+            });
+            props.navigation.closeDrawer();
+          }}
+        />
+      </View>
+      {pubkey && (
+        <View>
+          <Divider
+            style={{ marginHorizontal: 16 }}
+            color={brandColors.black.light}
+          />
+          <DrawerItem
+            label={() => <Text style={{ fontSize: 18 }}>Logout</Text>}
+            icon={({ color, size }) => (
+              <Ionicons name="log-out-outline" size={size} color={color} />
+            )}
+            onPress={async () => {
+              await logout();
+              props.navigation.closeDrawer();
+            }}
+          />
+        </View>
+      )}
+    </DrawerContentScrollView>
+  );
+};
