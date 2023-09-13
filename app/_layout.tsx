@@ -78,6 +78,14 @@ export default function Layout() {
                   gestureDirection: "vertical",
                 }}
               />
+              <Stack.Screen
+                name="zap"
+                options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+                  gestureDirection: "vertical",
+                }}
+              />
             </Stack>
           </RootSiblingParent>
         </MusicPlayerProvider>

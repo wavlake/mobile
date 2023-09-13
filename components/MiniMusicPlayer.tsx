@@ -34,15 +34,8 @@ export const MiniMusicPlayer = () => {
   const globalSearchParams = useGlobalSearchParams();
   const router = useRouter();
   const { colors } = useTheme();
-  const {
-    songQueue,
-    currentSongIndex,
-    status,
-    positionInMs,
-    togglePlayPause,
-    clear,
-  } = useMusicPlayer();
-  const currentSong = songQueue[currentSongIndex];
+  const { status, positionInMs, togglePlayPause, clear, currentSong } =
+    useMusicPlayer();
   const { artworkUrl, title, artist, durationInMs } = currentSong || {};
   const progressBarWidth = durationInMs
     ? (positionInMs / durationInMs) * 100 || 0

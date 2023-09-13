@@ -31,6 +31,7 @@ type Status = "playing" | "paused" | "off";
 interface MusicPlayerContextProps {
   songQueue: MusicPlayerItem[];
   currentSongIndex: number;
+  currentSong?: MusicPlayerItem;
   playerTitle?: string;
   status: Status;
   positionInMs: number;
@@ -187,6 +188,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       value={{
         songQueue: songQueue.current,
         currentSongIndex: currentSongIndex.current,
+        currentSong: songQueue.current[currentSongIndex.current],
         playerTitle,
         status,
         positionInMs,

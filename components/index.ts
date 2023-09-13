@@ -22,3 +22,4 @@ export * from "./LogoIcon";
 export * from "./Button";
 export * from "./TextInput";
 export * from "./Avatar";
+export * from "./CancelButton";
