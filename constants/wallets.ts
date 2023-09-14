@@ -4,7 +4,22 @@ interface Wallet {
   iosFallbackLink?: string;
 }
 
-export const WALLETS: Record<string, Wallet> = {
+export type WalletKey =
+  | "default"
+  | "walletofsatoshi"
+  | "strike"
+  | "cashapp"
+  | "zeusln"
+  | "zebedee"
+  | "phoenix"
+  | "breez"
+  | "blink"
+  | "blixtwallet"
+  | "river"
+  | "muun"
+  | "bluewallet";
+
+export const WALLETS: Record<WalletKey, Wallet> = {
   default: {
     displayName: "Local default",
     uriPrefix: "lightning:",

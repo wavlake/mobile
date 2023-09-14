@@ -4,6 +4,7 @@ import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { cacheDefaultZapAmount, cacheDefaultZapWallet } from "@/utils";
+import { WalletKey } from "@/constants";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -13,7 +14,7 @@ export default function SettingsPage() {
     params.defaultZapAmount as string,
   );
   const [defaultZapWallet, setDefaultZapWallet] = useState(
-    params.defaultZapWallet as string,
+    params.defaultZapWallet as WalletKey,
   );
   const handleSave = async () => {
     Keyboard.dismiss();

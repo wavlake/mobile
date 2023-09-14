@@ -9,6 +9,7 @@ import {
 import { Audio, AVPlaybackStatus } from "expo-av";
 
 export interface MusicPlayerItem {
+  id: string;
   liveUrl: string;
   artworkUrl: string;
   title: string;

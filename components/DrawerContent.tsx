@@ -45,7 +45,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
           )}
           onPress={async () => {
             const defaultZapAmount = (await getDefaultZapAmount(pubkey)) ?? "";
-            const defaultZapWallet = (await getDefaultZapWallet(pubkey)) ?? "";
+            const defaultZapWallet =
+              (await getDefaultZapWallet(pubkey)) ?? "default";
 
             router.push({
               pathname: "/settings",

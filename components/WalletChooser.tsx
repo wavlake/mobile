@@ -1,11 +1,11 @@
 import { Picker } from "@react-native-picker/picker";
-import { WALLETS } from "@/constants";
+import { WalletKey, WALLETS } from "@/constants";
 import { View } from "react-native";
 import { Text } from "@/components/Text";
 
 interface WalletChooserProps {
-  selectedWallet: string;
-  onSelectedWalletChange: (key: string) => void;
+  selectedWallet: WalletKey;
+  onSelectedWalletChange: (key: WalletKey) => void;
 }
 
 export const WalletChooser = ({

@@ -11,7 +11,10 @@ import {
   Event,
   finishEvent,
   EventTemplate,
+  nip57,
+  generatePrivateKey,
 } from "nostr-tools";
+import axios from "axios";
 import {
   cacheNostrProfileEvent,
   cacheNostrRelayListEvent,
@@ -230,11 +233,10 @@ export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
 };
 
 export const signEvent = async (eventTemplate: EventTemplate) => {
-  const seckey = await getSeckey();
+  const loggedInUserSeckey = await getSeckey();
+  const anonSeckey = generatePrivateKey();
 
-  if (seckey) {
-    return finishEvent(eventTemplate, seckey);
-  }
+  return finishEvent(eventTemplate, loggedInUserSeckey ?? anonSeckey);
 };
 
 export const makeRelayListEvent = (pubkey: string, relayUris: string[]) => {
@@ -269,4 +271,44 @@ export const getWriteRelayUris = (event: Event) => {
       (tag) => tag[0] === "r" && (tag[2] === "write" || tag[2] === undefined),
     )
     .map((tag) => tag[1]);
+};
+
+export const fetchInvoice = async ({
+  relayUris,
+  amountInSats,
+  comment,
+  addressPointer,
+  zappedPubkey,
+}: {
+  relayUris: string[];
+  amountInSats: number;
+  comment: string;
+  addressPointer: string;
+  zappedPubkey: string;
+}) => {
+  const wavlakeRelayUri = "wss://relay.wavlake.com/";
+  const amountInMillisats = amountInSats * 1000;
+  const zapEndpoint = "https://www.wavlake.com/api/zap";
+  const zapRequestEvent = await nip57.makeZapRequest({
+    profile: zappedPubkey,
+    amount: amountInMillisats,
+    relays: [...relayUris, wavlakeRelayUri],
+    comment,
+    event: null,
+  });
+
+  zapRequestEvent.tags.push(["a", addressPointer, wavlakeRelayUri]);
+
+  const signedZapRequestEvent = await signEvent(zapRequestEvent);
+  const url = `${zapEndpoint}?amount=${amountInMillisats}&nostr=${encodeURIComponent(
+    JSON.stringify(signedZapRequestEvent),
+  )}`;
+
+  try {
+    const { data } = await axios(url);
+
+    return data.pr;
+  } catch (error) {
+    console.log(error);
+  }
 };
