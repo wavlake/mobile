@@ -19,7 +19,7 @@
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       },
-      "buildNumber": "15",
+      "buildNumber": "16",
       "bundleIdentifier": "com.wavlake.mobile",
       "config": {
         "usesNonExemptEncryption": false
