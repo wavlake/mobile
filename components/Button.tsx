@@ -5,16 +5,18 @@ import {
 import { brandColors } from "@/constants";
 import { Text } from "@/components/Text";
 import { PropsWithChildren } from "react";
+import { DimensionValue } from "react-native";
 
-interface ButtonProps extends BaseButtonProps {
+export interface ButtonProps extends BaseButtonProps {
   color?: string;
-  fullWidth?: boolean;
+  width?: DimensionValue;
 }
 
 export const Button = ({
   children,
   color = brandColors.pink.DEFAULT,
-  fullWidth = false,
+  width = 200,
+  titleStyle,
   ...rest
 }: PropsWithChildren<ButtonProps>) => {
   return (
@@ -23,12 +25,15 @@ export const Button = ({
       color={color}
       buttonStyle={{
         borderRadius: 8,
-        width: fullWidth ? "100%" : 200,
+        width,
       }}
       disabledStyle={{ opacity: 0.5, backgroundColor: color }}
       {...rest}
     >
-      <Text style={{ color: brandColors.black.DEFAULT, fontSize: 18 }} bold>
+      <Text
+        style={[{ color: brandColors.black.DEFAULT, fontSize: 18 }, titleStyle]}
+        bold
+      >
         {children}
       </Text>
     </BaseButton>

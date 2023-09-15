@@ -1,13 +1,16 @@
 import { MusicItem } from "./api";
 
 export const formatMusicItemForMusicPlayer = (itemList: MusicItem[]) => {
-  return itemList.map(({ liveUrl, artworkUrl, title, artist, duration }) => ({
-    liveUrl,
-    artworkUrl,
-    title,
-    artist,
-    durationInMs: duration * 1000,
-  }));
+  return itemList.map(
+    ({ id, liveUrl, artworkUrl, title, artist, duration }) => ({
+      id,
+      liveUrl,
+      artworkUrl,
+      title,
+      artist,
+      durationInMs: duration * 1000,
+    }),
+  );
 };
 
 export const formatTime = (milliseconds: number) => {

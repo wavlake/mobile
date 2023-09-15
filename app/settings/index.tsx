@@ -1,9 +1,13 @@
-import { Center, Button, TextInput } from "@/components";
+import { Button, TextInput, WalletChooser } from "@/components";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheDefaultZapAmount } from "@/utils";
+import {
+  cacheDefaultZapAmount,
+  cacheDefaultZapWallet,
+  WalletKey,
+} from "@/utils";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -12,10 +16,13 @@ export default function SettingsPage() {
   const [defaultZapAmount, setDefaultZapAmount] = useState(
     params.defaultZapAmount as string,
   );
-  const isDisabled = Number(defaultZapAmount) <= 0;
+  const [defaultZapWallet, setDefaultZapWallet] = useState(
+    params.defaultZapWallet as WalletKey,
+  );
   const handleSave = async () => {
     Keyboard.dismiss();
     await cacheDefaultZapAmount(defaultZapAmount, pubkey);
+    await cacheDefaultZapWallet(defaultZapWallet, pubkey);
     toast.show("saved");
   };
 
@@ -23,7 +30,7 @@ export default function SettingsPage() {
     <>
       <Stack.Screen options={{ headerTitle: "Settings" }} />
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <Center style={{ paddingHorizontal: 36 }}>
+        <View style={{ padding: 24, gap: 24, alignItems: "center" }}>
           <View style={{ marginBottom: 24, width: "100%" }}>
             <TextInput
               label="default zap amount"
@@ -31,11 +38,13 @@ export default function SettingsPage() {
               keyboardType="numeric"
               onChangeText={setDefaultZapAmount}
             />
+            <WalletChooser
+              selectedWallet={defaultZapWallet}
+              onSelectedWalletChange={setDefaultZapWallet}
+            />
           </View>
-          <Button onPress={handleSave} disabled={isDisabled}>
-            Save
-          </Button>
-        </Center>
+          <Button onPress={handleSave}>Save</Button>
+        </View>
       </TouchableWithoutFeedback>
     </>
   );

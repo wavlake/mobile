@@ -31,7 +31,7 @@ export default function Login() {
     <>
       <Stack.Screen options={{ headerTitle: "Login" }} />
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <Center style={{ paddingHorizontal: 36 }}>
+        <Center style={{ paddingHorizontal: 24 }}>
           <View style={{ marginBottom: 24, width: "100%" }}>
             <TextInput
               label="nostr nsec"

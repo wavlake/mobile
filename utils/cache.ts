@@ -1,11 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Event } from "nostr-tools";
+import { WalletKey } from "@/utils";
 
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
-const makeDefaultZapAmountKey = (pubkey: string = "anonymous") =>
-  `${pubkey}.defaultZapAmount`;
+const makeDefaultZapAmountKey = (pubkey?: string) => {
+  return `${pubkey || "anonymous"}.defaultZapAmount`;
+};
+const makeDefaultZapWalletKey = (pubkey?: string) =>
+  `${pubkey || "anonymous"}.defaultZapWallet`;
 
 const storeData = async (key: string, value: string) => {
   await AsyncStorage.setItem(key, value);
@@ -69,4 +73,19 @@ export const getDefaultZapAmount = async (pubkey?: string) => {
   const defaultZapAmountKey = makeDefaultZapAmountKey(pubkey);
 
   return getData(defaultZapAmountKey);
+};
+
+export const cacheDefaultZapWallet = async (
+  defaultZapWallet: WalletKey,
+  pubkey?: string,
+) => {
+  const defaultZapWalletKey = makeDefaultZapWalletKey(pubkey);
+
+  await storeData(defaultZapWalletKey, defaultZapWallet);
+};
+
+export const getDefaultZapWallet = async (pubkey?: string) => {
+  const defaultZapWalletKey = makeDefaultZapWalletKey(pubkey);
+
+  return getData(defaultZapWalletKey);
 };

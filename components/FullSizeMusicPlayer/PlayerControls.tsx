@@ -10,8 +10,6 @@ import { useState } from "react";
 export const PlayerControls = () => {
   const { colors } = useTheme();
   const {
-    songQueue,
-    currentSongIndex,
     positionInMs,
     pauseStatusUpdates,
     setPosition,
@@ -19,9 +17,9 @@ export const PlayerControls = () => {
     togglePlayPause,
     back,
     forward,
+    currentSong,
   } = useMusicPlayer();
   const [isChangingSong, setIsChangingSong] = useState(false);
-  const currentSong = songQueue[currentSongIndex];
   const { durationInMs } = currentSong || {};
   const padding = 24;
   const handleBackPress = async () => {

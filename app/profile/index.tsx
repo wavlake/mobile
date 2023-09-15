@@ -10,9 +10,10 @@ import {
 } from "@/hooks";
 import { encodeNsec, encodeNpub, getSeckey } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
-import { brandColors } from "@/constants";
+import { useTheme } from "@react-navigation/native";
 
 export default function ProfilePage() {
+  const { colors } = useTheme();
   const toast = useToast();
   const { pubkey = "" } = useAuth();
   const npub = encodeNpub(pubkey) ?? "";
@@ -107,9 +108,10 @@ export default function ProfilePage() {
       </View>
       {!nsec && (
         <Button
-          color={brandColors.black.light}
+          color={colors.border}
+          titleStyle={{ color: colors.text }}
           onPress={handleRevealNsec}
-          fullWidth
+          width="100%"
           style={{ marginTop: 24 }}
         >
           Reveal private key (nsec)
