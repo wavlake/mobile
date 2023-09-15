@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Event } from "nostr-tools";
-import { WalletKey } from "@/constants";
+import { WalletKey } from "@/utils";
 
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>

@@ -3,8 +3,11 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheDefaultZapAmount, cacheDefaultZapWallet } from "@/utils";
-import { WalletKey } from "@/constants";
+import {
+  cacheDefaultZapAmount,
+  cacheDefaultZapWallet,
+  WalletKey,
+} from "@/utils";
 
 export default function SettingsPage() {
   const toast = useToast();

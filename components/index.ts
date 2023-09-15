@@ -24,3 +24,4 @@ export * from "./TextInput";
 export * from "./Avatar";
 export * from "./CancelButton";
 export * from "./WalletChooser";
+export * from "./WalletChooserModal";

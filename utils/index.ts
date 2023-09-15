@@ -3,3 +3,4 @@ export * from "./musicPlayer";
 export * from "./nostr";
 export * from "./cache";
 export * from "./secureStorage";
+export * from "./wallet";

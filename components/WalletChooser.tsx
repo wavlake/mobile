@@ -1,5 +1,5 @@
 import { Picker } from "@react-native-picker/picker";
-import { WalletKey, WALLETS } from "@/constants";
+import { WalletKey, WALLETS } from "@/utils";
 import { View } from "react-native";
 import { Text } from "@/components/Text";
 
@@ -13,7 +13,7 @@ export const WalletChooser = ({
   onSelectedWalletChange,
 }: WalletChooserProps) => {
   return (
-    <>
+    <View style={{ width: "100%" }}>
       <Text style={{ marginBottom: 4 }}>default zap wallet</Text>
       <View style={{ backgroundColor: "white", borderRadius: 8 }}>
         <Picker
@@ -25,6 +25,6 @@ export const WalletChooser = ({
           ))}
         </Picker>
       </View>
-    </>
+    </View>
   );
 };

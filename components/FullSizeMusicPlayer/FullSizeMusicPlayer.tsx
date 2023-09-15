@@ -12,7 +12,7 @@ import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
-import { getDefaultZapAmount, getDefaultZapWallet } from "@/utils";
+import { getDefaultZapAmount } from "@/utils";
 import { useAuth } from "@/hooks";
 
 export const FullSizeMusicPlayer = () => {
@@ -53,13 +53,11 @@ export const FullSizeMusicPlayer = () => {
             onPress={async () => {
               const defaultZapAmount =
                 (await getDefaultZapAmount(pubkey)) ?? "";
-              const defaultZapWallet = await getDefaultZapWallet(pubkey);
 
               router.push({
                 pathname: "/zap",
                 params: {
                   defaultZapAmount,
-                  defaultZapWallet: defaultZapWallet ?? undefined,
                   title,
                   artist,
                   artworkUrl,

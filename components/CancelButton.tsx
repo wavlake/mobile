@@ -2,16 +2,27 @@ import { Button, ButtonProps } from "@/components/Button";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 
-export const CancelButton = (props: ButtonProps) => {
+interface CancelButtonProps extends ButtonProps {
+  onCancel?: () => void;
+}
+
+export const CancelButton = ({ onCancel, ...rest }: CancelButtonProps) => {
   const { colors } = useTheme();
   const router = useRouter();
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    } else {
+      router.back();
+    }
+  };
 
   return (
     <Button
       color={colors.border}
       titleStyle={{ color: colors.text }}
-      onPress={() => router.back()}
-      {...props}
+      onPress={handleCancel}
+      {...rest}
     >
       Cancel
     </Button>

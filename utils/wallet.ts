@@ -1,3 +1,5 @@
+import * as Linking from "expo-linking";
+
 interface Wallet {
   displayName: string;
   uriPrefix: string;
@@ -92,4 +94,25 @@ export const WALLETS: Record<WalletKey, Wallet> = {
     iosFallbackLink:
       "https://apps.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040",
   },
+};
+
+export const openInvoiceInWallet = async (
+  defaultZapWallet: WalletKey,
+  invoice: string,
+) => {
+  const { uriPrefix, iosFallbackLink } = WALLETS[defaultZapWallet];
+
+  try {
+    await Linking.openURL(`${uriPrefix}${invoice}`);
+  } catch {
+    if (iosFallbackLink) {
+      await Linking.openURL(iosFallbackLink);
+    }
+  }
+};
+
+export const validateWalletKey = (
+  walletKey?: string | null,
+): walletKey is WalletKey => {
+  return walletKey ? Object.keys(WALLETS).includes(walletKey) : false;
 };
