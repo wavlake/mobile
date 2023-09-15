@@ -28,8 +28,8 @@ export const WalletChooserModal = ({
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <Modal animationType="slide" {...rest}>
+    <Modal animationType="slide" {...rest}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
         <View
           style={{
             paddingHorizontal: 24,
@@ -53,7 +53,7 @@ export const WalletChooserModal = ({
           <Button onPress={handleContinueClick}>Continue</Button>
           <CancelButton onCancel={onCancel} />
         </View>
-      </Modal>
-    </SafeAreaView>
+      </SafeAreaView>
+    </Modal>
   );
 };
