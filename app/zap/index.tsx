@@ -73,6 +73,8 @@ export default function ZapPage() {
     } catch {
       toast.show("Something went wrong. Please try again later.");
       setIsZapping(false);
+
+      return;
     }
 
     try {
