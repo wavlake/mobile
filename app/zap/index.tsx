@@ -9,17 +9,19 @@ import {
 } from "@/components";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth, useNostrRelayList, useToast } from "@/hooks";
 import {
   cacheDefaultZapWallet,
   fetchInvoice,
   getDefaultZapWallet,
+  getZapReceipt,
   openInvoiceInWallet,
   validateWalletKey,
 } from "@/utils";
 
 export default function ZapPage() {
+  const router = useRouter();
   const toast = useToast();
   const { pubkey } = useAuth();
   const { defaultZapAmount, title, artist, artworkUrl, trackId } =
@@ -70,8 +72,22 @@ export default function ZapPage() {
       await openInvoiceInWallet(defaultZapWallet, invoice);
     } catch {
       toast.show("Something went wrong. Please try again later.");
-    } finally {
       setIsZapping(false);
+    }
+
+    try {
+      await getZapReceipt(invoice);
+      router.replace({
+        pathname: "/zap/success",
+        params: {
+          title,
+          artist,
+          artworkUrl,
+          zapAmount,
+        },
+      });
+    } catch {
+      // Fail silently if unable to connect to wavlake relay to get zap receipt.
     }
   };
 

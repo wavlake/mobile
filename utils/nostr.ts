@@ -312,3 +312,29 @@ export const fetchInvoice = async ({
     console.log(error);
   }
 };
+
+export const getZapReceipt = async (invoice: string) => {
+  const relay = relayInit("wss://relay.wavlake.com/");
+  const since = Math.round(Date.now() / 1000);
+
+  relay.on("error", () => {
+    throw new Error(`failed to connect to ${relay.url}`);
+  });
+
+  await relay.connect();
+
+  return new Promise((resolve) => {
+    const sub = relay.sub([
+      {
+        kinds: [9735],
+        since,
+      },
+    ]);
+
+    sub.on("event", (event) => {
+      if (event.tags.find((t) => t[0] === "bolt11" && t[1] === invoice)) {
+        resolve(event);
+      }
+    });
+  });
+};
