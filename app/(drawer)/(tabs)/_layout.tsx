@@ -4,17 +4,42 @@ import {
   MusicalNoteIcon,
   SignalIcon,
 } from "react-native-heroicons/solid";
-import { Tabs, usePathname } from "expo-router";
+import { Tabs, usePathname, useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { View } from "react-native";
 import { MiniMusicPlayer, useMusicPlayer } from "@/components";
-import { formatMusicItemForMusicPlayer, getRandomMusic } from "@/utils";
+import {
+  cacheIsFirstAppLaunch,
+  formatMusicItemForMusicPlayer,
+  getIsFirstAppLaunch,
+  getRandomMusic,
+} from "@/utils";
+import { useAuth, useIsNavigationReady } from "@/hooks";
+import { useEffect } from "react";
 
 export default function TabLayout() {
   const pathname = usePathname();
   const { colors } = useTheme();
   const { loadItemList, clear } = useMusicPlayer();
   const height = 88;
+  const { pubkey } = useAuth();
+  const router = useRouter();
+  const isNavigationReady = useIsNavigationReady();
+
+  useEffect(() => {
+    if (pubkey || !isNavigationReady) {
+      return;
+    }
+
+    (async () => {
+      const isFirstAppLaunch = await getIsFirstAppLaunch();
+
+      if (isFirstAppLaunch) {
+        await cacheIsFirstAppLaunch();
+        router.push("/auth");
+      }
+    })();
+  }, [pubkey, isNavigationReady]);
 
   return (
     <View style={{ flex: 1 }}>

@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Event } from "nostr-tools";
 import { WalletKey } from "@/utils";
 
+const isFirstAppLaunchKey = "isFirstAppLaunch";
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
@@ -31,6 +32,13 @@ const getObjectData = async (cacheKey: string) => {
   } catch {
     return null;
   }
+};
+
+export const cacheIsFirstAppLaunch = async () =>
+  storeData(isFirstAppLaunchKey, "1");
+
+export const getIsFirstAppLaunch = async () => {
+  return (await getData(isFirstAppLaunchKey)) === null;
 };
 
 export const cacheNostrProfileEvent = async (pubkey: string, event: Event) => {
