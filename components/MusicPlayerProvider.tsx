@@ -27,7 +27,7 @@ type LoadItemList = ({
   startIndex?: number;
 }) => Promise<void>;
 
-type Status = "playing" | "paused" | "off";
+type Status = "loadingItemList" | "playing" | "paused" | "off";
 
 interface MusicPlayerContextProps {
   songQueue: MusicPlayerItem[];
@@ -83,6 +83,12 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     playerTitle,
     startIndex,
   }) => {
+    if (status === "loadingItemList") {
+      return;
+    }
+
+    setStatus("loadingItemList");
+
     songQueue.current = itemList;
     currentSongIndex.current = startIndex ?? 0;
 
