@@ -40,20 +40,19 @@ export const NewMusicSection = () => {
         data={data}
         contentContainerStyle={{ paddingVertical: 16 }}
         renderItem={({ item, index }) => {
-          const { artworkUrl, id } = item;
-
           return (
-            <TouchableOpacity key={id} onPress={() => handleRowPress(index)}>
+            <TouchableOpacity onPress={() => handleRowPress(index)}>
               <View
                 style={{
                   marginRight: index === data.length - 1 ? 0 : 16,
                 }}
               >
-                <SongArtwork size={124} url={artworkUrl} />
+                <SongArtwork size={124} url={item.artworkUrl} />
               </View>
             </TouchableOpacity>
           );
         }}
+        keyExtractor={(item) => item.id}
         scrollEnabled
         showsHorizontalScrollIndicator={false}
       />

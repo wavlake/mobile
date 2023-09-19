@@ -32,10 +32,10 @@ export default function DiscoverPage() {
       <FlatList
         data={data}
         renderItem={({ item, index }) => {
-          const { artworkUrl, title, artist, id } = item;
+          const { artworkUrl, title, artist } = item;
 
           return (
-            <TouchableOpacity key={id} onPress={() => handleRowPress(index)}>
+            <TouchableOpacity onPress={() => handleRowPress(index)}>
               <View
                 style={{
                   flexDirection: "row",
@@ -63,6 +63,7 @@ export default function DiscoverPage() {
             </TouchableOpacity>
           );
         }}
+        keyExtractor={(item) => item.id}
         scrollEnabled
       />
     </View>

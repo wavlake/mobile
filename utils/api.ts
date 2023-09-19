@@ -20,6 +20,13 @@ export interface MusicItem {
   isProcessing: boolean;
 }
 
+export interface SearchResult {
+  id: string;
+  type: "artist" | "album" | "track";
+  name: string;
+  artworkUrl: string;
+}
+
 const apiClient = axios.create({
   baseURL: process.env.EXPO_PUBLIC_WAVLAKE_API_URL,
 });
@@ -40,4 +47,14 @@ export const getRandomMusic = async (): Promise<MusicItem[]> => {
   const { data } = await apiClient.get("/tracks/random");
 
   return data;
+};
+
+export const search = async (query: string): Promise<SearchResult[]> => {
+  const { data } = await apiClient.get("/search", {
+    params: {
+      term: query,
+    },
+  });
+
+  return data.data;
 };

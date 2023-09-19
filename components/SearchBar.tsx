@@ -1,10 +1,12 @@
 import { SearchBar as BaseSearchBar } from "@rneui/themed";
 import { Platform } from "react-native";
-import { useState } from "react";
 
-export const SearchBar = () => {
-  const [query, setQuery] = useState("");
+interface SearchBarProps {
+  query: string;
+  onChange: (query: string) => void;
+}
 
+export const SearchBar = ({ query, onChange }: SearchBarProps) => {
   return (
     <BaseSearchBar
       platform={Platform.OS === "ios" ? "ios" : "android"}
@@ -12,7 +14,7 @@ export const SearchBar = () => {
         backgroundColor: "transparent",
       }}
       inputContainerStyle={{ borderRadius: 16 }}
-      onChangeText={setQuery}
+      onChangeText={onChange}
       value={query}
     />
   );
