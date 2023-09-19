@@ -47,7 +47,7 @@ export const PillTabView = ({
           })}
         >
           <Tab.Item title="Music" />
-          <Tab.Item title="Podcasts" />
+          <Tab.Item title="Shows" />
         </Tab>
       </View>
       {searchShown && (
