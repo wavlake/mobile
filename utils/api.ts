@@ -58,3 +58,9 @@ export const search = async (query: string): Promise<SearchResult[]> => {
 
   return data.data;
 };
+
+export const getAlbumTracks = async (albumId: string): Promise<MusicItem[]> => {
+  const { data } = await apiClient.get(`/tracks/${albumId}/album`);
+
+  return data.data;
+};
