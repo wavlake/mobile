@@ -38,7 +38,12 @@ const SearchResultRow = ({ artworkUrl, name, type, id }: SearchResult) => {
     if (type === "artist") {
       return router.push({
         pathname: `${basePathname}/artist/[artistId]`,
-        params: { artistId: id, headerTitle: name, includeBackButton: true },
+        params: {
+          artistId: id,
+          avatarUrl: artworkUrl,
+          headerTitle: name,
+          includeBackButton: true,
+        },
       });
     }
   };
