@@ -42,6 +42,11 @@ interface Album {
   publishedAt: string;
 }
 
+interface Genre {
+  id: number;
+  name: string;
+}
+
 const apiClient = axios.create({
   baseURL: process.env.EXPO_PUBLIC_WAVLAKE_API_URL,
 });
@@ -84,4 +89,19 @@ export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {
   const { data } = await apiClient.get(`/albums/${artistId}/artist`);
 
   return data.data;
+};
+
+export const getGenres = async (): Promise<Genre[]> => {
+  const { data } = await apiClient.get("/meta/music/genres");
+
+  return data.data;
+};
+
+export const getRandomGenreTracks = async (
+  genreId: string,
+): Promise<Track[]> => {
+  console.log(genreId);
+  const { data } = await apiClient.get(`/tracks/random/${genreId}/genre`);
+
+  return data;
 };

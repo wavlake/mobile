@@ -28,3 +28,4 @@ export * from "./WalletChooser";
 export * from "./WalletChooserModal";
 export * from "./AlbumPage";
 export * from "./ArtistPage";
+export * from "./GenresSection";
