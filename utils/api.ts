@@ -100,7 +100,6 @@ export const getGenres = async (): Promise<Genre[]> => {
 export const getRandomGenreTracks = async (
   genreId: string,
 ): Promise<Track[]> => {
-  console.log(genreId);
   const { data } = await apiClient.get(`/tracks/random/${genreId}/genre`);
 
   return data;
