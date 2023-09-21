@@ -8,7 +8,7 @@ export default function SearchPage() {
       </PillTabView.Item>
       <PillTabView.Item style={{ width: "100%" }}>
         <Center>
-          <Text>Podcast search coming soon</Text>
+          <Text>Shows search coming soon</Text>
         </Center>
       </PillTabView.Item>
     </PillTabView>
