@@ -10,7 +10,7 @@ import { View } from "react-native";
 import { MiniMusicPlayer, useMusicPlayer } from "@/components";
 import {
   cacheIsFirstAppLaunch,
-  formatMusicItemForMusicPlayer,
+  formatTrackListForMusicPlayer,
   getIsFirstAppLaunch,
   getRandomMusic,
 } from "@/utils";
@@ -20,7 +20,7 @@ import { useEffect } from "react";
 export default function TabLayout() {
   const pathname = usePathname();
   const { colors } = useTheme();
-  const { loadItemList, clear } = useMusicPlayer();
+  const { loadTrackList, clear } = useMusicPlayer();
   const height = 88;
   const { pubkey } = useAuth();
   const router = useRouter();
@@ -90,8 +90,8 @@ export default function TabLayout() {
 
               const radomMusic = await getRandomMusic();
 
-              await loadItemList({
-                itemList: formatMusicItemForMusicPlayer(radomMusic),
+              await loadTrackList({
+                trackList: formatTrackListForMusicPlayer(radomMusic),
                 playerTitle: "Radio",
               });
             },

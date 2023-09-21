@@ -2,17 +2,17 @@ import { NewBadgeIcon } from "./NewBadgeIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
 import { FlatList, View, TouchableOpacity } from "react-native";
-import { SongArtwork } from "./SongArtwork";
+import { TrackArtwork } from "./TrackArtwork";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useNewMusic } from "@/hooks";
-import { formatMusicItemForMusicPlayer } from "@/utils";
+import { formatTrackListForMusicPlayer } from "@/utils";
 
 export const NewMusicSection = () => {
   const { data } = useNewMusic();
-  const { loadItemList } = useMusicPlayer();
+  const { loadTrackList } = useMusicPlayer();
   const handleRowPress = async (index: number) => {
-    await loadItemList({
-      itemList: formatMusicItemForMusicPlayer(data),
+    await loadTrackList({
+      trackList: formatTrackListForMusicPlayer(data),
       startIndex: index,
       playerTitle: "New music",
     });
@@ -40,20 +40,19 @@ export const NewMusicSection = () => {
         data={data}
         contentContainerStyle={{ paddingVertical: 16 }}
         renderItem={({ item, index }) => {
-          const { artworkUrl, id } = item;
-
           return (
-            <TouchableOpacity key={id} onPress={() => handleRowPress(index)}>
+            <TouchableOpacity onPress={() => handleRowPress(index)}>
               <View
                 style={{
                   marginRight: index === data.length - 1 ? 0 : 16,
                 }}
               >
-                <SongArtwork size={124} url={artworkUrl} />
+                <TrackArtwork size={124} url={item.artworkUrl} />
               </View>
             </TouchableOpacity>
           );
         }}
+        keyExtractor={(item) => item.id}
         scrollEnabled
         showsHorizontalScrollIndicator={false}
       />

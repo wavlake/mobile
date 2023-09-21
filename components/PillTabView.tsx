@@ -4,6 +4,7 @@ import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
 import { SearchBar } from "./SearchBar";
+import { SearchResults } from "@/components/SearchResults";
 
 interface PillTabViewProps {
   searchShown?: boolean;
@@ -15,6 +16,8 @@ export const PillTabView = ({
 }: PropsWithChildren<PillTabViewProps>) => {
   const [index, setIndex] = useState(0);
   const { colors } = useTheme();
+  const [searchQuery, setSearchQuery] = useState("");
+  const willShowSearchResults = searchQuery.length > 0;
 
   return (
     <>
@@ -47,23 +50,26 @@ export const PillTabView = ({
           })}
         >
           <Tab.Item title="Music" />
-          <Tab.Item title="Podcasts" />
+          <Tab.Item title="Shows" />
         </Tab>
       </View>
       {searchShown && (
         <View style={{ padding: 8 }}>
-          <SearchBar />
+          <SearchBar query={searchQuery} onChange={setSearchQuery} />
         </View>
       )}
-      <TabView
-        value={index}
-        onChange={setIndex}
-        animationType="spring"
-        disableSwipe
-        disableTransition
-      >
-        {children}
-      </TabView>
+      {willShowSearchResults ? (
+        <SearchResults query={searchQuery} />
+      ) : (
+        <TabView
+          value={index}
+          onChange={setIndex}
+          disableSwipe
+          disableTransition
+        >
+          {children}
+        </TabView>
+      )}
     </>
   );
 };

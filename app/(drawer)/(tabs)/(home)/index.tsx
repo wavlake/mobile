@@ -18,7 +18,7 @@ export default function HomePage() {
       </PillTabView.Item>
       <PillTabView.Item style={{ width: "100%" }}>
         <Center>
-          <Text>New and trending podcasts coming soon</Text>
+          <Text>New and trending shows coming soon</Text>
         </Center>
       </PillTabView.Item>
     </PillTabView>
