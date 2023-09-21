@@ -1,36 +1,36 @@
 import { Dimensions, FlatList, View } from "react-native";
 import { useMemo, useRef, useEffect } from "react";
-import { SongArtwork } from "@/components/SongArtwork";
+import { TrackArtwork } from "@/components/TrackArtwork";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 
 export const ArtworkCarousel = () => {
   const artworkUrlListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get("window").width;
   const padding = 24;
-  const { songQueue, currentSongIndex } = useMusicPlayer();
-  const songQueueArtworkUrls = useMemo(
-    () => songQueue.map((song) => song.artworkUrl),
-    [songQueue],
+  const { trackQueue, currentTrackIndex } = useMusicPlayer();
+  const trackQueueArtworkUrls = useMemo(
+    () => trackQueue.map((track) => track.artworkUrl),
+    [trackQueue],
   );
 
   useEffect(() => {
     artworkUrlListRef.current?.scrollToIndex({
-      index: currentSongIndex,
+      index: currentTrackIndex,
     });
-  }, [currentSongIndex]);
+  }, [currentTrackIndex]);
 
   return (
     <FlatList
       ref={artworkUrlListRef}
       horizontal
-      initialScrollIndex={currentSongIndex}
+      initialScrollIndex={currentTrackIndex}
       initialNumToRender={1}
       getItemLayout={(data, index) => ({
         length: screenWidth,
         offset: screenWidth * index,
         index,
       })}
-      data={songQueueArtworkUrls}
+      data={trackQueueArtworkUrls}
       renderItem={({ item }) => (
         <View
           key={item}
@@ -39,7 +39,7 @@ export const ArtworkCarousel = () => {
             width: screenWidth,
           }}
         >
-          <SongArtwork size={screenWidth - padding * 2} url={item} />
+          <TrackArtwork size={screenWidth - padding * 2} url={item} />
         </View>
       )}
       scrollEnabled={false}

@@ -1,12 +1,12 @@
 import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
 import { useQuery } from "@tanstack/react-query";
-import { formatMusicItemForMusicPlayer, getTopMusic } from "@/utils";
+import { formatTrackListForMusicPlayer, getTopMusic } from "@/utils";
 import { LayoutChangeEvent, View, TouchableOpacity } from "react-native";
 import { FireIcon } from "./FireIcon";
 import { Text } from "./Text";
 import { useState } from "react";
-import { SongArtwork } from "./SongArtwork";
+import { TrackArtwork } from "./TrackArtwork";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 
 export const TopMusicSection = () => {
@@ -16,15 +16,15 @@ export const TopMusicSection = () => {
   });
   const [songMetadataContainerWidth, setSongMetadataContainerWidth] =
     useState(0);
-  const { loadItemList } = useMusicPlayer();
+  const { loadTrackList } = useMusicPlayer();
 
   const handleSongMetadataContainerLayout = (event: LayoutChangeEvent) => {
     const { width } = event.nativeEvent.layout;
     setSongMetadataContainerWidth(width);
   };
   const handleRowPress = async (index: number) => {
-    await loadItemList({
-      itemList: formatMusicItemForMusicPlayer(data),
+    await loadTrackList({
+      trackList: formatTrackListForMusicPlayer(data),
       startIndex: index,
       playerTitle: "Trending",
     });
@@ -67,7 +67,7 @@ export const TopMusicSection = () => {
               >
                 {index + 1}
               </Text>
-              <SongArtwork size={100} url={artworkUrl} />
+              <TrackArtwork size={100} url={artworkUrl} />
               <View
                 style={{ marginLeft: 10, flex: 1 }}
                 onLayout={handleSongMetadataContainerLayout}

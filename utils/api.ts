@@ -25,6 +25,11 @@ export interface SearchResult {
   type: "artist" | "album" | "track";
   name: string;
   artworkUrl: string;
+  liveUrl?: string;
+  duration?: number;
+  albumId?: string;
+  artistId?: string;
+  artist?: string;
 }
 
 interface Album {

@@ -12,7 +12,7 @@ export * from "./TopMusicSection";
 export * from "./MiniMusicPlayer";
 export * from "./FullSizeMusicPlayer";
 export * from "./MusicPlayerProvider";
-export * from "./SongArtwork";
+export * from "./TrackArtwork";
 export * from "./LibraryMenu";
 export * from "./ArtistsIcon";
 export * from "./AlbumsIcon";

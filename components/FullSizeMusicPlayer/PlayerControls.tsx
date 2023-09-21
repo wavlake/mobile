@@ -17,28 +17,28 @@ export const PlayerControls = () => {
     togglePlayPause,
     back,
     forward,
-    currentSong,
+    currentTrack,
   } = useMusicPlayer();
-  const [isChangingSong, setIsChangingSong] = useState(false);
-  const { durationInMs } = currentSong || {};
+  const [isChangingTrack, setIsChangingTrack] = useState(false);
+  const { durationInMs } = currentTrack || {};
   const padding = 24;
   const handleBackPress = async () => {
-    if (isChangingSong) {
+    if (isChangingTrack) {
       return;
     }
 
-    setIsChangingSong(true);
+    setIsChangingTrack(true);
     await back();
-    setIsChangingSong(false);
+    setIsChangingTrack(false);
   };
   const handleForwardPress = async () => {
-    if (isChangingSong) {
+    if (isChangingTrack) {
       return;
     }
 
-    setIsChangingSong(true);
+    setIsChangingTrack(true);
     await forward();
-    setIsChangingSong(false);
+    setIsChangingTrack(false);
   };
 
   return (

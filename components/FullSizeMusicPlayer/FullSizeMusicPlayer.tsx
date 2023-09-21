@@ -22,13 +22,13 @@ import { useTheme } from "@react-navigation/native";
 
 export const FullSizeMusicPlayer = () => {
   const router = useRouter();
-  const { currentSong } = useMusicPlayer();
+  const { currentTrack } = useMusicPlayer();
   const {
     id: trackId,
     title,
     artist,
     artworkUrl,
-  } = currentSong ?? {
+  } = currentTrack ?? {
     id: "",
     title: "",
     artist: "",
@@ -44,7 +44,7 @@ export const FullSizeMusicPlayer = () => {
     });
   };
 
-  return currentSong ? (
+  return currentTrack ? (
     <ScrollView style={{ paddingTop: 8 }}>
       <ArtworkCarousel />
       <View style={{ padding }}>

@@ -1,6 +1,6 @@
 import {
   MarqueeText,
-  SongArtwork,
+  TrackArtwork,
   CancelButton,
   Button,
   TextInput,
@@ -100,7 +100,7 @@ export default function ZapPage() {
           style={{ paddingHorizontal: 24, paddingVertical: 16 }}
           contentContainerStyle={{ alignItems: "center", gap: 16 }}
         >
-          {artworkUrl && <SongArtwork size={150} url={artworkUrl} />}
+          {artworkUrl && <TrackArtwork size={150} url={artworkUrl} />}
           <Center>
             <MarqueeText style={{ fontSize: 20 }} bold>
               {title}

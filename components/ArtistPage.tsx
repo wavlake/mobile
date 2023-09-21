@@ -3,7 +3,7 @@ import { Text } from "@/components/Text";
 import { useQuery } from "@tanstack/react-query";
 import { getArtistAlbums } from "@/utils";
 import { FlatList, Image, TouchableOpacity, View } from "react-native";
-import { SongArtwork } from "@/components/SongArtwork";
+import { TrackArtwork } from "@/components/TrackArtwork";
 
 export const ArtistPage = () => {
   const { artistId, avatarUrl } = useLocalSearchParams();
@@ -56,7 +56,7 @@ export const ArtistPage = () => {
                 marginBottom: 16,
               }}
             >
-              <SongArtwork size={100} url={artworkUrl} />
+              <TrackArtwork size={100} url={artworkUrl} />
               <View style={{ marginLeft: 10, flex: 1 }}>
                 <Text style={{ fontSize: 18 }} bold>
                   {title}

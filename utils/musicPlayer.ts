@@ -1,7 +1,7 @@
 import { Track } from "./api";
 
-export const formatMusicItemForMusicPlayer = (itemList: Track[]) => {
-  return itemList.map(
+export const formatTrackListForMusicPlayer = (trackList: Track[]) => {
+  return trackList.map(
     ({ id, liveUrl, artworkUrl, title, artist, duration }) => ({
       id,
       liveUrl,

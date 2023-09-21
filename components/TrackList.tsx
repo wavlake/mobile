@@ -1,7 +1,7 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { formatMusicItemForMusicPlayer, Track } from "@/utils";
-import { SongArtwork } from "@/components/SongArtwork";
+import { formatTrackListForMusicPlayer, Track } from "@/utils";
+import { TrackArtwork } from "@/components/TrackArtwork";
 import { Text } from "@/components/Text";
 
 interface TrackListProps {
@@ -10,11 +10,11 @@ interface TrackListProps {
 }
 
 export const TrackList = ({ data, playerTitle }: TrackListProps) => {
-  const { loadItemList } = useMusicPlayer();
+  const { loadTrackList } = useMusicPlayer();
 
   const handleRowPress = async (index: number) => {
-    await loadItemList({
-      itemList: formatMusicItemForMusicPlayer(data),
+    await loadTrackList({
+      trackList: formatTrackListForMusicPlayer(data),
       startIndex: index,
       playerTitle,
     });
@@ -35,7 +35,7 @@ export const TrackList = ({ data, playerTitle }: TrackListProps) => {
                   marginBottom: 16,
                 }}
               >
-                <SongArtwork size={124} url={artworkUrl} />
+                <TrackArtwork size={124} url={artworkUrl} />
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text
                     style={{

@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Audio, AVPlaybackStatus } from "expo-av";
 
-export interface MusicPlayerItem {
+export interface MusicPlayerTrack {
   id: string;
   liveUrl: string;
   artworkUrl: string;
@@ -17,26 +17,26 @@ export interface MusicPlayerItem {
   durationInMs: number;
 }
 
-type LoadItemList = ({
-  itemList,
+type LoadTrackList = ({
+  trackList,
   playerTitle,
   startIndex,
 }: {
-  itemList: MusicPlayerItem[];
+  trackList: MusicPlayerTrack[];
   playerTitle?: string;
   startIndex?: number;
 }) => Promise<void>;
 
-type Status = "loadingItemList" | "playing" | "paused" | "off";
+type Status = "loadingTrackList" | "playing" | "paused" | "off";
 
 interface MusicPlayerContextProps {
-  songQueue: MusicPlayerItem[];
-  currentSongIndex: number;
-  currentSong?: MusicPlayerItem;
+  trackQueue: MusicPlayerTrack[];
+  currentTrackIndex: number;
+  currentTrack?: MusicPlayerTrack;
   playerTitle?: string;
   status: Status;
   positionInMs: number;
-  loadItemList: LoadItemList;
+  loadTrackList: LoadTrackList;
   togglePlayPause: () => Promise<void>;
   play: () => Promise<void>;
   pause: () => Promise<void>;
@@ -51,22 +51,23 @@ interface MusicPlayerContextProps {
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
-  const songQueue = useRef<MusicPlayerItem[]>([]);
+  const trackQueue = useRef<MusicPlayerTrack[]>([]);
   const currentSound = useRef<Audio.Sound | null>(null);
-  const currentSongIndex = useRef(0);
+  const currentTrackIndex = useRef(0);
   const isStatusUpdatesPaused = useRef(false);
   const [status, setStatus] = useState<Status>("off");
   const [positionInMs, setPositionInMs] = useState<number>(0);
   const [playerTitle, setPlayerTitle] = useState<string>();
 
-  const hasNext = () => currentSongIndex.current < songQueue.current.length - 1;
-  const loadItem = async (item: MusicPlayerItem) => {
+  const hasNext = () =>
+    currentTrackIndex.current < trackQueue.current.length - 1;
+  const loadTrack = async (track: MusicPlayerTrack) => {
     if (currentSound.current) {
       await currentSound.current.unloadAsync();
     }
 
     const { sound } = await Audio.Sound.createAsync({
-      uri: item.liveUrl,
+      uri: track.liveUrl,
     });
 
     currentSound.current = sound;
@@ -78,27 +79,27 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setStatus("playing");
     await sound.playAsync();
   };
-  const loadItemList: LoadItemList = async ({
-    itemList,
+  const loadTrackList: LoadTrackList = async ({
+    trackList,
     playerTitle,
     startIndex,
   }) => {
-    if (status === "loadingItemList") {
+    if (status === "loadingTrackList") {
       return;
     }
 
-    setStatus("loadingItemList");
+    setStatus("loadingTrackList");
 
-    songQueue.current = itemList;
-    currentSongIndex.current = startIndex ?? 0;
+    trackQueue.current = trackList;
+    currentTrackIndex.current = startIndex ?? 0;
 
-    if (itemList[currentSongIndex.current]) {
-      await loadItem(itemList[currentSongIndex.current]);
+    const currentTrack = trackList[currentTrackIndex.current];
+
+    if (currentTrack) {
+      await loadTrack(currentTrack);
     }
 
-    if (playerTitle) {
-      setPlayerTitle(playerTitle);
-    }
+    setPlayerTitle(playerTitle ?? currentTrack.title);
   };
   const onPlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
     if (isStatusUpdatesPaused.current) {
@@ -112,7 +113,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     const hasLastTrackInQueueJustFinished =
       status.isLoaded &&
       status.didJustFinish &&
-      currentSongIndex.current >= songQueue.current.length - 1;
+      currentTrackIndex.current >= trackQueue.current.length - 1;
 
     if (hasLastTrackInQueueJustFinished) {
       setStatus("paused");
@@ -132,8 +133,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setStatus("paused");
   };
   const clear = async () => {
-    currentSongIndex.current = 0;
-    songQueue.current = [];
+    currentTrackIndex.current = 0;
+    trackQueue.current = [];
     setStatus("off");
     await currentSound.current?.unloadAsync();
   };
@@ -154,17 +155,17 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     }
   };
   const canGoBack = () => {
-    return positionInMs < 5000 && currentSongIndex.current > 0;
+    return positionInMs < 5000 && currentTrackIndex.current > 0;
   };
   const back = async () => {
     isStatusUpdatesPaused.current = true;
     setPositionInMs(0);
 
     if (canGoBack()) {
-      const previousSongIndex = currentSongIndex.current - 1;
+      const previousTrackIndex = currentTrackIndex.current - 1;
 
-      currentSongIndex.current = previousSongIndex;
-      await loadItem(songQueue.current[previousSongIndex]);
+      currentTrackIndex.current = previousTrackIndex;
+      await loadTrack(trackQueue.current[previousTrackIndex]);
     } else {
       await currentSound.current?.replayAsync();
     }
@@ -175,12 +176,12 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    const nextSongIndex = currentSongIndex.current + 1;
+    const nextTrackIndex = currentTrackIndex.current + 1;
 
     isStatusUpdatesPaused.current = true;
     setPositionInMs(0);
-    currentSongIndex.current = nextSongIndex;
-    await loadItem(songQueue.current[nextSongIndex]);
+    currentTrackIndex.current = nextTrackIndex;
+    await loadTrack(trackQueue.current[nextTrackIndex]);
     isStatusUpdatesPaused.current = false;
   };
 
@@ -193,13 +194,13 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   return (
     <MusicPlayerContext.Provider
       value={{
-        songQueue: songQueue.current,
-        currentSongIndex: currentSongIndex.current,
-        currentSong: songQueue.current[currentSongIndex.current],
+        trackQueue: trackQueue.current,
+        currentTrackIndex: currentTrackIndex.current,
+        currentTrack: trackQueue.current[currentTrackIndex.current],
         playerTitle,
         status,
         positionInMs,
-        loadItemList,
+        loadTrackList,
         play,
         pause,
         togglePlayPause,

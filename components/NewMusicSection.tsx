@@ -2,17 +2,17 @@ import { NewBadgeIcon } from "./NewBadgeIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "./SectionHeader";
 import { FlatList, View, TouchableOpacity } from "react-native";
-import { SongArtwork } from "./SongArtwork";
+import { TrackArtwork } from "./TrackArtwork";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useNewMusic } from "@/hooks";
-import { formatMusicItemForMusicPlayer } from "@/utils";
+import { formatTrackListForMusicPlayer } from "@/utils";
 
 export const NewMusicSection = () => {
   const { data } = useNewMusic();
-  const { loadItemList } = useMusicPlayer();
+  const { loadTrackList } = useMusicPlayer();
   const handleRowPress = async (index: number) => {
-    await loadItemList({
-      itemList: formatMusicItemForMusicPlayer(data),
+    await loadTrackList({
+      trackList: formatTrackListForMusicPlayer(data),
       startIndex: index,
       playerTitle: "New music",
     });
@@ -47,7 +47,7 @@ export const NewMusicSection = () => {
                   marginRight: index === data.length - 1 ? 0 : 16,
                 }}
               >
-                <SongArtwork size={124} url={item.artworkUrl} />
+                <TrackArtwork size={124} url={item.artworkUrl} />
               </View>
             </TouchableOpacity>
           );

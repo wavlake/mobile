@@ -10,20 +10,39 @@ import { Text } from "@/components/Text";
 import { useDebounce } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { search, SearchResult } from "@/utils";
-import { SongArtwork } from "@/components/SongArtwork";
+import { TrackArtwork } from "@/components/TrackArtwork";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { usePathname, useRouter } from "expo-router";
+import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 
-const SearchResultRow = ({ artworkUrl, name, type, id }: SearchResult) => {
+const SearchResultRow = ({
+  artworkUrl,
+  name,
+  type,
+  id,
+  liveUrl,
+  artist,
+  duration,
+}: SearchResult) => {
   const { colors } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
-  const handleRowPress = () => {
-    if (type === "track") {
-      // TODO: play track
-      // Need API to be updated to include liveUrl, artist, and duration.
-      return;
+  const { loadTrackList } = useMusicPlayer();
+  const handleRowPress = async () => {
+    if (type === "track" && liveUrl && artist && duration) {
+      return await loadTrackList({
+        trackList: [
+          {
+            id,
+            liveUrl,
+            artworkUrl,
+            title: name,
+            artist,
+            durationInMs: duration * 1000,
+          },
+        ],
+      });
     }
 
     const basePathname = pathname === "/" ? "" : pathname;
@@ -60,7 +79,7 @@ const SearchResultRow = ({ artworkUrl, name, type, id }: SearchResult) => {
           marginBottom: 8,
         }}
       >
-        <SongArtwork size={60} url={artworkUrl} />
+        <TrackArtwork size={60} url={artworkUrl} />
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text numberOfLines={1} bold>
             {name}

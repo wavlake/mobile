@@ -1,4 +1,10 @@
-import { Button, LogoIcon, MarqueeText, SongArtwork, Text } from "@/components";
+import {
+  Button,
+  LogoIcon,
+  MarqueeText,
+  TrackArtwork,
+  Text,
+} from "@/components";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView, View } from "react-native";
 import { brandColors } from "@/constants";
@@ -48,7 +54,7 @@ export default function ZapSuccess() {
             </Text>
           </View>
           <View style={{ alignItems: "center" }}>
-            {artworkUrl && <SongArtwork size={248} url={artworkUrl} />}
+            {artworkUrl && <TrackArtwork size={248} url={artworkUrl} />}
             <MarqueeText
               style={{ color: fontColor, fontSize: 20, marginTop: 16 }}
               bold

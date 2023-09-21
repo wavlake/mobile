@@ -1,5 +1,5 @@
 import { View, Pressable } from "react-native";
-import { SongArtwork } from "./SongArtwork";
+import { TrackArtwork } from "./TrackArtwork";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
@@ -34,14 +34,14 @@ export const MiniMusicPlayer = () => {
   const globalSearchParams = useGlobalSearchParams();
   const router = useRouter();
   const { colors } = useTheme();
-  const { status, positionInMs, togglePlayPause, clear, currentSong } =
+  const { status, positionInMs, togglePlayPause, clear, currentTrack } =
     useMusicPlayer();
-  const { artworkUrl, title, artist, durationInMs } = currentSong || {};
+  const { artworkUrl, title, artist, durationInMs } = currentTrack || {};
   const progressBarWidth = durationInMs
     ? (positionInMs / durationInMs) * 100 || 0
     : 0;
 
-  return currentSong ? (
+  return currentTrack ? (
     <Pressable
       onPress={() =>
         router.push({ pathname: "/player", params: globalSearchParams })
@@ -54,7 +54,7 @@ export const MiniMusicPlayer = () => {
             padding: 10,
           }}
         >
-          {artworkUrl && <SongArtwork size={50} url={artworkUrl} />}
+          {artworkUrl && <TrackArtwork size={50} url={artworkUrl} />}
           <View
             style={{
               flexDirection: "row",
