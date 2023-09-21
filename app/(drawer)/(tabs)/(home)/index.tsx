@@ -1,20 +1,10 @@
-import {
-  PillTabView,
-  Text,
-  Center,
-  NewMusicSection,
-  TopMusicSection,
-} from "@/components";
-import { ScrollView } from "react-native";
+import { PillTabView, Text, Center, HomePageMusic } from "@/components";
 
 export default function HomePage() {
   return (
     <PillTabView searchShown>
       <PillTabView.Item style={{ width: "100%" }}>
-        <ScrollView>
-          <NewMusicSection />
-          <TopMusicSection />
-        </ScrollView>
+        <HomePageMusic />
       </PillTabView.Item>
       <PillTabView.Item style={{ width: "100%" }}>
         <Center>
