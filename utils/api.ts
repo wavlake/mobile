@@ -7,17 +7,13 @@ export interface Track {
   artistUrl: string;
   avatarUrl: string;
   artworkUrl: string;
-  msatTotal30Days: string;
-  msatTotal7Days: string;
-  msatTotal1Days: string | null;
   albumTitle: string;
   liveUrl: string;
   duration: number;
-  createdAt: string;
-  albumId: string;
-  artistId: string;
-  order: number;
-  isProcessing: boolean;
+}
+
+interface TrackResponse extends Track {
+  [key: string]: unknown;
 }
 
 export interface SearchResult {
@@ -28,6 +24,7 @@ export interface SearchResult {
   liveUrl?: string;
   duration?: number;
   albumId?: string;
+  albumTitle?: string;
   artistId?: string;
   artist?: string;
 }
@@ -56,22 +53,48 @@ const apiClient = axios.create({
   baseURL: process.env.EXPO_PUBLIC_WAVLAKE_API_URL,
 });
 
-export const getNewMusic = async () => {
+const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
+  return res.map(
+    ({
+      id,
+      title,
+      artist,
+      artistUrl,
+      avatarUrl,
+      artworkUrl,
+      albumTitle,
+      liveUrl,
+      duration,
+    }) => ({
+      id,
+      title,
+      artist,
+      artistUrl,
+      avatarUrl,
+      artworkUrl,
+      albumTitle,
+      liveUrl,
+      duration,
+    }),
+  );
+};
+
+export const getNewMusic = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/tracks/new");
 
-  return data.data;
+  return normalizeTrackResponse(data.data);
 };
 
 export const getTopMusic = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/charts/music/top");
 
-  return data.data;
+  return normalizeTrackResponse(data.data);
 };
 
 export const getRandomMusic = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/tracks/random");
 
-  return data;
+  return normalizeTrackResponse(data);
 };
 
 export const search = async (query: string): Promise<SearchResult[]> => {
@@ -87,7 +110,7 @@ export const search = async (query: string): Promise<SearchResult[]> => {
 export const getAlbumTracks = async (albumId: string): Promise<Track[]> => {
   const { data } = await apiClient.get(`/tracks/${albumId}/album`);
 
-  return data.data;
+  return normalizeTrackResponse(data.data);
 };
 
 export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {
@@ -107,5 +130,5 @@ export const getRandomGenreTracks = async (
 ): Promise<Track[]> => {
   const { data } = await apiClient.get(`/tracks/random/${genreId}/genre`);
 
-  return data;
+  return normalizeTrackResponse(data);
 };
