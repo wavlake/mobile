@@ -21,6 +21,7 @@ export const Avatar = ({ size }: AvatarProps) => {
         source={{ uri: avatarUrl }}
         placeholder={blurhash}
         style={{ width: size, height: size, borderRadius: size / 2 }}
+        cachePolicy="memory-disk"
       />
     );
   }
