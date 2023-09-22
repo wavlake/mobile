@@ -28,6 +28,7 @@ export interface SearchResult {
   liveUrl?: string;
   duration?: number;
   albumId?: string;
+  albumTitle?: string;
   artistId?: string;
   artist?: string;
 }
