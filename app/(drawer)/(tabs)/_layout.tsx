@@ -88,10 +88,10 @@ export default function TabLayout() {
             tabPress: async () => {
               await clear();
 
-              const radomMusic = await getRandomMusic();
+              const randomMusic = await getRandomMusic();
 
               await loadTrackList({
-                trackList: formatTrackListForMusicPlayer(radomMusic),
+                trackList: formatTrackListForMusicPlayer(randomMusic),
                 playerTitle: "Radio",
               });
             },

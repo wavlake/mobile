@@ -23,6 +23,9 @@ const SearchResultRow = ({
   id,
   liveUrl,
   artist,
+  artistId,
+  albumId,
+  albumTitle,
   duration,
 }: SearchResult) => {
   const { colors } = useTheme();
@@ -30,7 +33,15 @@ const SearchResultRow = ({
   const pathname = usePathname();
   const { loadTrackList } = useMusicPlayer();
   const handleRowPress = async () => {
-    if (type === "track" && liveUrl && artist && duration) {
+    if (
+      type === "track" &&
+      liveUrl &&
+      artist &&
+      duration &&
+      artistId &&
+      albumId &&
+      albumTitle
+    ) {
       return await loadTrackList({
         trackList: [
           {
@@ -39,6 +50,9 @@ const SearchResultRow = ({
             artworkUrl,
             title: name,
             artist,
+            artistId,
+            albumId,
+            albumTitle,
             durationInMs: duration * 1000,
           },
         ],

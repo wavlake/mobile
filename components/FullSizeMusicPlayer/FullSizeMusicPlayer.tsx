@@ -27,11 +27,19 @@ export const FullSizeMusicPlayer = () => {
     id: trackId,
     title,
     artist,
+    artistId,
+    avatarUrl,
+    albumId,
+    albumTitle,
     artworkUrl,
   } = currentTrack ?? {
     id: "",
     title: "",
     artist: "",
+    artistId: "",
+    avatarUrl: "",
+    albumId: "",
+    albumTitle: "",
     artworkUrl: "",
   };
   const screenWidth = Dimensions.get("window").width;
@@ -41,6 +49,23 @@ export const FullSizeMusicPlayer = () => {
   const handleShare = async () => {
     await Share.share({
       url: `https://wavlake.com/track/${trackId}`,
+    });
+  };
+  const handleTitlePress = () => {
+    router.push({
+      pathname: "/album/[albumId]",
+      params: { albumId, headerTitle: albumTitle, includeBackButton: true },
+    });
+  };
+  const handleArtistPress = () => {
+    router.push({
+      pathname: `/artist/[artistId]`,
+      params: {
+        artistId,
+        avatarUrl: avatarUrl ?? "",
+        headerTitle: artist,
+        includeBackButton: true,
+      },
     });
   };
 
@@ -55,10 +80,14 @@ export const FullSizeMusicPlayer = () => {
           }}
         >
           <View style={{ flex: 1 }}>
-            <MarqueeText style={{ fontSize: 20 }} bold>
-              {title}
-            </MarqueeText>
-            <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
+            <TouchableOpacity onPress={handleTitlePress}>
+              <MarqueeText style={{ fontSize: 20 }} bold>
+                {title}
+              </MarqueeText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleArtistPress}>
+              <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
+            </TouchableOpacity>
           </View>
           <TouchableOpacity
             onPress={async () => {
