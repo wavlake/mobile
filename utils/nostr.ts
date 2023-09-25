@@ -305,7 +305,10 @@ export const fetchInvoice = async ({
   )}`;
 
   try {
-    const { data } = await axios(url);
+    // Encoding the URL shouldn't be necessary, but because of a bug in the Wavlake zap endpoint it's currently required
+    // in order for comments with emojis to work.
+    // TODO: fix backend bug and remove encodeURI.
+    const { data } = await axios(encodeURI(url));
 
     return data.pr;
   } catch (error) {
