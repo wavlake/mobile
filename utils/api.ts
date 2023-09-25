@@ -3,10 +3,12 @@ import axios from "axios";
 export interface Track {
   id: string;
   title: string;
+  artistId: string;
   artist: string;
   artistUrl: string;
   avatarUrl: string;
   artworkUrl: string;
+  albumId: string;
   albumTitle: string;
   liveUrl: string;
   duration: number;
@@ -27,6 +29,24 @@ export interface SearchResult {
   albumTitle?: string;
   artistId?: string;
   artist?: string;
+}
+
+interface Artist {
+  id: string;
+  userId: string;
+  name: string;
+  artworkUrl: string;
+  artistUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  bio: string;
+  twitter: string;
+  instagram: string;
+  youtube: string;
+  website: string;
+  deleted: boolean;
+  verified: boolean;
+  npub: string;
 }
 
 interface Album {
@@ -55,29 +75,19 @@ const apiClient = axios.create({
 });
 
 const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
-  return res.map(
-    ({
-      id,
-      title,
-      artist,
-      artistUrl,
-      avatarUrl,
-      artworkUrl,
-      albumTitle,
-      liveUrl,
-      duration,
-    }) => ({
-      id,
-      title,
-      artist,
-      artistUrl,
-      avatarUrl,
-      artworkUrl,
-      albumTitle,
-      liveUrl,
-      duration,
-    }),
-  );
+  return res.map((track) => ({
+    id: track.id,
+    title: track.title,
+    artistId: track.artistId,
+    artist: track.artist,
+    artistUrl: track.artistUrl,
+    avatarUrl: track.avatarUrl,
+    artworkUrl: track.artworkUrl,
+    albumId: track.albumId,
+    albumTitle: track.albumTitle,
+    liveUrl: track.liveUrl,
+    duration: track.duration,
+  }));
 };
 
 export const getNewMusic = async (): Promise<Track[]> => {
@@ -112,6 +122,12 @@ export const getAlbumTracks = async (albumId: string): Promise<Track[]> => {
   const { data } = await apiClient.get(`/tracks/${albumId}/album`);
 
   return normalizeTrackResponse(data.data);
+};
+
+export const getArtist = async (artistId: string): Promise<Artist> => {
+  const { data } = await apiClient.get(`/artists/${artistId}`);
+
+  return data.data;
 };
 
 export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {

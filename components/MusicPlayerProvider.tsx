@@ -11,9 +11,13 @@ import { Audio, AVPlaybackStatus } from "expo-av";
 export interface MusicPlayerTrack {
   id: string;
   liveUrl: string;
+  avatarUrl?: string;
   artworkUrl: string;
   title: string;
   artist: string;
+  artistId: string;
+  albumId: string;
+  albumTitle: string;
   durationInMs: number;
 }
 

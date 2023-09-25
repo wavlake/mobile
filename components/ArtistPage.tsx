@@ -1,15 +1,19 @@
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import { Text } from "@/components/Text";
 import { useQuery } from "@tanstack/react-query";
-import { getArtistAlbums } from "@/utils";
+import { getArtistAlbums, getArtist } from "@/utils";
 import { FlatList, Image, TouchableOpacity, View } from "react-native";
 import { TrackArtwork } from "@/components/TrackArtwork";
 
 export const ArtistPage = () => {
   const { artistId, avatarUrl } = useLocalSearchParams();
-  const { data = [] } = useQuery({
-    queryKey: [artistId],
+  const { data: albums = [] } = useQuery({
+    queryKey: [artistId, "albums"],
     queryFn: () => getArtistAlbums(artistId as string),
+  });
+  const { data: artist } = useQuery({
+    queryKey: [artistId],
+    queryFn: () => getArtist(artistId as string),
   });
   const router = useRouter();
   const pathname = usePathname();
@@ -24,11 +28,9 @@ export const ArtistPage = () => {
 
   return (
     <FlatList
-      data={data}
+      data={albums}
       ListHeaderComponent={() => {
-        if (data.length === 0) {
-          return null;
-        }
+        const normalizedAvatarUrl = (avatarUrl as string) || artist?.artworkUrl;
 
         return (
           <View
@@ -38,7 +40,7 @@ export const ArtistPage = () => {
             }}
           >
             <Image
-              source={{ uri: avatarUrl as string }}
+              source={{ uri: normalizedAvatarUrl }}
               style={{ width: "100%", aspectRatio: 16 / 9 }}
               resizeMode="contain"
             />

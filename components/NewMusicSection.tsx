@@ -8,7 +8,7 @@ import { useNewMusic } from "@/hooks";
 import { formatTrackListForMusicPlayer } from "@/utils";
 
 export const NewMusicSection = () => {
-  const { data } = useNewMusic();
+  const { data = [] } = useNewMusic();
   const { loadTrackList } = useMusicPlayer();
   const handleRowPress = async (index: number) => {
     await loadTrackList({

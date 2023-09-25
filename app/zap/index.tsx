@@ -65,6 +65,8 @@ export default function ZapPage() {
 
     if (!invoice) {
       toast.show("Failed to fetch invoice. Please try again later.");
+      setIsZapping(false);
+
       return;
     }
 
