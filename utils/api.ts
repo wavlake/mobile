@@ -47,6 +47,7 @@ interface Album {
 interface Genre {
   id: number;
   name: string;
+  count: number;
 }
 
 const apiClient = axios.create({
@@ -122,7 +123,7 @@ export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {
 export const getGenres = async (): Promise<Genre[]> => {
   const { data } = await apiClient.get("/meta/music/genres");
 
-  return data.data;
+  return data.data.filter(({ count }: Genre) => count > 0);
 };
 
 export const getRandomGenreTracks = async (
