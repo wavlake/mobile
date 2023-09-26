@@ -6,6 +6,7 @@ import { TrackArtwork } from "@/components/TrackArtwork";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
+import { SatsEarned } from "@/components/SatsEarned";
 
 interface AlbumPageHeaderProps {
   artworkUrl: string;
@@ -94,7 +95,7 @@ export const AlbumPage = () => {
         );
       }}
       renderItem={({ item, index }) => {
-        const { title, albumTitle, artist } = item;
+        const { title, albumTitle, artist, msatTotal } = item;
 
         return (
           <TouchableOpacity
@@ -102,7 +103,7 @@ export const AlbumPage = () => {
             style={{
               height: 60,
               justifyContent: "center",
-              marginBottom: 8,
+              marginBottom: 16,
               paddingHorizontal: 16,
             }}
           >
@@ -110,6 +111,7 @@ export const AlbumPage = () => {
               {artist}
             </Text>
             <Text>{title}</Text>
+            <SatsEarned msats={msatTotal} />
           </TouchableOpacity>
         );
       }}

@@ -12,6 +12,7 @@ export interface Track {
   albumTitle: string;
   liveUrl: string;
   duration: number;
+  msatTotal?: number;
 }
 
 interface TrackResponse extends Track {
@@ -88,6 +89,7 @@ const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
     albumTitle: track.albumTitle,
     liveUrl: track.liveUrl,
     duration: track.duration,
+    msatTotal: track.msatTotal,
   }));
 };
 
