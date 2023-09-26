@@ -138,9 +138,9 @@ const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
             }}
           >
             <Text style={{ fontSize: 18 }} bold>
-              {artist}
+              {title}
             </Text>
-            <Text>{title}</Text>
+            <Text>{artist}</Text>
             <SatsEarned msats={msatTotal} />
           </TouchableOpacity>
         );
