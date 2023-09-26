@@ -6,6 +6,7 @@ import { useTheme } from "@react-navigation/native";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { useState } from "react";
+import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 
 export const PlayerControls = () => {
   const { colors } = useTheme();
@@ -81,28 +82,11 @@ export const PlayerControls = () => {
             color={colors.text}
           />
         </Pressable>
-        <Pressable onPress={togglePlayPause}>
-          <View
-            style={{
-              paddingLeft: 4,
-            }}
-          >
-            {status === "playing" && (
-              <Ionicons
-                name="ios-pause-circle-sharp"
-                size={80}
-                color={colors.text}
-              />
-            )}
-            {status === "paused" && (
-              <Ionicons
-                name="ios-play-circle-sharp"
-                size={80}
-                color={colors.text}
-              />
-            )}
-          </View>
-        </Pressable>
+        <PlayPauseTrackButton
+          size={80}
+          type={status === "playing" ? "pause" : "play"}
+          onPress={togglePlayPause}
+        />
         <Pressable onPress={handleForwardPress}>
           <Ionicons
             name="ios-play-skip-forward-sharp"

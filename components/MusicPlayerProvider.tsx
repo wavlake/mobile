@@ -23,10 +23,12 @@ export interface MusicPlayerTrack {
 
 type LoadTrackList = ({
   trackList,
+  trackListId,
   playerTitle,
   startIndex,
 }: {
   trackList: MusicPlayerTrack[];
+  trackListId?: string;
   playerTitle?: string;
   startIndex?: number;
 }) => Promise<void>;
@@ -35,6 +37,7 @@ type Status = "loadingTrackList" | "playing" | "paused" | "off";
 
 interface MusicPlayerContextProps {
   trackQueue: MusicPlayerTrack[];
+  currentTrackListId?: string;
   currentTrackIndex: number;
   currentTrack?: MusicPlayerTrack;
   playerTitle?: string;
@@ -58,6 +61,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const trackQueue = useRef<MusicPlayerTrack[]>([]);
   const currentSound = useRef<Audio.Sound | null>(null);
   const currentTrackIndex = useRef(0);
+  const currentTrackListId = useRef<string>();
   const isStatusUpdatesPaused = useRef(false);
   const [status, setStatus] = useState<Status>("off");
   const [positionInMs, setPositionInMs] = useState<number>(0);
@@ -85,6 +89,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   };
   const loadTrackList: LoadTrackList = async ({
     trackList,
+    trackListId,
     playerTitle,
     startIndex,
   }) => {
@@ -96,6 +101,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
     trackQueue.current = trackList;
     currentTrackIndex.current = startIndex ?? 0;
+    currentTrackListId.current = trackListId;
 
     const currentTrack = trackList[currentTrackIndex.current];
 
@@ -199,6 +205,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     <MusicPlayerContext.Provider
       value={{
         trackQueue: trackQueue.current,
+        currentTrackListId: currentTrackListId.current,
         currentTrackIndex: currentTrackIndex.current,
         currentTrack: trackQueue.current[currentTrackIndex.current],
         playerTitle,
