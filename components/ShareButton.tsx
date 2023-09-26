@@ -1,18 +1,18 @@
-import { Pressable, Share, View } from "react-native";
+import { Pressable, Share } from "react-native";
 import { ShareIcon } from "@/components/ShareIcon";
 import { useTheme } from "@react-navigation/native";
-import { Text } from "@/components/Text";
 
 interface ShareButtonProps {
   url: string;
-  withText?: boolean;
+  inverse?: boolean;
 }
 
-export const ShareButton = ({ url, withText = false }: ShareButtonProps) => {
+export const ShareButton = ({ url, inverse = false }: ShareButtonProps) => {
   const { colors } = useTheme();
   const handleShare = async () => {
     await Share.share({ url });
   };
+  const size = 40;
 
   return (
     <Pressable
@@ -20,14 +20,17 @@ export const ShareButton = ({ url, withText = false }: ShareButtonProps) => {
       style={{
         flexDirection: "row",
         alignItems: "center",
+        backgroundColor: inverse ? colors.text : colors.background,
+        borderRadius: size / 2,
+        width: size,
+        height: size,
       }}
     >
-      <ShareIcon width={48} height={48} fill={colors.text} />
-      {withText && (
-        <Text style={{ fontSize: 16, marginLeft: -4 }} bold>
-          Share
-        </Text>
-      )}
+      <ShareIcon
+        width={size}
+        height={size}
+        fill={inverse ? colors.background : colors.text}
+      />
     </Pressable>
   );
 };

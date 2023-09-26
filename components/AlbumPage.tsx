@@ -56,9 +56,10 @@ const AlbumPageHeader = ({
           right: 24,
           flexDirection: "row",
           gap: 24,
+          alignItems: "center",
         }}
       >
-        <ShareButton url={`https://wavlake.com/album/${albumId}`} withText />
+        <ShareButton url={`https://wavlake.com/album/${albumId}`} inverse />
         <PlayPauseTrackButton
           size={56}
           type={isThisAlbumPlaying ? "pause" : "play"}
