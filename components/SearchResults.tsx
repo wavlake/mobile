@@ -24,6 +24,7 @@ const SearchResultRow = ({
   liveUrl,
   artist,
   artistId,
+  avatarUrl,
   albumId,
   albumTitle,
   duration,
@@ -40,7 +41,8 @@ const SearchResultRow = ({
       duration &&
       artistId &&
       albumId &&
-      albumTitle
+      albumTitle &&
+      artworkUrl
     ) {
       return await loadTrackList({
         trackList: [
@@ -51,6 +53,7 @@ const SearchResultRow = ({
             title: name,
             artist,
             artistId,
+            avatarUrl,
             albumId,
             albumTitle,
             durationInMs: duration * 1000,
@@ -73,7 +76,8 @@ const SearchResultRow = ({
         pathname: `${basePathname}/artist/[artistId]`,
         params: {
           artistId: id,
-          avatarUrl: artworkUrl,
+          // TODO: remove artworkUrl once artist search results with avatarUrl deployed to prod
+          avatarUrl: avatarUrl || artworkUrl,
           headerTitle: name,
           includeBackButton: true,
         },
@@ -93,7 +97,7 @@ const SearchResultRow = ({
           marginBottom: 8,
         }}
       >
-        <TrackArtwork size={60} url={artworkUrl} />
+        <TrackArtwork size={60} url={artworkUrl || avatarUrl} />
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text numberOfLines={1} bold>
             {name}
