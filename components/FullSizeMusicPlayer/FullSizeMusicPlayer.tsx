@@ -17,8 +17,8 @@ import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
 import { getDefaultZapAmount } from "@/utils";
 import { useAuth } from "@/hooks";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme } from "@react-navigation/native";
+import { ShareIcon } from "@/components/ShareIcon";
 
 export const FullSizeMusicPlayer = () => {
   const router = useRouter();
@@ -117,7 +117,7 @@ export const FullSizeMusicPlayer = () => {
         <PlayerControls />
         <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
           <Pressable onPress={handleShare}>
-            <Ionicons name="share-outline" size={24} color={colors.text} />
+            <ShareIcon width={48} height={48} fill={colors.text} />
           </Pressable>
         </View>
       </View>
