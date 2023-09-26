@@ -8,10 +8,14 @@ import {
 } from "@/utils";
 import { TrackArtwork } from "@/components/TrackArtwork";
 import { Text } from "@/components/Text";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import {
+  LoadTrackList,
+  useMusicPlayer,
+} from "@/components/MusicPlayerProvider";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { SatsEarned } from "@/components/SatsEarned";
 import { ShareButton } from "@/components/ShareButton";
+import { memo } from "react";
 
 interface AlbumPageHeaderProps {
   artworkUrl: string;
@@ -82,13 +86,16 @@ const AlbumPageFooter = () => {
   ) : null;
 };
 
-export const AlbumPage = () => {
+interface AlbumPageContentProps {
+  loadTrackList: LoadTrackList;
+}
+
+const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
   const { albumId } = useLocalSearchParams();
   const { data = [] } = useQuery({
     queryKey: ["albums", albumId],
     queryFn: () => getAlbumTracks(albumId as string),
   });
-  const { loadTrackList } = useMusicPlayer();
   const handleRowPress = async (index: number, playerTitle: string) => {
     await loadTrackList({
       trackList: formatTrackListForMusicPlayer(data),
@@ -143,4 +150,10 @@ export const AlbumPage = () => {
       style={{ paddingTop: 8 }}
     />
   );
+});
+
+export const AlbumPage = () => {
+  const { loadTrackList } = useMusicPlayer();
+
+  return <AlbumPageContent loadTrackList={loadTrackList} />;
 };

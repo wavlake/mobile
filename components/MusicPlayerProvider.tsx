@@ -5,6 +5,7 @@ import {
   useEffect,
   useState,
   useRef,
+  useCallback,
 } from "react";
 import { Audio, AVPlaybackStatus } from "expo-av";
 
@@ -21,7 +22,7 @@ export interface MusicPlayerTrack {
   durationInMs: number;
 }
 
-type LoadTrackList = ({
+export type LoadTrackList = ({
   trackList,
   trackListId,
   playerTitle,
@@ -87,30 +88,28 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setStatus("playing");
     await sound.playAsync();
   };
-  const loadTrackList: LoadTrackList = async ({
-    trackList,
-    trackListId,
-    playerTitle,
-    startIndex,
-  }) => {
-    if (status === "loadingTrackList") {
-      return;
-    }
+  const loadTrackList: LoadTrackList = useCallback(
+    async ({ trackList, trackListId, playerTitle, startIndex }) => {
+      if (status === "loadingTrackList") {
+        return;
+      }
 
-    setStatus("loadingTrackList");
+      setStatus("loadingTrackList");
 
-    trackQueue.current = trackList;
-    currentTrackIndex.current = startIndex ?? 0;
-    currentTrackListId.current = trackListId;
+      trackQueue.current = trackList;
+      currentTrackIndex.current = startIndex ?? 0;
+      currentTrackListId.current = trackListId;
 
-    const currentTrack = trackList[currentTrackIndex.current];
+      const currentTrack = trackList[currentTrackIndex.current];
 
-    if (currentTrack) {
-      await loadTrack(currentTrack);
-    }
+      if (currentTrack) {
+        await loadTrack(currentTrack);
+      }
 
-    setPlayerTitle(playerTitle ?? currentTrack.title);
-  };
+      setPlayerTitle(playerTitle ?? currentTrack.title);
+    },
+    [],
+  );
   const onPlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
     if (isStatusUpdatesPaused.current) {
       return;
