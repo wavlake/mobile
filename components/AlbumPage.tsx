@@ -7,6 +7,7 @@ import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { SatsEarned } from "@/components/SatsEarned";
+import { ShareButton } from "@/components/ShareButton";
 
 interface AlbumPageHeaderProps {
   artworkUrl: string;
@@ -43,12 +44,13 @@ const AlbumPageHeader = ({
       <View
         style={{
           position: "absolute",
-          width: "100%",
-          paddingHorizontal: 24,
           bottom: 24,
-          alignItems: "flex-end",
+          right: 24,
+          flexDirection: "row",
+          gap: 24,
         }}
       >
+        <ShareButton url={`https://wavlake.com/album/${albumId}`} withText />
         <PlayPauseTrackButton
           size={56}
           type={isThisAlbumPlaying ? "pause" : "play"}
