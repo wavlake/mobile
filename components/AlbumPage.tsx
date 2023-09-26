@@ -1,7 +1,11 @@
 import { useLocalSearchParams } from "expo-router";
 import { Dimensions, FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { formatTrackListForMusicPlayer, getAlbumTracks } from "@/utils";
+import {
+  formatTrackListForMusicPlayer,
+  getAlbum,
+  getAlbumTracks,
+} from "@/utils";
 import { TrackArtwork } from "@/components/TrackArtwork";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
@@ -37,7 +41,7 @@ const AlbumPageHeader = ({
   return (
     <View
       style={{
-        marginBottom: 24,
+        marginBottom: 36,
       }}
     >
       <TrackArtwork size={screenWidth} url={artworkUrl} />
@@ -61,10 +65,27 @@ const AlbumPageHeader = ({
   );
 };
 
+const AlbumPageFooter = () => {
+  const { albumId } = useLocalSearchParams();
+  const { data } = useQuery({
+    queryKey: [albumId],
+    queryFn: () => getAlbum(albumId as string),
+  });
+
+  return data ? (
+    <View style={{ marginTop: 16, marginBottom: 80, paddingHorizontal: 16 }}>
+      <Text style={{ fontSize: 18 }} bold>
+        About
+      </Text>
+      <Text style={{ fontSize: 18 }}>{data.description}</Text>
+    </View>
+  ) : null;
+};
+
 export const AlbumPage = () => {
   const { albumId } = useLocalSearchParams();
   const { data = [] } = useQuery({
-    queryKey: [albumId],
+    queryKey: ["albums", albumId],
     queryFn: () => getAlbumTracks(albumId as string),
   });
   const { loadTrackList } = useMusicPlayer();
@@ -98,7 +119,6 @@ export const AlbumPage = () => {
       }}
       renderItem={({ item, index }) => {
         const { title, albumTitle, artist, msatTotal } = item;
-        const isLastItem = index === data.length - 1;
 
         return (
           <TouchableOpacity
@@ -106,7 +126,7 @@ export const AlbumPage = () => {
             style={{
               height: 60,
               justifyContent: "center",
-              marginBottom: isLastItem ? 80 : 16,
+              marginBottom: 16,
               paddingHorizontal: 16,
             }}
           >
@@ -118,6 +138,7 @@ export const AlbumPage = () => {
           </TouchableOpacity>
         );
       }}
+      ListFooterComponent={AlbumPageFooter}
       keyExtractor={(item) => item.id}
       style={{ paddingTop: 8 }}
     />
