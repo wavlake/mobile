@@ -4,8 +4,6 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
-  Share,
-  Pressable,
 } from "react-native";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { Center } from "@/components/Center";
@@ -17,8 +15,7 @@ import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
 import { getDefaultZapAmount } from "@/utils";
 import { useAuth } from "@/hooks";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useTheme } from "@react-navigation/native";
+import { ShareButton } from "@/components/ShareButton";
 
 export const FullSizeMusicPlayer = () => {
   const router = useRouter();
@@ -45,12 +42,6 @@ export const FullSizeMusicPlayer = () => {
   const screenWidth = Dimensions.get("window").width;
   const padding = 24;
   const { pubkey } = useAuth();
-  const { colors } = useTheme();
-  const handleShare = async () => {
-    await Share.share({
-      url: `https://wavlake.com/track/${trackId}`,
-    });
-  };
   const handleTitlePress = () => {
     router.push({
       pathname: "/album/[albumId]",
@@ -116,9 +107,7 @@ export const FullSizeMusicPlayer = () => {
         </View>
         <PlayerControls />
         <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-          <Pressable onPress={handleShare}>
-            <Ionicons name="share-outline" size={24} color={colors.text} />
-          </Pressable>
+          <ShareButton url={`https://wavlake.com/track/${trackId}`} />
         </View>
       </View>
     </ScrollView>
