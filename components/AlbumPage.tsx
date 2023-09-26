@@ -96,6 +96,7 @@ export const AlbumPage = () => {
       }}
       renderItem={({ item, index }) => {
         const { title, albumTitle, artist, msatTotal } = item;
+        const isLastItem = index === data.length - 1;
 
         return (
           <TouchableOpacity
@@ -103,7 +104,7 @@ export const AlbumPage = () => {
             style={{
               height: 60,
               justifyContent: "center",
-              marginBottom: 16,
+              marginBottom: isLastItem ? 80 : 16,
               paddingHorizontal: 16,
             }}
           >
