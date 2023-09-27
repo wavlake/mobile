@@ -33,6 +33,21 @@ export interface SearchResult {
   artist?: string;
 }
 
+interface TrackComment {
+  id: number;
+  trackId: string;
+  title: string;
+  ownerId: string;
+  content: string;
+  createdAt: string;
+  msatAmount: number;
+  userId: string;
+  commentMsatSum: number | null;
+  name: string;
+  commenterProfileUrl: string;
+  commenterArtworkUrl: string;
+}
+
 interface Artist {
   id: string;
   userId: string;
@@ -42,13 +57,16 @@ interface Artist {
   createdAt: string;
   updatedAt: string;
   bio: string;
-  twitter: string;
-  instagram: string;
-  youtube: string;
-  website: string;
+  twitter: string | null;
+  instagram: string | null;
+  youtube: string | null;
+  website: string | null;
   deleted: boolean;
   verified: boolean;
-  npub: string;
+  npub: string | null;
+  topAlbums: Album[];
+  topTracks: TrackResponse[];
+  topMessages: TrackComment[];
 }
 
 interface Album {
