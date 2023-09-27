@@ -1,74 +1,19 @@
 import { useLocalSearchParams } from "expo-router";
-import { Dimensions, FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import {
   formatTrackListForMusicPlayer,
   getAlbum,
   getAlbumTracks,
 } from "@/utils";
-import { TrackArtwork } from "@/components/TrackArtwork";
 import { Text } from "@/components/Text";
 import {
   LoadTrackList,
   useMusicPlayer,
 } from "@/components/MusicPlayerProvider";
-import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { SatsEarned } from "@/components/SatsEarned";
-import { ShareButton } from "@/components/ShareButton";
 import { memo } from "react";
-
-interface AlbumPageHeaderProps {
-  artworkUrl: string;
-  albumTitle: string;
-  albumId: string;
-  onPlay: (index: number, playerTitle: string) => void;
-}
-
-const AlbumPageHeader = ({
-  artworkUrl,
-  albumTitle,
-  albumId,
-  onPlay,
-}: AlbumPageHeaderProps) => {
-  const { currentTrackListId, status, togglePlayPause } = useMusicPlayer();
-  const screenWidth = Dimensions.get("window").width;
-  const isThisAlbumLoaded = currentTrackListId === albumId;
-  const isThisAlbumPlaying = status === "playing" && isThisAlbumLoaded;
-  const handlePlayPausePress = () => {
-    if (isThisAlbumLoaded) {
-      return togglePlayPause();
-    }
-
-    return onPlay(0, albumTitle);
-  };
-
-  return (
-    <View
-      style={{
-        marginBottom: 36,
-      }}
-    >
-      <TrackArtwork size={screenWidth} url={artworkUrl} />
-      <View
-        style={{
-          position: "absolute",
-          bottom: 24,
-          right: 24,
-          flexDirection: "row",
-          gap: 24,
-          alignItems: "center",
-        }}
-      >
-        <ShareButton url={`https://wavlake.com/album/${albumId}`} inverse />
-        <PlayPauseTrackButton
-          size={56}
-          type={isThisAlbumPlaying ? "pause" : "play"}
-          onPress={handlePlayPausePress}
-        />
-      </View>
-    </View>
-  );
-};
+import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
 
 const AlbumPageFooter = () => {
   const { albumId } = useLocalSearchParams();
@@ -117,10 +62,12 @@ const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
         const { artworkUrl, albumTitle } = data[0];
 
         return (
-          <AlbumPageHeader
-            albumTitle={albumTitle}
+          <AlbumOrArtistPageHeader
+            type="album"
+            shareUrl={`https://wavlake.com/album/${albumId}`}
             artworkUrl={artworkUrl}
-            albumId={albumId as string}
+            trackListId={albumId as string}
+            trackListTitle={albumTitle}
             onPlay={handleRowPress}
           />
         );
