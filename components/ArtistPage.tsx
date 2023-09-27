@@ -121,7 +121,18 @@ const ArtistPageContent = ({ loadTrackList }: ArtistPageContentProps) => {
           },
         )}
       </View>
-      <SectionHeader title="Releases" />
+      <SectionHeader
+        title="Releases"
+        rightNavText="View All"
+        rightNavHref={{
+          pathname: `${basePathname}/artist/[artistId]/albums`,
+          params: {
+            artistId,
+            headerTitle: artist.name,
+            includeBackButton: true,
+          },
+        }}
+      />
       <HorizontalArtworkRow
         items={artist.topAlbums}
         onPress={handleTopAlbumPress}
