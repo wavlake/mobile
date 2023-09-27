@@ -68,7 +68,7 @@ export const HomePageMusic = () => {
     <FlatList
       data={data}
       ListHeaderComponent={() => (
-        <View style={{ paddingBottom: 16 }}>
+        <View>
           <NewMusicSection />
           <SectionHeader
             title="Trending"

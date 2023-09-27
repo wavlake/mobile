@@ -2,19 +2,26 @@ import { Text } from "@/components/Text";
 import { LightningIcon } from "@/components/LightningIcon";
 import { View } from "react-native";
 import { brandColors } from "@/constants";
+import { useTheme } from "@react-navigation/native";
 
 interface SatsEarnedProps {
   msats?: number;
+  extraText?: string;
+  defaultTextColor?: boolean;
 }
 
-export const SatsEarned = ({ msats }: SatsEarnedProps) => {
+export const SatsEarned = ({
+  msats,
+  extraText,
+  defaultTextColor = false,
+}: SatsEarnedProps) => {
+  const { colors } = useTheme();
   const sats = msats ? msats / 1000 : 0;
 
   return (
     <View
       style={{
         flexDirection: "row",
-        alignItems: "center",
         transform: [{ translateX: -4 }],
       }}
     >
@@ -22,11 +29,15 @@ export const SatsEarned = ({ msats }: SatsEarnedProps) => {
         <LightningIcon
           width={20}
           height={20}
-          fill={brandColors.orange.DEFAULT}
+          fill={defaultTextColor ? colors.text : brandColors.orange.DEFAULT}
         />
       </View>
-      <Text style={{ color: brandColors.black.light }}>
-        {sats.toLocaleString()} sats
+      <Text
+        style={{
+          color: defaultTextColor ? colors.text : brandColors.black.light,
+        }}
+      >
+        {sats.toLocaleString()} sats {extraText}
       </Text>
     </View>
   );

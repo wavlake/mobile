@@ -21,10 +21,8 @@ export const GenresSection = () => {
   };
 
   return (
-    <ScrollView style={{ padding: 16, marginBottom: 16 }}>
-      <View style={{ paddingBottom: 16 }}>
-        <SectionHeader title="Genres" />
-      </View>
+    <ScrollView style={{ padding: 16, paddingTop: 0, marginBottom: 16 }}>
+      <SectionHeader title="Genres" />
       <Divider />
       {data.map((item, index) => {
         const { id, name } = item;

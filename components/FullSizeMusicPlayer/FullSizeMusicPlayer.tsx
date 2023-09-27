@@ -53,7 +53,6 @@ export const FullSizeMusicPlayer = () => {
       pathname: `/artist/[artistId]`,
       params: {
         artistId,
-        avatarUrl: avatarUrl ?? "",
         headerTitle: artist,
         includeBackButton: true,
       },

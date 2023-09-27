@@ -54,7 +54,7 @@ export const PillTabView = ({
         </Tab>
       </View>
       {searchShown && (
-        <View style={{ padding: 8 }}>
+        <View style={{ padding: 8, paddingBottom: 0 }}>
           <SearchBar query={searchQuery} onChange={setSearchQuery} />
         </View>
       )}

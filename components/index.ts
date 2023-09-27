@@ -30,3 +30,4 @@ export * from "./AlbumPage";
 export * from "./ArtistPage";
 export * from "./GenresSection";
 export * from "./TrackList";
+export * from "./ArtistAlbumsPage";
