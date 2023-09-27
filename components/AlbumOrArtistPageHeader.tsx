@@ -35,11 +35,7 @@ export const AlbumOrArtistPageHeader = ({
   };
 
   return (
-    <View
-      style={{
-        marginBottom: 36,
-      }}
-    >
+    <View>
       {isAlbum ? (
         <TrackArtwork size={screenWidth} url={artworkUrl} />
       ) : (

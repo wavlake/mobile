@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import {
   formatTrackListForMusicPlayer,
@@ -11,9 +11,10 @@ import {
   LoadTrackList,
   useMusicPlayer,
 } from "@/components/MusicPlayerProvider";
-import { SatsEarned } from "@/components/SatsEarned";
 import { memo } from "react";
 import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
+import { TrackRow } from "@/components/TrackRow";
+import { SectionHeader } from "@/components/SectionHeader";
 
 const AlbumPageFooter = () => {
   const { albumId } = useLocalSearchParams();
@@ -24,9 +25,7 @@ const AlbumPageFooter = () => {
 
   return data ? (
     <View style={{ marginTop: 16, marginBottom: 80, paddingHorizontal: 16 }}>
-      <Text style={{ fontSize: 18 }} bold>
-        About
-      </Text>
+      <SectionHeader title="About" />
       <Text style={{ fontSize: 18 }}>{data.description}</Text>
     </View>
   ) : null;
@@ -62,35 +61,31 @@ const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
         const { artworkUrl, albumTitle } = data[0];
 
         return (
-          <AlbumOrArtistPageHeader
-            type="album"
-            shareUrl={`https://wavlake.com/album/${albumId}`}
-            artworkUrl={artworkUrl}
-            trackListId={albumId as string}
-            trackListTitle={albumTitle}
-            onPlay={handleRowPress}
-          />
+          <View style={{ marginBottom: 36 }}>
+            <AlbumOrArtistPageHeader
+              type="album"
+              shareUrl={`https://wavlake.com/album/${albumId}`}
+              artworkUrl={artworkUrl}
+              trackListId={albumId as string}
+              trackListTitle={albumTitle}
+              onPlay={handleRowPress}
+            />
+          </View>
         );
       }}
       renderItem={({ item, index }) => {
         const { title, albumTitle, artist, msatTotal } = item;
+        const isLastItem = index === data.length - 1;
 
         return (
-          <TouchableOpacity
-            onPress={() => handleRowPress(index, albumTitle)}
-            style={{
-              height: 60,
-              justifyContent: "center",
-              marginBottom: 16,
-              paddingHorizontal: 16,
-            }}
-          >
-            <Text style={{ fontSize: 18 }} bold>
-              {title}
-            </Text>
-            <Text>{artist}</Text>
-            <SatsEarned msats={msatTotal} />
-          </TouchableOpacity>
+          <View style={{ marginBottom: isLastItem ? 0 : 16 }}>
+            <TrackRow
+              title={title}
+              descriptor={artist}
+              msats={msatTotal}
+              onPress={() => handleRowPress(index, albumTitle)}
+            />
+          </View>
         );
       }}
       ListFooterComponent={AlbumPageFooter}

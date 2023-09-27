@@ -21,6 +21,7 @@ export const SectionHeader = ({
       style={{
         flexDirection: "row",
         alignItems: "center",
+        paddingVertical: 16,
       }}
     >
       {icon && (
