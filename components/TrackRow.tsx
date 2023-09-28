@@ -28,11 +28,11 @@ export const TrackRow = ({
       }}
     >
       {artworkUrl && <TrackArtwork size={60} url={artworkUrl} />}
-      <View style={{ marginLeft: 10 }}>
-        <Text style={{ fontSize: 18 }} bold>
+      <View style={{ marginLeft: 10, flex: 1 }}>
+        <Text style={{ fontSize: 18 }} numberOfLines={1} bold>
           {title}
         </Text>
-        <Text>{descriptor}</Text>
+        <Text numberOfLines={1}>{descriptor}</Text>
         <SatsEarned msats={msats} />
       </View>
     </TouchableOpacity>
