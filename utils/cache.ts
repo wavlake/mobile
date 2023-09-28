@@ -6,10 +6,7 @@ const isFirstAppLaunchKey = "isFirstAppLaunch";
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
-const makeDefaultZapAmountKey = (pubkey?: string) => {
-  return `${pubkey || "anonymous"}.defaultZapAmount`;
-};
-const makeDefaultZapWalletKey = (pubkey?: string) =>
+const makeSettingsKey = (pubkey?: string) =>
   `${pubkey || "anonymous"}.defaultZapWallet`;
 
 const storeData = async (key: string, value: string) => {
@@ -68,32 +65,24 @@ export const getCachedNostrRelayListEvent = async (pubkey: string) => {
   return getObjectData(nostrRelayListEventKey);
 };
 
-export const cacheDefaultZapAmount = async (
-  defaultZapAmount: string,
+export interface Settings {
+  defaultZapAmount: string;
+  defaultZapWallet: WalletKey;
+  allowListeningActivity: boolean;
+}
+
+export const cacheSettings = async (
+  settings: Partial<Settings>,
   pubkey?: string,
 ) => {
-  const defaultZapAmountKey = makeDefaultZapAmountKey(pubkey);
+  const settingsKey = makeSettingsKey(pubkey);
+  const currentSettings = await getSettings(pubkey);
 
-  await storeData(defaultZapAmountKey, defaultZapAmount);
+  await storeObjectData(settingsKey, { ...currentSettings, ...settings });
 };
 
-export const getDefaultZapAmount = async (pubkey?: string) => {
-  const defaultZapAmountKey = makeDefaultZapAmountKey(pubkey);
+export const getSettings = async (pubkey?: string) => {
+  const settingsKey = makeSettingsKey(pubkey);
 
-  return getData(defaultZapAmountKey);
-};
-
-export const cacheDefaultZapWallet = async (
-  defaultZapWallet: WalletKey,
-  pubkey?: string,
-) => {
-  const defaultZapWalletKey = makeDefaultZapWalletKey(pubkey);
-
-  await storeData(defaultZapWalletKey, defaultZapWallet);
-};
-
-export const getDefaultZapWallet = async (pubkey?: string) => {
-  const defaultZapWalletKey = makeDefaultZapWalletKey(pubkey);
-
-  return getData(defaultZapWalletKey);
+  return (await getObjectData(settingsKey)) ?? {};
 };

@@ -10,7 +10,7 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { getDefaultZapAmount, getDefaultZapWallet } from "@/utils";
+import { getSettings } from "@/utils";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
@@ -44,13 +44,13 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             <Ionicons name="settings-outline" size={size} color={color} />
           )}
           onPress={async () => {
-            const defaultZapAmount = (await getDefaultZapAmount(pubkey)) ?? "";
-            const defaultZapWallet =
-              (await getDefaultZapWallet(pubkey)) ?? "default";
+            const settings = JSON.stringify(await getSettings(pubkey));
 
             router.push({
               pathname: "/settings",
-              params: { defaultZapAmount, defaultZapWallet },
+              params: {
+                settings,
+              },
             });
             props.navigation.closeDrawer();
           }}

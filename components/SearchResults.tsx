@@ -76,8 +76,7 @@ const SearchResultRow = ({
         pathname: `${basePathname}/artist/[artistId]`,
         params: {
           artistId: id,
-          // TODO: remove artworkUrl once artist search results with avatarUrl deployed to prod
-          avatarUrl: avatarUrl || artworkUrl,
+          avatarUrl,
           headerTitle: name,
           includeBackButton: true,
         },

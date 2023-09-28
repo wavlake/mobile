@@ -14,7 +14,9 @@ export const WalletChooser = ({
 }: WalletChooserProps) => {
   return (
     <View style={{ width: "100%" }}>
-      <Text style={{ marginBottom: 4 }}>default zap wallet</Text>
+      <Text style={{ marginBottom: 4 }} bold>
+        Default zap wallet
+      </Text>
       <View style={{ backgroundColor: "white", borderRadius: 8 }}>
         <Picker
           selectedValue={selectedWallet}

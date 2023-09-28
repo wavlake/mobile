@@ -20,6 +20,7 @@ import {
   cacheNostrRelayListEvent,
   getCachedNostrProfileEvent,
   getCachedNostrRelayListEvent,
+  getSettings,
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
 
@@ -249,6 +250,51 @@ export const makeRelayListEvent = (pubkey: string, relayUris: string[]) => {
   };
 };
 
+interface MakeLiveStatusEventParams {
+  pubkey: string;
+  trackUrl: string;
+  content: string;
+  durationInMs: number;
+  relayUris: string[];
+}
+
+export const publishLiveStatusEvent = async ({
+  pubkey,
+  trackUrl,
+  content,
+  durationInMs,
+  relayUris,
+}: MakeLiveStatusEventParams) => {
+  const { allowListeningActivity } = await getSettings(pubkey);
+
+  if (!allowListeningActivity) {
+    return;
+  }
+
+  const normalizedRelayUris = relayUris.filter(
+    (r) => !r.startsWith("wss://purplepag.es"),
+  );
+  const currentTime = Math.floor(Date.now() / 1000);
+  const eventTemplate = {
+    kind: 30315,
+    content,
+    pubkey,
+    created_at: currentTime,
+    tags: [
+      ["d", "music"],
+      ["r", trackUrl],
+      ["expiration", (currentTime + durationInMs / 1000).toString()],
+    ],
+  };
+  const signedEvent = await signEvent(eventTemplate);
+
+  try {
+    await publishEvent(normalizedRelayUris, signedEvent);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const getReadRelayUris = (event: Event) => {
   if (event.kind !== 10002) {
     return [];
@@ -309,7 +355,7 @@ export const fetchInvoice = async ({
 
     return data.pr;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

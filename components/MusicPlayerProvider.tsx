@@ -8,6 +8,8 @@ import {
   useCallback,
 } from "react";
 import { Audio, AVPlaybackStatus } from "expo-av";
+import { useAuth, useNostrRelayList } from "@/hooks";
+import { publishLiveStatusEvent } from "@/utils";
 
 export interface MusicPlayerTrack {
   id: string;
@@ -59,6 +61,8 @@ interface MusicPlayerContextProps {
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
+  const { pubkey } = useAuth();
+  const { writeRelayList } = useNostrRelayList();
   const trackQueue = useRef<MusicPlayerTrack[]>([]);
   const currentSound = useRef<Audio.Sound | null>(null);
   const currentTrackIndex = useRef(0);
@@ -70,24 +74,37 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
   const hasNext = () =>
     currentTrackIndex.current < trackQueue.current.length - 1;
-  const loadTrack = async (track: MusicPlayerTrack) => {
-    if (currentSound.current) {
-      await currentSound.current.unloadAsync();
-    }
+  const loadTrack = useCallback(
+    async (track: MusicPlayerTrack) => {
+      if (currentSound.current) {
+        await currentSound.current.unloadAsync();
+      }
 
-    const { sound } = await Audio.Sound.createAsync({
-      uri: track.liveUrl,
-    });
+      const { sound } = await Audio.Sound.createAsync({
+        uri: track.liveUrl,
+      });
 
-    currentSound.current = sound;
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: true,
-    });
-    sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
-    setStatus("playing");
-    await sound.playAsync();
-  };
+      currentSound.current = sound;
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+      });
+      sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+      setStatus("playing");
+      await sound.playAsync();
+
+      if (pubkey) {
+        return publishLiveStatusEvent({
+          pubkey,
+          trackUrl: `https://wavlake.com/track/${track.id}`,
+          content: `${track.title} - ${track.artist}`,
+          durationInMs: track.durationInMs,
+          relayUris: writeRelayList,
+        });
+      }
+    },
+    [pubkey, writeRelayList],
+  );
   const loadTrackList: LoadTrackList = useCallback(
     async ({ trackList, trackListId, playerTitle, startIndex }) => {
       if (status === "loadingTrackList") {
@@ -108,7 +125,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
       setPlayerTitle(playerTitle ?? currentTrack.title);
     },
-    [],
+    [loadTrack],
   );
   const onPlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
     if (isStatusUpdatesPaused.current) {

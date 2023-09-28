@@ -25,7 +25,11 @@ export const TextInput = ({
 }: TextInputProps) => {
   return (
     <View style={{ width: "100%" }}>
-      {label && <Text style={{ marginBottom: 4 }}>{label}</Text>}
+      {label && (
+        <Text style={{ marginBottom: 4 }} bold>
+          {label}
+        </Text>
+      )}
       <View
         style={{
           height: includeErrorMessageSpace ? inputHeight + 20 : undefined,
