@@ -355,7 +355,7 @@ export const fetchInvoice = async ({
 
     return data.pr;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
