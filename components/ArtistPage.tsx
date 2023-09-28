@@ -24,7 +24,7 @@ import { Avatar } from "@rneui/themed";
 import { WebsiteIcon } from "@/components/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";
-import { ElementType } from "react";
+import { ElementType, memo } from "react";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
@@ -48,7 +48,7 @@ interface ArtistPageContentProps {
   loadTrackList: LoadTrackList;
 }
 
-const ArtistPageContent = ({ loadTrackList }: ArtistPageContentProps) => {
+const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
   const { artistId } = useLocalSearchParams();
   const { data: artist } = useQuery({
     queryKey: [artistId],
@@ -214,7 +214,7 @@ const ArtistPageContent = ({ loadTrackList }: ArtistPageContentProps) => {
       <ActivityIndicator />
     </Center>
   );
-};
+});
 
 export const ArtistPage = () => {
   const { loadTrackList } = useMusicPlayer();
