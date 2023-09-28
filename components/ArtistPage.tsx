@@ -151,7 +151,22 @@ const ArtistPageContent = ({ loadTrackList }: ArtistPageContentProps) => {
                 paddingHorizontal: 16,
               }}
             >
-              <Avatar size={32} rounded source={{ uri: commenterArtworkUrl }} />
+              {commenterArtworkUrl ? (
+                <Avatar
+                  size={32}
+                  rounded
+                  source={{ uri: commenterArtworkUrl }}
+                />
+              ) : (
+                <Avatar
+                  size={32}
+                  rounded
+                  icon={{ name: "user", type: "font-awesome" }}
+                  containerStyle={{
+                    backgroundColor: brandColors.purple.DEFAULT,
+                  }}
+                />
+              )}
               <View style={{ marginLeft: 10, flex: 1 }}>
                 <Text bold>{content}</Text>
                 <SatsEarned
