@@ -12,9 +12,9 @@ import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth, useNostrRelayList, useToast } from "@/hooks";
 import {
-  cacheDefaultZapWallet,
+  cacheSettings,
   fetchInvoice,
-  getDefaultZapWallet,
+  getSettings,
   getZapReceipt,
   openInvoiceInWallet,
   validateWalletKey,
@@ -42,7 +42,7 @@ export default function ZapPage() {
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
   const { writeRelayList } = useNostrRelayList();
   const handleZap = async () => {
-    const defaultZapWallet = await getDefaultZapWallet(pubkey);
+    const { defaultZapWallet } = await getSettings(pubkey);
 
     if (!validateWalletKey(defaultZapWallet)) {
       setIsWalletChooserModalVisible(true);
@@ -159,7 +159,7 @@ export default function ZapPage() {
         }}
         onCancel={async () => {
           setIsWalletChooserModalVisible(false);
-          await cacheDefaultZapWallet("default", pubkey);
+          await cacheSettings({ defaultZapWallet: "default" }, pubkey);
           await handleZap();
         }}
         visible={isWalletChooserModalVisible}

@@ -4,7 +4,7 @@ import { WalletChooser } from "@/components/WalletChooser";
 import { Button } from "@/components/Button";
 import { CancelButton } from "@/components/CancelButton";
 import { useState } from "react";
-import { cacheDefaultZapWallet, WalletKey } from "@/utils";
+import { cacheSettings, WalletKey } from "@/utils";
 import { useAuth } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
 
@@ -23,7 +23,7 @@ export const WalletChooserModal = ({
   const [defaultZapWallet, setDefaultZapWallet] =
     useState<WalletKey>("default");
   const handleContinueClick = async () => {
-    await cacheDefaultZapWallet(defaultZapWallet, pubkey);
+    await cacheSettings({ defaultZapWallet }, pubkey);
     onContinue();
   };
 

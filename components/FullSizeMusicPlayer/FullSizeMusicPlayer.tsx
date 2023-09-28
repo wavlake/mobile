@@ -13,7 +13,7 @@ import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
-import { getDefaultZapAmount } from "@/utils";
+import { getSettings } from "@/utils";
 import { useAuth } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 
@@ -79,8 +79,7 @@ export const FullSizeMusicPlayer = () => {
           </View>
           <TouchableOpacity
             onPress={async () => {
-              const defaultZapAmount =
-                (await getDefaultZapAmount(pubkey)) ?? "";
+              const { defaultZapAmount = "" } = await getSettings(pubkey);
 
               router.push({
                 pathname: "/zap",

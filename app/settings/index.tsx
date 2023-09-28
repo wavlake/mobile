@@ -3,12 +3,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import {
-  cacheAllowListeningActivity,
-  cacheDefaultZapAmount,
-  cacheDefaultZapWallet,
-  WalletKey,
-} from "@/utils";
+import { cacheSettings } from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 
@@ -16,23 +11,22 @@ export default function SettingsPage() {
   const toast = useToast();
   const { pubkey } = useAuth();
   const params = useLocalSearchParams();
+  const settings = JSON.parse(params.settings as string);
   const [defaultZapAmount, setDefaultZapAmount] = useState(
-    params.defaultZapAmount as string,
+    settings.defaultZapAmount ?? "",
   );
   const [defaultZapWallet, setDefaultZapWallet] = useState(
-    params.defaultZapWallet as WalletKey,
+    settings.defaultZapWallet ?? "default",
   );
   const [allowListeningActivity, setAllowListeningActivity] = useState(
-    params.allowListeningActivity as "0" | "1",
+    settings.allowListeningActivity ?? false,
   );
   const handleSave = async () => {
     Keyboard.dismiss();
-    await cacheDefaultZapAmount(defaultZapAmount, pubkey);
-    await cacheDefaultZapWallet(defaultZapWallet, pubkey);
-
-    if (pubkey) {
-      await cacheAllowListeningActivity(allowListeningActivity, pubkey);
-    }
+    await cacheSettings(
+      { defaultZapAmount, defaultZapWallet, allowListeningActivity },
+      pubkey,
+    );
 
     toast.show("saved");
   };
@@ -69,10 +63,8 @@ export default function SettingsPage() {
                   </Text>
                 </View>
                 <Switch
-                  value={allowListeningActivity === "1"}
-                  onValueChange={(value) =>
-                    setAllowListeningActivity(value ? "1" : "0")
-                  }
+                  value={allowListeningActivity}
+                  onValueChange={setAllowListeningActivity}
                   color={brandColors.pink.DEFAULT}
                 />
               </View>

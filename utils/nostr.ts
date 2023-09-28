@@ -18,9 +18,9 @@ import axios from "axios";
 import {
   cacheNostrProfileEvent,
   cacheNostrRelayListEvent,
-  getAllowListeningActivity,
   getCachedNostrProfileEvent,
   getCachedNostrRelayListEvent,
+  getSettings,
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
 
@@ -265,7 +265,9 @@ export const publishLiveStatusEvent = async ({
   durationInMs,
   relayUris,
 }: MakeLiveStatusEventParams) => {
-  if ((await getAllowListeningActivity(pubkey)) !== "1") {
+  const { allowListeningActivity } = await getSettings(pubkey);
+
+  if (!allowListeningActivity) {
     return;
   }
 
