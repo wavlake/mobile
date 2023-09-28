@@ -137,50 +137,58 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
         items={artist.topAlbums}
         onPress={handleTopAlbumPress}
       />
-      <SectionHeader title="Latest Messages" />
-      {artist.topMessages.map(
-        ({ id, commenterArtworkUrl, content, msatAmount, name, title }) => {
-          const extraText = `from @${name} for "${title}"`;
+      {artist.topMessages.length > 0 && (
+        <>
+          <SectionHeader title="Latest Messages" />
+          {artist.topMessages.map(
+            ({ id, commenterArtworkUrl, content, msatAmount, name, title }) => {
+              const extraText = `from @${name} for "${title}"`;
 
-          return (
-            <View
-              key={id}
-              style={{
-                marginBottom: 16,
-                flexDirection: "row",
-                paddingHorizontal: 16,
-              }}
-            >
-              {commenterArtworkUrl ? (
-                <Avatar
-                  size={32}
-                  rounded
-                  source={{ uri: commenterArtworkUrl }}
-                />
-              ) : (
-                <Avatar
-                  size={32}
-                  rounded
-                  icon={{ name: "user", type: "font-awesome" }}
-                  containerStyle={{
-                    backgroundColor: brandColors.purple.DEFAULT,
+              return (
+                <View
+                  key={id}
+                  style={{
+                    marginBottom: 16,
+                    flexDirection: "row",
+                    paddingHorizontal: 16,
                   }}
-                />
-              )}
-              <View style={{ marginLeft: 10, flex: 1 }}>
-                <Text bold>{content}</Text>
-                <SatsEarned
-                  msats={msatAmount}
-                  extraText={extraText}
-                  defaultTextColor
-                />
-              </View>
-            </View>
-          );
-        },
+                >
+                  {commenterArtworkUrl ? (
+                    <Avatar
+                      size={32}
+                      rounded
+                      source={{ uri: commenterArtworkUrl }}
+                    />
+                  ) : (
+                    <Avatar
+                      size={32}
+                      rounded
+                      icon={{ name: "user", type: "font-awesome" }}
+                      containerStyle={{
+                        backgroundColor: brandColors.purple.DEFAULT,
+                      }}
+                    />
+                  )}
+                  <View style={{ marginLeft: 10, flex: 1 }}>
+                    <Text bold>{content}</Text>
+                    <SatsEarned
+                      msats={msatAmount}
+                      extraText={extraText}
+                      defaultTextColor
+                    />
+                  </View>
+                </View>
+              );
+            },
+          )}
+        </>
       )}
-      <SectionHeader title="About" />
-      <Text style={{ fontSize: 18 }}>{artist.bio}</Text>
+      {artist.bio && (
+        <>
+          <SectionHeader title="About" />
+          <Text style={{ fontSize: 18 }}>{artist.bio}</Text>
+        </>
+      )}
       <View
         style={{
           flexDirection: "row",
