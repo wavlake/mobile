@@ -18,6 +18,7 @@ import axios from "axios";
 import {
   cacheNostrProfileEvent,
   cacheNostrRelayListEvent,
+  getAllowListeningActivity,
   getCachedNostrProfileEvent,
   getCachedNostrRelayListEvent,
 } from "@/utils/cache";
@@ -247,6 +248,49 @@ export const makeRelayListEvent = (pubkey: string, relayUris: string[]) => {
     tags: relayUris.map((relay) => ["r", relay]),
     content: "",
   };
+};
+
+interface MakeLiveStatusEventParams {
+  pubkey: string;
+  trackUrl: string;
+  content: string;
+  durationInMs: number;
+  relayUris: string[];
+}
+
+export const publishLiveStatusEvent = async ({
+  pubkey,
+  trackUrl,
+  content,
+  durationInMs,
+  relayUris,
+}: MakeLiveStatusEventParams) => {
+  if ((await getAllowListeningActivity(pubkey)) !== "1") {
+    return;
+  }
+
+  const normalizedRelayUris = relayUris.filter(
+    (r) => !r.startsWith("wss://purplepag.es"),
+  );
+  const currentTime = Math.floor(Date.now() / 1000);
+  const eventTemplate = {
+    kind: 30315,
+    content,
+    pubkey,
+    created_at: currentTime,
+    tags: [
+      ["d", "music"],
+      ["r", trackUrl],
+      ["expiration", (currentTime + durationInMs / 1000).toString()],
+    ],
+  };
+  const signedEvent = await signEvent(eventTemplate);
+
+  try {
+    await publishEvent(normalizedRelayUris, signedEvent);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const getReadRelayUris = (event: Event) => {

@@ -10,7 +10,11 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { getDefaultZapAmount, getDefaultZapWallet } from "@/utils";
+import {
+  getAllowListeningActivity,
+  getDefaultZapAmount,
+  getDefaultZapWallet,
+} from "@/utils";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
@@ -47,10 +51,17 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             const defaultZapAmount = (await getDefaultZapAmount(pubkey)) ?? "";
             const defaultZapWallet =
               (await getDefaultZapWallet(pubkey)) ?? "default";
+            const allowListeningActivity = pubkey
+              ? await getAllowListeningActivity(pubkey)
+              : "0";
 
             router.push({
               pathname: "/settings",
-              params: { defaultZapAmount, defaultZapWallet },
+              params: {
+                defaultZapAmount,
+                defaultZapWallet,
+                allowListeningActivity,
+              },
             });
             props.navigation.closeDrawer();
           }}

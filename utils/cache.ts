@@ -11,6 +11,8 @@ const makeDefaultZapAmountKey = (pubkey?: string) => {
 };
 const makeDefaultZapWalletKey = (pubkey?: string) =>
   `${pubkey || "anonymous"}.defaultZapWallet`;
+const makeAllowListeningActivityKey = (pubkey: string) =>
+  `${pubkey}.allowListeningActivity`;
 
 const storeData = async (key: string, value: string) => {
   await AsyncStorage.setItem(key, value);
@@ -96,4 +98,19 @@ export const getDefaultZapWallet = async (pubkey?: string) => {
   const defaultZapWalletKey = makeDefaultZapWalletKey(pubkey);
 
   return getData(defaultZapWalletKey);
+};
+
+export const cacheAllowListeningActivity = async (
+  allowListeningActivity: "0" | "1",
+  pubkey: string,
+) => {
+  const allowListeningActivityKey = makeAllowListeningActivityKey(pubkey);
+
+  await storeData(allowListeningActivityKey, allowListeningActivity);
+};
+
+export const getAllowListeningActivity = async (pubkey: string) => {
+  const allowListeningActivityKey = makeAllowListeningActivityKey(pubkey);
+
+  return (await getData(allowListeningActivityKey)) === "1" ? "1" : "0";
 };
