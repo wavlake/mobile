@@ -1,25 +1,18 @@
-import {
-  Button,
-  LogoIcon,
-  MarqueeText,
-  TrackArtwork,
-  Text,
-} from "@/components";
+import { Button, MarqueeText, TrackArtwork, Text } from "@/components";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView, View } from "react-native";
-import { brandColors } from "@/constants";
-import { useTheme } from "@react-navigation/native";
+import LottieView from "lottie-react-native";
+import { useRef } from "react";
 
 export default function ZapSuccess() {
+  const animation = useRef(null);
   const router = useRouter();
-  const { colors } = useTheme();
   const { zapAmount, title, artist, artworkUrl } = useLocalSearchParams<{
     zapAmount: string;
     title: string;
     artist: string;
     artworkUrl: string;
   }>();
-  const fontColor = brandColors.black.DEFAULT;
 
   return (
     <>
@@ -29,12 +22,7 @@ export default function ZapSuccess() {
           presentation: "modal",
         }}
       />
-      <SafeAreaView
-        style={{
-          flex: 1,
-          backgroundColor: brandColors.pink.DEFAULT,
-        }}
-      >
+      <SafeAreaView style={{ flex: 1 }}>
         <View
           style={{
             gap: 24,
@@ -45,33 +33,24 @@ export default function ZapSuccess() {
           }}
         >
           <View style={{ alignItems: "center" }}>
-            <LogoIcon fill={brandColors.black.DEFAULT} width={74} height={62} />
-            <Text
-              style={{ color: fontColor, fontSize: 18, marginTop: 16 }}
-              bold
-            >
+            <LottieView
+              autoPlay
+              ref={animation}
+              style={{ width: 74, height: 62 }}
+              source={require("@/assets/boost.json")}
+            />
+            <Text style={{ fontSize: 18, marginTop: 16 }} bold>
               {`Zapped ${zapAmount} sats 🎉`}
             </Text>
           </View>
           <View style={{ alignItems: "center" }}>
             {artworkUrl && <TrackArtwork size={248} url={artworkUrl} />}
-            <MarqueeText
-              style={{ color: fontColor, fontSize: 20, marginTop: 16 }}
-              bold
-            >
+            <MarqueeText style={{ fontSize: 20, marginTop: 16 }} bold>
               {title}
             </MarqueeText>
-            <MarqueeText style={{ color: fontColor, fontSize: 18 }}>
-              by {artist}
-            </MarqueeText>
+            <MarqueeText style={{ fontSize: 18 }}>by {artist}</MarqueeText>
           </View>
-          <Button
-            color={brandColors.black.DEFAULT}
-            titleStyle={{ color: colors.text }}
-            onPress={() => router.back()}
-          >
-            OK
-          </Button>
+          <Button onPress={() => router.back()}>OK</Button>
         </View>
       </SafeAreaView>
     </>

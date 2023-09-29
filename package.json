@@ -42,7 +42,8 @@
     "react-native-screens": "~3.22.0",
     "react-native-svg": "13.9.0",
     "react-native-text-ticker": "^1.14.0",
-    "@react-native-picker/picker": "2.4.10"
+    "@react-native-picker/picker": "2.4.10",
+    "lottie-react-native": "5.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
