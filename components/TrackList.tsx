@@ -3,6 +3,7 @@ import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { formatTrackListForMusicPlayer, Track } from "@/utils";
 import { TrackArtwork } from "@/components/TrackArtwork";
 import { Text } from "@/components/Text";
+import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
 interface TrackListProps {
   data: Track[];
@@ -11,6 +12,7 @@ interface TrackListProps {
 
 export const TrackList = ({ data, playerTitle }: TrackListProps) => {
   const { loadTrackList } = useMusicPlayer();
+  const { height } = useMiniMusicPlayer();
 
   const handleRowPress = async (index: number) => {
     await loadTrackList({
@@ -26,13 +28,15 @@ export const TrackList = ({ data, playerTitle }: TrackListProps) => {
         data={data}
         renderItem={({ item, index }) => {
           const { artworkUrl, title, artist } = item;
+          const isLastRow = index === data.length - 1;
+          const marginBottom = isLastRow ? height + 16 : 16;
 
           return (
             <TouchableOpacity onPress={() => handleRowPress(index)}>
               <View
                 style={{
                   flexDirection: "row",
-                  marginBottom: 16,
+                  marginBottom,
                 }}
               >
                 <TrackArtwork size={124} url={artworkUrl} />
