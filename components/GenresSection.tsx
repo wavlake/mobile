@@ -6,6 +6,7 @@ import { getGenres } from "@/utils";
 import { brandColors } from "@/constants";
 import { Text } from "@/components/Text";
 import { useRouter } from "expo-router";
+import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
 export const GenresSection = () => {
   const { data = [] } = useQuery({
@@ -13,6 +14,7 @@ export const GenresSection = () => {
     queryFn: () => getGenres(),
   });
   const router = useRouter();
+  const { height } = useMiniMusicPlayer();
   const handleRowPress = async (genreId: number, name: string) => {
     return router.push({
       pathname: `/search/genre/[genreId]`,
@@ -21,7 +23,9 @@ export const GenresSection = () => {
   };
 
   return (
-    <ScrollView style={{ padding: 16, paddingTop: 0, marginBottom: 16 }}>
+    <ScrollView
+      style={{ padding: 16, paddingTop: 0, marginBottom: height + 16 }}
+    >
       <SectionHeader title="Genres" />
       <Divider />
       {data.map((item, index) => {

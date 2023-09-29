@@ -8,6 +8,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { Text } from "@/components/Text";
 import { TrackArtwork } from "@/components/TrackArtwork";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -18,6 +19,7 @@ interface TopMusicRowProps {
 const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
   const { artworkUrl, title, artist } = track;
   const { loadTrackList } = useMusicPlayer();
+  const { height } = useMiniMusicPlayer();
   const handleRowPress = async (index: number) => {
     await loadTrackList({
       trackList: formatTrackListForMusicPlayer(trackList),
@@ -25,13 +27,15 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
       playerTitle: "Trending",
     });
   };
+  const isLastRow = index === trackList.length - 1;
+  const marginBottom = isLastRow ? height + 16 : 16;
 
   return (
     <TouchableOpacity onPress={() => handleRowPress(index)}>
       <View
         style={{
           flexDirection: "row",
-          marginBottom: 16,
+          marginBottom,
         }}
       >
         <Text

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getArtistAlbums } from "@/utils";
 import { TrackArtwork } from "@/components/TrackArtwork";
 import { Text } from "@/components/Text";
+import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
 export const ArtistAlbumsPage = () => {
   const { artistId } = useLocalSearchParams();
@@ -14,6 +15,7 @@ export const ArtistAlbumsPage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const basePathname = pathname.startsWith("/search") ? "/search" : "";
+  const { height } = useMiniMusicPlayer();
 
   const handleRowPress = async (albumId: string, albumName: string) => {
     return router.push({
@@ -25,15 +27,16 @@ export const ArtistAlbumsPage = () => {
   return (
     <FlatList
       data={albums}
-      renderItem={({ item }) => {
+      renderItem={({ item, index }) => {
         const { artworkUrl, title, id, description } = item;
+        const isLastRow = index === albums.length - 1;
 
         return (
           <TouchableOpacity onPress={() => handleRowPress(id, title)}>
             <View
               style={{
                 flexDirection: "row",
-                marginBottom: 16,
+                marginBottom: isLastRow ? height + 16 : 16,
               }}
             >
               <TrackArtwork size={100} url={artworkUrl} />
