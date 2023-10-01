@@ -94,13 +94,14 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       await sound.playAsync();
 
       if (pubkey) {
-        return publishLiveStatusEvent({
+        // best effort publish live status nostr event
+        publishLiveStatusEvent({
           pubkey,
           trackUrl: `https://wavlake.com/track/${track.id}`,
           content: `${track.title} - ${track.artist}`,
           durationInMs: track.durationInMs,
           relayUris: writeRelayList,
-        });
+        }).catch(console.error);
       }
     },
     [pubkey, writeRelayList],
