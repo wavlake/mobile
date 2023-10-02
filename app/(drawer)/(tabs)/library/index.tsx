@@ -7,11 +7,18 @@ import {
   LibraryMenu,
   PillTabView,
   Text,
+  Button,
 } from "@/components";
 import { brandColors } from "@/constants";
+import { useAuth } from "@/hooks";
+import { View } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function LibraryPage() {
-  return (
+  const { pubkey } = useAuth();
+  const router = useRouter();
+
+  return pubkey ? (
     <PillTabView>
       <PillTabView.Item style={{ width: "100%" }}>
         <LibraryMenu>
@@ -47,5 +54,14 @@ export default function LibraryPage() {
         </Center>
       </PillTabView.Item>
     </PillTabView>
+  ) : (
+    <Center>
+      <View style={{ paddingHorizontal: 16, paddingBottom: 40 }}>
+        <Text style={{ fontSize: 18 }}>
+          You must be logged in to create a library.
+        </Text>
+      </View>
+      <Button onPress={() => router.push("/auth")}>Register</Button>
+    </Center>
   );
 }
