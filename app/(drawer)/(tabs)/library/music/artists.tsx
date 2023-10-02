@@ -3,7 +3,7 @@ import { Center, Text } from "@/components";
 export default function ArtistsPage() {
   return (
     <Center>
-      <Text>Artists page</Text>
+      <Text>Artists library coming soon</Text>
     </Center>
   );
 }
