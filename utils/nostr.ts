@@ -13,7 +13,16 @@ import {
   EventTemplate,
   nip57,
   generatePrivateKey,
+  utils,
+  getBlankEvent,
+  Kind,
 } from "nostr-tools";
+
+// TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
+import { base64 } from "@scure/base";
+import { sha256 } from "@noble/hashes/sha256";
+import { bytesToHex } from "@noble/hashes/utils";
+
 import axios from "axios";
 import {
   cacheNostrProfileEvent,
@@ -384,3 +393,51 @@ export const getZapReceipt = async (invoice: string) => {
     });
   });
 };
+
+/**
+ * Generate token for NIP-98 flow.
+ * TODO: remove this copy pasta once payment tag support is added to nostr-tools.
+ *
+ * @example
+ * const sign = window.nostr.signEvent
+ * await getAuthToken('https://example.com/login', 'post', (e) => sign(e), true)
+ */
+export async function getAuthToken(
+  loginUrl: string,
+  httpMethod: string,
+  sign: (e: EventTemplate) => Promise<Event<number>>,
+  includeAuthorizationScheme: boolean = false,
+  payload?: Record<string, any>,
+): Promise<string> {
+  const _authorizationScheme = "Nostr ";
+
+  if (!loginUrl || !httpMethod)
+    throw new Error("Missing loginUrl or httpMethod");
+
+  const event = getBlankEvent(Kind.HttpAuth);
+
+  event.tags = [
+    ["u", loginUrl],
+    ["method", httpMethod],
+  ];
+
+  const utf8Encoder = new TextEncoder();
+
+  if (payload) {
+    event.tags.push([
+      "payload",
+      bytesToHex(sha256(utf8Encoder.encode(JSON.stringify(payload)))),
+    ]);
+  }
+
+  event.created_at = Math.round(new Date().getTime() / 1000);
+
+  const signedEvent = await sign(event);
+  const authorizationScheme = includeAuthorizationScheme
+    ? _authorizationScheme
+    : "";
+  return (
+    authorizationScheme +
+    base64.encode(utils.utf8Encoder.encode(JSON.stringify(signedEvent)))
+  );
+}

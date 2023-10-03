@@ -14,8 +14,14 @@ import { useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
 import { getSettings } from "@/utils";
-import { useAuth } from "@/hooks";
+import {
+  useAuth,
+  useAddTrackToLibrary,
+  useDeleteTrackFromLibrary,
+  useIsTrackInLibrary,
+} from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
+import { LikeButton } from "@/components/LikeButton";
 
 export const FullSizeMusicPlayer = () => {
   const router = useRouter();
@@ -37,6 +43,9 @@ export const FullSizeMusicPlayer = () => {
     albumTitle: "",
     artworkUrl: "",
   };
+  const isTrackInLibrary = useIsTrackInLibrary(trackId);
+  const addTrackToLibraryMutation = useAddTrackToLibrary();
+  const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
   const screenWidth = Dimensions.get("window").width;
   const padding = 24;
   const { pubkey } = useAuth();
@@ -55,6 +64,23 @@ export const FullSizeMusicPlayer = () => {
         includeBackButton: true,
       },
     });
+  };
+  const handleLikePress = async () => {
+    if (!currentTrack) {
+      return;
+    }
+
+    if (isTrackInLibrary) {
+      deleteTrackFromLibraryMutation.mutate(trackId);
+    } else {
+      // the duration, avatarUrl, and artistUrl are just needed to make TypeScript happy for the optimistic update
+      addTrackToLibraryMutation.mutate({
+        ...currentTrack,
+        duration: currentTrack.durationInMs / 1000,
+        avatarUrl: currentTrack.avatarUrl ?? "",
+        artistUrl: "",
+      });
+    }
   };
 
   return currentTrack ? (
@@ -102,7 +128,19 @@ export const FullSizeMusicPlayer = () => {
           </TouchableOpacity>
         </View>
         <PlayerControls />
-        <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <LikeButton
+            onPress={handleLikePress}
+            size={24}
+            isLiked={isTrackInLibrary}
+            isLoading={addTrackToLibraryMutation.isLoading}
+          />
           <ShareButton url={`https://wavlake.com/track/${trackId}`} />
         </View>
       </View>

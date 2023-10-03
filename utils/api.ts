@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthToken, signEvent } from "@/utils/nostr";
 
 export interface Track {
   id: string;
@@ -90,8 +91,9 @@ interface Genre {
   count: number;
 }
 
+const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_WAVLAKE_API_URL,
+  baseURL,
 });
 
 const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
@@ -175,4 +177,80 @@ export const getRandomGenreTracks = async (
   const { data } = await apiClient.get(`/tracks/random/${genreId}/genre`);
 
   return normalizeTrackResponse(data);
+};
+
+const createAuthHeader = (
+  relativeUrl: string,
+  htttpMethod: "get" | "post" | "delete" = "get",
+  payload?: Record<string, any>,
+) => {
+  const url = `${baseURL}${relativeUrl}`;
+
+  return getAuthToken(url, htttpMethod, signEvent, true, payload);
+};
+
+export const getLibraryArtists = async () => {
+  const url = "/library/artists";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+
+  return data.data.artists;
+};
+
+export const getLibraryAlbums = async () => {
+  const url = "/library/albums";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+
+  return data.data.albums;
+};
+
+export const getLibraryTracks = async () => {
+  const url = "/library/tracks";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+
+  // TODO: need to normalize this response once the API includes all the data that is needed for tracks
+  const tracks = data.data.tracks;
+
+  const tracksMap: Map<string, Track> = new Map();
+
+  tracks.forEach((track: Track) => {
+    tracksMap.set(track.id, track);
+  });
+
+  return tracksMap;
+};
+
+export const addToLibrary = async (contentId: string) => {
+  const url = "/library";
+  const payload = { contentIds: [contentId] };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
+      "Content-Type": "application/json",
+    },
+  });
+
+  return data;
+};
+
+export const deleteFromLibrary = async (contentId: string) => {
+  const url = `/library/${contentId}`;
+  const { data } = await apiClient.delete(url, {
+    headers: {
+      Authorization: await createAuthHeader(url, "delete"),
+    },
+  });
+
+  return data;
 };
