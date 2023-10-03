@@ -139,7 +139,10 @@ export const FullSizeMusicPlayer = () => {
             onPress={handleLikePress}
             size={24}
             isLiked={isTrackInLibrary}
-            isLoading={addTrackToLibraryMutation.isLoading}
+            isLoading={
+              addTrackToLibraryMutation.isLoading ||
+              deleteTrackFromLibraryMutation.isLoading
+            }
           />
           <ShareButton url={`https://wavlake.com/track/${trackId}`} />
         </View>

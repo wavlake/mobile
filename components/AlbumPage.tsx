@@ -74,15 +74,14 @@ const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
         );
       }}
       renderItem={({ item, index }) => {
-        const { title, albumTitle, artist, msatTotal } = item;
+        const { albumTitle, artist } = item;
         const isLastItem = index === data.length - 1;
 
         return (
           <View style={{ marginBottom: isLastItem ? 0 : 16 }}>
             <TrackRow
-              title={title}
+              track={item}
               descriptor={artist}
-              msats={msatTotal}
               onPress={() => handleRowPress(index, albumTitle)}
             />
           </View>

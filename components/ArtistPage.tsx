@@ -106,20 +106,17 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
         }
       />
       <View style={{ gap: 16 }}>
-        {artist.topTracks.map(
-          ({ id, title, artworkUrl, albumTitle, msatTotal }, index) => {
-            return (
-              <TrackRow
-                key={id}
-                title={title}
-                descriptor={albumTitle}
-                msats={msatTotal}
-                onPress={() => hanldlePlayAllPress(index, artist.name)}
-                artworkUrl={artworkUrl}
-              />
-            );
-          },
-        )}
+        {artist.topTracks.map((track, index) => {
+          const { id, albumTitle } = track;
+          return (
+            <TrackRow
+              key={id}
+              track={track}
+              descriptor={albumTitle}
+              onPress={() => hanldlePlayAllPress(index, artist.name)}
+            />
+          );
+        })}
       </View>
       <SectionHeader
         title="Releases"
