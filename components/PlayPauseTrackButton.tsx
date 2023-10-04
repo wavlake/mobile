@@ -8,14 +8,17 @@ interface PlayPauseTrackButtonProps {
   type: "play" | "pause";
 
   onPress: () => void;
+  color?: string;
 }
 
 export const PlayPauseTrackButton = ({
   size,
   type,
   onPress,
+  color,
 }: PlayPauseTrackButtonProps) => {
   const { colors } = useTheme();
+  const fill = color || colors.text;
 
   return (
     <Pressable
@@ -26,10 +29,10 @@ export const PlayPauseTrackButton = ({
       }}
     >
       {type === "pause" && (
-        <PauseRoundIcon width={size} height={size} fill={colors.text} />
+        <PauseRoundIcon width={size} height={size} fill={fill} />
       )}
       {type === "play" && (
-        <PlayRoundIcon width={size} height={size} fill={colors.text} />
+        <PlayRoundIcon width={size} height={size} fill={fill} />
       )}
     </Pressable>
   );

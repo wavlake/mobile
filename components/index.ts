@@ -32,3 +32,4 @@ export * from "./GenresSection";
 export * from "./TrackList";
 export * from "./ArtistAlbumsPage";
 export * from "./MiniMusicPlayerProvider";
+export * from "./LibrarySongsPage";

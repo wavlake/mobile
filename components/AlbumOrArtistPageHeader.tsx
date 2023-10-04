@@ -34,7 +34,7 @@ export const AlbumOrArtistPageHeader = ({
   const { currentTrackListId, status, togglePlayPause } = useMusicPlayer();
   const screenWidth = Dimensions.get("window").width;
   const isThisTrackListLoaded = currentTrackListId === trackListId;
-  const isThisTrackListtPlaying = status === "playing" && isThisTrackListLoaded;
+  const isThisTrackListPlaying = status === "playing" && isThisTrackListLoaded;
   const isAlbum = type === "album";
   const isAlbumInLibrary = useIsAlbumInLibrary(trackListId);
   const addAlbumToLibraryMutation = useAddAlbumToLibrary();
@@ -104,7 +104,7 @@ export const AlbumOrArtistPageHeader = ({
           <ShareButton url={shareUrl} inverse />
           <PlayPauseTrackButton
             size={56}
-            type={isThisTrackListtPlaying ? "pause" : "play"}
+            type={isThisTrackListPlaying ? "pause" : "play"}
             onPress={handlePlayPausePress}
           />
         </View>

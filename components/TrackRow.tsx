@@ -14,9 +14,17 @@ interface TrackRowProps {
   track: Track;
   descriptor: string;
   onPress: () => void;
+  willDisplaySatsEarned?: boolean;
+  willDisplayLikeButton?: boolean;
 }
 
-export const TrackRow = ({ track, descriptor, onPress }: TrackRowProps) => {
+export const TrackRow = ({
+  track,
+  descriptor,
+  onPress,
+  willDisplaySatsEarned = true,
+  willDisplayLikeButton = true,
+}: TrackRowProps) => {
   const { id, title, msatTotal, artworkUrl } = track;
   const isTrackInLibrary = useIsTrackInLibrary(id);
   const addTrackToLibraryMutation = useAddTrackToLibrary();
@@ -40,31 +48,38 @@ export const TrackRow = ({ track, descriptor, onPress }: TrackRowProps) => {
           flex: 1,
         }}
       >
-        {artworkUrl && <TrackArtwork size={60} url={artworkUrl} />}
+        {artworkUrl && (
+          <TrackArtwork
+            size={willDisplaySatsEarned ? 60 : 48}
+            url={artworkUrl}
+          />
+        )}
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text style={{ fontSize: 18 }} numberOfLines={1} bold>
             {title}
           </Text>
           <Text numberOfLines={1}>{descriptor}</Text>
-          <SatsEarned msats={msatTotal} />
+          {willDisplaySatsEarned && <SatsEarned msats={msatTotal} />}
         </View>
       </TouchableOpacity>
-      <View
-        style={{
-          marginRight: 16,
-          justifyContent: "center",
-        }}
-      >
-        <LikeButton
-          onPress={handleLikePress}
-          size={32}
-          isLiked={isTrackInLibrary}
-          isLoading={
-            addTrackToLibraryMutation.isLoading ||
-            deleteTrackFromLibraryMutation.isLoading
-          }
-        />
-      </View>
+      {willDisplayLikeButton && (
+        <View
+          style={{
+            marginRight: 16,
+            justifyContent: "center",
+          }}
+        >
+          <LikeButton
+            onPress={handleLikePress}
+            size={32}
+            isLiked={isTrackInLibrary}
+            isLoading={
+              addTrackToLibraryMutation.isLoading ||
+              deleteTrackFromLibraryMutation.isLoading
+            }
+          />
+        </View>
+      )}
     </View>
   );
 };

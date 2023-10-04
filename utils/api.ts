@@ -219,13 +219,12 @@ export const getLibraryTracks = async (): Promise<Track[]> => {
     },
   });
 
-  // TODO: need to normalize this response once the API includes all the data that is needed for tracks
-  return data.data.tracks;
+  return normalizeTrackResponse(data.data.tracks);
 };
 
 export const addToLibrary = async (contentId: string) => {
   const url = "/library";
-  const payload = { contentIds: [contentId] };
+  const payload = { contentId };
   const { data } = await apiClient.post(url, payload, {
     headers: {
       Authorization: await createAuthHeader(url, "post", payload),
