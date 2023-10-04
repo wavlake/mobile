@@ -14,6 +14,7 @@ import {
 import { MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
+import { useNostrRelayList } from "@/hooks";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -22,6 +23,47 @@ export { ErrorBoundary } from "expo-router";
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const { writeRelayList } = useNostrRelayList();
+
+  return (
+    <MusicPlayerProvider writeRelayList={writeRelayList}>
+      <RootSiblingParent>
+        <View style={{ flex: 1, backgroundColor: "black" }}>
+          <Stack
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: "black",
+              },
+              headerShadowVisible: false,
+              headerTintColor: "white",
+              headerBackTitleVisible: false,
+            }}
+          >
+            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="auth"
+              options={{
+                headerShown: false,
+                gestureEnabled: false,
+                gestureDirection: "vertical",
+              }}
+            />
+            <Stack.Screen
+              name="zap"
+              options={{
+                headerShown: false,
+                gestureEnabled: false,
+                gestureDirection: "vertical",
+              }}
+            />
+          </Stack>
+        </View>
+      </RootSiblingParent>
+    </MusicPlayerProvider>
+  );
+};
 
 export default function Layout() {
   const [loaded, error] = useFonts({
@@ -57,43 +99,7 @@ export default function Layout() {
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
       <QueryClientProvider client={queryClient}>
-        <MusicPlayerProvider>
-          <RootSiblingParent>
-            <View style={{ flex: 1, backgroundColor: "black" }}>
-              <Stack
-                screenOptions={{
-                  headerStyle: {
-                    backgroundColor: "black",
-                  },
-                  headerShadowVisible: false,
-                  headerTintColor: "white",
-                  headerBackTitleVisible: false,
-                }}
-              >
-                <Stack.Screen
-                  name="(drawer)"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="auth"
-                  options={{
-                    headerShown: false,
-                    gestureEnabled: false,
-                    gestureDirection: "vertical",
-                  }}
-                />
-                <Stack.Screen
-                  name="zap"
-                  options={{
-                    headerShown: false,
-                    gestureEnabled: false,
-                    gestureDirection: "vertical",
-                  }}
-                />
-              </Stack>
-            </View>
-          </RootSiblingParent>
-        </MusicPlayerProvider>
+        <AppContent />
       </QueryClientProvider>
     </ThemeProvider>
   ) : null;

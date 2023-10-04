@@ -1,7 +1,7 @@
 import { useLibraryTracks } from "./useLibraryTracks";
 
 export const useIsTrackInLibrary = (trackId: string) => {
-  const { data: libraryTracks } = useLibraryTracks();
+  const { data: libraryTracks = [] } = useLibraryTracks();
 
-  return Boolean(libraryTracks?.has(trackId));
+  return libraryTracks.some(({ id }) => id === trackId);
 };

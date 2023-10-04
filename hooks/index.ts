@@ -7,4 +7,4 @@ export * from "./useCreateNewNostrAccount";
 export * from "./useIsNavigationReady";
 export * from "./useDebounce";
 export * from "./useNewMusic";
-export * from "./libraryTracks";
+export * from "./library";

@@ -60,9 +60,15 @@ interface MusicPlayerContextProps {
 
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
-export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
+interface MusicPlayerProviderProps {
+  writeRelayList: string[];
+}
+
+export const MusicPlayerProvider = ({
+  writeRelayList,
+  children,
+}: PropsWithChildren<MusicPlayerProviderProps>) => {
   const { pubkey } = useAuth();
-  const { writeRelayList } = useNostrRelayList();
   const trackQueue = useRef<MusicPlayerTrack[]>([]);
   const currentSound = useRef<Audio.Sound | null>(null);
   const currentTrackIndex = useRef(0);

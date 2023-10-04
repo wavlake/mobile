@@ -49,7 +49,7 @@ interface TrackComment {
   commenterArtworkUrl: string;
 }
 
-interface Artist {
+export interface Artist {
   id: string;
   userId: string;
   name: string;
@@ -65,12 +65,12 @@ interface Artist {
   deleted: boolean;
   verified: boolean;
   npub: string | null;
-  topAlbums: Album[];
-  topTracks: TrackResponse[];
-  topMessages: TrackComment[];
+  topAlbums?: Album[];
+  topTracks?: TrackResponse[];
+  topMessages?: TrackComment[];
 }
 
-interface Album {
+export interface Album {
   id: string;
   artistId: string;
   title: string;
@@ -189,7 +189,7 @@ const createAuthHeader = (
   return getAuthToken(url, htttpMethod, signEvent, true, payload);
 };
 
-export const getLibraryArtists = async () => {
+export const getLibraryArtists = async (): Promise<Artist[]> => {
   const url = "/library/artists";
   const { data } = await apiClient.get(url, {
     headers: {
@@ -200,7 +200,7 @@ export const getLibraryArtists = async () => {
   return data.data.artists;
 };
 
-export const getLibraryAlbums = async () => {
+export const getLibraryAlbums = async (): Promise<Album[]> => {
   const url = "/library/albums";
   const { data } = await apiClient.get(url, {
     headers: {
@@ -211,7 +211,7 @@ export const getLibraryAlbums = async () => {
   return data.data.albums;
 };
 
-export const getLibraryTracks = async () => {
+export const getLibraryTracks = async (): Promise<Track[]> => {
   const url = "/library/tracks";
   const { data } = await apiClient.get(url, {
     headers: {
@@ -220,15 +220,7 @@ export const getLibraryTracks = async () => {
   });
 
   // TODO: need to normalize this response once the API includes all the data that is needed for tracks
-  const tracks = data.data.tracks;
-
-  const tracksMap: Map<string, Track> = new Map();
-
-  tracks.forEach((track: Track) => {
-    tracksMap.set(track.id, track);
-  });
-
-  return tracksMap;
+  return data.data.tracks;
 };
 
 export const addToLibrary = async (contentId: string) => {

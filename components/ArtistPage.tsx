@@ -54,12 +54,15 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
     queryKey: [artistId],
     queryFn: () => getArtist(artistId as string),
   });
+  const topAlbums = artist?.topAlbums ?? [];
+  const topTracks = artist?.topTracks ?? [];
+  const topMessages = artist?.topMessages ?? [];
   const router = useRouter();
   const pathname = usePathname();
   const basePathname = pathname.startsWith("/search") ? "/search" : "";
 
   const handleTopAlbumPress = async (index: number) => {
-    const album = artist?.topAlbums[index];
+    const album = topAlbums[index];
 
     if (!album) {
       return;
@@ -94,7 +97,7 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
       <AlbumOrArtistPageHeader
         type="artist"
         shareUrl={`https://wavlake.com/${artist.artistUrl}`}
-        artworkUrl={artist.artworkUrl}
+        content={artist}
         trackListId={artist.id}
         trackListTitle={artist.name}
         onPlay={hanldlePlayAllPress}
@@ -106,7 +109,7 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
         }
       />
       <View style={{ gap: 16 }}>
-        {artist.topTracks.map((track, index) => {
+        {topTracks.map((track, index) => {
           const { id, albumTitle } = track;
           return (
             <TrackRow
@@ -130,14 +133,11 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
           },
         }}
       />
-      <HorizontalArtworkRow
-        items={artist.topAlbums}
-        onPress={handleTopAlbumPress}
-      />
-      {artist.topMessages.length > 0 && (
+      <HorizontalArtworkRow items={topAlbums} onPress={handleTopAlbumPress} />
+      {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          {artist.topMessages.map(
+          {topMessages.map(
             ({ id, commenterArtworkUrl, content, msatAmount, name, title }) => {
               const extraText = `from @${name} for "${title}"`;
 

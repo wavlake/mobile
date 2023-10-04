@@ -36,7 +36,7 @@ export const LikeButton = ({
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: colors.text,
+            backgroundColor: isLiked ? colors.background : colors.text,
             borderRadius: size / 2,
             width: size,
             height: size,

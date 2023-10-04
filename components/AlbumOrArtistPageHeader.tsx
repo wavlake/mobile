@@ -3,11 +3,21 @@ import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { TrackArtwork } from "@/components/TrackArtwork";
 import { ShareButton } from "@/components/ShareButton";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
+import { LikeButton } from "@/components/LikeButton";
+import {
+  useAddAlbumToLibrary,
+  useAddArtistToLibrary,
+  useDeleteAlbumFromLibrary,
+  useDeleteArtistFromLibrary,
+  useIsAlbumInLibrary,
+  useIsArtistInLibrary,
+} from "@/hooks";
+import { Album, Artist } from "@/utils";
 
 interface AlbumOrArtistPageHeaderProps {
   type: "album" | "artist";
+  content: Album | Artist;
   shareUrl: string;
-  artworkUrl: string;
   trackListId: string;
   trackListTitle: string;
   onPlay: (index: number, playerTitle: string) => void;
@@ -15,8 +25,8 @@ interface AlbumOrArtistPageHeaderProps {
 
 export const AlbumOrArtistPageHeader = ({
   type,
+  content,
   shareUrl,
-  artworkUrl,
   trackListId,
   trackListTitle,
   onPlay,
@@ -26,6 +36,17 @@ export const AlbumOrArtistPageHeader = ({
   const isThisTrackListLoaded = currentTrackListId === trackListId;
   const isThisTrackListtPlaying = status === "playing" && isThisTrackListLoaded;
   const isAlbum = type === "album";
+  const isAlbumInLibrary = useIsAlbumInLibrary(trackListId);
+  const addAlbumToLibraryMutation = useAddAlbumToLibrary();
+  const deleteAlbumFromLibraryMutation = useDeleteAlbumFromLibrary();
+  const isArtistInLibrary = useIsArtistInLibrary(trackListId);
+  const addArtistToLibraryMutation = useAddArtistToLibrary();
+  const deleteArtistFromLibraryMutation = useDeleteArtistFromLibrary();
+  const isLikeLoading = isAlbum
+    ? addAlbumToLibraryMutation.isLoading ||
+      deleteAlbumFromLibraryMutation.isLoading
+    : addArtistToLibraryMutation.isLoading ||
+      deleteArtistFromLibraryMutation.isLoading;
   const handlePlayPausePress = () => {
     if (isThisTrackListLoaded) {
       return togglePlayPause();
@@ -33,14 +54,29 @@ export const AlbumOrArtistPageHeader = ({
 
     return onPlay(0, trackListTitle);
   };
+  const handleLikePress = () => {
+    if (isAlbum) {
+      if (isAlbumInLibrary) {
+        deleteAlbumFromLibraryMutation.mutate(trackListId);
+      } else {
+        addAlbumToLibraryMutation.mutate(content);
+      }
+    } else {
+      if (isArtistInLibrary) {
+        deleteArtistFromLibraryMutation.mutate(trackListId);
+      } else {
+        addArtistToLibraryMutation.mutate(content);
+      }
+    }
+  };
 
   return (
     <View>
       {isAlbum ? (
-        <TrackArtwork size={screenWidth} url={artworkUrl} />
+        <TrackArtwork size={screenWidth} url={content.artworkUrl} />
       ) : (
         <Image
-          source={{ uri: artworkUrl }}
+          source={{ uri: content.artworkUrl }}
           style={{ width: "100%", aspectRatio: 16 / 9 }}
           resizeMode="contain"
         />
@@ -49,18 +85,29 @@ export const AlbumOrArtistPageHeader = ({
         style={{
           position: "absolute",
           bottom: 24,
+          left: 24,
           right: 24,
           flexDirection: "row",
+          justifyContent: "space-between",
           gap: 24,
           alignItems: "center",
         }}
       >
-        <ShareButton url={shareUrl} inverse />
-        <PlayPauseTrackButton
-          size={56}
-          type={isThisTrackListtPlaying ? "pause" : "play"}
-          onPress={handlePlayPausePress}
+        <LikeButton
+          onPress={handleLikePress}
+          isCircle
+          size={40}
+          isLiked={isAlbumInLibrary || isArtistInLibrary}
+          isLoading={isLikeLoading}
         />
+        <View style={{ flexDirection: "row", gap: 24, alignItems: "center" }}>
+          <ShareButton url={shareUrl} inverse />
+          <PlayPauseTrackButton
+            size={56}
+            type={isThisTrackListtPlaying ? "pause" : "play"}
+            onPress={handlePlayPausePress}
+          />
+        </View>
       </View>
     </View>
   );
