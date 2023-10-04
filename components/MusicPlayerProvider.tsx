@@ -166,6 +166,7 @@ export const MusicPlayerProvider = ({
     setStatus("paused");
   };
   const clear = async () => {
+    currentTrackListId.current = undefined;
     currentTrackIndex.current = 0;
     trackQueue.current = [];
     setStatus("off");
