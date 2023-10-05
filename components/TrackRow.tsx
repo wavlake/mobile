@@ -1,7 +1,7 @@
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/components/Text";
 import { SatsEarned } from "@/components/SatsEarned";
-import { TrackArtwork } from "@/components/TrackArtwork";
+import { SquareArtwork } from "@/components/SquareArtwork";
 import { LikeButton } from "@/components/LikeButton";
 import {
   useAddTrackToLibrary,
@@ -46,14 +46,10 @@ export const TrackRow = ({
           paddingRight: 16,
           flexDirection: "row",
           flex: 1,
+          alignItems: "center",
         }}
       >
-        {artworkUrl && (
-          <TrackArtwork
-            size={willDisplaySatsEarned ? 60 : 48}
-            url={artworkUrl}
-          />
-        )}
+        {artworkUrl && <SquareArtwork size={60} url={artworkUrl} />}
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text style={{ fontSize: 18 }} numberOfLines={1} bold>
             {title}

@@ -1,6 +1,6 @@
 import { Dimensions, FlatList, View } from "react-native";
 import { useMemo, useRef, useEffect } from "react";
-import { TrackArtwork } from "@/components/TrackArtwork";
+import { SquareArtwork } from "@/components/SquareArtwork";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 
 export const ArtworkCarousel = () => {
@@ -39,7 +39,7 @@ export const ArtworkCarousel = () => {
             width: screenWidth,
           }}
         >
-          <TrackArtwork size={screenWidth - padding * 2} url={item} />
+          <SquareArtwork size={screenWidth - padding * 2} url={item} />
         </View>
       )}
       scrollEnabled={false}

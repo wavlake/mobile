@@ -10,7 +10,7 @@ import { Center } from "@/components/Center";
 import { MarqueeText } from "@/components/MarqueeText";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
 import { getSettings } from "@/utils";
@@ -24,6 +24,9 @@ import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
 
 export const FullSizeMusicPlayer = () => {
+  const { artistOrAlbumBasePathname = "" } = useLocalSearchParams<{
+    artistOrAlbumBasePathname: string;
+  }>();
   const router = useRouter();
   const { currentTrack } = useMusicPlayer();
   const {
@@ -51,13 +54,13 @@ export const FullSizeMusicPlayer = () => {
   const { pubkey } = useAuth();
   const handleTitlePress = () => {
     router.push({
-      pathname: "/album/[albumId]",
+      pathname: `${artistOrAlbumBasePathname}/album/[albumId]`,
       params: { albumId, headerTitle: albumTitle, includeBackButton: true },
     });
   };
   const handleArtistPress = () => {
     router.push({
-      pathname: `/artist/[artistId]`,
+      pathname: `${artistOrAlbumBasePathname}/artist/[artistId]`,
       params: {
         artistId,
         headerTitle: artist,

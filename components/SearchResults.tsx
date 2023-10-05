@@ -7,13 +7,12 @@ import {
   View,
 } from "react-native";
 import { Text } from "@/components/Text";
-import { useDebounce } from "@/hooks";
+import { useDebounce, useGoToAlbumPage, useGoToArtistPage } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { search, SearchResult } from "@/utils";
-import { TrackArtwork } from "@/components/TrackArtwork";
+import { SquareArtwork } from "@/components/SquareArtwork";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
-import { usePathname, useRouter } from "expo-router";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 
 const SearchResultRow = ({
@@ -30,9 +29,9 @@ const SearchResultRow = ({
   duration,
 }: SearchResult) => {
   const { colors } = useTheme();
-  const router = useRouter();
-  const pathname = usePathname();
   const { loadTrackList } = useMusicPlayer();
+  const goToAlbumPage = useGoToAlbumPage();
+  const goToArtistPage = useGoToArtistPage();
   const handleRowPress = async () => {
     if (
       type === "track" &&
@@ -62,25 +61,12 @@ const SearchResultRow = ({
       });
     }
 
-    const basePathname = pathname === "/" ? "" : pathname;
-
     if (type === "album") {
-      return router.push({
-        pathname: `${basePathname}/album/[albumId]`,
-        params: { albumId: id, headerTitle: name, includeBackButton: true },
-      });
+      return goToAlbumPage(id, name);
     }
 
     if (type === "artist") {
-      return router.push({
-        pathname: `${basePathname}/artist/[artistId]`,
-        params: {
-          artistId: id,
-          avatarUrl,
-          headerTitle: name,
-          includeBackButton: true,
-        },
-      });
+      return goToArtistPage(id, name);
     }
   };
   const hasRightChevron = type === "artist" || type === "album";
@@ -96,7 +82,7 @@ const SearchResultRow = ({
           marginBottom: 8,
         }}
       >
-        <TrackArtwork size={60} url={artworkUrl || avatarUrl} />
+        <SquareArtwork size={60} url={artworkUrl || avatarUrl} />
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text numberOfLines={1} bold>
             {name}

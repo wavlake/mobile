@@ -1,7 +1,7 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { LoadTrackList } from "@/components/MusicPlayerProvider";
 import { formatTrackListForMusicPlayer, Track } from "@/utils";
-import { TrackArtwork } from "@/components/TrackArtwork";
+import { SquareArtwork } from "@/components/SquareArtwork";
 import { Text } from "@/components/Text";
 import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 import { memo } from "react";
@@ -41,7 +41,7 @@ export const TrackList = memo(
                     marginBottom,
                   }}
                 >
-                  <TrackArtwork size={124} url={artworkUrl} />
+                  <SquareArtwork size={124} url={artworkUrl} />
                   <View style={{ marginLeft: 10, flex: 1 }}>
                     <Text
                       style={{

@@ -8,6 +8,7 @@ import { LoadTrackList } from "@/components/MusicPlayerProvider";
 import { memo, useMemo } from "react";
 import { Center } from "@/components/Center";
 import { Text } from "@/components/Text";
+import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
 interface LibrarySongsPageProps {
   loadTrackList: LoadTrackList;
@@ -21,15 +22,30 @@ export const LibrarySongsPage = memo(
         [...tracks].sort((a, b) => {
           const trackTitleA = a.title.toLowerCase();
           const trackTitleB = b.title.toLowerCase();
+          const trackArtistA = a.artist.toLowerCase();
+          const trackArtistB = b.artist.toLowerCase();
 
-          if (trackTitleA < trackTitleB) return -1;
-          if (trackTitleA > trackTitleB) return 1;
+          if (
+            trackTitleA < trackTitleB ||
+            (trackTitleA === trackTitleB && trackArtistA < trackArtistB)
+          ) {
+            return -1;
+          }
+
+          if (
+            trackTitleA > trackTitleB ||
+            (trackTitleA === trackTitleB && trackArtistA > trackArtistB)
+          ) {
+            return 1;
+          }
+
           return 0;
         }),
       [tracks],
     );
     const trackListId = "song-library";
     const playerTitle = "Song Library";
+    const { height } = useMiniMusicPlayer();
     const handleTrackPress = async (index: number) => {
       await loadTrackList({
         trackList: formatTrackListForMusicPlayer(sortedTracks),
@@ -52,15 +68,22 @@ export const LibrarySongsPage = memo(
             />
           </View>
         )}
-        renderItem={({ item, index }) => (
-          <TrackRow
-            track={item}
-            descriptor={item.artist}
-            onPress={() => handleTrackPress(index)}
-            willDisplaySatsEarned={false}
-            willDisplayLikeButton={false}
-          />
-        )}
+        renderItem={({ item, index }) => {
+          const isLastRow = index === sortedTracks.length - 1;
+          const marginBottom = isLastRow ? height + 16 : 16;
+
+          return (
+            <View style={{ marginBottom }}>
+              <TrackRow
+                track={item}
+                descriptor={item.artist}
+                onPress={() => handleTrackPress(index)}
+                willDisplaySatsEarned={false}
+                willDisplayLikeButton={false}
+              />
+            </View>
+          );
+        }}
         keyExtractor={(item) => item.id}
       />
     ) : (

@@ -1,10 +1,11 @@
 import { View, Pressable } from "react-native";
-import { TrackArtwork } from "./TrackArtwork";
+import { SquareArtwork } from "./SquareArtwork";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useTheme } from "@react-navigation/native";
-import { useRouter, useGlobalSearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { MarqueeText } from "@/components/MarqueeText";
+import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
 
 interface PlayerButtonProps {
   onPress: () => void;
@@ -31,7 +32,7 @@ const PlayerButton = ({ onPress, iconName }: PlayerButtonProps) => {
 };
 
 export const MiniMusicPlayer = () => {
-  const globalSearchParams = useGlobalSearchParams();
+  const artistOrAlbumBasePathname = useGetArtistOrAlbumBasePathname();
   const router = useRouter();
   const { colors } = useTheme();
   const { status, positionInMs, togglePlayPause, clear, currentTrack } =
@@ -44,7 +45,10 @@ export const MiniMusicPlayer = () => {
   return currentTrack ? (
     <Pressable
       onPress={() =>
-        router.push({ pathname: "/player", params: globalSearchParams })
+        router.push({
+          pathname: "/player",
+          params: { artistOrAlbumBasePathname },
+        })
       }
     >
       <View style={{ backgroundColor: colors.background }}>
@@ -54,7 +58,7 @@ export const MiniMusicPlayer = () => {
             padding: 10,
           }}
         >
-          {artworkUrl && <TrackArtwork size={50} url={artworkUrl} />}
+          {artworkUrl && <SquareArtwork size={50} url={artworkUrl} />}
           <View
             style={{
               flexDirection: "row",

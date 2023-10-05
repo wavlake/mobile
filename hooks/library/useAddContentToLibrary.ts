@@ -23,8 +23,8 @@ export const useAddContentToLibrary = (queryKey: QueryKey) => {
 
       // Optimistically update to the new value
       queryClient.setQueryData<Content[]>(queryKey, (old = []) => [
-        ...old,
         content,
+        ...old,
       ]);
 
       // Return a context object with the snapshotted value

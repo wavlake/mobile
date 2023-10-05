@@ -1,6 +1,6 @@
-import { Dimensions, Image, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { TrackArtwork } from "@/components/TrackArtwork";
+import { SquareArtwork } from "@/components/SquareArtwork";
 import { ShareButton } from "@/components/ShareButton";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { LikeButton } from "@/components/LikeButton";
@@ -13,6 +13,7 @@ import {
   useIsArtistInLibrary,
 } from "@/hooks";
 import { Album, Artist } from "@/utils";
+import { ArtistBanner } from "@/components/ArtistBanner";
 
 interface AlbumOrArtistPageHeaderProps {
   type: "album" | "artist";
@@ -73,13 +74,9 @@ export const AlbumOrArtistPageHeader = ({
   return (
     <View>
       {isAlbum ? (
-        <TrackArtwork size={screenWidth} url={content.artworkUrl} />
+        <SquareArtwork size={screenWidth} url={content.artworkUrl} />
       ) : (
-        <Image
-          source={{ uri: content.artworkUrl }}
-          style={{ width: "100%", aspectRatio: 16 / 9 }}
-          resizeMode="contain"
-        />
+        <ArtistBanner uri={content.artworkUrl} />
       )}
       <View
         style={{
