@@ -60,9 +60,11 @@ export const PlayerControls = () => {
           marginTop: -8,
         }}
       >
-        <Text>{formatTime(positionInMs)}</Text>
+        <Text style={styles.monospacedText}>{formatTime(positionInMs)}</Text>
         {durationInMs && (
-          <Text>-{formatTime(durationInMs - positionInMs)}</Text>
+          <Text style={styles.monospacedText}>
+            -{formatTime(durationInMs - positionInMs)}
+          </Text>
         )}
       </View>
       <View
@@ -96,3 +98,10 @@ export const PlayerControls = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  monospacedText: {
+    fontFamily: "Helvetica",
+    letterSpacing: 0.5,
+  },
+});
