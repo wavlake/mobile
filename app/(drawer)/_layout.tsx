@@ -2,7 +2,12 @@ import { Drawer } from "expo-router/drawer";
 import { HeaderBackButton, HeaderTitleLogo, Avatar } from "@/components";
 import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
-import { useAuth } from "@/hooks";
+import {
+  useAuth,
+  useLibraryTracks,
+  useLibraryArtists,
+  useLibraryAlbums,
+} from "@/hooks";
 import { View, Pressable } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
 
@@ -31,6 +36,11 @@ export default function DrawerLayout() {
       </View>
     );
   };
+
+  // just using here to seed the react-query library cache
+  useLibraryTracks();
+  useLibraryArtists();
+  useLibraryAlbums();
 
   return (
     <Drawer

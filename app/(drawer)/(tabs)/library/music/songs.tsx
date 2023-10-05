@@ -1,9 +1,7 @@
-import { Center, Text } from "@/components";
+import { LibrarySongsPage, useMusicPlayer } from "@/components";
 
 export default function SongsPage() {
-  return (
-    <Center>
-      <Text>Songs page</Text>
-    </Center>
-  );
+  const { loadTrackList } = useMusicPlayer();
+
+  return <LibrarySongsPage loadTrackList={loadTrackList} />;
 }

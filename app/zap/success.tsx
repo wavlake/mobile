@@ -1,4 +1,4 @@
-import { Button, MarqueeText, TrackArtwork, Text } from "@/components";
+import { Button, MarqueeText, SquareArtwork, Text } from "@/components";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView, View } from "react-native";
 import LottieView from "lottie-react-native";
@@ -44,7 +44,7 @@ export default function ZapSuccess() {
             </Text>
           </View>
           <View style={{ alignItems: "center" }}>
-            {artworkUrl && <TrackArtwork size={248} url={artworkUrl} />}
+            {artworkUrl && <SquareArtwork size={248} url={artworkUrl} />}
             <MarqueeText style={{ fontSize: 20, marginTop: 16 }} bold>
               {title}
             </MarqueeText>

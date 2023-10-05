@@ -10,14 +10,23 @@ import { Center } from "@/components/Center";
 import { MarqueeText } from "@/components/MarqueeText";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
 import { getSettings } from "@/utils";
-import { useAuth } from "@/hooks";
+import {
+  useAuth,
+  useAddTrackToLibrary,
+  useDeleteTrackFromLibrary,
+  useIsTrackInLibrary,
+} from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
+import { LikeButton } from "@/components/LikeButton";
 
 export const FullSizeMusicPlayer = () => {
+  const { artistOrAlbumBasePathname = "" } = useLocalSearchParams<{
+    artistOrAlbumBasePathname: string;
+  }>();
   const router = useRouter();
   const { currentTrack } = useMusicPlayer();
   const {
@@ -37,24 +46,44 @@ export const FullSizeMusicPlayer = () => {
     albumTitle: "",
     artworkUrl: "",
   };
+  const isTrackInLibrary = useIsTrackInLibrary(trackId);
+  const addTrackToLibraryMutation = useAddTrackToLibrary();
+  const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
   const screenWidth = Dimensions.get("window").width;
   const padding = 24;
   const { pubkey } = useAuth();
   const handleTitlePress = () => {
     router.push({
-      pathname: "/album/[albumId]",
+      pathname: `${artistOrAlbumBasePathname}/album/[albumId]`,
       params: { albumId, headerTitle: albumTitle, includeBackButton: true },
     });
   };
   const handleArtistPress = () => {
     router.push({
-      pathname: `/artist/[artistId]`,
+      pathname: `${artistOrAlbumBasePathname}/artist/[artistId]`,
       params: {
         artistId,
         headerTitle: artist,
         includeBackButton: true,
       },
     });
+  };
+  const handleLikePress = async () => {
+    if (!currentTrack) {
+      return;
+    }
+
+    if (isTrackInLibrary) {
+      deleteTrackFromLibraryMutation.mutate(trackId);
+    } else {
+      // the duration, avatarUrl, and artistUrl are just needed to make TypeScript happy for the optimistic update
+      addTrackToLibraryMutation.mutate({
+        ...currentTrack,
+        duration: currentTrack.durationInMs / 1000,
+        avatarUrl: currentTrack.avatarUrl ?? "",
+        artistUrl: "",
+      });
+    }
   };
 
   return currentTrack ? (
@@ -102,7 +131,22 @@ export const FullSizeMusicPlayer = () => {
           </TouchableOpacity>
         </View>
         <PlayerControls />
-        <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <LikeButton
+            onPress={handleLikePress}
+            size={24}
+            isLiked={isTrackInLibrary}
+            isLoading={
+              addTrackToLibraryMutation.isLoading ||
+              deleteTrackFromLibraryMutation.isLoading
+            }
+          />
           <ShareButton url={`https://wavlake.com/track/${trackId}`} />
         </View>
       </View>

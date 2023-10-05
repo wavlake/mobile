@@ -1,5 +1,5 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { TrackArtwork } from "@/components/TrackArtwork";
+import { SquareArtwork } from "@/components/SquareArtwork";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
@@ -27,7 +27,7 @@ export const HorizontalArtworkRow = ({
                 marginRight: index === items.length - 1 ? 0 : 16,
               }}
             >
-              <TrackArtwork size={124} url={item.artworkUrl} />
+              <SquareArtwork size={124} url={item.artworkUrl} />
             </View>
           </TouchableOpacity>
         );

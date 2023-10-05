@@ -6,7 +6,7 @@ import { FireIcon } from "@/components/FireIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Text } from "@/components/Text";
-import { TrackArtwork } from "@/components/TrackArtwork";
+import { SquareArtwork } from "@/components/SquareArtwork";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
@@ -50,7 +50,7 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
         >
           {index + 1}
         </Text>
-        <TrackArtwork size={100} url={artworkUrl} />
+        <SquareArtwork size={100} url={artworkUrl} />
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
             {title}

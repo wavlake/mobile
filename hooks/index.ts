@@ -1,4 +1,3 @@
-export * from "./queries";
 export * from "./usePrevious";
 export * from "./useAuth";
 export * from "./nostrProfile";
@@ -7,3 +6,7 @@ export * from "./useToast";
 export * from "./useCreateNewNostrAccount";
 export * from "./useIsNavigationReady";
 export * from "./useDebounce";
+export * from "./useNewMusic";
+export * from "./library";
+export * from "./useGoToArtistPage";
+export * from "./useGoToAlbumPage";

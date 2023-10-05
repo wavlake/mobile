@@ -1,4 +1,4 @@
-import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { getArtist, formatTrackListForMusicPlayer } from "@/utils";
 import {
@@ -20,7 +20,6 @@ import { TrackRow } from "@/components/TrackRow";
 import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
 import { Text } from "@/components/Text";
 import { SatsEarned } from "@/components/SatsEarned";
-import { Avatar } from "@rneui/themed";
 import { WebsiteIcon } from "@/components/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";
@@ -28,6 +27,9 @@ import { ElementType, memo } from "react";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
+import { useGoToAlbumPage } from "@/hooks";
+import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { BasicAvatar } from "@/components/BasicAvatar";
 
 interface SocialIconLinkProps {
   url: string;
@@ -54,25 +56,20 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
     queryKey: [artistId],
     queryFn: () => getArtist(artistId as string),
   });
-  const router = useRouter();
-  const pathname = usePathname();
-  const basePathname = pathname.startsWith("/search") ? "/search" : "";
+  const topAlbums = artist?.topAlbums ?? [];
+  const topTracks = artist?.topTracks ?? [];
+  const topMessages = artist?.topMessages ?? [];
+  const basePathname = useGetArtistOrAlbumBasePathname();
+  const goToAlbumPage = useGoToAlbumPage();
 
-  const handleTopAlbumPress = async (index: number) => {
-    const album = artist?.topAlbums[index];
+  const handleTopAlbumPress = (index: number) => {
+    const album = topAlbums[index];
 
     if (!album) {
       return;
     }
 
-    return router.push({
-      pathname: `${basePathname}/album/[albumId]`,
-      params: {
-        albumId: album.id,
-        headerTitle: album.title,
-        includeBackButton: true,
-      },
-    });
+    goToAlbumPage(album.id, album.title);
   };
   const hanldlePlayAllPress = async (index: number, playerTitle: string) => {
     const topTracks = artist?.topTracks ?? [];
@@ -94,7 +91,7 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
       <AlbumOrArtistPageHeader
         type="artist"
         shareUrl={`https://wavlake.com/${artist.artistUrl}`}
-        artworkUrl={artist.artworkUrl}
+        content={artist}
         trackListId={artist.id}
         trackListTitle={artist.name}
         onPlay={hanldlePlayAllPress}
@@ -106,20 +103,17 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
         }
       />
       <View style={{ gap: 16 }}>
-        {artist.topTracks.map(
-          ({ id, title, artworkUrl, albumTitle, msatTotal }, index) => {
-            return (
-              <TrackRow
-                key={id}
-                title={title}
-                descriptor={albumTitle}
-                msats={msatTotal}
-                onPress={() => hanldlePlayAllPress(index, artist.name)}
-                artworkUrl={artworkUrl}
-              />
-            );
-          },
-        )}
+        {topTracks.map((track, index) => {
+          const { id, albumTitle } = track;
+          return (
+            <TrackRow
+              key={id}
+              track={track}
+              descriptor={albumTitle}
+              onPress={() => hanldlePlayAllPress(index, artist.name)}
+            />
+          );
+        })}
       </View>
       <SectionHeader
         title="Releases"
@@ -133,14 +127,11 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
           },
         }}
       />
-      <HorizontalArtworkRow
-        items={artist.topAlbums}
-        onPress={handleTopAlbumPress}
-      />
-      {artist.topMessages.length > 0 && (
+      <HorizontalArtworkRow items={topAlbums} onPress={handleTopAlbumPress} />
+      {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          {artist.topMessages.map(
+          {topMessages.map(
             ({ id, commenterArtworkUrl, content, msatAmount, name, title }) => {
               const extraText = `from @${name} for "${title}"`;
 
@@ -153,22 +144,7 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
                     paddingHorizontal: 16,
                   }}
                 >
-                  {commenterArtworkUrl ? (
-                    <Avatar
-                      size={32}
-                      rounded
-                      source={{ uri: commenterArtworkUrl }}
-                    />
-                  ) : (
-                    <Avatar
-                      size={32}
-                      rounded
-                      icon={{ name: "user", type: "font-awesome" }}
-                      containerStyle={{
-                        backgroundColor: brandColors.purple.DEFAULT,
-                      }}
-                    />
-                  )}
+                  <BasicAvatar uri={commenterArtworkUrl} />
                   <View style={{ marginLeft: 10, flex: 1 }}>
                     <Text bold>{content}</Text>
                     <SatsEarned

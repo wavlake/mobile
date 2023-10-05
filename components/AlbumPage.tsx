@@ -2,6 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 import { FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import {
+  Album,
   formatTrackListForMusicPlayer,
   getAlbum,
   getAlbumTracks,
@@ -16,19 +17,17 @@ import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
 import { TrackRow } from "@/components/TrackRow";
 import { SectionHeader } from "@/components/SectionHeader";
 
-const AlbumPageFooter = () => {
-  const { albumId } = useLocalSearchParams();
-  const { data } = useQuery({
-    queryKey: [albumId],
-    queryFn: () => getAlbum(albumId as string),
-  });
+interface AlbumPageFooterProps {
+  album: Album;
+}
 
-  return data ? (
+const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
+  return (
     <View style={{ marginTop: 16, marginBottom: 80, paddingHorizontal: 16 }}>
       <SectionHeader title="About" />
-      <Text style={{ fontSize: 18 }}>{data.description}</Text>
+      <Text style={{ fontSize: 18 }}>{album.description}</Text>
     </View>
-  ) : null;
+  );
 };
 
 interface AlbumPageContentProps {
@@ -37,13 +36,18 @@ interface AlbumPageContentProps {
 
 const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
   const { albumId } = useLocalSearchParams();
-  const { data = [] } = useQuery({
+  const { data: album } = useQuery({
+    queryKey: [albumId],
+    queryFn: () => getAlbum(albumId as string),
+  });
+
+  const { data: tracks = [] } = useQuery({
     queryKey: ["albums", albumId],
     queryFn: () => getAlbumTracks(albumId as string),
   });
   const handleRowPress = async (index: number, playerTitle: string) => {
     await loadTrackList({
-      trackList: formatTrackListForMusicPlayer(data),
+      trackList: formatTrackListForMusicPlayer(tracks),
       trackListId: albumId as string,
       startIndex: index,
       playerTitle,
@@ -52,43 +56,44 @@ const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
 
   return (
     <FlatList
-      data={data}
+      data={tracks}
       ListHeaderComponent={() => {
-        if (data.length === 0) {
+        if (!album) {
           return null;
         }
 
-        const { artworkUrl, albumTitle } = data[0];
+        const { id, title } = album;
 
         return (
           <View style={{ marginBottom: 36 }}>
             <AlbumOrArtistPageHeader
               type="album"
               shareUrl={`https://wavlake.com/album/${albumId}`}
-              artworkUrl={artworkUrl}
-              trackListId={albumId as string}
-              trackListTitle={albumTitle}
+              content={album}
+              trackListId={id}
+              trackListTitle={title}
               onPlay={handleRowPress}
             />
           </View>
         );
       }}
       renderItem={({ item, index }) => {
-        const { title, albumTitle, artist, msatTotal } = item;
-        const isLastItem = index === data.length - 1;
+        const { albumTitle, artist } = item;
+        const isLastItem = index === tracks.length - 1;
 
         return (
           <View style={{ marginBottom: isLastItem ? 0 : 16 }}>
             <TrackRow
-              title={title}
+              track={item}
               descriptor={artist}
-              msats={msatTotal}
               onPress={() => handleRowPress(index, albumTitle)}
             />
           </View>
         );
       }}
-      ListFooterComponent={AlbumPageFooter}
+      ListFooterComponent={() =>
+        album ? <AlbumPageFooter album={album} /> : null
+      }
       keyExtractor={(item) => item.id}
       style={{ paddingTop: 8 }}
     />

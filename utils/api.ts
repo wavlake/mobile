@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthToken, signEvent } from "@/utils/nostr";
 
 export interface Track {
   id: string;
@@ -48,7 +49,7 @@ interface TrackComment {
   commenterArtworkUrl: string;
 }
 
-interface Artist {
+export interface Artist {
   id: string;
   userId: string;
   name: string;
@@ -64,14 +65,15 @@ interface Artist {
   deleted: boolean;
   verified: boolean;
   npub: string | null;
-  topAlbums: Album[];
-  topTracks: TrackResponse[];
-  topMessages: TrackComment[];
+  topAlbums?: Album[];
+  topTracks?: TrackResponse[];
+  topMessages?: TrackComment[];
 }
 
-interface Album {
+export interface Album {
   id: string;
   artistId: string;
+  artist?: string;
   title: string;
   artworkUrl: string;
   createdAt: string;
@@ -90,8 +92,9 @@ interface Genre {
   count: number;
 }
 
+const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_WAVLAKE_API_URL,
+  baseURL,
 });
 
 const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
@@ -175,4 +178,71 @@ export const getRandomGenreTracks = async (
   const { data } = await apiClient.get(`/tracks/random/${genreId}/genre`);
 
   return normalizeTrackResponse(data);
+};
+
+const createAuthHeader = (
+  relativeUrl: string,
+  htttpMethod: "get" | "post" | "delete" = "get",
+  payload?: Record<string, any>,
+) => {
+  const url = `${baseURL}${relativeUrl}`;
+
+  return getAuthToken(url, htttpMethod, signEvent, true, payload);
+};
+
+export const getLibraryArtists = async (): Promise<Artist[]> => {
+  const url = "/library/artists";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+
+  return data.data.artists;
+};
+
+export const getLibraryAlbums = async (): Promise<Album[]> => {
+  const url = "/library/albums";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+
+  return data.data.albums;
+};
+
+export const getLibraryTracks = async (): Promise<Track[]> => {
+  const url = "/library/tracks";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+
+  return normalizeTrackResponse(data.data.tracks);
+};
+
+export const addToLibrary = async (contentId: string) => {
+  const url = "/library";
+  const payload = { contentId };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
+      "Content-Type": "application/json",
+    },
+  });
+
+  return data;
+};
+
+export const deleteFromLibrary = async (contentId: string) => {
+  const url = `/library/${contentId}`;
+  const { data } = await apiClient.delete(url, {
+    headers: {
+      Authorization: await createAuthHeader(url, "delete"),
+    },
+  });
+
+  return data;
 };
