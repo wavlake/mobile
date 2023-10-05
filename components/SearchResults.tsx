@@ -14,6 +14,7 @@ import { SquareArtwork } from "@/components/SquareArtwork";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
 const SearchResultRow = ({
   artworkUrl,
@@ -79,7 +80,6 @@ const SearchResultRow = ({
           flexDirection: "row",
           alignItems: "center",
           width: screenWidth,
-          marginBottom: 8,
         }}
       >
         <SquareArtwork size={60} url={artworkUrl || avatarUrl} />
@@ -108,13 +108,23 @@ export const SearchResults = ({ query }: SearchResultsProps) => {
     queryFn: () => search(debouncedSearchQuery),
     enabled: query.length > 0,
   });
+  const { height } = useMiniMusicPlayer();
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={{ flex: 1, alignItems: "center" }}>
         <FlatList
           data={data}
-          renderItem={({ item }) => <SearchResultRow {...item} />}
+          renderItem={({ item, index }) => {
+            const isLastRow = index === data.length - 1;
+            const marginBottom = isLastRow ? height + 16 : 16;
+
+            return (
+              <View style={{ marginBottom }}>
+                <SearchResultRow {...item} />
+              </View>
+            );
+          }}
           keyExtractor={(item) => item.id}
         />
       </View>
