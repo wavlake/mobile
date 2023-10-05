@@ -73,6 +73,7 @@ export interface Artist {
 export interface Album {
   id: string;
   artistId: string;
+  artist?: string;
   title: string;
   artworkUrl: string;
   createdAt: string;

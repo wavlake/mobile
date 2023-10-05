@@ -1,9 +1,5 @@
-import { Center, Text } from "@/components";
+import { LibraryAlbumsPage } from "@/components";
 
 export default function AlbumsPage() {
-  return (
-    <Center>
-      <Text>Albums library coming soon</Text>
-    </Center>
-  );
+  return <LibraryAlbumsPage />;
 }
