@@ -46,7 +46,7 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
   };
 
   return (
-    <View>
+    <View style={{ paddingVertical: isSmallScreen ? 0 : 24 }}>
       <Slider
         minimumTrackTintColor="white"
         thumbStyle={{ height: 12, width: 12, backgroundColor: "white" }}

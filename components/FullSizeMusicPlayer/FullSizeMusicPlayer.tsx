@@ -136,9 +136,7 @@ export const FullSizeMusicPlayer = () => {
             <ZapIcon fill={brandColors.pink.DEFAULT} width={40} height={40} />
           </TouchableOpacity>
         </View>
-        <View style={{ paddingVertical: isSmallScreen ? 0 : 24 }}>
-          <PlayerControls isSmallScreen={isSmallScreen} />
-        </View>
+        <PlayerControls isSmallScreen={isSmallScreen} />
         <View
           style={{
             flexDirection: "row",
