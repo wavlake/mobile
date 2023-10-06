@@ -58,6 +58,11 @@ const AppContent = () => {
                 gestureDirection: "vertical",
               }}
             />
+            <Stack.Screen name="profile" options={{ headerTitle: "Profile" }} />
+            <Stack.Screen
+              name="settings"
+              options={{ headerTitle: "Settings" }}
+            />
           </Stack>
         </View>
       </RootSiblingParent>

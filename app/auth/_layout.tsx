@@ -14,6 +14,17 @@ export default function AuthLayout() {
         headerTintColor: colors.text,
         headerTitle: "",
       }}
-    />
+    >
+      <Stack.Screen
+        name="backup-nsec"
+        options={{ headerTitle: "Backup nsec" }}
+      />
+      <Stack.Screen name="login" options={{ headerTitle: "Login" }} />
+      <Stack.Screen name="signup" options={{ headerTitle: "Signup" }} />
+      <Stack.Screen
+        name="skip"
+        options={{ headerTitle: "Skip registration" }}
+      />
+    </Stack>
   );
 }
