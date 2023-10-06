@@ -8,7 +8,11 @@ import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { useState } from "react";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 
-export const PlayerControls = () => {
+interface PlayerControlsProps {
+  isSmallScreen: boolean;
+}
+
+export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
   const { colors } = useTheme();
   const {
     positionInMs,
@@ -22,7 +26,6 @@ export const PlayerControls = () => {
   } = useMusicPlayer();
   const [isChangingTrack, setIsChangingTrack] = useState(false);
   const { durationInMs } = currentTrack || {};
-  const padding = 24;
   const handleBackPress = async () => {
     if (isChangingTrack) {
       return;
@@ -43,7 +46,7 @@ export const PlayerControls = () => {
   };
 
   return (
-    <View style={{ paddingVertical: padding }}>
+    <View style={{ paddingVertical: isSmallScreen ? 0 : 24 }}>
       <Slider
         minimumTrackTintColor="white"
         thumbStyle={{ height: 12, width: 12, backgroundColor: "white" }}
@@ -72,7 +75,7 @@ export const PlayerControls = () => {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-evenly",
-          paddingTop: 16,
+          paddingTop: isSmallScreen ? 8 : 16,
         }}
       >
         <Pressable onPress={handleBackPress}>
