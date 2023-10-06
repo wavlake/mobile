@@ -1,5 +1,5 @@
 import { Button, Center, TextInput } from "@/components";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useCreateNewNostrAccount } from "@/hooks";
@@ -19,26 +19,23 @@ export default function Signup() {
   };
 
   return (
-    <>
-      <Stack.Screen options={{ headerTitle: "Signup" }} />
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <Center style={{ paddingHorizontal: 24 }}>
-          <View style={{ marginBottom: 24, width: "100%" }}>
-            <TextInput
-              label="username"
-              value={username}
-              onChangeText={setUsername}
-            />
-          </View>
-          <Button
-            onPress={handleCreateAccount}
-            disabled={isCreateAccountButtonDisabled}
-            loading={isCreatingAccount}
-          >
-            Create Account
-          </Button>
-        </Center>
-      </TouchableWithoutFeedback>
-    </>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <Center style={{ paddingHorizontal: 24 }}>
+        <View style={{ marginBottom: 24, width: "100%" }}>
+          <TextInput
+            label="username"
+            value={username}
+            onChangeText={setUsername}
+          />
+        </View>
+        <Button
+          onPress={handleCreateAccount}
+          disabled={isCreateAccountButtonDisabled}
+          loading={isCreatingAccount}
+        >
+          Create Account
+        </Button>
+      </Center>
+    </TouchableWithoutFeedback>
   );
 }

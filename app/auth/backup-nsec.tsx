@@ -1,5 +1,4 @@
 import { Button, Text, TextInput } from "@/components";
-import { Stack } from "expo-router";
 import { ScrollView, View } from "react-native";
 import { useAuth } from "@/hooks";
 import { useEffect, useState } from "react";
@@ -30,7 +29,6 @@ export default function BackupNsec() {
         gap: 24,
       }}
     >
-      <Stack.Screen options={{ headerTitle: "Backup nsec" }} />
       {nsec && (
         <>
           <TextInput

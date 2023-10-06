@@ -1,5 +1,4 @@
 import { Button, Avatar, TextInput, Text } from "@/components";
-import { Stack } from "expo-router";
 import { Alert, ScrollView, View } from "react-native";
 import { useState } from "react";
 import {
@@ -88,7 +87,6 @@ export default function ProfilePage() {
         paddingBottom: 80,
       }}
     >
-      <Stack.Screen options={{ headerTitle: "Profile" }} />
       <Avatar size={120} />
       <TextInput label="username" value={name} onChangeText={setName} />
       <Button onPress={handleSave} disabled={isSaveDisabled} loading={isSaving}>

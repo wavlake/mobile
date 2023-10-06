@@ -14,6 +14,14 @@ export default function ZapLayout() {
         headerTintColor: colors.text,
         headerTitle: "Zap",
       }}
-    />
+    >
+      <Stack.Screen
+        name="success"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+        }}
+      />
+    </Stack>
   );
 }
