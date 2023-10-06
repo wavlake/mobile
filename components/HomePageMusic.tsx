@@ -39,6 +39,7 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
         }}
       >
         <Text
+          allowFontScaling={false}
           style={{
             fontSize: 36,
             width: 48,
