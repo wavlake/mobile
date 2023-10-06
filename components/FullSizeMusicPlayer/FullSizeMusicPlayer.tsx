@@ -50,7 +50,8 @@ export const FullSizeMusicPlayer = () => {
   const addTrackToLibraryMutation = useAddTrackToLibrary();
   const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
   const screenWidth = Dimensions.get("window").width;
-  const padding = 24;
+  const isSmallScreen = Dimensions.get("window").height < 700;
+  const paddingHorizontal = 24;
   const { pubkey } = useAuth();
   const handleTitlePress = () => {
     router.push({
@@ -89,11 +90,16 @@ export const FullSizeMusicPlayer = () => {
   return currentTrack ? (
     <ScrollView style={{ paddingTop: 8 }}>
       <ArtworkCarousel />
-      <View style={{ padding }}>
+      <View
+        style={{
+          paddingHorizontal,
+          paddingVertical: isSmallScreen ? 16 : 24,
+        }}
+      >
         <View
           style={{
             flexDirection: "row",
-            maxWidth: screenWidth - padding * 2,
+            maxWidth: screenWidth - paddingHorizontal * 2,
           }}
         >
           <View style={{ flex: 1 }}>
@@ -130,7 +136,9 @@ export const FullSizeMusicPlayer = () => {
             <ZapIcon fill={brandColors.pink.DEFAULT} width={40} height={40} />
           </TouchableOpacity>
         </View>
-        <PlayerControls />
+        <View style={{ paddingVertical: isSmallScreen ? 0 : 24 }}>
+          <PlayerControls isSmallScreen={isSmallScreen} />
+        </View>
         <View
           style={{
             flexDirection: "row",
