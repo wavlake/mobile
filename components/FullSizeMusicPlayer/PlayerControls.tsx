@@ -101,8 +101,7 @@ export const PlayerControls = () => {
 
 const styles = StyleSheet.create({
   monospacedText: {
-    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
-    letterSpacing: -1,
-    fontWeight: "bold",
+    fontFamily: Platform.OS === "ios" ? "Helvetica" : "Roboto",
+    letterSpacing: 0.5,
   },
 });
