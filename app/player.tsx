@@ -1,14 +1,17 @@
-import { Stack } from "expo-router";
+import { useNavigation } from "expo-router";
 import { FullSizeMusicPlayer, useMusicPlayer } from "@/components";
+import { useEffect } from "react";
 
 export default function Player() {
   const { playerTitle } = useMusicPlayer();
   const headerTitle = playerTitle ?? "";
+  const navigation = useNavigation();
 
-  return (
-    <>
-      <Stack.Screen options={{ headerTitle }} />
-      <FullSizeMusicPlayer />
-    </>
-  );
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle,
+    });
+  }, [navigation, headerTitle]);
+
+  return <FullSizeMusicPlayer />;
 }
