@@ -1,3 +1,6 @@
+// https://docs.expo.dev/develop/development-builds/use-development-builds/
+import "expo-dev-client";
+
 import { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
@@ -15,6 +18,8 @@ import { MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { useNostrRelayList } from "@/hooks";
+import TrackPlayer from "react-native-track-player";
+import { musicService } from "@/services";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -88,6 +93,11 @@ export default function Layout() {
       }, 2000);
     }
   }, [loaded]);
+
+  useEffect(() => {
+    TrackPlayer.registerPlaybackService(() => musicService);
+    TrackPlayer.setupPlayer().catch(console.error);
+  }, []);
 
   const onAppStateChange = (status: AppStateStatus) => {
     if (Platform.OS !== "web") {
