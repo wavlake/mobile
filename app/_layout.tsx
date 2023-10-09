@@ -18,7 +18,7 @@ import { MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { useNostrRelayList } from "@/hooks";
-import TrackPlayer from "react-native-track-player";
+import TrackPlayer, { Capability } from "react-native-track-player";
 import { musicService } from "@/services";
 
 // Catch any errors thrown by the Layout component.
@@ -95,8 +95,26 @@ export default function Layout() {
   }, [loaded]);
 
   useEffect(() => {
-    TrackPlayer.registerPlaybackService(() => musicService);
-    TrackPlayer.setupPlayer().catch(console.error);
+    try {
+      TrackPlayer.registerPlaybackService(() => musicService);
+    } catch (error) {
+      console.log("error registering playback service", error);
+    }
+
+    TrackPlayer.setupPlayer().catch((error) => {
+      console.log("error setting up player", error);
+    });
+
+    TrackPlayer.updateOptions({
+      capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+      ],
+    }).catch((error) => {
+      console.log("error updating options", error);
+    });
   }, []);
 
   const onAppStateChange = (status: AppStateStatus) => {
