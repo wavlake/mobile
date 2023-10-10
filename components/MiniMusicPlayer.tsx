@@ -1,11 +1,17 @@
-import { View, Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 import { SquareArtwork } from "./SquareArtwork";
-import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { MarqueeText } from "@/components/MarqueeText";
 import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import {
+  State,
+  usePlaybackState,
+  useProgress,
+} from "react-native-track-player";
+import { togglePlayPause } from "@/utils";
+import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 
 interface PlayerButtonProps {
   onPress: () => void;
@@ -35,14 +41,18 @@ export const MiniMusicPlayer = () => {
   const artistOrAlbumBasePathname = useGetArtistOrAlbumBasePathname();
   const router = useRouter();
   const { colors } = useTheme();
-  const { status, positionInMs, togglePlayPause, clear, currentTrack } =
-    useMusicPlayer();
-  const { artworkUrl, title, artist, durationInMs } = currentTrack || {};
-  const progressBarWidth = durationInMs
-    ? (positionInMs / durationInMs) * 100 || 0
-    : 0;
+  const { position, duration } = useProgress();
+  const playbackState = usePlaybackState();
+  const { currentTrack, reset, isSwitchingTrackList } = useMusicPlayer();
+  const willShowPlayer = currentTrack !== null;
+  const willDisplayPauseButton =
+    playbackState !== State.Paused || isSwitchingTrackList;
+  const willDisplayPlayButton =
+    playbackState === State.Paused && !isSwitchingTrackList;
+  const { artworkUrl, title, artist } = currentTrack || {};
+  const progressBarWidth = duration ? (position / duration) * 100 : 0;
 
-  return currentTrack ? (
+  return willShowPlayer ? (
     <Pressable
       onPress={() =>
         router.push({
@@ -80,19 +90,19 @@ export const MiniMusicPlayer = () => {
                 gap: 10,
               }}
             >
-              {status === "playing" && (
+              {willDisplayPauseButton && (
                 <PlayerButton
                   onPress={togglePlayPause}
                   iconName="ios-pause-sharp"
                 />
               )}
-              {status === "paused" && (
+              {willDisplayPlayButton && (
                 <PlayerButton
                   onPress={togglePlayPause}
                   iconName="ios-play-sharp"
                 />
               )}
-              <PlayerButton onPress={clear} iconName="ios-close-sharp" />
+              <PlayerButton onPress={reset} iconName="ios-close-sharp" />
             </View>
           </View>
         </View>

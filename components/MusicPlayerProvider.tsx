@@ -2,27 +2,21 @@ import {
   createContext,
   type PropsWithChildren,
   useContext,
-  useEffect,
-  useState,
   useRef,
-  useCallback,
+  useState,
 } from "react";
-import { Audio, AVPlaybackStatus } from "expo-av";
-import { useAuth, useNostrRelayList } from "@/hooks";
-import { publishLiveStatusEvent } from "@/utils";
-
-export interface MusicPlayerTrack {
-  id: string;
-  liveUrl: string;
-  avatarUrl?: string;
-  artworkUrl: string;
-  title: string;
-  artist: string;
-  artistId: string;
-  albumId: string;
-  albumTitle: string;
-  durationInMs: number;
-}
+import TrackPlayer, {
+  Event,
+  State,
+  useTrackPlayerEvents,
+} from "react-native-track-player";
+import {
+  getCachedNostrRelayListEvent,
+  getPubkeyFromCachedSeckey,
+  getWriteRelayUris,
+  publishLiveStatusEvent,
+  Track,
+} from "@/utils";
 
 export type LoadTrackList = ({
   trackList,
@@ -30,221 +24,143 @@ export type LoadTrackList = ({
   playerTitle,
   startIndex,
 }: {
-  trackList: MusicPlayerTrack[];
-  trackListId?: string;
+  trackList: Track[];
+  trackListId: string;
   playerTitle?: string;
   startIndex?: number;
 }) => Promise<void>;
 
-type Status = "loadingTrackList" | "playing" | "paused" | "off";
-
 interface MusicPlayerContextProps {
-  trackQueue: MusicPlayerTrack[];
+  trackQueue: Track[] | null;
+  currentTrack: Track | null;
+  currentTrackIndex?: number;
   currentTrackListId?: string;
-  currentTrackIndex: number;
-  currentTrack?: MusicPlayerTrack;
   playerTitle?: string;
-  status: Status;
-  positionInMs: number;
+  isSwitchingTrackList: boolean;
   loadTrackList: LoadTrackList;
-  togglePlayPause: () => Promise<void>;
-  play: () => Promise<void>;
-  pause: () => Promise<void>;
-  clear: () => Promise<void>;
-  pauseStatusUpdates: () => void;
-  setPosition: (positionInMs: number) => Promise<void>;
-  canGoBack: () => boolean;
-  back: () => Promise<void>;
-  forward: () => Promise<void>;
+  reset: () => Promise<void>;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
-interface MusicPlayerProviderProps {
-  writeRelayList: string[];
-}
-
-export const MusicPlayerProvider = ({
-  writeRelayList,
-  children,
-}: PropsWithChildren<MusicPlayerProviderProps>) => {
-  const { pubkey } = useAuth();
-  const trackQueue = useRef<MusicPlayerTrack[]>([]);
-  const currentSound = useRef<Audio.Sound | null>(null);
-  const currentTrackIndex = useRef(0);
-  const currentTrackListId = useRef<string>();
-  const isStatusUpdatesPaused = useRef(false);
-  const [status, setStatus] = useState<Status>("off");
-  const [positionInMs, setPositionInMs] = useState<number>(0);
+export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [playerTitle, setPlayerTitle] = useState<string>();
+  const [currentTrackListId, setCurrentTrackListId] = useState<string>();
+  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>();
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [trackQueue, setTrackQueue] = useState<Track[] | null>(null);
+  const isLoadingTrackList = useRef(false);
+  const [isSwitchingTrackList, setIsSwitchingTrackList] = useState(false);
 
-  const hasNext = () =>
-    currentTrackIndex.current < trackQueue.current.length - 1;
-  const loadTrack = useCallback(
-    async (track: MusicPlayerTrack) => {
-      if (currentSound.current) {
-        await currentSound.current.unloadAsync();
+  const loadTrackList: LoadTrackList = async ({
+    trackList,
+    trackListId,
+    playerTitle,
+    startIndex,
+  }) => {
+    if (trackListId === currentTrackListId && trackQueue) {
+      await TrackPlayer.skip(startIndex ?? 0, 0);
+
+      if ((await TrackPlayer.getState()) === State.Ready) {
+        await TrackPlayer.play();
       }
 
-      const { sound } = await Audio.Sound.createAsync({
-        uri: track.liveUrl,
-      });
-
-      currentSound.current = sound;
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: true,
-      });
-      sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
-      setStatus("playing");
-      await sound.playAsync();
-
-      if (pubkey) {
-        // best effort publish live status nostr event
-        publishLiveStatusEvent({
-          pubkey,
-          trackUrl: `https://wavlake.com/track/${track.id}`,
-          content: `${track.title} - ${track.artist}`,
-          durationInMs: track.durationInMs,
-          relayUris: writeRelayList,
-        }).catch(console.error);
-      }
-    },
-    [pubkey, writeRelayList],
-  );
-  const loadTrackList: LoadTrackList = useCallback(
-    async ({ trackList, trackListId, playerTitle, startIndex }) => {
-      if (status === "loadingTrackList") {
-        return;
-      }
-
-      setStatus("loadingTrackList");
-
-      trackQueue.current = trackList;
-      currentTrackIndex.current = startIndex ?? 0;
-      currentTrackListId.current = trackListId;
-
-      const currentTrack = trackList[currentTrackIndex.current];
-
-      if (currentTrack) {
-        await loadTrack(currentTrack);
-      }
-
-      setPlayerTitle(playerTitle ?? currentTrack.title);
-    },
-    [loadTrack],
-  );
-  const onPlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
-    if (isStatusUpdatesPaused.current) {
       return;
     }
 
-    if (status.isLoaded) {
-      setPositionInMs(status.positionMillis);
+    isLoadingTrackList.current = true;
+    const normalizedTrackList = trackList.map((t) => ({
+      id: t.id,
+      url: t.liveUrl,
+      duration: t.duration,
+      title: t.title,
+      artist: t.artist,
+      album: t.albumTitle,
+      artwork: t.artworkUrl,
+    }));
+
+    const currentTrackIndex = startIndex ?? 0;
+    const currentTrack = trackList[currentTrackIndex];
+
+    setPlayerTitle(playerTitle ?? currentTrack.title);
+    setCurrentTrack(currentTrack);
+    setCurrentTrackIndex(currentTrackIndex);
+    setTrackQueue(trackList);
+
+    if (trackQueue) {
+      setIsSwitchingTrackList(true);
+      await TrackPlayer.reset();
     }
 
-    const hasLastTrackInQueueJustFinished =
-      status.isLoaded &&
-      status.didJustFinish &&
-      currentTrackIndex.current >= trackQueue.current.length - 1;
+    await TrackPlayer.add(normalizedTrackList);
 
-    if (hasLastTrackInQueueJustFinished) {
-      setStatus("paused");
-      await currentSound.current?.setPositionAsync(0);
+    if (startIndex && startIndex > 0) {
+      await TrackPlayer.skip(startIndex, 0);
     }
 
-    if (status.isLoaded && status.didJustFinish && hasNext()) {
-      await forward();
-    }
+    await TrackPlayer.play();
+    setCurrentTrackListId(trackListId);
+    isLoadingTrackList.current = false;
+    setIsSwitchingTrackList(false);
+    await publishTrackToNostr(currentTrack);
   };
-  const play = async () => {
-    await currentSound.current?.playAsync();
-    setStatus("playing");
+  const reset = async () => {
+    setPlayerTitle(undefined);
+    setCurrentTrack(null);
+    setCurrentTrackListId(undefined);
+    setCurrentTrackIndex(undefined);
+    setTrackQueue(null);
+    await TrackPlayer.reset();
   };
-  const pause = async () => {
-    await currentSound.current?.pauseAsync();
-    setStatus("paused");
-  };
-  const clear = async () => {
-    currentTrackListId.current = undefined;
-    currentTrackIndex.current = 0;
-    trackQueue.current = [];
-    setStatus("off");
-    await currentSound.current?.unloadAsync();
-  };
-  const pauseStatusUpdates = () => {
-    isStatusUpdatesPaused.current = true;
-  };
-  const setPosition = async (positionInMs: number) => {
-    await currentSound.current?.setPositionAsync(positionInMs);
-    isStatusUpdatesPaused.current = false;
-  };
-  const togglePlayPause = async () => {
-    if (status === "playing") {
-      setStatus("paused");
-      await pause();
-    } else if (status === "paused") {
-      setStatus("playing");
-      await play();
-    }
-  };
-  const canGoBack = () => {
-    return positionInMs < 5000 && currentTrackIndex.current > 0;
-  };
-  const back = async () => {
-    isStatusUpdatesPaused.current = true;
-    setPositionInMs(0);
+  const publishTrackToNostr = async (track: Track) => {
+    const pubkey = await getPubkeyFromCachedSeckey();
 
-    if (canGoBack()) {
-      const previousTrackIndex = currentTrackIndex.current - 1;
-
-      currentTrackIndex.current = previousTrackIndex;
-      await loadTrack(trackQueue.current[previousTrackIndex]);
-    } else {
-      await currentSound.current?.replayAsync();
-    }
-    isStatusUpdatesPaused.current = false;
-  };
-  const forward = async () => {
-    if (!hasNext()) {
+    if (!pubkey) {
       return;
     }
 
-    const nextTrackIndex = currentTrackIndex.current + 1;
-
-    isStatusUpdatesPaused.current = true;
-    setPositionInMs(0);
-    currentTrackIndex.current = nextTrackIndex;
-    await loadTrack(trackQueue.current[nextTrackIndex]);
-    isStatusUpdatesPaused.current = false;
+    const writeRelayList = getWriteRelayUris(
+      await getCachedNostrRelayListEvent(pubkey),
+    );
+    await publishLiveStatusEvent({
+      pubkey,
+      trackUrl: `https://wavlake.com/track/${track.id}`,
+      content: `${track.title} - ${track.artist}`,
+      duration: Math.ceil(track.duration ?? 600),
+      relayUris: writeRelayList,
+    });
   };
 
-  useEffect(() => {
-    return () => {
-      currentSound.current?.unloadAsync();
-    };
-  }, []);
+  useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
+    if (event.nextTrack === undefined || isLoadingTrackList.current) {
+      return;
+    }
+
+    const currentTrack = trackQueue ? trackQueue[event.nextTrack] : null;
+
+    switch (event.type) {
+      case Event.PlaybackTrackChanged:
+        setCurrentTrackIndex(event.nextTrack);
+
+        if (currentTrack) {
+          setCurrentTrack(currentTrack);
+          await publishTrackToNostr(currentTrack);
+        }
+        break;
+    }
+  });
 
   return (
     <MusicPlayerContext.Provider
       value={{
-        trackQueue: trackQueue.current,
-        currentTrackListId: currentTrackListId.current,
-        currentTrackIndex: currentTrackIndex.current,
-        currentTrack: trackQueue.current[currentTrackIndex.current],
+        trackQueue,
+        currentTrack,
+        currentTrackIndex,
+        currentTrackListId,
         playerTitle,
-        status,
-        positionInMs,
+        isSwitchingTrackList,
         loadTrackList,
-        play,
-        pause,
-        togglePlayPause,
-        clear,
-        pauseStatusUpdates,
-        setPosition,
-        canGoBack,
-        back,
-        forward,
+        reset,
       }}
     >
       {children}

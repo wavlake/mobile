@@ -1,12 +1,22 @@
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { Slider } from "@rneui/themed";
-import { formatTime } from "@/utils";
+import {
+  formatTime,
+  seekTo,
+  skipToNext,
+  skipToPrevious,
+  togglePlayPause,
+} from "@/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme } from "@react-navigation/native";
 import { Text } from "@/components/Text";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
+import {
+  State,
+  usePlaybackState,
+  useProgress,
+} from "react-native-track-player";
 
 interface PlayerControlsProps {
   isSmallScreen: boolean;
@@ -14,36 +24,16 @@ interface PlayerControlsProps {
 
 export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
   const { colors } = useTheme();
-  const {
-    positionInMs,
-    pauseStatusUpdates,
-    setPosition,
-    status,
-    togglePlayPause,
-    back,
-    forward,
-    currentTrack,
-  } = useMusicPlayer();
-  const [isChangingTrack, setIsChangingTrack] = useState(false);
-  const { durationInMs } = currentTrack || {};
-  const handleBackPress = async () => {
-    if (isChangingTrack) {
-      return;
-    }
+  const { position, duration } = useProgress();
+  const playbackState = usePlaybackState();
+  const [sliderValue, setSliderValue] = useState(position);
+  const [isSliding, setIsSliding] = useState(false);
 
-    setIsChangingTrack(true);
-    await back();
-    setIsChangingTrack(false);
-  };
-  const handleForwardPress = async () => {
-    if (isChangingTrack) {
-      return;
+  useEffect(() => {
+    if (!isSliding) {
+      setSliderValue(position);
     }
-
-    setIsChangingTrack(true);
-    await forward();
-    setIsChangingTrack(false);
-  };
+  }, [position, isSliding]);
 
   return (
     <View style={{ paddingVertical: isSmallScreen ? 0 : 24 }}>
@@ -51,10 +41,16 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
         minimumTrackTintColor="white"
         thumbStyle={{ height: 12, width: 12, backgroundColor: "white" }}
         thumbTouchSize={{ width: 60, height: 60 }}
-        maximumValue={durationInMs}
-        value={positionInMs}
-        onSlidingStart={pauseStatusUpdates}
-        onSlidingComplete={setPosition}
+        maximumValue={duration}
+        value={sliderValue}
+        onSlidingStart={() => setIsSliding(true)}
+        onSlidingComplete={async (value) => {
+          await seekTo(value);
+          setSliderValue(value);
+
+          // need to give it a second otherwise sometimes the transition isn't smooth
+          setTimeout(() => setIsSliding(false), 1000);
+        }}
       />
       <View
         style={{
@@ -63,12 +59,12 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
           marginTop: -8,
         }}
       >
-        <Text style={styles.monospacedText}>{formatTime(positionInMs)}</Text>
-        {durationInMs && (
-          <Text style={styles.monospacedText}>
-            -{formatTime(durationInMs - positionInMs)}
-          </Text>
-        )}
+        <Text style={styles.monospacedText}>
+          {formatTime(Math.floor(position))}
+        </Text>
+        <Text style={styles.monospacedText}>
+          -{formatTime(Math.floor(duration) - Math.floor(position))}
+        </Text>
       </View>
       <View
         style={{
@@ -78,7 +74,7 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
           paddingTop: isSmallScreen ? 8 : 16,
         }}
       >
-        <Pressable onPress={handleBackPress}>
+        <Pressable onPress={skipToPrevious}>
           <Ionicons
             name="ios-play-skip-back-sharp"
             size={36}
@@ -87,10 +83,10 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
         </Pressable>
         <PlayPauseTrackButton
           size={80}
-          type={status === "playing" ? "pause" : "play"}
+          type={playbackState === State.Paused ? "play" : "pause"}
           onPress={togglePlayPause}
         />
-        <Pressable onPress={handleForwardPress}>
+        <Pressable onPress={skipToNext}>
           <Ionicons
             name="ios-play-skip-forward-sharp"
             size={36}

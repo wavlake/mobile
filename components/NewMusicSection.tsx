@@ -4,7 +4,6 @@ import { SectionHeader } from "./SectionHeader";
 import { View } from "react-native";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useNewMusic } from "@/hooks";
-import { formatTrackListForMusicPlayer } from "@/utils";
 import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
 
 export const NewMusicSection = () => {
@@ -12,7 +11,8 @@ export const NewMusicSection = () => {
   const { loadTrackList } = useMusicPlayer();
   const handleRowPress = async (index: number) => {
     await loadTrackList({
-      trackList: formatTrackListForMusicPlayer(data),
+      trackList: data,
+      trackListId: "new-music",
       startIndex: index,
       playerTitle: "New music",
     });

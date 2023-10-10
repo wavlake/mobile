@@ -12,8 +12,9 @@ import {
   useIsAlbumInLibrary,
   useIsArtistInLibrary,
 } from "@/hooks";
-import { Album, Artist } from "@/utils";
+import { Album, Artist, togglePlayPause } from "@/utils";
 import { ArtistBanner } from "@/components/ArtistBanner";
+import { State, usePlaybackState } from "react-native-track-player";
 
 interface AlbumOrArtistPageHeaderProps {
   type: "album" | "artist";
@@ -32,10 +33,12 @@ export const AlbumOrArtistPageHeader = ({
   trackListTitle,
   onPlay,
 }: AlbumOrArtistPageHeaderProps) => {
-  const { currentTrackListId, status, togglePlayPause } = useMusicPlayer();
+  const { currentTrackListId } = useMusicPlayer();
+  const playbackState = usePlaybackState();
   const screenWidth = Dimensions.get("window").width;
   const isThisTrackListLoaded = currentTrackListId === trackListId;
-  const isThisTrackListPlaying = status === "playing" && isThisTrackListLoaded;
+  const isThisTrackListPlaying =
+    isThisTrackListLoaded && playbackState !== State.Paused;
   const isAlbum = type === "album";
   const isAlbumInLibrary = useIsAlbumInLibrary(trackListId);
   const addAlbumToLibraryMutation = useAddAlbumToLibrary();

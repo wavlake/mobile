@@ -2,7 +2,8 @@ import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "@/components/SectionHeader";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { formatTrackListForMusicPlayer, Track } from "@/utils";
+import { togglePlayPause, Track } from "@/utils";
+import { State, usePlaybackState } from "react-native-track-player";
 
 interface PlayButtonSectionHeaderProps {
   title: string;
@@ -17,13 +18,14 @@ export const PlayButtonSectionHeader = ({
   tracks,
   rightNavHref,
 }: PlayButtonSectionHeaderProps) => {
-  const { loadTrackList, status, currentTrackListId, togglePlayPause } =
-    useMusicPlayer();
+  const { loadTrackList, currentTrackListId } = useMusicPlayer();
+  const playbackState = usePlaybackState();
   const isThisTrackListLoaded = currentTrackListId === trackListId;
-  const isThisTrackListPlaying = status === "playing" && isThisTrackListLoaded;
+  const isThisTrackListPlaying =
+    playbackState !== State.Paused && isThisTrackListLoaded;
   const handleTrackPress = async (index: number) => {
     await loadTrackList({
-      trackList: formatTrackListForMusicPlayer(tracks),
+      trackList: tracks,
       trackListId,
       startIndex: index,
       playerTitle: title,

@@ -1,35 +1,6 @@
-import { Track } from "./api";
+import TrackPlayer, { State } from "react-native-track-player";
 
-export const formatTrackListForMusicPlayer = (trackList: Track[]) => {
-  return trackList.map(
-    ({
-      id,
-      liveUrl,
-      artworkUrl,
-      title,
-      artist,
-      artistId,
-      avatarUrl,
-      albumId,
-      albumTitle,
-      duration,
-    }) => ({
-      id,
-      liveUrl,
-      artworkUrl,
-      title,
-      artist,
-      artistId,
-      avatarUrl,
-      albumId,
-      albumTitle,
-      durationInMs: duration * 1000,
-    }),
-  );
-};
-
-export const formatTime = (milliseconds: number) => {
-  const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
+export const formatTime = (totalSeconds: number) => {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
@@ -38,4 +9,39 @@ export const formatTime = (milliseconds: number) => {
   const normalizedSeconds = `${seconds}`.padStart(2, "0");
 
   return `${normalizedHours}${normalizedMinutes}${normalizedSeconds}`;
+};
+
+export const canSkipToPrevious = async () => {
+  const position = await TrackPlayer.getPosition();
+  const currentTrack = (await TrackPlayer.getCurrentTrack()) ?? 0;
+
+  return position < 5 && currentTrack > 0;
+};
+
+export const skipToPrevious = async () => {
+  const canSkip = await canSkipToPrevious();
+
+  if (canSkip) {
+    await TrackPlayer.skipToPrevious();
+  } else {
+    await TrackPlayer.seekTo(0);
+  }
+};
+
+export const skipToNext = async () => {
+  await TrackPlayer.skipToNext();
+};
+
+export const togglePlayPause = async () => {
+  const state = await TrackPlayer.getState();
+
+  if (state !== State.Paused) {
+    await TrackPlayer.pause();
+  } else if (state === State.Paused) {
+    await TrackPlayer.play();
+  }
+};
+
+export const seekTo = async (seconds: number) => {
+  await TrackPlayer.seekTo(seconds);
 };

@@ -17,7 +17,6 @@ import {
 import { MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
-import { useNostrRelayList } from "@/hooks";
 import TrackPlayer, { Capability } from "react-native-track-player";
 import { musicService } from "@/services";
 
@@ -28,52 +27,6 @@ export { ErrorBoundary } from "expo-router";
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
-
-const AppContent = () => {
-  const { writeRelayList } = useNostrRelayList();
-
-  return (
-    <MusicPlayerProvider writeRelayList={writeRelayList}>
-      <RootSiblingParent>
-        <View style={{ flex: 1, backgroundColor: "black" }}>
-          <Stack
-            screenOptions={{
-              headerStyle: {
-                backgroundColor: "black",
-              },
-              headerShadowVisible: false,
-              headerTintColor: "white",
-              headerBackTitleVisible: false,
-            }}
-          >
-            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="auth"
-              options={{
-                headerShown: false,
-                gestureEnabled: false,
-                gestureDirection: "vertical",
-              }}
-            />
-            <Stack.Screen
-              name="zap"
-              options={{
-                headerShown: false,
-                gestureEnabled: false,
-                gestureDirection: "vertical",
-              }}
-            />
-            <Stack.Screen name="profile" options={{ headerTitle: "Profile" }} />
-            <Stack.Screen
-              name="settings"
-              options={{ headerTitle: "Settings" }}
-            />
-          </Stack>
-        </View>
-      </RootSiblingParent>
-    </MusicPlayerProvider>
-  );
-};
 
 export default function Layout() {
   const [loaded, error] = useFonts({
@@ -132,7 +85,51 @@ export default function Layout() {
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
       <QueryClientProvider client={queryClient}>
-        <AppContent />
+        <MusicPlayerProvider>
+          <RootSiblingParent>
+            <View style={{ flex: 1, backgroundColor: "black" }}>
+              <Stack
+                screenOptions={{
+                  headerStyle: {
+                    backgroundColor: "black",
+                  },
+                  headerShadowVisible: false,
+                  headerTintColor: "white",
+                  headerBackTitleVisible: false,
+                }}
+              >
+                <Stack.Screen
+                  name="(drawer)"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="auth"
+                  options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                    gestureDirection: "vertical",
+                  }}
+                />
+                <Stack.Screen
+                  name="zap"
+                  options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                    gestureDirection: "vertical",
+                  }}
+                />
+                <Stack.Screen
+                  name="profile"
+                  options={{ headerTitle: "Profile" }}
+                />
+                <Stack.Screen
+                  name="settings"
+                  options={{ headerTitle: "Settings" }}
+                />
+              </Stack>
+            </View>
+          </RootSiblingParent>
+        </MusicPlayerProvider>
       </QueryClientProvider>
     </ThemeProvider>
   ) : null;

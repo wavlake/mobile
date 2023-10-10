@@ -1,22 +1,11 @@
 import {
   decodeNsec,
-  getPublicKey,
-  getSeckey,
   saveSeckey,
   deleteSeckey,
+  getPubkeyFromCachedSeckey,
 } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
-
-const getPubkeyFromCachedSeckey = async () => {
-  try {
-    const seckey = await getSeckey();
-
-    return seckey ? getPublicKey(seckey) : "";
-  } catch {
-    return "";
-  }
-};
 
 export const useAuth = () => {
   const navigation = useNavigation();

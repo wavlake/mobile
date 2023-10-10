@@ -1,7 +1,5 @@
-import { LibrarySongsPage, useMusicPlayer } from "@/components";
+import { LibrarySongsPage } from "@/components";
 
 export default function SongsPage() {
-  const { loadTrackList } = useMusicPlayer();
-
-  return <LibrarySongsPage loadTrackList={loadTrackList} />;
+  return <LibrarySongsPage />;
 }
