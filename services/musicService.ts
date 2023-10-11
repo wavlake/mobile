@@ -17,4 +17,8 @@ export const musicService = async () => {
   TrackPlayer.addEventListener(Event.RemoteNext, () => {
     TrackPlayer.skipToNext();
   });
+
+  TrackPlayer.addEventListener(Event.RemoteSeek, (event) => {
+    TrackPlayer.seekTo(event.position);
+  });
 };
