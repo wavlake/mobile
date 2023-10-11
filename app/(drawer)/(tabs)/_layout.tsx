@@ -23,7 +23,7 @@ import { useEffect } from "react";
 export default function TabLayout() {
   const pathname = usePathname();
   const { colors } = useTheme();
-  const { loadTrackList } = useMusicPlayer();
+  const { loadTrackList, reset } = useMusicPlayer();
   const tabsBarHeight = 88;
   const { pubkey } = useAuth();
   const router = useRouter();
@@ -90,6 +90,7 @@ export default function TabLayout() {
             }}
             listeners={() => ({
               tabPress: async () => {
+                await reset();
                 await loadTrackList({
                   trackList: await getRandomMusic(),
                   trackListId: "radio",

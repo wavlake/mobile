@@ -12,12 +12,17 @@ export const ArtworkCarousel = () => {
     () => (trackQueue ?? []).map((track) => track.artworkUrl),
     [trackQueue],
   );
+  const carouselSize = trackQueueArtworkUrls.length;
 
   useEffect(() => {
+    if (carouselSize === 0) {
+      return;
+    }
+
     artworkUrlListRef.current?.scrollToIndex({
       index: currentTrackIndex,
     });
-  }, [currentTrackIndex]);
+  }, [currentTrackIndex, carouselSize]);
 
   return (
     <FlatList
