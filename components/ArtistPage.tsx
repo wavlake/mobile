@@ -52,7 +52,7 @@ export const ArtistPage = () => {
     queryFn: () => getArtist(artistId as string),
   });
   const topAlbums = artist?.topAlbums ?? [];
-  const topTracks = artist?.topTracks ?? [];
+  const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
   const topMessages = artist?.topMessages ?? [];
   const basePathname = useGetArtistOrAlbumBasePathname();
   const goToAlbumPage = useGoToAlbumPage();
