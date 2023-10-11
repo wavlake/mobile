@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { getArtist } from "@/utils";
 import {
@@ -20,7 +20,7 @@ import { SatsEarned } from "@/components/SatsEarned";
 import { WebsiteIcon } from "@/components/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";
-import { ElementType } from "react";
+import { ElementType, useEffect } from "react";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
@@ -56,6 +56,14 @@ export const ArtistPage = () => {
   const topMessages = artist?.topMessages ?? [];
   const basePathname = useGetArtistOrAlbumBasePathname();
   const goToAlbumPage = useGoToAlbumPage();
+  const router = useRouter();
+  const isVerified = artist?.verified ?? false;
+
+  useEffect(() => {
+    if (isVerified) {
+      router.setParams({ includeHeaderTitleVerifiedBadge: "1" });
+    }
+  }, [isVerified]);
 
   const handleTopAlbumPress = (index: number) => {
     const album = topAlbums[index];
