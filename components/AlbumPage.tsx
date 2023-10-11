@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { Dimensions, FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Album, getAlbum, getAlbumTracks } from "@/utils";
+import { getAlbum, getAlbumTracks } from "@/utils";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
@@ -10,14 +10,14 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { SquareArtwork } from "@/components/SquareArtwork";
 
 interface AlbumPageFooterProps {
-  album: Album;
+  description: string;
 }
 
-const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
+const AlbumPageFooter = ({ description }: AlbumPageFooterProps) => {
   return (
     <View style={{ marginTop: 16, marginBottom: 80, paddingHorizontal: 16 }}>
       <SectionHeader title="About" />
-      <Text style={{ fontSize: 18 }}>{album.description}</Text>
+      <Text style={{ fontSize: 18 }}>{description}</Text>
     </View>
   );
 };
@@ -83,7 +83,9 @@ export const AlbumPage = () => {
         );
       }}
       ListFooterComponent={() =>
-        album ? <AlbumPageFooter album={album} /> : null
+        album?.description ? (
+          <AlbumPageFooter description={album?.description} />
+        ) : null
       }
       keyExtractor={(item) => item.id}
       style={{ paddingTop: 8 }}
