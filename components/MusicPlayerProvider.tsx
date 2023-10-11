@@ -58,16 +58,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     playerTitle,
     startIndex,
   }) => {
-    if (trackListId === currentTrackListId && trackQueue) {
-      await TrackPlayer.skip(startIndex ?? 0, 0);
-
-      if ((await TrackPlayer.getState()) === State.Ready) {
-        await TrackPlayer.play();
-      }
-
-      return;
-    }
-
     isLoadingTrackList.current = true;
     const normalizedTrackList = trackList.map((t) => ({
       id: t.id,
