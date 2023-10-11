@@ -64,6 +64,7 @@ export default function Layout() {
         Capability.Pause,
         Capability.SkipToNext,
         Capability.SkipToPrevious,
+        Capability.SeekTo,
       ],
     }).catch((error) => {
       console.log("error updating options", error);
