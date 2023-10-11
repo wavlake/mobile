@@ -139,15 +139,17 @@ export const FullSizeMusicPlayer = () => {
             alignItems: "center",
           }}
         >
-          <LikeButton
-            onPress={handleLikePress}
-            size={24}
-            isLiked={isTrackInLibrary}
-            isLoading={
-              addTrackToLibraryMutation.isLoading ||
-              deleteTrackFromLibraryMutation.isLoading
-            }
-          />
+          <View>
+            <LikeButton
+              onPress={handleLikePress}
+              size={24}
+              isLiked={isTrackInLibrary}
+              isLoading={
+                addTrackToLibraryMutation.isLoading ||
+                deleteTrackFromLibraryMutation.isLoading
+              }
+            />
+          </View>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
             <ShareButton url={`https://wavlake.com/track/${trackId}`} />
             <MoreOptions

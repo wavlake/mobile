@@ -25,17 +25,13 @@ export const LikeButton = ({
     }
   };
 
-  const renderIcon = () => {
-    return pubkey ? (
-      <Pressable onPress={handlePress}>
-        <MaterialCommunityIcons
-          name={isLiked ? "cards-heart" : "cards-heart-outline"}
-          size={size}
-          color={isLiked ? brandColors.pink.DEFAULT : colors.text}
-        />
-      </Pressable>
-    ) : null;
-  };
-
-  return <View>{renderIcon()}</View>;
+  return pubkey ? (
+    <Pressable onPress={handlePress}>
+      <MaterialCommunityIcons
+        name={isLiked ? "cards-heart" : "cards-heart-outline"}
+        size={size}
+        color={isLiked ? brandColors.pink.DEFAULT : colors.text}
+      />
+    </Pressable>
+  ) : null;
 };
