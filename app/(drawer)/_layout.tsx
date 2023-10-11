@@ -20,8 +20,15 @@ export default function DrawerLayout() {
   const headerTitle =
     typeof globalSearchParams.headerTitle === "string"
       ? () => (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-            <Text>{globalSearchParams.headerTitle}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
+              flex: 1,
+            }}
+          >
+            <Text numberOfLines={1}>{globalSearchParams.headerTitle}</Text>
             {globalSearchParams.includeHeaderTitleVerifiedBadge === "1" && (
               <VerificationIcon width={24} height={24} fill={colors.text} />
             )}
