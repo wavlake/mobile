@@ -90,7 +90,7 @@ export const MoreOptions = ({
               justifyContent: "space-between",
             }}
           >
-            <View>
+            <View style={{ flex: 1 }}>
               <Text>Artist</Text>
               <Text
                 style={{
@@ -119,7 +119,7 @@ export const MoreOptions = ({
               justifyContent: "space-between",
             }}
           >
-            <View>
+            <View style={{ flex: 1 }}>
               <Text>Album</Text>
               <Text
                 style={{
