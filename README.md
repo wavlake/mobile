@@ -1,6 +1,6 @@
 ## Getting Started
 
-You will need to set up your local environment/device using `eas device:create` in order to enable hot reloading. This is because the audio library we are using requires some native modules that must be built separately from the React app itself. If developing on iOS, this setup process might also require you have an Apple Developer account with the device(s) you are developing on registered to that account. More details [here](https://docs.expo.dev/eas-update/expo-dev-client/).
+You will need to set up your local environment/device using `eas device:create`. This is because the audio library we are using requires some native modules that must be built separately from the React app itself. If developing on iOS, this setup process might also require you have an Apple Developer account with the device(s) you are developing on registered to that account. More details [here](https://docs.expo.dev/eas-update/expo-dev-client/).
 
 Once you have your device set up and have a pre-build of the app (see Local Development section below)...
 
@@ -13,7 +13,13 @@ npm install
 Run the app:
 
 ```bash
-npx expo start --dev-client
+npx expo start
+```
+
+You may have to use `--tunnel` flag for some local network/VPN setups:
+
+```bash
+npx expo start --tunnel
 ```
 
 ## Expo Application Services
