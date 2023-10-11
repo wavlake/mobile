@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { useTheme } from "@react-navigation/native";
+import { Text } from "@/components";
 
 export default function ZapLayout() {
   const { colors } = useTheme();
@@ -12,7 +13,7 @@ export default function ZapLayout() {
         },
         headerShadowVisible: false,
         headerTintColor: colors.text,
-        headerTitle: "Zap",
+        headerTitle: () => <Text>Zap</Text>,
       }}
     >
       <Stack.Screen
