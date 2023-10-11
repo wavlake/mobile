@@ -30,7 +30,11 @@ export const LibraryRecentSongsSection = () => {
           params: { headerTitle: playerTitle, includeBackButton: true },
         }}
       />
-      <HorizontalArtworkRow items={tracks} onPress={handleTrackPress} />
+      <HorizontalArtworkRow
+        items={tracks}
+        onPress={handleTrackPress}
+        willShowTitle
+      />
     </View>
   );
 };
