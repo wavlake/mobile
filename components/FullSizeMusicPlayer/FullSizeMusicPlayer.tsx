@@ -22,6 +22,7 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
+import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
 
 export const FullSizeMusicPlayer = () => {
   const { artistOrAlbumBasePathname = "" } = useLocalSearchParams<{
@@ -147,7 +148,15 @@ export const FullSizeMusicPlayer = () => {
               deleteTrackFromLibraryMutation.isLoading
             }
           />
-          <ShareButton url={`https://wavlake.com/track/${trackId}`} />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+            <ShareButton url={`https://wavlake.com/track/${trackId}`} />
+            <MoreOptions
+              artist={artist}
+              artistId={artistId}
+              albumTitle={albumTitle}
+              albumId={albumId}
+            />
+          </View>
         </View>
       </View>
     </ScrollView>
