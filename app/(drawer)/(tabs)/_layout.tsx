@@ -14,7 +14,6 @@ import {
 } from "@/components";
 import {
   cacheIsFirstAppLaunch,
-  formatTrackListForMusicPlayer,
   getIsFirstAppLaunch,
   getRandomMusic,
 } from "@/utils";
@@ -24,7 +23,7 @@ import { useEffect } from "react";
 export default function TabLayout() {
   const pathname = usePathname();
   const { colors } = useTheme();
-  const { loadTrackList, clear } = useMusicPlayer();
+  const { loadTrackList, reset } = useMusicPlayer();
   const tabsBarHeight = 88;
   const { pubkey } = useAuth();
   const router = useRouter();
@@ -91,12 +90,10 @@ export default function TabLayout() {
             }}
             listeners={() => ({
               tabPress: async () => {
-                await clear();
-
-                const randomMusic = await getRandomMusic();
-
+                await reset();
                 await loadTrackList({
-                  trackList: formatTrackListForMusicPlayer(randomMusic),
+                  trackList: await getRandomMusic(),
+                  trackListId: "radio",
                   playerTitle: "Radio",
                 });
               },

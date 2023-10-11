@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { getArtist, formatTrackListForMusicPlayer } from "@/utils";
+import { getArtist } from "@/utils";
 import {
   ActivityIndicator,
   ScrollView,
@@ -9,10 +9,7 @@ import {
 } from "react-native";
 import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
 import { Center } from "@/components/Center";
-import {
-  LoadTrackList,
-  useMusicPlayer,
-} from "@/components/MusicPlayerProvider";
+import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { FireIcon } from "@/components/FireIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -23,7 +20,7 @@ import { SatsEarned } from "@/components/SatsEarned";
 import { WebsiteIcon } from "@/components/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";
-import { ElementType, memo } from "react";
+import { ElementType } from "react";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
@@ -46,11 +43,8 @@ const SocialIconLink = ({ url, Icon }: SocialIconLinkProps) => {
   );
 };
 
-interface ArtistPageContentProps {
-  loadTrackList: LoadTrackList;
-}
-
-const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
+export const ArtistPage = () => {
+  const { loadTrackList } = useMusicPlayer();
   const { artistId } = useLocalSearchParams();
   const { data: artist } = useQuery({
     queryKey: [artistId],
@@ -79,7 +73,7 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
     }
 
     await loadTrackList({
-      trackList: formatTrackListForMusicPlayer(topTracks),
+      trackList: topTracks,
       trackListId: artistId as string,
       startIndex: index,
       playerTitle,
@@ -198,10 +192,4 @@ const ArtistPageContent = memo(({ loadTrackList }: ArtistPageContentProps) => {
       <ActivityIndicator />
     </Center>
   );
-});
-
-export const ArtistPage = () => {
-  const { loadTrackList } = useMusicPlayer();
-
-  return <ArtistPageContent loadTrackList={loadTrackList} />;
 };

@@ -6,7 +6,7 @@ export interface Track {
   title: string;
   artistId: string;
   artist: string;
-  artistUrl: string;
+  artistUrl?: string;
   avatarUrl: string;
   artworkUrl: string;
   albumId: string;

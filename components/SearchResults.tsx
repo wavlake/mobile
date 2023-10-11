@@ -56,9 +56,10 @@ const SearchResultRow = ({
             avatarUrl,
             albumId,
             albumTitle,
-            durationInMs: duration * 1000,
+            duration,
           },
         ],
+        trackListId: "search-result-track",
       });
     }
 

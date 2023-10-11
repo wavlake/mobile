@@ -1,3 +1,6 @@
+// https://docs.expo.dev/develop/development-builds/use-development-builds/
+import "expo-dev-client";
+
 import { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
@@ -14,7 +17,8 @@ import {
 import { MusicPlayerProvider } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
-import { useNostrRelayList } from "@/hooks";
+import TrackPlayer, { Capability } from "react-native-track-player";
+import { musicService } from "@/services";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -23,52 +27,6 @@ export { ErrorBoundary } from "expo-router";
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
-
-const AppContent = () => {
-  const { writeRelayList } = useNostrRelayList();
-
-  return (
-    <MusicPlayerProvider writeRelayList={writeRelayList}>
-      <RootSiblingParent>
-        <View style={{ flex: 1, backgroundColor: "black" }}>
-          <Stack
-            screenOptions={{
-              headerStyle: {
-                backgroundColor: "black",
-              },
-              headerShadowVisible: false,
-              headerTintColor: "white",
-              headerBackTitleVisible: false,
-            }}
-          >
-            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="auth"
-              options={{
-                headerShown: false,
-                gestureEnabled: false,
-                gestureDirection: "vertical",
-              }}
-            />
-            <Stack.Screen
-              name="zap"
-              options={{
-                headerShown: false,
-                gestureEnabled: false,
-                gestureDirection: "vertical",
-              }}
-            />
-            <Stack.Screen name="profile" options={{ headerTitle: "Profile" }} />
-            <Stack.Screen
-              name="settings"
-              options={{ headerTitle: "Settings" }}
-            />
-          </Stack>
-        </View>
-      </RootSiblingParent>
-    </MusicPlayerProvider>
-  );
-};
 
 export default function Layout() {
   const [loaded, error] = useFonts({
@@ -89,6 +47,29 @@ export default function Layout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    try {
+      TrackPlayer.registerPlaybackService(() => musicService);
+    } catch (error) {
+      console.log("error registering playback service", error);
+    }
+
+    TrackPlayer.setupPlayer().catch((error) => {
+      console.log("error setting up player", error);
+    });
+
+    TrackPlayer.updateOptions({
+      capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+      ],
+    }).catch((error) => {
+      console.log("error updating options", error);
+    });
+  }, []);
+
   const onAppStateChange = (status: AppStateStatus) => {
     if (Platform.OS !== "web") {
       focusManager.setFocused(status === "active");
@@ -104,7 +85,51 @@ export default function Layout() {
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
       <QueryClientProvider client={queryClient}>
-        <AppContent />
+        <MusicPlayerProvider>
+          <RootSiblingParent>
+            <View style={{ flex: 1, backgroundColor: "black" }}>
+              <Stack
+                screenOptions={{
+                  headerStyle: {
+                    backgroundColor: "black",
+                  },
+                  headerShadowVisible: false,
+                  headerTintColor: "white",
+                  headerBackTitleVisible: false,
+                }}
+              >
+                <Stack.Screen
+                  name="(drawer)"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="auth"
+                  options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                    gestureDirection: "vertical",
+                  }}
+                />
+                <Stack.Screen
+                  name="zap"
+                  options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                    gestureDirection: "vertical",
+                  }}
+                />
+                <Stack.Screen
+                  name="profile"
+                  options={{ headerTitle: "Profile" }}
+                />
+                <Stack.Screen
+                  name="settings"
+                  options={{ headerTitle: "Settings" }}
+                />
+              </Stack>
+            </View>
+          </RootSiblingParent>
+        </MusicPlayerProvider>
       </QueryClientProvider>
     </ThemeProvider>
   ) : null;

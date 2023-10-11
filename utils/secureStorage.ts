@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { getPublicKey } from "nostr-tools";
 
 const seckey = "seckey";
 
@@ -12,4 +13,14 @@ export const getSeckey = async () => {
 
 export const deleteSeckey = async () => {
   await SecureStore.deleteItemAsync(seckey);
+};
+
+export const getPubkeyFromCachedSeckey = async () => {
+  try {
+    const seckey = await getSeckey();
+
+    return seckey ? getPublicKey(seckey) : "";
+  } catch {
+    return "";
+  }
 };

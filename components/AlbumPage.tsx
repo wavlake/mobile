@@ -1,18 +1,9 @@
 import { useLocalSearchParams } from "expo-router";
 import { FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Album,
-  formatTrackListForMusicPlayer,
-  getAlbum,
-  getAlbumTracks,
-} from "@/utils";
+import { Album, getAlbum, getAlbumTracks } from "@/utils";
 import { Text } from "@/components/Text";
-import {
-  LoadTrackList,
-  useMusicPlayer,
-} from "@/components/MusicPlayerProvider";
-import { memo } from "react";
+import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
 import { TrackRow } from "@/components/TrackRow";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -30,11 +21,8 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
   );
 };
 
-interface AlbumPageContentProps {
-  loadTrackList: LoadTrackList;
-}
-
-const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
+export const AlbumPage = () => {
+  const { loadTrackList } = useMusicPlayer();
   const { albumId } = useLocalSearchParams();
   const { data: album } = useQuery({
     queryKey: [albumId],
@@ -47,7 +35,7 @@ const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
   });
   const handleRowPress = async (index: number, playerTitle: string) => {
     await loadTrackList({
-      trackList: formatTrackListForMusicPlayer(tracks),
+      trackList: tracks,
       trackListId: albumId as string,
       startIndex: index,
       playerTitle,
@@ -98,10 +86,4 @@ const AlbumPageContent = memo(({ loadTrackList }: AlbumPageContentProps) => {
       style={{ paddingTop: 8 }}
     />
   );
-});
-
-export const AlbumPage = () => {
-  const { loadTrackList } = useMusicPlayer();
-
-  return <AlbumPageContent loadTrackList={loadTrackList} />;
 };

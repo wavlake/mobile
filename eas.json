@@ -19,6 +19,14 @@
       },
       "distribution": "internal",
       "channel": "preview"
+    },
+    "development": {
+      "env": {
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-staging-dot-wavlake-alpha.uc.r.appspot.com/v1"
+      },
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development"
     }
   }
 }

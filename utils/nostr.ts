@@ -263,16 +263,16 @@ interface MakeLiveStatusEventParams {
   pubkey: string;
   trackUrl: string;
   content: string;
-  durationInMs: number;
-  relayUris: string[];
+  duration: number;
+  relayUris?: string[];
 }
 
 export const publishLiveStatusEvent = async ({
   pubkey,
   trackUrl,
   content,
-  durationInMs,
-  relayUris,
+  duration,
+  relayUris = DEFAULT_WRITE_RELAY_URIS,
 }: MakeLiveStatusEventParams) => {
   const { allowListeningActivity } = await getSettings(pubkey);
 
@@ -292,7 +292,7 @@ export const publishLiveStatusEvent = async ({
     tags: [
       ["d", "music"],
       ["r", trackUrl],
-      ["expiration", (currentTime + durationInMs / 1000).toString()],
+      ["expiration", (currentTime + duration).toString()],
     ],
   };
   const signedEvent = await signEvent(eventTemplate);

@@ -1,6 +1,6 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { formatTrackListForMusicPlayer, getTopMusic, Track } from "@/utils";
+import { getTopMusic, Track } from "@/utils";
 import { NewMusicSection } from "@/components/NewMusicSection";
 import { FireIcon } from "@/components/FireIcon";
 import { brandColors } from "@/constants";
@@ -22,7 +22,8 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
   const { height } = useMiniMusicPlayer();
   const handleRowPress = async (index: number) => {
     await loadTrackList({
-      trackList: formatTrackListForMusicPlayer(trackList),
+      trackList: trackList,
+      trackListId: "trending",
       startIndex: index,
       playerTitle: "Trending",
     });

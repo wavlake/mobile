@@ -7,17 +7,22 @@ export const ArtworkCarousel = () => {
   const artworkUrlListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get("window").width;
   const padding = 24;
-  const { trackQueue, currentTrackIndex } = useMusicPlayer();
+  const { trackQueue, currentTrackIndex = 0 } = useMusicPlayer();
   const trackQueueArtworkUrls = useMemo(
-    () => trackQueue.map((track) => track.artworkUrl),
+    () => (trackQueue ?? []).map((track) => track.artworkUrl),
     [trackQueue],
   );
+  const carouselSize = trackQueueArtworkUrls.length;
 
   useEffect(() => {
+    if (carouselSize === 0) {
+      return;
+    }
+
     artworkUrlListRef.current?.scrollToIndex({
       index: currentTrackIndex,
     });
-  }, [currentTrackIndex]);
+  }, [currentTrackIndex, carouselSize]);
 
   return (
     <FlatList

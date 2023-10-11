@@ -9,8 +9,9 @@ const MiniMusicPlayerContext =
   createContext<MiniMusicPlayerContextProps | null>(null);
 
 export const MiniMusicPlayerProvider = ({ children }: PropsWithChildren) => {
-  const { trackQueue } = useMusicPlayer();
-  const height = trackQueue.length > 0 ? 70 : 0;
+  const { currentTrack } = useMusicPlayer();
+  const willShowPlayer = currentTrack !== null;
+  const height = willShowPlayer ? 70 : 0;
   const value = useMemo(() => ({ height }), [height]);
 
   return (

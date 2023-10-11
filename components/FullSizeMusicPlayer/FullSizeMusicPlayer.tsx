@@ -77,12 +77,8 @@ export const FullSizeMusicPlayer = () => {
     if (isTrackInLibrary) {
       deleteTrackFromLibraryMutation.mutate(trackId);
     } else {
-      // the duration, avatarUrl, and artistUrl are just needed to make TypeScript happy for the optimistic update
       addTrackToLibraryMutation.mutate({
-        ...currentTrack,
-        duration: currentTrack.durationInMs / 1000,
-        avatarUrl: currentTrack.avatarUrl ?? "",
-        artistUrl: "",
+        id: currentTrack.id,
       });
     }
   };
