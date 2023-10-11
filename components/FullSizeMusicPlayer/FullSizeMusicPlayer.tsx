@@ -77,9 +77,7 @@ export const FullSizeMusicPlayer = () => {
     if (isTrackInLibrary) {
       deleteTrackFromLibraryMutation.mutate(trackId);
     } else {
-      addTrackToLibraryMutation.mutate({
-        id: currentTrack.id,
-      });
+      addTrackToLibraryMutation.mutate(currentTrack);
     }
   };
 
