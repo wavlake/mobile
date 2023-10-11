@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
+import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
 import { Center } from "@/components/Center";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { FireIcon } from "@/components/FireIcon";
@@ -27,6 +27,7 @@ import { InstagramIcon } from "@/components/InstagramIcon";
 import { useGoToAlbumPage } from "@/hooks";
 import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
 import { BasicAvatar } from "@/components/BasicAvatar";
+import { ArtistBanner } from "@/components/ArtistBanner";
 
 interface SocialIconLinkProps {
   url: string;
@@ -82,7 +83,8 @@ export const ArtistPage = () => {
 
   return artist ? (
     <ScrollView>
-      <AlbumOrArtistPageHeader
+      <ArtistBanner uri={artist.artworkUrl} />
+      <AlbumOrArtistPageButtons
         type="artist"
         shareUrl={`https://wavlake.com/${artist.artistUrl}`}
         content={artist}

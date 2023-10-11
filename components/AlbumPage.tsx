@@ -1,12 +1,13 @@
 import { useLocalSearchParams } from "expo-router";
-import { FlatList, View } from "react-native";
+import { Dimensions, FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Album, getAlbum, getAlbumTracks } from "@/utils";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
+import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
 import { TrackRow } from "@/components/TrackRow";
 import { SectionHeader } from "@/components/SectionHeader";
+import { SquareArtwork } from "@/components/SquareArtwork";
 
 interface AlbumPageFooterProps {
   album: Album;
@@ -33,6 +34,7 @@ export const AlbumPage = () => {
     queryKey: ["albums", albumId],
     queryFn: () => getAlbumTracks(albumId as string),
   });
+  const screenWidth = Dimensions.get("window").width;
   const handleRowPress = async (index: number, playerTitle: string) => {
     await loadTrackList({
       trackList: tracks,
@@ -50,11 +52,12 @@ export const AlbumPage = () => {
           return null;
         }
 
-        const { id, title } = album;
+        const { id, title, artworkUrl } = album;
 
         return (
           <View style={{ marginBottom: 36 }}>
-            <AlbumOrArtistPageHeader
+            <SquareArtwork size={screenWidth} url={artworkUrl} />
+            <AlbumOrArtistPageButtons
               type="album"
               shareUrl={`https://wavlake.com/album/${albumId}`}
               content={album}

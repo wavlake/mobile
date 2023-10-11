@@ -1,6 +1,5 @@
-import { Dimensions, View } from "react-native";
+import { View } from "react-native";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { SquareArtwork } from "@/components/SquareArtwork";
 import { ShareButton } from "@/components/ShareButton";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { LikeButton } from "@/components/LikeButton";
@@ -13,10 +12,10 @@ import {
   useIsArtistInLibrary,
 } from "@/hooks";
 import { Album, Artist, togglePlayPause } from "@/utils";
-import { ArtistBanner } from "@/components/ArtistBanner";
 import { State, usePlaybackState } from "react-native-track-player";
+import { brandColors } from "@/constants";
 
-interface AlbumOrArtistPageHeaderProps {
+interface AlbumOrArtistPageButtonsProps {
   type: "album" | "artist";
   content: Album | Artist;
   shareUrl: string;
@@ -25,17 +24,16 @@ interface AlbumOrArtistPageHeaderProps {
   onPlay: (index: number, playerTitle: string) => void;
 }
 
-export const AlbumOrArtistPageHeader = ({
+export const AlbumOrArtistPageButtons = ({
   type,
   content,
   shareUrl,
   trackListId,
   trackListTitle,
   onPlay,
-}: AlbumOrArtistPageHeaderProps) => {
+}: AlbumOrArtistPageButtonsProps) => {
   const { currentTrackListId } = useMusicPlayer();
   const playbackState = usePlaybackState();
-  const screenWidth = Dimensions.get("window").width;
   const isThisTrackListLoaded = currentTrackListId === trackListId;
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;
@@ -75,40 +73,30 @@ export const AlbumOrArtistPageHeader = ({
   };
 
   return (
-    <View>
-      {isAlbum ? (
-        <SquareArtwork size={screenWidth} url={content.artworkUrl} />
-      ) : (
-        <ArtistBanner uri={content.artworkUrl} />
-      )}
-      <View
-        style={{
-          position: "absolute",
-          bottom: 24,
-          left: 24,
-          right: 24,
-          flexDirection: "row",
-          justifyContent: "space-between",
-          gap: 24,
-          alignItems: "center",
-        }}
-      >
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingTop: 16,
+      }}
+    >
+      <View style={{ flexDirection: "row", gap: 16, alignItems: "center" }}>
         <LikeButton
           onPress={handleLikePress}
-          isCircle
-          size={40}
+          size={32}
           isLiked={isAlbumInLibrary || isArtistInLibrary}
           isLoading={isLikeLoading}
         />
-        <View style={{ flexDirection: "row", gap: 24, alignItems: "center" }}>
-          <ShareButton url={shareUrl} inverse />
-          <PlayPauseTrackButton
-            size={56}
-            type={isThisTrackListPlaying ? "pause" : "play"}
-            onPress={handlePlayPausePress}
-          />
-        </View>
+        <ShareButton url={shareUrl} />
       </View>
+      <PlayPauseTrackButton
+        size={40}
+        color={brandColors.pink.DEFAULT}
+        type={isThisTrackListPlaying ? "pause" : "play"}
+        onPress={handlePlayPausePress}
+      />
     </View>
   );
 };
