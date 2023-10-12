@@ -38,10 +38,11 @@ export default function TabLayout() {
       const isFirstAppLaunch = await getIsFirstAppLaunch();
 
       if (isFirstAppLaunch) {
+        await cacheIsFirstAppLaunch();
+
         // make sure to delete stored private key if any on first app launch.
         await logout();
 
-        await cacheIsFirstAppLaunch();
         router.push("/auth");
       }
     })();
