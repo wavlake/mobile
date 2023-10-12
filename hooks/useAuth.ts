@@ -3,6 +3,7 @@ import {
   saveSeckey,
   deleteSeckey,
   getPubkeyFromCachedSeckey,
+  encodeNsec,
 } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
@@ -15,7 +16,9 @@ export const useAuth = () => {
     staleTime: Infinity,
   });
   const login = async (privkey: string) => {
-    const seckey = privkey.startsWith("nsec") ? decodeNsec(privkey) : privkey;
+    const seckey = privkey.startsWith("nsec")
+      ? decodeNsec(privkey)
+      : decodeNsec(encodeNsec(privkey) ?? ""); // encode and then decode hex privkey to make sure it is valid
 
     if (!seckey) {
       return false;
