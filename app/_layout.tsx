@@ -14,7 +14,7 @@ import {
   QueryClientProvider,
   focusManager,
 } from "@tanstack/react-query";
-import { MusicPlayerProvider } from "@/components";
+import { MusicPlayerProvider, Text } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import TrackPlayer, { Capability } from "react-native-track-player";
@@ -121,11 +121,11 @@ export default function Layout() {
                 />
                 <Stack.Screen
                   name="profile"
-                  options={{ headerTitle: "Profile" }}
+                  options={{ headerTitle: () => <Text>Profile</Text> }}
                 />
                 <Stack.Screen
                   name="settings"
-                  options={{ headerTitle: "Settings" }}
+                  options={{ headerTitle: () => <Text>Settings</Text> }}
                 />
               </Stack>
             </View>

@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { getArtist } from "@/utils";
 import {
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AlbumOrArtistPageHeader } from "@/components/AlbumOrArtistPageHeader";
+import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
 import { Center } from "@/components/Center";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { FireIcon } from "@/components/FireIcon";
@@ -20,13 +20,14 @@ import { SatsEarned } from "@/components/SatsEarned";
 import { WebsiteIcon } from "@/components/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";
-import { ElementType } from "react";
+import { ElementType, useEffect } from "react";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
 import { useGoToAlbumPage } from "@/hooks";
 import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
 import { BasicAvatar } from "@/components/BasicAvatar";
+import { ArtistBanner } from "@/components/ArtistBanner";
 
 interface SocialIconLinkProps {
   url: string;
@@ -51,10 +52,18 @@ export const ArtistPage = () => {
     queryFn: () => getArtist(artistId as string),
   });
   const topAlbums = artist?.topAlbums ?? [];
-  const topTracks = artist?.topTracks ?? [];
+  const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
   const topMessages = artist?.topMessages ?? [];
   const basePathname = useGetArtistOrAlbumBasePathname();
   const goToAlbumPage = useGoToAlbumPage();
+  const router = useRouter();
+  const isVerified = artist?.verified ?? false;
+
+  useEffect(() => {
+    if (isVerified) {
+      router.setParams({ includeHeaderTitleVerifiedBadge: "1" });
+    }
+  }, [isVerified]);
 
   const handleTopAlbumPress = (index: number) => {
     const album = topAlbums[index];
@@ -82,7 +91,8 @@ export const ArtistPage = () => {
 
   return artist ? (
     <ScrollView>
-      <AlbumOrArtistPageHeader
+      <ArtistBanner uri={artist.artworkUrl} />
+      <AlbumOrArtistPageButtons
         type="artist"
         shareUrl={`https://wavlake.com/${artist.artistUrl}`}
         content={artist}

@@ -37,11 +37,13 @@ export const GenresSection = () => {
             <TouchableOpacity
               onPress={() => handleRowPress(id, name)}
               style={{
-                height: 60,
                 justifyContent: "center",
+                paddingVertical: 12,
               }}
             >
-              <Text>{name}</Text>
+              <Text style={{ fontSize: 18 }} numberOfLines={1}>
+                {name}
+              </Text>
             </TouchableOpacity>
             {willShowDivider && <Divider color={brandColors.black.light} />}
           </View>

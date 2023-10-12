@@ -24,6 +24,7 @@ export const LibraryRecentAlbumsSection = () => {
       <HorizontalArtworkRow
         items={albums}
         onPress={(index) => handleAlbumPress(albums[index])}
+        willShowTitle
       />
     </View>
   );

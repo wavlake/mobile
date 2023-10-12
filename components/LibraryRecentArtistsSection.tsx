@@ -3,6 +3,7 @@ import { useGoToArtistPage, useLibraryArtists } from "@/hooks";
 import { SectionHeader } from "@/components/SectionHeader";
 import { ArtistBanner } from "@/components/ArtistBanner";
 import { Artist } from "@/utils";
+import { Text } from "@/components/Text";
 
 export const LibraryRecentArtistsSection = () => {
   const { data: artists = [] } = useLibraryArtists();
@@ -30,9 +31,11 @@ export const LibraryRecentArtistsSection = () => {
               <View
                 style={{
                   marginRight: index === artists.length - 1 ? 0 : 16,
+                  width: 220,
                 }}
               >
                 <ArtistBanner uri={item.artworkUrl} height={124} />
+                <Text numberOfLines={1}>{item.name}</Text>
               </View>
             </TouchableOpacity>
           );

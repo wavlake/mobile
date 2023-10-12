@@ -4,15 +4,14 @@ import { useTheme } from "@react-navigation/native";
 
 interface ShareButtonProps {
   url: string;
-  inverse?: boolean;
+  size?: number;
 }
 
-export const ShareButton = ({ url, inverse = false }: ShareButtonProps) => {
+export const ShareButton = ({ url, size = 40 }: ShareButtonProps) => {
   const { colors } = useTheme();
   const handleShare = async () => {
     await Share.share({ url });
   };
-  const size = 40;
 
   return (
     <Pressable
@@ -20,17 +19,13 @@ export const ShareButton = ({ url, inverse = false }: ShareButtonProps) => {
       style={{
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: inverse ? colors.text : colors.background,
+        backgroundColor: colors.background,
         borderRadius: size / 2,
         width: size,
         height: size,
       }}
     >
-      <ShareIcon
-        width={size}
-        height={size}
-        fill={inverse ? colors.background : colors.text}
-      />
+      <ShareIcon width={size} height={size} fill={colors.text} />
     </Pressable>
   );
 };

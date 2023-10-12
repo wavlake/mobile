@@ -1,19 +1,22 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { SquareArtwork } from "@/components/SquareArtwork";
+import { Text } from "@/components/Text";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
-  [key: string]: any;
+  title: string;
 }
 
 interface HorizontalArtworkRowProps {
   items: HorizontalArtworkRowItem[];
   onPress: (index: number) => void;
+  willShowTitle?: boolean;
 }
 
 export const HorizontalArtworkRow = ({
   items,
   onPress,
+  willShowTitle = false,
 }: HorizontalArtworkRowProps) => {
   return (
     <FlatList
@@ -25,9 +28,11 @@ export const HorizontalArtworkRow = ({
             <View
               style={{
                 marginRight: index === items.length - 1 ? 0 : 16,
+                width: 124,
               }}
             >
               <SquareArtwork size={124} url={item.artworkUrl} />
+              {willShowTitle && <Text numberOfLines={1}>{item.title}</Text>}
             </View>
           </TouchableOpacity>
         );
