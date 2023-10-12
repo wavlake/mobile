@@ -25,12 +25,12 @@ export default function TabLayout() {
   const { colors } = useTheme();
   const { loadTrackList, reset } = useMusicPlayer();
   const tabsBarHeight = 88;
-  const { pubkey } = useAuth();
+  const { logout } = useAuth();
   const router = useRouter();
   const isNavigationReady = useIsNavigationReady();
 
   useEffect(() => {
-    if (pubkey || !isNavigationReady) {
+    if (!isNavigationReady) {
       return;
     }
 
@@ -39,10 +39,14 @@ export default function TabLayout() {
 
       if (isFirstAppLaunch) {
         await cacheIsFirstAppLaunch();
+
+        // make sure to delete stored private key if any on first app launch.
+        await logout();
+
         router.push("/auth");
       }
     })();
-  }, [pubkey, isNavigationReady]);
+  }, [logout, isNavigationReady]);
 
   return (
     <MiniMusicPlayerProvider>
