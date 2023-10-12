@@ -92,7 +92,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setCurrentTrackListId(trackListId);
     isLoadingTrackList.current = false;
     setIsSwitchingTrackList(false);
-    await publishTrackToNostr(currentTrack);
+    publishTrackToNostr(currentTrack).catch(console.error);
   };
   const reset = async () => {
     setPlayerTitle(undefined);
@@ -134,7 +134,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
         if (currentTrack) {
           setCurrentTrack(currentTrack);
-          await publishTrackToNostr(currentTrack);
+          publishTrackToNostr(currentTrack).catch(console.error);
         }
         break;
     }
