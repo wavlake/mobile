@@ -109,9 +109,10 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    const writeRelayList = getWriteRelayUris(
-      await getCachedNostrRelayListEvent(pubkey),
-    );
+    const relayListEvent = await getCachedNostrRelayListEvent(pubkey);
+    const writeRelayList = relayListEvent
+      ? getWriteRelayUris(relayListEvent)
+      : null;
     await publishLiveStatusEvent({
       pubkey,
       trackUrl: `https://wavlake.com/track/${track.id}`,

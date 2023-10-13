@@ -264,7 +264,7 @@ interface MakeLiveStatusEventParams {
   trackUrl: string;
   content: string;
   duration: number;
-  relayUris?: string[];
+  relayUris?: string[] | null;
 }
 
 export const publishLiveStatusEvent = async ({
@@ -272,7 +272,7 @@ export const publishLiveStatusEvent = async ({
   trackUrl,
   content,
   duration,
-  relayUris = DEFAULT_WRITE_RELAY_URIS,
+  relayUris,
 }: MakeLiveStatusEventParams) => {
   const { allowListeningActivity } = await getSettings(pubkey);
 
@@ -280,9 +280,14 @@ export const publishLiveStatusEvent = async ({
     return;
   }
 
-  const normalizedRelayUris = relayUris.filter(
-    (r) => !r.startsWith("wss://purplepag.es"),
-  );
+  const getNormalizedRelayUris = () => {
+    const relaysToUse =
+      !relayUris || relayUris.length === 0
+        ? DEFAULT_WRITE_RELAY_URIS
+        : relayUris;
+
+    return relaysToUse.filter((r) => !r.startsWith("wss://purplepag.es"));
+  };
   const currentTime = Math.floor(Date.now() / 1000);
   const eventTemplate = {
     kind: 30315,
@@ -298,7 +303,7 @@ export const publishLiveStatusEvent = async ({
   const signedEvent = await signEvent(eventTemplate);
 
   try {
-    await publishEvent(normalizedRelayUris, signedEvent);
+    await publishEvent(getNormalizedRelayUris(), signedEvent);
   } catch (error) {
     console.error(error);
   }
