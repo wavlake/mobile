@@ -20,7 +20,7 @@ export const useAuth = () => {
       ? decodeNsec(privkey)
       : decodeNsec(encodeNsec(privkey) ?? ""); // encode and then decode hex privkey to make sure it is valid
 
-    if (!seckey) {
+    if (!seckey || seckey.length !== 64) {
       return false;
     }
 
