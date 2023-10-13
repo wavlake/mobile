@@ -7,7 +7,6 @@ import {
 } from "react";
 import TrackPlayer, {
   Event,
-  State,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import {
