@@ -7,7 +7,6 @@ import {
 } from "react";
 import TrackPlayer, {
   Event,
-  State,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import {
@@ -109,9 +108,10 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    const writeRelayList = getWriteRelayUris(
-      await getCachedNostrRelayListEvent(pubkey),
-    );
+    const relayListEvent = await getCachedNostrRelayListEvent(pubkey);
+    const writeRelayList = relayListEvent
+      ? getWriteRelayUris(relayListEvent)
+      : null;
     await publishLiveStatusEvent({
       pubkey,
       trackUrl: `https://wavlake.com/track/${track.id}`,

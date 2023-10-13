@@ -59,7 +59,9 @@ export const cacheNostrRelayListEvent = async (
   await storeObjectData(nostrRelayListEventKey, event);
 };
 
-export const getCachedNostrRelayListEvent = async (pubkey: string) => {
+export const getCachedNostrRelayListEvent = async (
+  pubkey: string,
+): Promise<Event | null> => {
   const nostrRelayListEventKey = makeNostrRelayListEventKey(pubkey);
 
   return getObjectData(nostrRelayListEventKey);
