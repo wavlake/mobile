@@ -24,7 +24,7 @@ export type LoadTrackList = ({
   playerTitle,
   startIndex,
 }: {
-  trackList: Track[];
+  trackList: Track[]; // Custom track type, not the one from react-native-track-player
   trackListId: string;
   playerTitle?: string;
   startIndex?: number;
@@ -40,6 +40,8 @@ interface MusicPlayerContextProps {
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
 }
+
+// Actions from lock screen/notification bar trigger events here via musicService
 
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
