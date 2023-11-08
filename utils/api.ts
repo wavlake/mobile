@@ -97,6 +97,8 @@ const apiClient = axios.create({
   baseURL,
 });
 
+// Function to normalize the response from the API
+// TODO: Make responses from API consistent
 const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
   return res.map((track) => ({
     id: track.id,
