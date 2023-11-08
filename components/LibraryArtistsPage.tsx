@@ -8,6 +8,8 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { Artist } from "@/utils";
 import { BasicAvatar } from "@/components/BasicAvatar";
 import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { VerificationIcon } from "@/components/VerificationIcon";
+import { useTheme } from "@react-navigation/native";
 
 export const LibraryArtistsPage = () => {
   const { data: artists = [] } = useLibraryArtists();
@@ -31,6 +33,7 @@ export const LibraryArtistsPage = () => {
   );
   const { height } = useMiniMusicPlayer();
   const goToArtistPage = useGoToArtistPage();
+  const { colors } = useTheme();
   const handleArtistPress = (artist: Artist) => {
     goToArtistPage(artist.id, artist.name);
   };
@@ -60,10 +63,21 @@ export const LibraryArtistsPage = () => {
             }}
           >
             <BasicAvatar uri={item.artworkUrl} />
-            <View style={{ marginLeft: 10, flex: 1 }}>
+            <View
+              style={{
+                marginLeft: 10,
+                flex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
               <Text style={{ fontSize: 18 }} numberOfLines={1} bold>
                 {item.name}
               </Text>
+              {item.verified && (
+                <VerificationIcon width={24} height={24} fill={colors.text} />
+              )}
             </View>
           </TouchableOpacity>
         );

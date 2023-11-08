@@ -7,7 +7,6 @@ import {
 } from "react";
 import TrackPlayer, {
   Event,
-  State,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import {
@@ -24,7 +23,7 @@ export type LoadTrackList = ({
   playerTitle,
   startIndex,
 }: {
-  trackList: Track[];
+  trackList: Track[]; // Custom track type, not the one from react-native-track-player
   trackListId: string;
   playerTitle?: string;
   startIndex?: number;
@@ -40,6 +39,8 @@ interface MusicPlayerContextProps {
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
 }
+
+// Actions from lock screen/notification bar trigger events here via musicService
 
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
@@ -58,16 +59,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     playerTitle,
     startIndex,
   }) => {
-    if (trackListId === currentTrackListId && trackQueue) {
-      await TrackPlayer.skip(startIndex ?? 0, 0);
-
-      if ((await TrackPlayer.getState()) === State.Ready) {
-        await TrackPlayer.play();
-      }
-
-      return;
-    }
-
     isLoadingTrackList.current = true;
     const normalizedTrackList = trackList.map((t) => ({
       id: t.id,
@@ -102,7 +93,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setCurrentTrackListId(trackListId);
     isLoadingTrackList.current = false;
     setIsSwitchingTrackList(false);
-    await publishTrackToNostr(currentTrack);
+    publishTrackToNostr(currentTrack).catch(console.error);
   };
   const reset = async () => {
     setPlayerTitle(undefined);
@@ -119,9 +110,10 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    const writeRelayList = getWriteRelayUris(
-      await getCachedNostrRelayListEvent(pubkey),
-    );
+    const relayListEvent = await getCachedNostrRelayListEvent(pubkey);
+    const writeRelayList = relayListEvent
+      ? getWriteRelayUris(relayListEvent)
+      : null;
     await publishLiveStatusEvent({
       pubkey,
       trackUrl: `https://wavlake.com/track/${track.id}`,
@@ -144,7 +136,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
         if (currentTrack) {
           setCurrentTrack(currentTrack);
-          await publishTrackToNostr(currentTrack);
+          publishTrackToNostr(currentTrack).catch(console.error);
         }
         break;
     }

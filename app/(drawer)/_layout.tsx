@@ -1,5 +1,5 @@
 import { Drawer } from "expo-router/drawer";
-import { HeaderBackButton, HeaderTitleLogo, Avatar } from "@/components";
+import { HeaderBackButton, HeaderTitleLogo, Avatar, Text } from "@/components";
 import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/hooks";
 import { View, Pressable } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
+import { VerificationIcon } from "@/components/VerificationIcon";
 
 export default function DrawerLayout() {
   const { colors } = useTheme();
@@ -18,7 +19,21 @@ export default function DrawerLayout() {
   const { pubkey } = useAuth();
   const headerTitle =
     typeof globalSearchParams.headerTitle === "string"
-      ? globalSearchParams.headerTitle
+      ? () => (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
+              flex: 1,
+            }}
+          >
+            <Text numberOfLines={1}>{globalSearchParams.headerTitle}</Text>
+            {globalSearchParams.includeHeaderTitleVerifiedBadge === "1" && (
+              <VerificationIcon width={24} height={24} fill={colors.text} />
+            )}
+          </View>
+        )
       : HeaderTitleLogo;
   const headerLeft = globalSearchParams.includeBackButton
     ? () => <HeaderBackButton />

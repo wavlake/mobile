@@ -1,5 +1,5 @@
 import { useNavigation } from "expo-router";
-import { FullSizeMusicPlayer, useMusicPlayer } from "@/components";
+import { FullSizeMusicPlayer, useMusicPlayer, Text } from "@/components";
 import { useEffect } from "react";
 
 export default function Player() {
@@ -9,7 +9,7 @@ export default function Player() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle,
+      headerTitle: () => <Text>{headerTitle}</Text>,
     });
   }, [navigation, headerTitle]);
 
