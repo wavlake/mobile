@@ -24,3 +24,17 @@ export const getPubkeyFromCachedSeckey = async () => {
     return "";
   }
 };
+
+const nwcURI = "nwcURI";
+
+export const saveNwcURI = async (value: string) => {
+  await SecureStore.setItemAsync(nwcURI, value);
+};
+
+export const getNwcURI = async () => {
+  return await SecureStore.getItemAsync(nwcURI);
+};
+
+export const deleteNwcURI = async () => {
+  await SecureStore.deleteItemAsync(nwcURI);
+};
