@@ -1,21 +1,16 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheSettings, deleteNwcURI, getNwcURI, saveNwcURI } from "@/utils";
+import { cacheSettings, deleteNwcURI } from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import {
-  PlusCircleIcon,
-  TrashIcon,
-  EyeIcon,
-  EyeSlashIcon,
-} from "react-native-heroicons/solid";
-import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
+import { PlusCircleIcon, TrashIcon } from "react-native-heroicons/solid";
 
 export default function SettingsPage() {
   const toast = useToast();
+  const router = useRouter();
   const { pubkey } = useAuth();
   const params = useLocalSearchParams();
   const settings = JSON.parse(params.settings as string);
@@ -28,6 +23,8 @@ export default function SettingsPage() {
   const [allowListeningActivity, setAllowListeningActivity] = useState(
     settings.allowListeningActivity ?? false,
   );
+  const [nwcRelay, setNwcRelay] = useState(settings.nwcRelay ?? "");
+
   const handleSave = async () => {
     Keyboard.dismiss();
     await cacheSettings(
@@ -37,140 +34,86 @@ export default function SettingsPage() {
 
     toast.show("saved");
   };
-  const [showScanner, setShowScanner] = useState(false);
   const onAddNWC = () => {
-    setShowScanner(true);
+    router.push({
+      pathname: "/nwcScanner",
+    });
   };
 
   const onDeleteNWC = () => {
-    deleteNwcURI();
-    setNwcURI("");
+    deleteNwcURI(pubkey);
+    cacheSettings({ nwcRelay: "" }, pubkey);
+    setNwcRelay("");
   };
-  const [scanned, setScanned] = useState(false);
-
-  const onBarCodeScanned: BarCodeScannedCallback = ({ data }) => {
-    if (scanned) return;
-    setScanned(true);
-    saveNwcURI(data);
-    setShowScanner(false);
-    setScanned(false);
-  };
-
-  const handleSaveNWC = () => {
-    saveNwcURI(newNwcURI);
-    setNwcURI("");
-    setShowScanner(false);
-  };
-
-  const [nwcURI, setNwcURI] = useState("");
-  const [newNwcURI, setNewNwcURI] = useState("");
-
-  useEffect(() => {
-    (async () => {
-      const storedNwcUri = await getNwcURI();
-
-      if (storedNwcUri) {
-        setNwcURI(storedNwcUri);
-      }
-    })();
-  }, [showScanner]);
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      {showScanner ? (
-        <View
-          style={{
-            gap: 24,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+      <View style={{ padding: 24, gap: 24, alignItems: "center" }}>
+        <View style={{ marginBottom: 24, width: "100%" }}>
           <TextInput
-            label="Nostr Wallet Connect pairing secret"
-            value={newNwcURI}
-            onChangeText={setNewNwcURI}
-            secureTextEntry={true}
+            label="Default zap amount"
+            value={defaultZapAmount}
+            keyboardType="numeric"
+            onChangeText={setDefaultZapAmount}
           />
-          <Button onPress={handleSaveNWC}>Save</Button>
-          <Text>Scan a NWC QR code or paste one above</Text>
-          <BarCodeScanner
-            onBarCodeScanned={onBarCodeScanned}
-            style={{
-              width: "90%",
-              height: "70%",
-              borderColor: "white",
-              borderWidth: 1,
-            }}
+          <WalletChooser
+            selectedWallet={defaultZapWallet}
+            onSelectedWalletChange={setDefaultZapWallet}
           />
-        </View>
-      ) : (
-        <View style={{ padding: 24, gap: 24, alignItems: "center" }}>
-          <View style={{ marginBottom: 24, width: "100%" }}>
-            <TextInput
-              label="Default zap amount"
-              value={defaultZapAmount}
-              keyboardType="numeric"
-              onChangeText={setDefaultZapAmount}
-            />
-            <WalletChooser
-              selectedWallet={defaultZapWallet}
-              onSelectedWalletChange={setDefaultZapWallet}
-            />
-            {pubkey && (
-              <View>
-                <View
-                  style={{
-                    marginTop: 24,
-                    marginBottom: 4,
-                    flexDirection: "row",
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text bold>Nostr Wallet Connect</Text>
-                    <Text>{nwcURI || "Add a NWC compatible wallet."}</Text>
-                  </View>
-                  {nwcURI ? (
-                    <TrashIcon
-                      onPress={onDeleteNWC}
-                      color={brandColors.pink.DEFAULT}
-                      height={40}
-                      width={40}
-                    />
-                  ) : (
-                    <PlusCircleIcon
-                      onPress={onAddNWC}
-                      color={brandColors.pink.DEFAULT}
-                      height={40}
-                      width={40}
-                    />
-                  )}
+          {pubkey && (
+            <View>
+              <View
+                style={{
+                  marginTop: 24,
+                  marginBottom: 4,
+                  flexDirection: "row",
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text bold>Nostr Wallet Connect</Text>
+                  <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
                 </View>
-                <View
-                  style={{
-                    marginTop: 24,
-                    marginBottom: 4,
-                    flexDirection: "row",
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text bold>Listening activity</Text>
-                    <Text>
-                      Broadcast tracks you are listening to as a live status
-                      event to Nostr relays.
-                    </Text>
-                  </View>
-                  <Switch
-                    value={allowListeningActivity}
-                    onValueChange={setAllowListeningActivity}
+                {nwcRelay ? (
+                  <TrashIcon
+                    onPress={onDeleteNWC}
                     color={brandColors.pink.DEFAULT}
+                    height={40}
+                    width={40}
                   />
-                </View>
+                ) : (
+                  <PlusCircleIcon
+                    onPress={onAddNWC}
+                    color={brandColors.pink.DEFAULT}
+                    height={40}
+                    width={40}
+                  />
+                )}
               </View>
-            )}
-          </View>
-          <Button onPress={handleSave}>Save</Button>
+              <View
+                style={{
+                  marginTop: 24,
+                  marginBottom: 4,
+                  flexDirection: "row",
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text bold>Listening activity</Text>
+                  <Text>
+                    Broadcast tracks you are listening to as a live status event
+                    to Nostr relays.
+                  </Text>
+                </View>
+                <Switch
+                  value={allowListeningActivity}
+                  onValueChange={setAllowListeningActivity}
+                  color={brandColors.pink.DEFAULT}
+                />
+              </View>
+            </View>
+          )}
         </View>
-      )}
+        <Button onPress={handleSave}>Save</Button>
+      </View>
     </TouchableWithoutFeedback>
   );
 }

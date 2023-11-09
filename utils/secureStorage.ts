@@ -27,14 +27,14 @@ export const getPubkeyFromCachedSeckey = async () => {
 
 const nwcURI = "nwcURI";
 
-export const saveNwcURI = async (value: string) => {
-  await SecureStore.setItemAsync(nwcURI, value);
+export const saveNwcURI = async (value: string, pubkey?: string) => {
+  await SecureStore.setItemAsync(`${pubkey}.${nwcURI}`, value);
 };
 
-export const getNwcURI = async () => {
-  return await SecureStore.getItemAsync(nwcURI);
+export const getNwcURI = async (pubkey?: string) => {
+  return await SecureStore.getItemAsync(`${pubkey}.${nwcURI}`);
 };
 
-export const deleteNwcURI = async () => {
-  await SecureStore.deleteItemAsync(nwcURI);
+export const deleteNwcURI = async (pubkey?: string) => {
+  await SecureStore.deleteItemAsync(`${pubkey}.${nwcURI}`);
 };
