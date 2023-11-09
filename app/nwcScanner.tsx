@@ -47,18 +47,23 @@ export default function SettingsPage() {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View
         style={{
-          gap: 24,
           alignItems: "center",
           justifyContent: "center",
+          padding: 24,
         }}
       >
         <TextInput
-          label="Nostr Wallet Connect pairing secret"
+          label="Pairing secret"
           value={newNwcURI}
           onChangeText={setNewNwcURI}
           secureTextEntry={true}
         />
-        <Button onPress={() => handleSaveNewNwcURI(newNwcURI)}>Save</Button>
+        <Button
+          style={{ paddingBottom: 14 }}
+          onPress={() => handleSaveNewNwcURI(newNwcURI)}
+        >
+          Save Secret
+        </Button>
         <Text>Scan a NWC QR code or paste one above</Text>
         <BarCodeScanner
           onBarCodeScanned={onBarCodeScanned}
