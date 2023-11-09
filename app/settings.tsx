@@ -79,6 +79,7 @@ export default function SettingsPage() {
                     color={brandColors.pink.DEFAULT}
                     height={40}
                     width={40}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   />
                 ) : (
                   <PlusCircleIcon
@@ -86,6 +87,7 @@ export default function SettingsPage() {
                     color={brandColors.pink.DEFAULT}
                     height={40}
                     width={40}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   />
                 )}
               </View>
