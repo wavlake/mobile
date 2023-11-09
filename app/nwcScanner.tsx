@@ -1,7 +1,7 @@
 import { Button, Text, TextInput } from "@/components";
 import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { cacheSettings, saveNwcSecret } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
@@ -66,16 +66,45 @@ export default function SettingsPage() {
           Save Secret
         </Button>
         <Text>Scan a NWC QR code or paste one above</Text>
-        <BarCodeScanner
-          onBarCodeScanned={onBarCodeScanned}
-          style={{
-            width: "90%",
-            height: "70%",
-            borderColor: "white",
-            borderWidth: 1,
-          }}
-        />
+        <QRScanner onBarCodeScanned={onBarCodeScanned} />
       </View>
     </TouchableWithoutFeedback>
   );
 }
+
+const QRScanner = ({
+  onBarCodeScanned,
+}: {
+  onBarCodeScanned: BarCodeScannedCallback;
+}) => {
+  const [hasPermission, setHasPermission] = useState<boolean | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    const getBarCodeScannerPermissions = async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    };
+
+    getBarCodeScannerPermissions();
+  }, []);
+
+  if (hasPermission === undefined) {
+    return <Text>Requesting camera permissions</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+  return (
+    <BarCodeScanner
+      onBarCodeScanned={onBarCodeScanned}
+      style={{
+        width: "90%",
+        height: "70%",
+        borderColor: "white",
+        borderWidth: 1,
+      }}
+    />
+  );
+};
