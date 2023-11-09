@@ -11,7 +11,11 @@ import {
 } from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import { PlusCircleIcon, TrashIcon } from "react-native-heroicons/solid";
+import {
+  CheckCircleIcon,
+  PlusCircleIcon,
+  TrashIcon,
+} from "react-native-heroicons/solid";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -84,12 +88,23 @@ export default function SettingsPage() {
               >
                 <View style={{ flex: 1 }}>
                   <Text bold>Nostr Wallet Connect</Text>
-                  <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    {nwcRelay && (
+                      <CheckCircleIcon color={brandColors.mint.DEFAULT} />
+                    )}
+                    <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
+                  </View>
                 </View>
                 {nwcRelay ? (
                   <TrashIcon
                     onPress={onDeleteNWC}
-                    color={brandColors.pink.DEFAULT}
+                    color={brandColors.orange.DEFAULT}
                     height={40}
                     width={40}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
