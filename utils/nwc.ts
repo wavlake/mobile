@@ -24,20 +24,39 @@ function getQueryStringParams(query: string): Record<string, string> {
     }, {});
 }
 
-export function validateNwcURI(uri?: string): boolean {
-  if (!uri) return false;
+interface URIResult {
+  isValid: boolean;
+  relay?: string;
+  secret?: string;
+  lud16?: string;
+  pubkey?: string;
+}
+
+export function validateNwcURI(uri?: string): URIResult {
+  let isValid = true;
+  const result: URIResult = {
+    isValid: false,
+    relay: undefined,
+    secret: undefined,
+    lud16: undefined,
+    pubkey: undefined,
+  };
+
+  if (!uri) return result;
 
   // Check for correct protocol and extract the rest
   if (!uri.startsWith("nostr+walletconnect:")) {
-    return false;
+    return result;
   }
 
   const withoutProtocol = uri.slice("nostr+walletconnect:".length);
   const [pubkey, queryString] = withoutProtocol.split("?");
 
   // Check hex-encoded pubkey
-  if (!isValidHexString(pubkey)) {
-    return false;
+  if (isValidHexString(pubkey)) {
+    result.pubkey = pubkey;
+  } else {
+    isValid = false;
   }
 
   // Parse query string
@@ -45,24 +64,31 @@ export function validateNwcURI(uri?: string): boolean {
 
   const relay = params["relay"];
   const secret = params["secret"];
-
-  if (
-    !relay ||
-    !isValidUrl(decodeURIComponent(relay)) ||
-    !secret ||
-    !isValidHexString(secret)
-  ) {
-    return false;
-  }
-
-  // If 'lud16' is present, do a simple format check (you can add more specific checks if necessary)
   const lud16 = params["lud16"];
-  if (lud16 && !/^.+@.+\..+$/.test(lud16)) {
-    return false;
+
+  if (relay && isValidUrl(decodeURIComponent(relay))) {
+    result.relay = decodeURIComponent(relay);
+  } else {
+    isValid = false;
   }
 
-  // If all checks passed
-  return true;
+  if (secret && isValidHexString(secret)) {
+    result.secret = secret;
+  } else {
+    isValid = false;
+  }
+
+  if (lud16) {
+    // lud16 is optional
+    if (/^.+@.+\..+$/.test(lud16)) {
+      result.lud16 = lud16;
+    } else {
+      isValid = false;
+    }
+  }
+
+  result.isValid = isValid;
+  return result;
 }
 
 const sampleUri =

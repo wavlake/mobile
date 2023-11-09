@@ -71,6 +71,8 @@ export interface Settings {
   defaultZapWallet: WalletKey;
   allowListeningActivity: boolean;
   nwcRelay: string;
+  nwcLud16: string;
+  nwcPubkey: string;
 }
 
 export const cacheSettings = async (

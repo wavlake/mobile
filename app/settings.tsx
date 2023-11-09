@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheSettings, deleteNwcURI } from "@/utils";
+import { cacheSettings, deleteNwcSecret } from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { PlusCircleIcon, TrashIcon } from "react-native-heroicons/solid";
@@ -41,7 +41,7 @@ export default function SettingsPage() {
   };
 
   const onDeleteNWC = () => {
-    deleteNwcURI(pubkey);
+    deleteNwcSecret(pubkey);
     cacheSettings({ nwcRelay: "" }, pubkey);
     setNwcRelay("");
   };

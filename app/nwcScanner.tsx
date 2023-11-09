@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheSettings, saveNwcURI } from "@/utils";
+import { cacheSettings, saveNwcSecret } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
 import { validateNwcURI } from "@/utils/nwc";
 
@@ -22,31 +22,26 @@ export default function SettingsPage() {
     setScanned(false);
   };
   const handleSaveNewNwcURI = async (uri: string) => {
-    console.log({ uri });
-    const valid = validateNwcURI(uri);
+    const {
+      isValid,
+      relay,
+      secret,
+      lud16,
+      pubkey: nwcPubkey,
+    } = validateNwcURI(uri);
 
-    if (!valid) {
-      toast.show("Invalid format");
+    if (!isValid || !secret) {
+      toast.show("Invalid NWC");
       return;
     }
 
-    await saveNwcURI(uri, pubkey);
-    const websocketUriPattern = /relay=(wss%3A%2F%2F[^&]+)/;
-    const relay = uri.match(websocketUriPattern);
-    const settings = JSON.stringify(
-      await cacheSettings(
-        { nwcRelay: decodeURIComponent(relay?.[1] ?? "") },
-        pubkey,
-      ),
+    await saveNwcSecret(secret, pubkey);
+    await cacheSettings(
+      { nwcRelay: relay, nwcLud16: lud16, nwcPubkey },
+      pubkey,
     );
-
-    // replace instead of push so that the back button doesn't go back to the scanner
-    router.replace({
-      pathname: "/settings",
-      params: {
-        settings,
-      },
-    });
+    // our job is finished here, head back to where the user came from
+    router.back();
   };
 
   return (
