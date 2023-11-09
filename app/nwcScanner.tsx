@@ -31,7 +31,10 @@ export default function SettingsPage() {
     const websocketUriPattern = /relay=(wss%3A%2F%2F[^&]+)/;
     const relay = uri.match(websocketUriPattern);
     const settings = JSON.stringify(
-      await cacheSettings({ nwcRelay: relay?.[1] ?? "" }, pubkey),
+      await cacheSettings(
+        { nwcRelay: decodeURIComponent(relay?.[1] ?? "") },
+        pubkey,
+      ),
     );
 
     // replace instead of push so that the back button doesn't go back to the scanner
