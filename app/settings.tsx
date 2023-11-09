@@ -1,7 +1,7 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import {
   WalletKey,
@@ -26,6 +26,8 @@ export default function SettingsPage() {
     useState<WalletKey>("default");
   const [allowListeningActivity, setAllowListeningActivity] = useState(false);
   const [nwcRelay, setNwcRelay] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [screenActive, setScreenActive] = useState(true);
 
   const handleSave = async () => {
     Keyboard.dismiss();
@@ -47,9 +49,9 @@ export default function SettingsPage() {
     cacheSettings({ nwcRelay: "" }, pubkey);
     setNwcRelay("");
   };
-  const [loading, setLoading] = useState(false);
-  // get settings from storage
-  useEffect(() => {
+
+  const fetchSettings = useCallback(() => {
+    setScreenActive(true);
     (async () => {
       setLoading(true);
       const settings = await getSettings(pubkey);
@@ -59,7 +61,13 @@ export default function SettingsPage() {
       setNwcRelay(settings.nwcRelay ?? "");
       setLoading(false);
     })();
-  }, []);
+    return () => {
+      setScreenActive(false);
+    };
+  }, [screenActive]);
+
+  // fetch settings on mount
+  useFocusEffect(fetchSettings);
 
   if (loading) return;
 
