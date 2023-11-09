@@ -130,7 +130,7 @@ export default function Layout() {
                 <Stack.Screen
                   name="nwcScanner"
                   options={{
-                    headerTitle: () => <Text>Nost Wallet Connect</Text>,
+                    headerTitle: () => <Text>Nostr Wallet Connect</Text>,
                   }}
                 />
               </Stack>
