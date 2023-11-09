@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { cacheSettings, saveNwcURI } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
+import { validateNwcURI } from "@/utils/nwc";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -16,17 +17,19 @@ export default function SettingsPage() {
   const onBarCodeScanned: BarCodeScannedCallback = async ({ data }) => {
     if (scanned) return;
     setScanned(true);
-    // TODO check if valid string, bail if not
-    const valid = true;
-    if (valid) {
-      handleSaveNewNwcURI(data);
-    } else {
-      toast.show("Invalid NWC URI");
-    }
+    handleSaveNewNwcURI(data);
 
     setScanned(false);
   };
   const handleSaveNewNwcURI = async (uri: string) => {
+    console.log({ uri });
+    const valid = validateNwcURI(uri);
+
+    if (!valid) {
+      toast.show("Invalid format");
+      return;
+    }
+
     await saveNwcURI(uri, pubkey);
     const websocketUriPattern = /relay=(wss%3A%2F%2F[^&]+)/;
     const relay = uri.match(websocketUriPattern);
