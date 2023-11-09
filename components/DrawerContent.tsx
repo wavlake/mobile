@@ -44,14 +44,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             <Ionicons name="settings-outline" size={size} color={color} />
           )}
           onPress={async () => {
-            const settings = JSON.stringify(await getSettings(pubkey));
-
-            router.push({
-              pathname: "/settings",
-              params: {
-                settings,
-              },
-            });
+            router.push({ pathname: "/settings" });
             props.navigation.closeDrawer();
           }}
         />

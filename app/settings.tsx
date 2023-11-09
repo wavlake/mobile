@@ -1,9 +1,14 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheSettings, deleteNwcSecret } from "@/utils";
+import {
+  WalletKey,
+  cacheSettings,
+  deleteNwcSecret,
+  getSettings,
+} from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { PlusCircleIcon, TrashIcon } from "react-native-heroicons/solid";
@@ -12,18 +17,11 @@ export default function SettingsPage() {
   const toast = useToast();
   const router = useRouter();
   const { pubkey } = useAuth();
-  const params = useLocalSearchParams();
-  const settings = JSON.parse(params.settings as string);
-  const [defaultZapAmount, setDefaultZapAmount] = useState(
-    settings.defaultZapAmount ?? "",
-  );
-  const [defaultZapWallet, setDefaultZapWallet] = useState(
-    settings.defaultZapWallet ?? "default",
-  );
-  const [allowListeningActivity, setAllowListeningActivity] = useState(
-    settings.allowListeningActivity ?? false,
-  );
-  const [nwcRelay, setNwcRelay] = useState(settings.nwcRelay ?? "");
+  const [defaultZapAmount, setDefaultZapAmount] = useState("");
+  const [defaultZapWallet, setDefaultZapWallet] =
+    useState<WalletKey>("default");
+  const [allowListeningActivity, setAllowListeningActivity] = useState(false);
+  const [nwcRelay, setNwcRelay] = useState("");
 
   const handleSave = async () => {
     Keyboard.dismiss();
@@ -45,6 +43,21 @@ export default function SettingsPage() {
     cacheSettings({ nwcRelay: "" }, pubkey);
     setNwcRelay("");
   };
+  const [loading, setLoading] = useState(false);
+  // get settings from storage
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const settings = await getSettings(pubkey);
+      setDefaultZapAmount(settings.defaultZapAmount ?? "");
+      setDefaultZapWallet(settings.defaultZapWallet ?? "default");
+      setAllowListeningActivity(settings.allowListeningActivity ?? false);
+      setNwcRelay(settings.nwcRelay ?? "");
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading) return;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
