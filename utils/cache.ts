@@ -24,7 +24,6 @@ const storeObjectData = async (cacheKey: string, data: Record<any, any>) => {
 const getObjectData = async (cacheKey: string) => {
   try {
     const data = await getData(cacheKey);
-
     return data ? JSON.parse(data) : null;
   } catch {
     return null;
@@ -71,6 +70,9 @@ export interface Settings {
   defaultZapAmount: string;
   defaultZapWallet: WalletKey;
   allowListeningActivity: boolean;
+  nwcRelay: string;
+  nwcLud16: string;
+  nwcPubkey: string;
 }
 
 export const cacheSettings = async (
@@ -79,8 +81,9 @@ export const cacheSettings = async (
 ) => {
   const settingsKey = makeSettingsKey(pubkey);
   const currentSettings = await getSettings(pubkey);
-
-  await storeObjectData(settingsKey, { ...currentSettings, ...settings });
+  const newSettings = { ...currentSettings, ...settings };
+  await storeObjectData(settingsKey, newSettings);
+  return newSettings;
 };
 
 export const getSettings = async (pubkey?: string) => {

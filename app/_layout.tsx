@@ -127,6 +127,12 @@ export default function Layout() {
                   name="settings"
                   options={{ headerTitle: () => <Text>Settings</Text> }}
                 />
+                <Stack.Screen
+                  name="nwcScanner"
+                  options={{
+                    headerTitle: () => <Text>Nostr Wallet Connect</Text>,
+                  }}
+                />
               </Stack>
             </View>
           </RootSiblingParent>
