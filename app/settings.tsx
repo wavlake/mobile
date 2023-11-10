@@ -47,7 +47,16 @@ export default function SettingsPage() {
 
   const onDeleteNWC = () => {
     pubkey && deleteNwcSecret(pubkey);
-    cacheSettings({ nwcRelay: "" }, pubkey);
+    cacheSettings(
+      {
+        nwcRelay: undefined,
+        nwcCommands: [],
+        nwcPubkey: undefined,
+        nwcLud16: undefined,
+        enableNWC: false,
+      },
+      pubkey,
+    );
     setNwcRelay("");
   };
 
