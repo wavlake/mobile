@@ -1,7 +1,7 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import {
   WalletKey,
@@ -26,13 +26,14 @@ export default function SettingsPage() {
     useState<WalletKey>("default");
   const [allowListeningActivity, setAllowListeningActivity] = useState(false);
   const [nwcRelay, setNwcRelay] = useState("");
+  const [enableNWC, setEnableNWC] = useState(false);
   const [loading, setLoading] = useState(false);
   const [screenActive, setScreenActive] = useState(true);
 
   const handleSave = async () => {
     Keyboard.dismiss();
     await cacheSettings(
-      { defaultZapAmount, defaultZapWallet, allowListeningActivity },
+      { defaultZapAmount, defaultZapWallet, allowListeningActivity, enableNWC },
       pubkey,
     );
 
@@ -45,8 +46,17 @@ export default function SettingsPage() {
   };
 
   const onDeleteNWC = () => {
-    deleteNwcSecret(pubkey);
-    cacheSettings({ nwcRelay: "" }, pubkey);
+    pubkey && deleteNwcSecret(pubkey);
+    cacheSettings(
+      {
+        nwcRelay: undefined,
+        nwcCommands: [],
+        nwcPubkey: undefined,
+        nwcLud16: undefined,
+        enableNWC: false,
+      },
+      pubkey,
+    );
     setNwcRelay("");
   };
 
@@ -59,6 +69,7 @@ export default function SettingsPage() {
       setDefaultZapWallet(settings.defaultZapWallet ?? "default");
       setAllowListeningActivity(settings.allowListeningActivity ?? false);
       setNwcRelay(settings.nwcRelay ?? "");
+      setEnableNWC(settings.enableNWC ?? false);
       setLoading(false);
     })();
     return () => {
@@ -95,7 +106,7 @@ export default function SettingsPage() {
                 }}
               >
                 <View style={{ flex: 1 }}>
-                  <Text bold>Nostr Wallet Connect</Text>
+                  <Text bold>Nostr Wallet Connect (NWC)</Text>
                   <View
                     style={{
                       flexDirection: "row",
@@ -127,6 +138,29 @@ export default function SettingsPage() {
                   />
                 )}
               </View>
+              {nwcRelay && (
+                <View
+                  style={{
+                    marginTop: 24,
+                    marginBottom: 4,
+                    flexDirection: "row",
+                  }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text bold>Enable NWC Wallet</Text>
+                    <Text>
+                      {enableNWC
+                        ? "Disable to use a different wallet for zaps."
+                        : "Enable to use NWC wallet for zaps."}
+                    </Text>
+                  </View>
+                  <Switch
+                    value={enableNWC}
+                    onValueChange={setEnableNWC}
+                    color={brandColors.pink.DEFAULT}
+                  />
+                </View>
+              )}
               <View
                 style={{
                   marginTop: 24,

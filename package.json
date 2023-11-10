@@ -23,8 +23,10 @@
     "axios": "^1.4.0",
     "expo": "~49.0.13",
     "expo-av": "~13.4.1",
+    "expo-barcode-scanner": "~12.5.3",
     "expo-clipboard": "~4.3.1",
     "expo-constants": "~14.4.2",
+    "expo-dev-client": "~2.4.11",
     "expo-font": "~11.4.0",
     "expo-image": "~1.3.4",
     "expo-linking": "~5.0.2",
@@ -47,8 +49,8 @@
     "react-native-svg": "13.9.0",
     "react-native-text-ticker": "^1.14.0",
     "react-native-track-player": "^3.2.0",
-    "expo-dev-client": "~2.4.11",
-    "expo-barcode-scanner": "~12.5.3"
+    "react-native-webview": "^13.6.2",
+    "react-native-webview-crypto": "^0.0.25"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

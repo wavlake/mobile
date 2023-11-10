@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { cacheSettings, saveNwcSecret } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
-import { validateNwcURI } from "@/utils/nwc";
+import {
+  getWalletServiceCommands,
+  payInvoiceCommand,
+  validateNwcURI,
+} from "@/utils/nwc";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -13,15 +18,22 @@ export default function SettingsPage() {
   const { pubkey } = useAuth();
   const [scanned, setScanned] = useState(false);
   const [newNwcURI, setNewNwcURI] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const onBarCodeScanned: BarCodeScannedCallback = async ({ data }) => {
     if (scanned) return;
     setScanned(true);
-    handleSaveNewNwcURI(data);
-
+    await handleSaveNewNwcURI(data);
     setScanned(false);
   };
   const handleSaveNewNwcURI = async (uri: string) => {
+    // settings page (used to reach this scanner) is only accessible to logged in users
+    // but useAuth returns { pubkey: string | undefined }
+    if (!pubkey) {
+      console.error("no pubkey found");
+      return;
+    }
+
     const {
       isValid,
       relay,
@@ -31,17 +43,35 @@ export default function SettingsPage() {
     } = validateNwcURI(uri);
 
     if (!isValid || !secret) {
-      toast.show("Invalid NWC");
+      toast.show("invalid NWC");
       return;
     }
 
+    setIsLoading(true);
     await saveNwcSecret(secret, pubkey);
-    await cacheSettings(
-      { nwcRelay: relay, nwcLud16: lud16, nwcPubkey },
-      pubkey,
-    );
-    // our job is finished here, head back to where the user came from
-    router.back();
+    const nwcCommands = await getWalletServiceCommands(nwcPubkey, relay);
+
+    if (nwcCommands?.includes(payInvoiceCommand)) {
+      await cacheSettings(
+        {
+          nwcRelay: relay,
+          nwcLud16: lud16,
+          nwcPubkey,
+          enableNWC: true,
+          nwcCommands,
+        },
+        pubkey,
+      );
+
+      setIsLoading(false);
+      // send the user back to where they came from
+      router.back();
+    } else {
+      toast.show("Looks like this wallet doesn't support payments");
+    }
+
+    setIsLoading(false);
+    return;
   };
 
   return (
@@ -53,6 +83,7 @@ export default function SettingsPage() {
           padding: 24,
         }}
       >
+        <LoadingScreen loading={isLoading} />
         <TextInput
           label="Pairing secret"
           value={newNwcURI}
