@@ -24,3 +24,17 @@ export const getPubkeyFromCachedSeckey = async () => {
     return "";
   }
 };
+
+const nwcSecret = "nwcSecret";
+
+export const saveNwcSecret = async (secret: string, pubkey: string) => {
+  await SecureStore.setItemAsync(`${pubkey}.${nwcSecret}`, secret);
+};
+
+export const getNwcSecret = async (pubkey: string) => {
+  return await SecureStore.getItemAsync(`${pubkey}.${nwcSecret}`);
+};
+
+export const deleteNwcSecret = async (pubkey: string) => {
+  await SecureStore.deleteItemAsync(`${pubkey}.${nwcSecret}`);
+};

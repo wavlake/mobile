@@ -1,35 +1,86 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
-import { useLocalSearchParams } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheSettings } from "@/utils";
+import {
+  WalletKey,
+  cacheSettings,
+  deleteNwcSecret,
+  getSettings,
+} from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
+import {
+  CheckCircleIcon,
+  PlusCircleIcon,
+  TrashIcon,
+} from "react-native-heroicons/solid";
 
 export default function SettingsPage() {
   const toast = useToast();
+  const router = useRouter();
   const { pubkey } = useAuth();
-  const params = useLocalSearchParams();
-  const settings = JSON.parse(params.settings as string);
-  const [defaultZapAmount, setDefaultZapAmount] = useState(
-    settings.defaultZapAmount ?? "",
-  );
-  const [defaultZapWallet, setDefaultZapWallet] = useState(
-    settings.defaultZapWallet ?? "default",
-  );
-  const [allowListeningActivity, setAllowListeningActivity] = useState(
-    settings.allowListeningActivity ?? false,
-  );
+  const [defaultZapAmount, setDefaultZapAmount] = useState("");
+  const [defaultZapWallet, setDefaultZapWallet] =
+    useState<WalletKey>("default");
+  const [allowListeningActivity, setAllowListeningActivity] = useState(false);
+  const [nwcRelay, setNwcRelay] = useState("");
+  const [enableNWC, setEnableNWC] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [screenActive, setScreenActive] = useState(true);
+
   const handleSave = async () => {
     Keyboard.dismiss();
     await cacheSettings(
-      { defaultZapAmount, defaultZapWallet, allowListeningActivity },
+      { defaultZapAmount, defaultZapWallet, allowListeningActivity, enableNWC },
       pubkey,
     );
 
     toast.show("saved");
   };
+  const onAddNWC = () => {
+    router.push({
+      pathname: "/nwcScanner",
+    });
+  };
+
+  const onDeleteNWC = () => {
+    pubkey && deleteNwcSecret(pubkey);
+    cacheSettings(
+      {
+        nwcRelay: undefined,
+        nwcCommands: [],
+        nwcPubkey: undefined,
+        nwcLud16: undefined,
+        enableNWC: false,
+      },
+      pubkey,
+    );
+    setNwcRelay("");
+  };
+
+  const fetchSettings = useCallback(() => {
+    setScreenActive(true);
+    (async () => {
+      setLoading(true);
+      const settings = await getSettings(pubkey);
+      setDefaultZapAmount(settings.defaultZapAmount ?? "");
+      setDefaultZapWallet(settings.defaultZapWallet ?? "default");
+      setAllowListeningActivity(settings.allowListeningActivity ?? false);
+      setNwcRelay(settings.nwcRelay ?? "");
+      setEnableNWC(settings.enableNWC ?? false);
+      setLoading(false);
+    })();
+    return () => {
+      setScreenActive(false);
+    };
+  }, [screenActive]);
+
+  // fetch settings on mount
+  useFocusEffect(fetchSettings);
+
+  if (loading) return;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -46,25 +97,90 @@ export default function SettingsPage() {
             onSelectedWalletChange={setDefaultZapWallet}
           />
           {pubkey && (
-            <View
-              style={{
-                marginTop: 24,
-                marginBottom: 4,
-                flexDirection: "row",
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <Text bold>Listening activity</Text>
-                <Text>
-                  Broadcast tracks you are listening to as a live status event
-                  to Nostr relays.
-                </Text>
+            <View>
+              <View
+                style={{
+                  marginTop: 24,
+                  marginBottom: 4,
+                  flexDirection: "row",
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text bold>Nostr Wallet Connect (NWC)</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    {nwcRelay && (
+                      <CheckCircleIcon color={brandColors.mint.DEFAULT} />
+                    )}
+                    <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
+                  </View>
+                </View>
+                {nwcRelay ? (
+                  <TrashIcon
+                    onPress={onDeleteNWC}
+                    color={brandColors.orange.DEFAULT}
+                    height={40}
+                    width={40}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  />
+                ) : (
+                  <PlusCircleIcon
+                    onPress={onAddNWC}
+                    color={brandColors.pink.DEFAULT}
+                    height={40}
+                    width={40}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  />
+                )}
               </View>
-              <Switch
-                value={allowListeningActivity}
-                onValueChange={setAllowListeningActivity}
-                color={brandColors.pink.DEFAULT}
-              />
+              {nwcRelay && (
+                <View
+                  style={{
+                    marginTop: 24,
+                    marginBottom: 4,
+                    flexDirection: "row",
+                  }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text bold>Enable NWC Wallet</Text>
+                    <Text>
+                      {enableNWC
+                        ? "Disable to use a different wallet for zaps."
+                        : "Enable to use NWC wallet for zaps."}
+                    </Text>
+                  </View>
+                  <Switch
+                    value={enableNWC}
+                    onValueChange={setEnableNWC}
+                    color={brandColors.pink.DEFAULT}
+                  />
+                </View>
+              )}
+              <View
+                style={{
+                  marginTop: 24,
+                  marginBottom: 4,
+                  flexDirection: "row",
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text bold>Listening activity</Text>
+                  <Text>
+                    Broadcast tracks you are listening to as a live status event
+                    to Nostr relays.
+                  </Text>
+                </View>
+                <Switch
+                  value={allowListeningActivity}
+                  onValueChange={setAllowListeningActivity}
+                  color={brandColors.pink.DEFAULT}
+                />
+              </View>
             </View>
           )}
         </View>

@@ -4,6 +4,9 @@ import "fast-text-encoding";
 // this is needed to polyfill crypto.getRandomValues which nostr-tools uses
 import "react-native-get-random-values";
 
+// this is needed to polyfill crypto.subtle which nostr-tools uses
+import "react-native-webview-crypto";
+
 import {
   nip19,
   relayInit,
@@ -15,6 +18,7 @@ import {
   generatePrivateKey,
   utils,
   getBlankEvent,
+  nip04,
   Kind,
 } from "nostr-tools";
 
@@ -25,13 +29,15 @@ import { bytesToHex } from "@noble/hashes/utils";
 
 import axios from "axios";
 import {
+  cacheNWCInfoEvent,
   cacheNostrProfileEvent,
   cacheNostrRelayListEvent,
+  getCachedNWCInfoEvent,
   getCachedNostrProfileEvent,
   getCachedNostrRelayListEvent,
   getSettings,
 } from "@/utils/cache";
-import { getSeckey } from "@/utils/secureStorage";
+import { getSeckey, getNwcSecret } from "@/utils/secureStorage";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
@@ -179,6 +185,23 @@ export const getProfileMetadata = async (
   });
 };
 
+export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
+  const filter = {
+    kinds: [13194],
+    authors: [pubkey],
+  };
+
+  return getEventFromPoolAndCacheItIfNecessary({
+    pubkey,
+    filter,
+    cachedEvent: await getCachedNWCInfoEvent(pubkey),
+    cache: cacheNWCInfoEvent,
+    // mutiny wallet doesn't allow us to read from the relay specificed in the NWC info event
+    // so we have to check other relays
+    relayUris: [...DEFAULT_READ_RELAY_URIS, ...(relayUri ? [relayUri] : [])],
+  });
+};
+
 export const getRelayListMetadata = async (pubkey: string) => {
   const filter = {
     kinds: [10002],
@@ -240,6 +263,73 @@ export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
     tags: [],
     content: JSON.stringify(profile),
   };
+};
+
+const sendNWCRequest = async ({
+  clientPubkey,
+  walletPubkey,
+  relay,
+  method,
+  params,
+}: {
+  clientPubkey: string;
+  walletPubkey: string;
+  relay: string;
+  method: string;
+  params: Record<string, any>;
+}) => {
+  try {
+    const nwcSecret = await getNwcSecret(clientPubkey);
+    if (!nwcSecret) {
+      throw new Error("Missing NWC secret");
+    }
+    const encryptedCommand = await nip04.encrypt(
+      nwcSecret,
+      walletPubkey,
+      JSON.stringify({
+        method,
+        params,
+      }),
+    );
+
+    if (!encryptedCommand) {
+      throw new Error("Failed to encrypt NWC command");
+    }
+
+    const event: EventTemplate = {
+      kind: 23194,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [["p", walletPubkey]],
+      content: encryptedCommand,
+    };
+    await publishEvent([relay], await finishEvent(event, nwcSecret));
+  } catch (error) {
+    console.error(error);
+  }
+  return;
+};
+
+export const payWithNWC = async ({
+  clientPubkey,
+  invoice,
+  walletPubkey,
+  nwcRelay,
+}: {
+  clientPubkey: string;
+  invoice: string;
+  walletPubkey: string;
+  nwcRelay: string;
+}): Promise<void> => {
+  await sendNWCRequest({
+    clientPubkey,
+    walletPubkey,
+    relay: nwcRelay,
+    method: "pay_invoice",
+    params: {
+      invoice,
+    },
+  });
+  // TODO subscribe to response to handle failures
 };
 
 export const signEvent = async (eventTemplate: EventTemplate) => {

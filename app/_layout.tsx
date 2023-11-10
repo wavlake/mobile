@@ -1,6 +1,9 @@
 // https://docs.expo.dev/develop/development-builds/use-development-builds/
 import "expo-dev-client";
 
+// this is needed to polyfill crypto.subtle which nostr-tools uses
+import PolyfillCrypto from "react-native-webview-crypto";
+
 import { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
@@ -89,6 +92,7 @@ export default function Layout() {
         <MusicPlayerProvider>
           <RootSiblingParent>
             <View style={{ flex: 1, backgroundColor: "black" }}>
+              <PolyfillCrypto />
               <Stack
                 screenOptions={{
                   headerStyle: {
@@ -126,6 +130,12 @@ export default function Layout() {
                 <Stack.Screen
                   name="settings"
                   options={{ headerTitle: () => <Text>Settings</Text> }}
+                />
+                <Stack.Screen
+                  name="nwcScanner"
+                  options={{
+                    headerTitle: () => <Text>Nostr Wallet Connect</Text>,
+                  }}
                 />
               </Stack>
             </View>

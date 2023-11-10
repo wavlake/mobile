@@ -4,6 +4,7 @@ import { WalletKey } from "@/utils";
 
 const isFirstAppLaunchKey = "isFirstAppLaunch";
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
+const makeNWCInfoEventKey = (pubkey: string) => `${pubkey}.nwcInfoEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
 const makeSettingsKey = (pubkey?: string) =>
@@ -24,7 +25,6 @@ const storeObjectData = async (cacheKey: string, data: Record<any, any>) => {
 const getObjectData = async (cacheKey: string) => {
   try {
     const data = await getData(cacheKey);
-
     return data ? JSON.parse(data) : null;
   } catch {
     return null;
@@ -50,6 +50,18 @@ export const getCachedNostrProfileEvent = async (pubkey: string) => {
   return getObjectData(nostrProfileEventKey);
 };
 
+export const cacheNWCInfoEvent = async (pubkey: string, event: Event) => {
+  const nwcInfoEventKey = makeNWCInfoEventKey(pubkey);
+
+  await storeObjectData(nwcInfoEventKey, event);
+};
+
+export const getCachedNWCInfoEvent = async (pubkey: string) => {
+  const nwcInfoEventKey = makeNWCInfoEventKey(pubkey);
+
+  return getObjectData(nwcInfoEventKey);
+};
+
 export const cacheNostrRelayListEvent = async (
   pubkey: string,
   event: Event,
@@ -71,6 +83,11 @@ export interface Settings {
   defaultZapAmount: string;
   defaultZapWallet: WalletKey;
   allowListeningActivity: boolean;
+  nwcRelay: string;
+  nwcLud16: string;
+  nwcPubkey: string;
+  enableNWC: boolean;
+  nwcCommands: string[];
 }
 
 export const cacheSettings = async (
@@ -79,8 +96,9 @@ export const cacheSettings = async (
 ) => {
   const settingsKey = makeSettingsKey(pubkey);
   const currentSettings = await getSettings(pubkey);
-
-  await storeObjectData(settingsKey, { ...currentSettings, ...settings });
+  const newSettings = { ...currentSettings, ...settings };
+  await storeObjectData(settingsKey, newSettings);
+  return newSettings;
 };
 
 export const getSettings = async (pubkey?: string) => {

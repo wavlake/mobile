@@ -17,7 +17,9 @@ import {
   getSettings,
   getZapReceipt,
   openInvoiceInWallet,
+  payWithNWC,
   validateWalletKey,
+  payInvoiceCommand,
 } from "@/utils";
 
 export default function ZapPage() {
@@ -42,7 +44,8 @@ export default function ZapPage() {
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
   const { writeRelayList } = useNostrRelayList();
   const handleZap = async () => {
-    const { defaultZapWallet } = await getSettings(pubkey);
+    const { defaultZapWallet, enableNWC, nwcCommands, nwcRelay, nwcPubkey } =
+      await getSettings(pubkey);
 
     if (!validateWalletKey(defaultZapWallet)) {
       setIsWalletChooserModalVisible(true);
@@ -71,7 +74,17 @@ export default function ZapPage() {
     }
 
     try {
-      await openInvoiceInWallet(defaultZapWallet, invoice);
+      if (pubkey && enableNWC && nwcCommands.includes(payInvoiceCommand)) {
+        // use NWC
+        await payWithNWC({
+          clientPubkey: pubkey,
+          invoice,
+          walletPubkey: nwcPubkey,
+          nwcRelay,
+        });
+      } else {
+        await openInvoiceInWallet(defaultZapWallet, invoice);
+      }
     } catch {
       toast.show("Something went wrong. Please try again later.");
       setIsZapping(false);
