@@ -43,7 +43,7 @@ export default function SettingsPage() {
     } = validateNwcURI(uri);
 
     if (!isValid || !secret) {
-      toast.show("invalid NWC");
+      toast.show("invalid NWC string, please check the contents and try again");
       return;
     }
 
