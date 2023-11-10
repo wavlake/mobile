@@ -6,6 +6,7 @@ import { useAuth, useToast } from "@/hooks";
 import { cacheSettings, saveNwcSecret } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
 import { getWalletServiceCommands, validateNwcURI } from "@/utils/nwc";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -13,6 +14,7 @@ export default function SettingsPage() {
   const { pubkey } = useAuth();
   const [scanned, setScanned] = useState(false);
   const [newNwcURI, setNewNwcURI] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const onBarCodeScanned: BarCodeScannedCallback = async ({ data }) => {
     if (scanned) return;
@@ -41,12 +43,9 @@ export default function SettingsPage() {
       return;
     }
 
+    setIsLoading(true);
     await saveNwcSecret(secret, pubkey);
 
-    // got the secret, send the user back to where they came from
-    router.back();
-
-    // in the background, get the wallet service commands and save them
     const nwcCommands = await getWalletServiceCommands(nwcPubkey, relay);
     await cacheSettings(
       {
@@ -58,6 +57,10 @@ export default function SettingsPage() {
       },
       pubkey,
     );
+
+    setIsLoading(false);
+    // send the user back to where they came from
+    router.back();
   };
 
   return (
@@ -69,6 +72,7 @@ export default function SettingsPage() {
           padding: 24,
         }}
       >
+        <LoadingScreen loading={isLoading} />
         <TextInput
           label="Pairing secret"
           value={newNwcURI}
