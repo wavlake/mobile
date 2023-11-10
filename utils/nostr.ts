@@ -303,11 +303,10 @@ const sendNWCRequest = async ({
       content: encryptedCommand,
     };
     await publishEvent([relay], await finishEvent(event, nwcSecret));
-    return;
   } catch (error) {
     console.error(error);
-    return;
   }
+  return;
 };
 
 export const payWithNWC = async ({
