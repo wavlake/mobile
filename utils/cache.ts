@@ -73,6 +73,7 @@ export interface Settings {
   nwcRelay: string;
   nwcLud16: string;
   nwcPubkey: string;
+  enableNWC: boolean;
 }
 
 export const cacheSettings = async (

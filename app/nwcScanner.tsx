@@ -31,13 +31,13 @@ export default function SettingsPage() {
     } = validateNwcURI(uri);
 
     if (!isValid || !secret) {
-      toast.show("Invalid NWC");
+      toast.show("invalid NWC");
       return;
     }
 
     await saveNwcSecret(secret, pubkey);
     await cacheSettings(
-      { nwcRelay: relay, nwcLud16: lud16, nwcPubkey },
+      { nwcRelay: relay, nwcLud16: lud16, nwcPubkey, enableNWC: true },
       pubkey,
     );
     // our job is finished here, head back to where the user came from
