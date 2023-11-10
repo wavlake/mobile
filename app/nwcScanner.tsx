@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { cacheSettings, saveNwcSecret } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
-import { validateNwcURI } from "@/utils/nwc";
+import { getWalletServiceCommands, validateNwcURI } from "@/utils/nwc";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -17,11 +17,17 @@ export default function SettingsPage() {
   const onBarCodeScanned: BarCodeScannedCallback = async ({ data }) => {
     if (scanned) return;
     setScanned(true);
-    handleSaveNewNwcURI(data);
-
+    await handleSaveNewNwcURI(data);
     setScanned(false);
   };
   const handleSaveNewNwcURI = async (uri: string) => {
+    // settings page (used to reach this scanner) is only accessible to logged in users
+    // but useAuth returns { pubkey: string | undefined }
+    if (!pubkey) {
+      console.error("no pubkey found");
+      return;
+    }
+
     const {
       isValid,
       relay,
@@ -36,12 +42,22 @@ export default function SettingsPage() {
     }
 
     await saveNwcSecret(secret, pubkey);
+
+    // got the secret, send the user back to where they came from
+    router.back();
+
+    // in the background, get the wallet service commands and save them
+    const nwcCommands = await getWalletServiceCommands(nwcPubkey, relay);
     await cacheSettings(
-      { nwcRelay: relay, nwcLud16: lud16, nwcPubkey, enableNWC: true },
+      {
+        nwcRelay: relay,
+        nwcLud16: lud16,
+        nwcPubkey,
+        enableNWC: true,
+        nwcCommands,
+      },
       pubkey,
     );
-    // our job is finished here, head back to where the user came from
-    router.back();
   };
 
   return (
