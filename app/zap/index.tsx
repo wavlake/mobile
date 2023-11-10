@@ -47,7 +47,8 @@ export default function ZapPage() {
     const { defaultZapWallet, enableNWC, nwcCommands, nwcRelay, nwcPubkey } =
       await getSettings(pubkey);
 
-    if (!validateWalletKey(defaultZapWallet)) {
+    // skip default wallet choice if user is using NWC
+    if (!enableNWC && !validateWalletKey(defaultZapWallet)) {
       setIsWalletChooserModalVisible(true);
       return;
     }
