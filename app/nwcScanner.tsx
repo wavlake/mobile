@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { cacheSettings, saveNwcSecret } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
-import { getWalletServiceCommands, validateNwcURI } from "@/utils/nwc";
+import {
+  getWalletServiceCommands,
+  payInvoiceCommand,
+  validateNwcURI,
+} from "@/utils/nwc";
 import LoadingScreen from "@/components/LoadingScreen";
 
 export default function SettingsPage() {
@@ -45,22 +49,29 @@ export default function SettingsPage() {
 
     setIsLoading(true);
     await saveNwcSecret(secret, pubkey);
-
     const nwcCommands = await getWalletServiceCommands(nwcPubkey, relay);
-    await cacheSettings(
-      {
-        nwcRelay: relay,
-        nwcLud16: lud16,
-        nwcPubkey,
-        enableNWC: true,
-        nwcCommands,
-      },
-      pubkey,
-    );
+
+    if (nwcCommands?.includes(payInvoiceCommand)) {
+      await cacheSettings(
+        {
+          nwcRelay: relay,
+          nwcLud16: lud16,
+          nwcPubkey,
+          enableNWC: true,
+          nwcCommands,
+        },
+        pubkey,
+      );
+
+      setIsLoading(false);
+      // send the user back to where they came from
+      router.back();
+    } else {
+      toast.show("Looks like this wallet doesn't support payments");
+    }
 
     setIsLoading(false);
-    // send the user back to where they came from
-    router.back();
+    return;
   };
 
   return (
