@@ -1,7 +1,7 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import {
   WalletKey,
@@ -46,7 +46,7 @@ export default function SettingsPage() {
   };
 
   const onDeleteNWC = () => {
-    deleteNwcSecret(pubkey);
+    pubkey && deleteNwcSecret(pubkey);
     cacheSettings({ nwcRelay: "" }, pubkey);
     setNwcRelay("");
   };
