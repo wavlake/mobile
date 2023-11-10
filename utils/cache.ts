@@ -4,6 +4,7 @@ import { WalletKey } from "@/utils";
 
 const isFirstAppLaunchKey = "isFirstAppLaunch";
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
+const makeNWCInfoEventKey = (pubkey: string) => `${pubkey}.nwcInfoEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
 const makeSettingsKey = (pubkey?: string) =>
@@ -49,6 +50,18 @@ export const getCachedNostrProfileEvent = async (pubkey: string) => {
   return getObjectData(nostrProfileEventKey);
 };
 
+export const cacheNWCInfoEvent = async (pubkey: string, event: Event) => {
+  const nwcInfoEventKey = makeNWCInfoEventKey(pubkey);
+
+  await storeObjectData(nwcInfoEventKey, event);
+};
+
+export const getCachedNWCInfoEvent = async (pubkey: string) => {
+  const nwcInfoEventKey = makeNWCInfoEventKey(pubkey);
+
+  return getObjectData(nwcInfoEventKey);
+};
+
 export const cacheNostrRelayListEvent = async (
   pubkey: string,
   event: Event,
@@ -74,6 +87,7 @@ export interface Settings {
   nwcLud16: string;
   nwcPubkey: string;
   enableNWC: boolean;
+  nwcCommands: string[];
 }
 
 export const cacheSettings = async (
