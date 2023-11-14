@@ -440,7 +440,8 @@ export const fetchInvoice = async ({
 
 export const getZapReceipt = async (invoice: string) => {
   const relay = relayInit("wss://relay.wavlake.com/");
-  const since = Math.round(Date.now() / 1000);
+  const offsetTime = 10;
+  const since = Math.round(Date.now() / 1000) - offsetTime;
 
   relay.on("error", () => {
     throw new Error(`failed to connect to ${relay.url}`);
