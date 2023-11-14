@@ -73,6 +73,22 @@ export default function ZapPage() {
 
       return;
     }
+    // start listening for payment ASAP
+    try {
+      getZapReceipt(invoice).then(() => {
+        router.replace({
+          pathname: "/zap/success",
+          params: {
+            title,
+            artist,
+            artworkUrl,
+            zapAmount,
+          },
+        });
+      });
+    } catch {
+      // Fail silently if unable to connect to wavlake relay to get zap receipt.
+    }
 
     try {
       if (pubkey && enableNWC && nwcCommands.includes(payInvoiceCommand)) {
@@ -85,6 +101,9 @@ export default function ZapPage() {
         });
         if (response?.error) {
           toast.show(response.error);
+          setIsZapping(false);
+        } else if (response?.preimage) {
+          // invoice was paid
         }
       } else {
         await openInvoiceInWallet(defaultZapWallet, invoice);
@@ -94,21 +113,6 @@ export default function ZapPage() {
       setIsZapping(false);
 
       return;
-    }
-
-    try {
-      await getZapReceipt(invoice);
-      router.replace({
-        pathname: "/zap/success",
-        params: {
-          title,
-          artist,
-          artworkUrl,
-          zapAmount,
-        },
-      });
-    } catch {
-      // Fail silently if unable to connect to wavlake relay to get zap receipt.
     }
   };
 
