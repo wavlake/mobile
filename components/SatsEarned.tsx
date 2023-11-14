@@ -16,7 +16,7 @@ export const SatsEarned = ({
   defaultTextColor = false,
 }: SatsEarnedProps) => {
   const { colors } = useTheme();
-  const sats = msats ? (msats / 1000).toFixed(0) : 0;
+  const sats = msats ? parseInt((msats / 1000).toFixed(0)) : 0;
 
   return (
     <View
