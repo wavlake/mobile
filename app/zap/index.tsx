@@ -76,13 +76,16 @@ export default function ZapPage() {
 
     try {
       if (pubkey && enableNWC && nwcCommands.includes(payInvoiceCommand)) {
-        // use NWC
-        await payWithNWC({
-          clientPubkey: pubkey,
+        // use NWC, responds with preimage if successful
+        const response = await payWithNWC({
+          userPubkey: pubkey,
           invoice,
           walletPubkey: nwcPubkey,
           nwcRelay,
         });
+        if (response?.error) {
+          toast.show(response.error);
+        }
       } else {
         await openInvoiceInWallet(defaultZapWallet, invoice);
       }
