@@ -37,7 +37,7 @@ import {
   getCachedNostrRelayListEvent,
   getSettings,
 } from "@/utils/cache";
-import { getSeckey, getNwcSecret } from "@/utils/secureStorage";
+import { getSeckey } from "@/utils/secureStorage";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
@@ -265,26 +265,22 @@ export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
   };
 };
 
-const sendNWCRequest = async ({
-  clientPubkey,
+export const sendNWCRequest = async ({
   walletPubkey,
   relay,
   method,
   params,
+  connectionSecret,
 }: {
-  clientPubkey: string;
   walletPubkey: string;
   relay: string;
   method: string;
   params: Record<string, any>;
+  connectionSecret: string;
 }) => {
   try {
-    const nwcSecret = await getNwcSecret(clientPubkey);
-    if (!nwcSecret) {
-      throw new Error("Missing NWC secret");
-    }
     const encryptedCommand = await nip04.encrypt(
-      nwcSecret,
+      connectionSecret,
       walletPubkey,
       JSON.stringify({
         method,
@@ -302,34 +298,13 @@ const sendNWCRequest = async ({
       tags: [["p", walletPubkey]],
       content: encryptedCommand,
     };
-    await publishEvent([relay], await finishEvent(event, nwcSecret));
+    const signedEvent = await finishEvent(event, connectionSecret);
+    await publishEvent([relay], signedEvent);
+    return signedEvent.id;
   } catch (error) {
     console.error(error);
   }
   return;
-};
-
-export const payWithNWC = async ({
-  clientPubkey,
-  invoice,
-  walletPubkey,
-  nwcRelay,
-}: {
-  clientPubkey: string;
-  invoice: string;
-  walletPubkey: string;
-  nwcRelay: string;
-}): Promise<void> => {
-  await sendNWCRequest({
-    clientPubkey,
-    walletPubkey,
-    relay: nwcRelay,
-    method: "pay_invoice",
-    params: {
-      invoice,
-    },
-  });
-  // TODO subscribe to response to handle failures
 };
 
 export const signEvent = async (eventTemplate: EventTemplate) => {
@@ -465,7 +440,8 @@ export const fetchInvoice = async ({
 
 export const getZapReceipt = async (invoice: string) => {
   const relay = relayInit("wss://relay.wavlake.com/");
-  const since = Math.round(Date.now() / 1000);
+  const offsetTime = 10;
+  const since = Math.round(Date.now() / 1000) - offsetTime;
 
   relay.on("error", () => {
     throw new Error(`failed to connect to ${relay.url}`);
@@ -516,9 +492,8 @@ export async function getAuthToken(
     ["method", httpMethod],
   ];
 
-  const utf8Encoder = new TextEncoder();
-
   if (payload) {
+    const utf8Encoder = new TextEncoder();
     event.tags.push([
       "payload",
       bytesToHex(sha256(utf8Encoder.encode(JSON.stringify(payload)))),
