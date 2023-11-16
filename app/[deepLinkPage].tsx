@@ -17,7 +17,6 @@ export default function DeepLinkPage() {
     const asyncFunction = async () => {
       if (url) {
         if (url.includes("nostr+walletconnect")) {
-          console.log("pairing with wallet");
           await intakeNwcURI({
             uri: url,
             pubkey,
