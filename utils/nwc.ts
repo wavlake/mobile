@@ -1,6 +1,7 @@
 import { getPublicKey, nip04, relayInit } from "nostr-tools";
 import { getNWCInfoEvent, sendNWCRequest } from "./nostr";
-import { getNwcSecret } from "./secureStorage";
+import { getNwcSecret, saveNwcSecret } from "./secureStorage";
+import { cacheSettings } from "./cache";
 
 export const payInvoiceCommand = "pay_invoice";
 export const getBalanceCommand = "get_balance";
@@ -38,8 +39,63 @@ interface URIResult {
   lud16?: string;
   pubkey?: string;
 }
+export const intakeNwcURI = async ({
+  uri,
+  pubkey,
+  onUpdate,
+  onSucess,
+  onError,
+}: {
+  uri: string;
+  pubkey?: string;
+  onUpdate?: Function;
+  onSucess?: Function;
+  onError?: Function;
+}): Promise<void> => {
+  if (!pubkey) {
+    onError?.("please login to use NWC");
+    return;
+  }
 
-export const validateNwcURI = (uri?: string): URIResult => {
+  const {
+    isValid,
+    relay,
+    secret,
+    lud16,
+    pubkey: nwcPubkey,
+  } = validateNwcURI(uri);
+  if (!isValid || !secret) {
+    onError?.("invalid NWC string, please check the contents and try again");
+    return;
+  }
+
+  await saveNwcSecret(secret, pubkey);
+  onUpdate?.("Fetching wallet info...");
+  const nwcCommands = await getWalletServiceCommands(nwcPubkey, relay);
+
+  if (nwcCommands?.includes(payInvoiceCommand)) {
+    onUpdate?.("Sucess!");
+
+    await cacheSettings(
+      {
+        nwcRelay: relay,
+        nwcLud16: lud16,
+        nwcPubkey,
+        enableNWC: true,
+        nwcCommands,
+      },
+      pubkey,
+    );
+
+    onSucess?.();
+  } else {
+    onError?.("Looks like this wallet doesn't support payments");
+  }
+
+  return;
+};
+
+const validateNwcURI = (uri?: string): URIResult => {
   let isValid = true;
   const result: URIResult = {
     isValid: false,

@@ -137,6 +137,12 @@ export default function Layout() {
                     headerTitle: () => <Text>Nostr Wallet Connect</Text>,
                   }}
                 />
+                <Stack.Screen
+                  name="[deepLinkPage]"
+                  options={{
+                    headerTitle: () => <Text>Adding Wallet</Text>,
+                  }}
+                />
               </Stack>
             </View>
           </RootSiblingParent>
