@@ -144,6 +144,27 @@ async function getNwcConnection(userPubkey: string): Promise<{
   };
 }
 
+export async function getNwcBalance({
+  userPubkey,
+  walletPubkey,
+  nwcRelay,
+}: {
+  userPubkey: string;
+  walletPubkey: string;
+  nwcRelay: string;
+}): Promise<any> {
+  console.log("getNwcBalance");
+  const { connectionSecret } = await getNwcConnection(userPubkey);
+  const response = await sendNWCRequest({
+    walletPubkey,
+    relay: nwcRelay,
+    method: "get_balance",
+    connectionSecret,
+  });
+
+  return response;
+}
+
 async function sendNwcPaymentRequest({
   userPubkey,
   invoice,
@@ -154,23 +175,23 @@ async function sendNwcPaymentRequest({
   invoice: string;
   walletPubkey: string;
   nwcRelay: string;
-}): Promise<{ eventId: string }> {
+}): Promise<{ preimage: string }> {
   const { connectionSecret } = await getNwcConnection(userPubkey);
 
-  const eventId = await sendNWCRequest({
+  const response = await sendNWCRequest({
     walletPubkey,
     relay: nwcRelay,
     method: "pay_invoice",
     params: { invoice },
     connectionSecret,
   });
-  if (!eventId) {
-    throw new Error("Failed to send NWC payment request");
+  if (!response?.result?.preimage) {
+    throw new Error("Failed to pay using NWC");
   }
-  return { eventId };
+  return { preimage: response?.result.preimage };
 }
 
-interface NWCResponse {
+export interface NWCResponse {
   result: {
     preimage: string;
   };
@@ -190,7 +211,7 @@ async function handleNwcResponse({
   walletPubkey: string;
   userPubkey: string;
   nwcRelay: string;
-}): Promise<{ preimage: string } | void> {
+}): Promise<any> {
   const walletServiceRelay = relayInit(nwcRelay);
   walletServiceRelay.on("error", () => {
     throw new Error(`failed to connect to ${nwcRelay}`);
@@ -200,16 +221,22 @@ async function handleNwcResponse({
 
   const { connectionSecret, connectionPubkey } =
     await getNwcConnection(userPubkey);
+  const offsetTime = 10;
+  const since = Math.round(Date.now() / 1000) - offsetTime;
   const responseSub = walletServiceRelay.sub([
     {
       kinds: [23195],
-      "#p": [connectionPubkey],
+      // "#p": [connectionPubkey],
       "#e": [eventId],
-      authors: [walletPubkey],
+      // authors: [walletPubkey],
+      since,
     },
   ]);
+  console.log("subbed", { connectionPubkey, eventId, walletPubkey });
   return new Promise((resolve, reject) => {
     responseSub.on("event", async (event) => {
+      console.log("event", event);
+      console.log(event.tags);
       try {
         const decryptedResponse = await nip04.decrypt(
           connectionSecret,
@@ -225,7 +252,7 @@ async function handleNwcResponse({
           throw new Error(`${response.error.code}: ${response.error.message}`);
         }
 
-        resolve({ preimage: response.result.preimage });
+        resolve(response);
       } catch (error) {
         reject((error as Error).message || "Unknown error occurred");
       } finally {
@@ -247,19 +274,20 @@ export const payWithNWC = async ({
   nwcRelay: string;
 }): Promise<{ preimage?: string; error?: string } | void> => {
   try {
-    const { eventId } = await sendNwcPaymentRequest({
+    const preimage = await sendNwcPaymentRequest({
       userPubkey,
       invoice,
       walletPubkey,
       nwcRelay,
     });
 
-    return await handleNwcResponse({
-      userPubkey,
-      eventId,
-      walletPubkey,
-      nwcRelay,
-    });
+    // const response = await handleNwcResponse({
+    //   userPubkey,
+    //   eventId,
+    //   walletPubkey,
+    //   nwcRelay,
+    // });
+    return { preimage };
   } catch (error) {
     return { error: (error as Error).message || "Unknown error occurred" };
   }

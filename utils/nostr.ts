@@ -20,6 +20,7 @@ import {
   getBlankEvent,
   nip04,
   Kind,
+  getPublicKey,
 } from "nostr-tools";
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
@@ -38,6 +39,7 @@ import {
   getSettings,
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
+import { NWCResponse } from "./nwc";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
@@ -275,9 +277,9 @@ export const sendNWCRequest = async ({
   walletPubkey: string;
   relay: string;
   method: string;
-  params: Record<string, any>;
+  params?: Record<string, any>;
   connectionSecret: string;
-}) => {
+}): Promise<NWCResponse | void> => {
   try {
     const encryptedCommand = await nip04.encrypt(
       connectionSecret,
@@ -299,8 +301,57 @@ export const sendNWCRequest = async ({
       content: encryptedCommand,
     };
     const signedEvent = await finishEvent(event, connectionSecret);
-    await publishEvent([relay], signedEvent);
-    return signedEvent.id;
+    const walletServiceRelay = relayInit(relay);
+    walletServiceRelay.on("error", () => {
+      throw new Error(`failed to connect to ${relay}`);
+    });
+
+    walletServiceRelay.connect();
+    const connectionPubkey = getPublicKey(connectionSecret);
+    const responseSub = walletServiceRelay.sub([
+      {
+        // kinds: [23195],
+        // "#p": [connectionPubkey],
+        "#e": [signedEvent.id],
+        // authors: [walletPubkey],
+      },
+    ]);
+    console.log("created sub", signedEvent.id, {
+      connectionPubkey,
+      walletPubkey,
+    });
+    return new Promise((resolve, reject) => {
+      console.log("registered event handler");
+      responseSub.on("event", async (event) => {
+        console.log("event", event);
+        console.log(event.tags);
+        try {
+          const decryptedResponse = await nip04.decrypt(
+            connectionSecret,
+            walletPubkey,
+            event.content,
+          );
+          if (!decryptedResponse) {
+            throw new Error("Failed to decrypt NWC response");
+          }
+
+          const response: NWCResponse = JSON.parse(decryptedResponse);
+          if (response.error) {
+            throw new Error(
+              `${response.error.code}: ${response.error.message}`,
+            );
+          }
+
+          resolve(response);
+        } catch (error) {
+          reject((error as Error).message || "Unknown error occurred");
+        } finally {
+          responseSub.unsub();
+        }
+      });
+      publishEvent([relay], signedEvent);
+      console.log("published event", signedEvent.id);
+    });
   } catch (error) {
     console.error(error);
   }

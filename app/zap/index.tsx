@@ -20,6 +20,8 @@ import {
   payWithNWC,
   validateWalletKey,
   payInvoiceCommand,
+  sendNWCRequest,
+  getNwcBalance,
 } from "@/utils";
 
 export default function ZapPage() {
@@ -43,6 +45,21 @@ export default function ZapPage() {
   const isZapDisabled =
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
   const { writeRelayList } = useNostrRelayList();
+  const getBalance = async () => {
+    const { defaultZapWallet, enableNWC, nwcCommands, nwcRelay, nwcPubkey } =
+      await getSettings(pubkey);
+    if (!pubkey) {
+      return;
+    }
+    console.log("nwcCommands", nwcCommands);
+    getNwcBalance({
+      userPubkey: pubkey,
+      nwcRelay,
+      walletPubkey: nwcPubkey,
+    }).then((balance) => {
+      console.log("balance", balance);
+    });
+  };
   const handleZap = async () => {
     const { defaultZapWallet, enableNWC, nwcCommands, nwcRelay, nwcPubkey } =
       await getSettings(pubkey);
@@ -169,6 +186,15 @@ export default function ZapPage() {
             loading={isZapping}
           >
             Zap ⚡️️
+          </Button>
+          {/* This is a temporary button to test the get_balance action
+          The actual get_balance action will be triggered elsewhere. */}
+          <Button
+            onPress={getBalance}
+            disabled={isZapDisabled}
+            loading={isZapping}
+          >
+            Get Balance
           </Button>
           <CancelButton />
         </ScrollView>
