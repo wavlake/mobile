@@ -3,13 +3,8 @@ import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { cacheSettings, saveNwcSecret } from "@/utils";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
-import {
-  getWalletServiceCommands,
-  payInvoiceCommand,
-  validateNwcURI,
-} from "@/utils/nwc";
+import { intakeNwcURI } from "@/utils/nwc";
 import LoadingScreen from "@/components/LoadingScreen";
 
 export default function SettingsPage() {
@@ -26,52 +21,16 @@ export default function SettingsPage() {
     await handleSaveNewNwcURI(data);
     setScanned(false);
   };
+
   const handleSaveNewNwcURI = async (uri: string) => {
-    // settings page (used to reach this scanner) is only accessible to logged in users
-    // but useAuth returns { pubkey: string | undefined }
-    if (!pubkey) {
-      console.error("no pubkey found");
-      return;
-    }
-
-    const {
-      isValid,
-      relay,
-      secret,
-      lud16,
-      pubkey: nwcPubkey,
-    } = validateNwcURI(uri);
-
-    if (!isValid || !secret) {
-      toast.show("invalid NWC string, please check the contents and try again");
-      return;
-    }
-
     setIsLoading(true);
-    await saveNwcSecret(secret, pubkey);
-    const nwcCommands = await getWalletServiceCommands(nwcPubkey, relay);
-
-    if (nwcCommands?.includes(payInvoiceCommand)) {
-      await cacheSettings(
-        {
-          nwcRelay: relay,
-          nwcLud16: lud16,
-          nwcPubkey,
-          enableNWC: true,
-          nwcCommands,
-        },
-        pubkey,
-      );
-
-      setIsLoading(false);
-      // send the user back to where they came from
-      router.back();
-    } else {
-      toast.show("Looks like this wallet doesn't support payments");
-    }
-
+    await intakeNwcURI({
+      uri,
+      pubkey,
+      onSucess: () => router.back(),
+      onError: (error: string) => toast.show(error),
+    });
     setIsLoading(false);
-    return;
   };
 
   return (

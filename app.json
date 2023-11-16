@@ -5,7 +5,7 @@
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "wavlake",
+    "scheme": ["nostr+walletconnect"],
     "userInterfaceStyle": "dark",
     "backgroundColor": "#000000",
     "splash": {
@@ -19,7 +19,7 @@
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       },
-      "buildNumber": "38",
+      "buildNumber": "39",
       "bundleIdentifier": "com.wavlake.mobile",
       "config": {
         "usesNonExemptEncryption": false
