@@ -22,7 +22,7 @@ import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import TrackPlayer, { Capability } from "react-native-track-player";
 import { musicService } from "@/services";
-import { useBetterURL } from "@/hooks/useBetterUrl";
+import { useBetterURL } from "@/hooks";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
