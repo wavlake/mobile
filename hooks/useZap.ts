@@ -11,6 +11,7 @@ import {
   payInvoiceCommand,
   payWithNWC,
 } from "@/utils";
+import { useRouter } from "expo-router";
 
 const fetchInvoiceForZap = async ({
   writeRelayList,
@@ -38,18 +39,29 @@ const fetchInvoiceForZap = async ({
 
 export const useZap = ({
   trackId,
+  title,
+  artist,
+  artworkUrl,
 }: {
-  trackId: string;
+  trackId?: string;
+  title?: string;
+  artist?: string;
+  artworkUrl?: string;
 }): {
   isLoading: boolean;
-  sendZap: (comment?: string) => Promise<void>;
+  sendZap: (comment?: string, amount?: number) => Promise<void>;
 } => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
 
-  const sendZap = async (comment: string = "") => {
+  const sendZap = async (comment: string = "", amount?: number) => {
+    if (!trackId) {
+      return;
+    }
+
     setIsLoading(true);
     const {
       defaultZapWallet,
@@ -59,10 +71,10 @@ export const useZap = ({
       nwcPubkey,
       defaultZapAmount,
     } = await getSettings(pubkey);
-
+    const amountInSats = Number(amount || defaultZapAmount);
     const invoice = await fetchInvoiceForZap({
       writeRelayList,
-      amountInSats: Number(defaultZapAmount),
+      amountInSats,
       comment,
       contentId: trackId,
     });
@@ -76,7 +88,15 @@ export const useZap = ({
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then(() => {
-        console.log("zap receipt received");
+        router.replace({
+          pathname: "/zap/success",
+          params: {
+            title,
+            artist,
+            artworkUrl,
+            zapAmount: amountInSats,
+          },
+        });
       });
     } catch {
       // Fail silently if unable to connect to wavlake relay to get zap receipt.
@@ -99,7 +119,8 @@ export const useZap = ({
         }
       } else {
         // if no NWC, open invoice in default wallet
-        await openInvoiceInWallet(defaultZapWallet, invoice);
+        openInvoiceInWallet(defaultZapWallet, invoice);
+        setIsLoading(false);
       }
     } catch {
       toast.show("Something went wrong. Please try again later.");

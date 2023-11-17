@@ -86,7 +86,13 @@ export const FullSizeMusicPlayer = () => {
       addTrackToLibraryMutation.mutate(currentTrack);
     }
   };
-  const { sendZap } = useZap({ trackId });
+  const { sendZap, isLoading } = useZap({
+    trackId,
+    title,
+    artist,
+    artworkUrl,
+  });
+
   const handleZap = async () => {
     const { defaultZapWallet, enableNWC, defaultZapAmount } =
       await getSettings(pubkey);
@@ -126,6 +132,7 @@ export const FullSizeMusicPlayer = () => {
               </TouchableOpacity>
             </View>
             <TouchableOpacity
+              disabled={isLoading}
               onPress={handleZap}
               onLongPress={async () => {
                 const { defaultZapAmount } = await getSettings(pubkey);
@@ -146,7 +153,19 @@ export const FullSizeMusicPlayer = () => {
                 paddingLeft: 8,
               }}
             >
-              <ZapIcon fill={brandColors.pink.DEFAULT} width={40} height={40} />
+              {isLoading ? (
+                <ActivityIndicator
+                  animating={true}
+                  size="small"
+                  style={{ paddingRight: 8 }}
+                />
+              ) : (
+                <ZapIcon
+                  fill={brandColors.pink.DEFAULT}
+                  width={40}
+                  height={40}
+                />
+              )}
             </TouchableOpacity>
           </View>
           <PlayerControls isSmallScreen={isSmallScreen} />
