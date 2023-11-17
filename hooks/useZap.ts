@@ -43,14 +43,14 @@ export const useZap = ({
   trackId: string;
 }): {
   isLoading: boolean;
-  sendZap: () => Promise<void>;
+  sendZap: (comment?: string) => Promise<void>;
 } => {
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
 
-  const sendZap = async () => {
+  const sendZap = async (comment: string = "") => {
     setIsLoading(true);
     const {
       defaultZapWallet,
@@ -64,7 +64,7 @@ export const useZap = ({
     const invoice = await fetchInvoiceForZap({
       writeRelayList,
       amountInSats: Number(defaultZapAmount),
-      comment: "",
+      comment,
       contentId: trackId,
     });
 
