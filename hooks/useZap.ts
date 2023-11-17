@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
 import { useNostrRelayList } from "./nostrRelayList";
