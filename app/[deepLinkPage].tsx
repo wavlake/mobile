@@ -11,8 +11,8 @@ export default function DeepLinkPage() {
   const { data } = useQuery(["deepLink"], () =>
     queryClient.getQueryData(["deepLink"]),
   );
-
   const url = data as string;
+
   const toast = useToast();
   const { pubkey } = useAuth();
   const router = useRouter();

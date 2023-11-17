@@ -68,7 +68,6 @@ export const intakeNwcURI = async ({
     onError?.("invalid NWC string, please check the contents and try again");
     return;
   }
-
   await Promise.all([
     saveNwcSecret(secret, pubkey),
     cacheSettings(
