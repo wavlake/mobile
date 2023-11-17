@@ -1,13 +1,18 @@
 import { Text, Center, CancelButton } from "@/components";
 import { useAuth, useToast } from "@/hooks";
 import { intakeNwcURI } from "@/utils";
-import * as Linking from "expo-linking";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 
 export default function DeepLinkPage() {
-  const url = Linking.useURL();
+  const queryClient = useQueryClient();
+  const { data } = useQuery(["deepLink"], () =>
+    queryClient.getQueryData(["deepLink"]),
+  );
+  const url = data as string;
+
   const toast = useToast();
   const { pubkey } = useAuth();
   const router = useRouter();
@@ -15,7 +20,7 @@ export default function DeepLinkPage() {
 
   useEffect(() => {
     const asyncFunction = async () => {
-      if (url) {
+      if (url && pubkey) {
         if (url.includes("nostr+walletconnect")) {
           await intakeNwcURI({
             uri: url,
@@ -35,7 +40,7 @@ export default function DeepLinkPage() {
       }
     };
     asyncFunction();
-  }, [url]);
+  }, [url, pubkey]);
 
   return (
     <Center

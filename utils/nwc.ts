@@ -68,29 +68,21 @@ export const intakeNwcURI = async ({
     onError?.("invalid NWC string, please check the contents and try again");
     return;
   }
-
-  await saveNwcSecret(secret, pubkey);
-  onUpdate?.("Fetching wallet info...");
-  const nwcCommands = await getWalletServiceCommands(nwcPubkey, relay);
-
-  if (nwcCommands?.includes(payInvoiceCommand)) {
-    onUpdate?.("Sucess!");
-
-    await cacheSettings(
+  await Promise.all([
+    saveNwcSecret(secret, pubkey),
+    cacheSettings(
       {
         nwcRelay: relay,
         nwcLud16: lud16,
         nwcPubkey,
-        enableNWC: true,
-        nwcCommands,
       },
       pubkey,
-    );
+    ),
+  ]);
 
-    onSucess?.();
-  } else {
-    onError?.("Looks like this wallet doesn't support payments");
-  }
+  getWalletServiceCommands({ nwcPubkey, nwcRelay: relay, pubkey });
+  onUpdate?.("Sucess!");
+  onSucess?.();
 
   return;
 };
@@ -155,13 +147,18 @@ const validateNwcURI = (uri?: string): URIResult => {
   return result;
 };
 
-export const getWalletServiceCommands = async (
-  pubkey?: string,
-  relayUri?: string,
-): Promise<string[] | undefined> => {
-  if (!pubkey) return;
+const getWalletServiceCommands = async ({
+  nwcPubkey,
+  nwcRelay,
+  pubkey,
+}: {
+  nwcPubkey?: string;
+  pubkey?: string;
+  nwcRelay?: string;
+}): Promise<string[] | undefined> => {
+  if (!nwcPubkey) return;
 
-  const infoEvent = await getNWCInfoEvent(pubkey, relayUri);
+  const infoEvent = await getNWCInfoEvent(nwcPubkey, nwcRelay);
   // the spec says the should be space separated, but alby is using commas
   // so we try both
   const nwcCommandsComma = infoEvent?.content.split(",");
@@ -183,7 +180,8 @@ export const getWalletServiceCommands = async (
     nwcCommands = nwcCommandsSpace;
   }
 
-  return nwcCommands;
+  const enableNWC = nwcCommands?.includes(payInvoiceCommand);
+  await cacheSettings({ enableNWC, nwcCommands }, pubkey);
 };
 
 async function getNwcConnection(userPubkey: string): Promise<{
