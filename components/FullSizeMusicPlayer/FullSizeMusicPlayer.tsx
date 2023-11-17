@@ -127,6 +127,19 @@ export const FullSizeMusicPlayer = () => {
             </View>
             <TouchableOpacity
               onPress={handleZap}
+              onLongPress={async () => {
+                const { defaultZapAmount } = await getSettings(pubkey);
+                router.push({
+                  pathname: "/zap",
+                  params: {
+                    defaultZapAmount,
+                    title,
+                    artist,
+                    artworkUrl,
+                    trackId,
+                  },
+                });
+              }}
               style={{
                 alignItems: "center",
                 justifyContent: "center",
