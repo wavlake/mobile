@@ -411,9 +411,9 @@ export const fetchInvoice = async ({
   addressPointer: string;
   zappedPubkey: string;
 }) => {
-  const wavlakeRelayUri = "wss://relay.wavlake.com/";
+  const wavlakeRelayUri = "ws://localhost:8008/";
   const amountInMillisats = amountInSats * 1000;
-  const zapEndpoint = "https://www.wavlake.com/api/zap";
+  const zapEndpoint = "http://localhost:3002/api/zap";
   const zapRequestEvent = await nip57.makeZapRequest({
     profile: zappedPubkey,
     amount: amountInMillisats,
@@ -439,7 +439,7 @@ export const fetchInvoice = async ({
 };
 
 export const getZapReceipt = async (invoice: string) => {
-  const relay = relayInit("wss://relay.wavlake.com/");
+  const relay = relayInit("ws://localhost:8008/");
   const offsetTime = 10;
   const since = Math.round(Date.now() / 1000) - offsetTime;
 

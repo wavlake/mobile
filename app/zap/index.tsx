@@ -57,7 +57,7 @@ export default function ZapPage() {
 
     const wavlakeTrackKind = 32123;
     const wavlakePubkey =
-      "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
+      "8b23a52fb619b20a49955bf543a028dbefaa6d57fd46f012c79e2cc5489097fc";
     const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${trackId}`;
     const invoice = await fetchInvoice({
       relayUris: writeRelayList,
