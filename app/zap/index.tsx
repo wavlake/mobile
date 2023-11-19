@@ -33,7 +33,7 @@ export default function ZapPage() {
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
 
   const handleZap = async () => {
-    sendZap(comment);
+    sendZap(comment, parseInt(zapAmount));
   };
 
   return (
