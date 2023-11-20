@@ -13,18 +13,23 @@ import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
-import { getSettings } from "@/utils";
+import { cacheSettings, getSettings, validateWalletKey } from "@/utils";
 import {
   useAuth,
   useAddTrackToLibrary,
   useDeleteTrackFromLibrary,
   useIsTrackInLibrary,
+  useZap,
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
 import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
+import { useState } from "react";
+import { WalletChooserModal } from "../WalletChooserModal";
 
 export const FullSizeMusicPlayer = () => {
+  const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
+    useState(false);
   const { artistOrAlbumBasePathname = "" } = useLocalSearchParams<{
     artistOrAlbumBasePathname: string;
   }>();
@@ -81,87 +86,134 @@ export const FullSizeMusicPlayer = () => {
       addTrackToLibraryMutation.mutate(currentTrack);
     }
   };
+  const { sendZap, isLoading } = useZap({
+    trackId,
+    title,
+    artist,
+    artworkUrl,
+  });
+
+  const handleZap = async () => {
+    const { defaultZapWallet, enableNWC, defaultZapAmount } =
+      await getSettings(pubkey);
+    const defaultsAreSet =
+      defaultZapAmount && (enableNWC || validateWalletKey(defaultZapWallet));
+    if (!defaultsAreSet) {
+      setIsWalletChooserModalVisible(true);
+      return;
+    }
+    sendZap();
+  };
 
   return currentTrack ? (
-    <ScrollView style={{ paddingTop: 8 }}>
-      <ArtworkCarousel />
-      <View
-        style={{
-          paddingHorizontal,
-          paddingVertical: isSmallScreen ? 16 : 24,
-        }}
-      >
+    <>
+      <ScrollView style={{ paddingTop: 8 }}>
+        <ArtworkCarousel />
         <View
           style={{
-            flexDirection: "row",
-            maxWidth: screenWidth - paddingHorizontal * 2,
+            paddingHorizontal,
+            paddingVertical: isSmallScreen ? 16 : 24,
           }}
         >
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity onPress={handleTitlePress}>
-              <MarqueeText style={{ fontSize: 20 }} bold>
-                {title}
-              </MarqueeText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleArtistPress}>
-              <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity
-            onPress={async () => {
-              const { defaultZapAmount = "" } = await getSettings(pubkey);
-
-              router.push({
-                pathname: "/zap",
-                params: {
-                  defaultZapAmount,
-                  title,
-                  artist,
-                  artworkUrl,
-                  trackId,
-                },
-              });
-            }}
+          <View
             style={{
-              alignItems: "center",
-              justifyContent: "center",
-              paddingLeft: 8,
+              flexDirection: "row",
+              maxWidth: screenWidth - paddingHorizontal * 2,
             }}
           >
-            <ZapIcon fill={brandColors.pink.DEFAULT} width={40} height={40} />
-          </TouchableOpacity>
-        </View>
-        <PlayerControls isSmallScreen={isSmallScreen} />
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <View>
-            <LikeButton
-              onPress={handleLikePress}
-              size={24}
-              isLiked={isTrackInLibrary}
-              isLoading={
-                addTrackToLibraryMutation.isLoading ||
-                deleteTrackFromLibraryMutation.isLoading
-              }
-            />
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity onPress={handleTitlePress}>
+                <MarqueeText style={{ fontSize: 20 }} bold>
+                  {title}
+                </MarqueeText>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleArtistPress}>
+                <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              disabled={isLoading}
+              onPress={handleZap}
+              onLongPress={async () => {
+                const { defaultZapAmount } = await getSettings(pubkey);
+                router.push({
+                  pathname: "/zap",
+                  params: {
+                    defaultZapAmount,
+                    title,
+                    artist,
+                    artworkUrl,
+                    trackId,
+                  },
+                });
+              }}
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                paddingLeft: 8,
+              }}
+            >
+              {isLoading ? (
+                <ActivityIndicator
+                  animating={true}
+                  size="small"
+                  style={{ paddingRight: 8 }}
+                />
+              ) : (
+                <ZapIcon
+                  fill={brandColors.pink.DEFAULT}
+                  width={40}
+                  height={40}
+                />
+              )}
+            </TouchableOpacity>
           </View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
-            <ShareButton url={`https://wavlake.com/track/${trackId}`} />
-            <MoreOptions
-              artist={artist}
-              artistId={artistId}
-              albumTitle={albumTitle}
-              albumId={albumId}
-            />
+          <PlayerControls isSmallScreen={isSmallScreen} />
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View>
+              <LikeButton
+                onPress={handleLikePress}
+                size={24}
+                isLiked={isTrackInLibrary}
+                isLoading={
+                  addTrackToLibraryMutation.isLoading ||
+                  deleteTrackFromLibraryMutation.isLoading
+                }
+              />
+            </View>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
+            >
+              <ShareButton url={`https://wavlake.com/track/${trackId}`} />
+              <MoreOptions
+                artist={artist}
+                artistId={artistId}
+                albumTitle={albumTitle}
+                albumId={albumId}
+              />
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <WalletChooserModal
+        onContinue={async () => {
+          setIsWalletChooserModalVisible(false);
+          await handleZap();
+        }}
+        onCancel={async () => {
+          setIsWalletChooserModalVisible(false);
+          await cacheSettings({ defaultZapWallet: "default" }, pubkey);
+          await handleZap();
+        }}
+        visible={isWalletChooserModalVisible}
+      />
+    </>
   ) : (
     <Center>
       <ActivityIndicator />
