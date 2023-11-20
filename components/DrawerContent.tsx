@@ -10,12 +10,13 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { getSettings } from "@/utils";
+import { useBalance } from "@/hooks/useBalance";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
-
+  const { balance } = useBalance();
+  console.log("drawer content", balance);
   return (
     <DrawerContentScrollView
       contentContainerStyle={{
@@ -83,6 +84,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
           />
         </View>
       )}
+
+      <Text>{balance?.toString()} sats</Text>
     </DrawerContentScrollView>
   );
 };
