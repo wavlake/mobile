@@ -5,6 +5,9 @@ import { cacheSettings } from "./cache";
 
 export const payInvoiceCommand = "pay_invoice";
 export const getBalanceCommand = "get_balance";
+// there is a small window of time where the new NWC commands are not yet fetched
+// so we use this command to indicate that we are fetching the commands
+export const fetchingCommands = "fetching";
 
 const isValidHexString = (str: string): boolean => {
   const hexRegEx = /^[0-9a-fA-F]+$/;
@@ -75,11 +78,15 @@ export const intakeNwcURI = async ({
         nwcRelay: relay,
         nwcLud16: lud16,
         nwcPubkey,
+        enableNWC: true,
+        // we add fetchingCommands here so the UI can show a loading indicator
+        nwcCommands: [fetchingCommands],
       },
       pubkey,
     ),
   ]);
 
+  // this will fetch the NWC commands, cache them, and remove the fetchingCommands item
   getWalletServiceCommands({ nwcPubkey, nwcRelay: relay, pubkey });
   onUpdate?.("Sucess!");
   onSucess?.();
@@ -181,7 +188,7 @@ const getWalletServiceCommands = async ({
   }
 
   const enableNWC = nwcCommands?.includes(payInvoiceCommand);
-  await cacheSettings({ enableNWC, nwcCommands }, pubkey);
+  await cacheSettings({ enableNWC, nwcCommands: nwcCommands ?? [] }, pubkey);
 };
 
 async function getNwcConnection(userPubkey: string): Promise<{

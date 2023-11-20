@@ -9,6 +9,7 @@ import {
   deleteNwcSecret,
   getSettings,
   payInvoiceCommand,
+  fetchingCommands,
 } from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
@@ -62,6 +63,7 @@ export default function SettingsPage() {
     setNwcRelay("");
   };
 
+  const [loadingCommands, setLoadingCommands] = useState(false);
   const fetchSettings = useCallback(() => {
     setScreenActive(true);
     (async () => {
@@ -74,6 +76,8 @@ export default function SettingsPage() {
       setEnableNWC(settings.enableNWC ?? false);
       setNwcCommands(settings.nwcCommands ?? []);
       setLoading(false);
+
+      setLoadingCommands(nwcCommands.includes(fetchingCommands));
     })();
     return () => {
       setScreenActive(false);
@@ -82,7 +86,10 @@ export default function SettingsPage() {
 
   // fetch settings on mount
   useFocusEffect(fetchSettings);
-  const nwcCanPay = nwcCommands.includes(payInvoiceCommand);
+
+  // if a new wallet was just added, fetch settings again after a couple seconds
+  // this allows for the NWC commands to be fetched and cached
+
   if (loading) return;
 
   return (
@@ -99,104 +106,130 @@ export default function SettingsPage() {
             selectedWallet={defaultZapWallet}
             onSelectedWalletChange={setDefaultZapWallet}
           />
-          {pubkey && (
-            <View>
-              <View
-                style={{
-                  marginTop: 24,
-                  marginBottom: 4,
-                  flexDirection: "row",
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text bold>Nostr Wallet Connect (NWC)</Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    {nwcRelay && (
-                      <CheckCircleIcon color={brandColors.mint.DEFAULT} />
-                    )}
-                    <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
-                  </View>
-                </View>
-                {nwcRelay ? (
-                  <TrashIcon
-                    onPress={onDeleteNWC}
-                    color={brandColors.orange.DEFAULT}
-                    height={40}
-                    width={40}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  />
-                ) : (
-                  <PlusCircleIcon
-                    onPress={onAddNWC}
-                    color={brandColors.pink.DEFAULT}
-                    height={40}
-                    width={40}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  />
-                )}
-              </View>
-              {nwcRelay && !nwcCanPay && (
-                <Text>
-                  It looks like this wallet cannot pay invoices, please try
-                  another connection
-                </Text>
-              )}
-              {nwcRelay && (
-                <View
-                  style={{
-                    marginTop: 24,
-                    marginBottom: 4,
-                    flexDirection: "row",
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text bold>Enable NWC Wallet</Text>
-                    <Text>
-                      {enableNWC
-                        ? "Disable to use a different wallet for zaps."
-                        : "Enable to use NWC wallet for zaps."}
-                    </Text>
-                  </View>
-                  <Switch
-                    value={enableNWC}
-                    onValueChange={setEnableNWC}
-                    color={brandColors.pink.DEFAULT}
-                    disabled={!nwcCanPay}
-                  />
-                </View>
-              )}
-
-              <View
-                style={{
-                  marginTop: 24,
-                  marginBottom: 4,
-                  flexDirection: "row",
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text bold>Listening activity</Text>
-                  <Text>
-                    Broadcast tracks you are listening to as a live status event
-                    to Nostr relays.
-                  </Text>
-                </View>
-                <Switch
-                  value={allowListeningActivity}
-                  onValueChange={setAllowListeningActivity}
-                  color={brandColors.pink.DEFAULT}
-                />
-              </View>
+          <NWCSettings
+            nwcRelay={nwcRelay}
+            enableNWC={enableNWC}
+            setEnableNWC={setEnableNWC}
+            onDeleteNWC={onDeleteNWC}
+            onAddNWC={onAddNWC}
+            nwcCommands={nwcCommands}
+          />
+          <View
+            style={{
+              marginTop: 24,
+              marginBottom: 4,
+              flexDirection: "row",
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text bold>Listening activity</Text>
+              <Text>
+                Broadcast tracks you are listening to as a live status event to
+                Nostr relays.
+              </Text>
             </View>
-          )}
+            <Switch
+              value={allowListeningActivity}
+              onValueChange={setAllowListeningActivity}
+              color={brandColors.pink.DEFAULT}
+            />
+          </View>
         </View>
         <Button onPress={handleSave}>Save</Button>
       </View>
     </TouchableWithoutFeedback>
   );
 }
+
+const NWCSettings = ({
+  nwcRelay,
+  enableNWC,
+  setEnableNWC,
+  onDeleteNWC,
+  onAddNWC,
+  nwcCommands,
+}: {
+  nwcRelay: string;
+  enableNWC: boolean;
+  setEnableNWC: (enable: boolean) => void;
+  onDeleteNWC: () => void;
+  onAddNWC: () => void;
+  nwcCommands: string[];
+}) => {
+  const loadingCommands = nwcCommands.includes(fetchingCommands);
+  const nwcCantPayInvoices =
+    !!nwcRelay && !nwcCommands.includes(payInvoiceCommand) && !loadingCommands;
+
+  return (
+    <View>
+      <View
+        style={{
+          marginTop: 24,
+          marginBottom: 4,
+          flexDirection: "row",
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <Text bold>Nostr Wallet Connect (NWC)</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            {nwcRelay && <CheckCircleIcon color={brandColors.mint.DEFAULT} />}
+            <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
+          </View>
+        </View>
+        {nwcRelay ? (
+          <TrashIcon
+            onPress={onDeleteNWC}
+            color={brandColors.orange.DEFAULT}
+            height={40}
+            width={40}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          />
+        ) : (
+          <PlusCircleIcon
+            onPress={onAddNWC}
+            color={brandColors.pink.DEFAULT}
+            height={40}
+            width={40}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          />
+        )}
+      </View>
+      {nwcCantPayInvoices && (
+        <Text>
+          It looks like this wallet cannot pay invoices, please try another
+          wallet connection.
+        </Text>
+      )}
+      {nwcRelay && (
+        <View
+          style={{
+            marginTop: 24,
+            marginBottom: 4,
+            flexDirection: "row",
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text bold>Enable NWC Wallet</Text>
+            <Text>
+              {enableNWC
+                ? "Disable to use a different wallet for zaps."
+                : "Enable to use NWC wallet for zaps."}
+            </Text>
+          </View>
+          <Switch
+            value={enableNWC}
+            onValueChange={setEnableNWC}
+            color={brandColors.pink.DEFAULT}
+            disabled={nwcCantPayInvoices}
+          />
+        </View>
+      )}
+    </View>
+  );
+};
