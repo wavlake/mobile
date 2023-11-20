@@ -11,12 +11,13 @@ import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useBalance } from "@/hooks/useBalance";
+import { Button } from "./Button";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
-  const { balance } = useBalance();
-  console.log("drawer content", balance);
+  const { data: balance, refetch, isLoading } = useBalance();
+
   return (
     <DrawerContentScrollView
       contentContainerStyle={{
@@ -84,7 +85,9 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
           />
         </View>
       )}
-
+      <Button loading={isLoading} onPress={() => refetch()}>
+        Refresh balance
+      </Button>
       <Text>{balance?.toString()} sats</Text>
     </DrawerContentScrollView>
   );
