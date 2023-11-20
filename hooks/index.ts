@@ -10,3 +10,5 @@ export * from "./useNewMusic";
 export * from "./library";
 export * from "./useGoToArtistPage";
 export * from "./useGoToAlbumPage";
+export * from "./useBetterUrl";
+export * from "./useZap";

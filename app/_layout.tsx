@@ -22,6 +22,7 @@ import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import TrackPlayer, { Capability } from "react-native-track-player";
 import { musicService } from "@/services";
+import { useBetterURL } from "@/hooks";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -32,6 +33,12 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 export default function Layout() {
+  const url = useBetterURL();
+  useEffect(() => {
+    queryClient.setQueryData(["deepLink"], () => url);
+    queryClient.invalidateQueries(["deepLink"]);
+  }, [url]);
+
   const [loaded, error] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
@@ -135,6 +142,12 @@ export default function Layout() {
                   name="nwcScanner"
                   options={{
                     headerTitle: () => <Text>Nostr Wallet Connect</Text>,
+                  }}
+                />
+                <Stack.Screen
+                  name="[deepLinkPage]"
+                  options={{
+                    headerTitle: () => <Text>Adding Wallet</Text>,
                   }}
                 />
               </Stack>

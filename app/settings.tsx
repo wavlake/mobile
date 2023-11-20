@@ -8,6 +8,7 @@ import {
   cacheSettings,
   deleteNwcSecret,
   getSettings,
+  payInvoiceCommand,
 } from "@/utils";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
@@ -29,6 +30,7 @@ export default function SettingsPage() {
   const [enableNWC, setEnableNWC] = useState(false);
   const [loading, setLoading] = useState(false);
   const [screenActive, setScreenActive] = useState(true);
+  const [nwcCommands, setNwcCommands] = useState<string[]>([]);
 
   const handleSave = async () => {
     Keyboard.dismiss();
@@ -70,6 +72,7 @@ export default function SettingsPage() {
       setAllowListeningActivity(settings.allowListeningActivity ?? false);
       setNwcRelay(settings.nwcRelay ?? "");
       setEnableNWC(settings.enableNWC ?? false);
+      setNwcCommands(settings.nwcCommands ?? []);
       setLoading(false);
     })();
     return () => {
@@ -79,7 +82,7 @@ export default function SettingsPage() {
 
   // fetch settings on mount
   useFocusEffect(fetchSettings);
-
+  const nwcCanPay = nwcCommands.includes(payInvoiceCommand);
   if (loading) return;
 
   return (
@@ -138,6 +141,12 @@ export default function SettingsPage() {
                   />
                 )}
               </View>
+              {nwcRelay && !nwcCanPay && (
+                <Text>
+                  It looks like this wallet cannot pay invoices, please try
+                  another connection
+                </Text>
+              )}
               {nwcRelay && (
                 <View
                   style={{
@@ -158,9 +167,11 @@ export default function SettingsPage() {
                     value={enableNWC}
                     onValueChange={setEnableNWC}
                     color={brandColors.pink.DEFAULT}
+                    disabled={!nwcCanPay}
                   />
                 </View>
               )}
+
               <View
                 style={{
                   marginTop: 24,

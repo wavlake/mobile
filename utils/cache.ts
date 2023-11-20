@@ -101,7 +101,7 @@ export const cacheSettings = async (
   return newSettings;
 };
 
-export const getSettings = async (pubkey?: string) => {
+export const getSettings = async (pubkey?: string): Promise<Settings> => {
   const settingsKey = makeSettingsKey(pubkey);
 
   return (await getObjectData(settingsKey)) ?? {};
