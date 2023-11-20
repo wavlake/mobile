@@ -86,10 +86,6 @@ export default function SettingsPage() {
 
   // fetch settings on mount
   useFocusEffect(fetchSettings);
-
-  // if a new wallet was just added, fetch settings again after a couple seconds
-  // this allows for the NWC commands to be fetched and cached
-
   if (loading) return;
 
   return (
