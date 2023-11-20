@@ -37,6 +37,14 @@ const fetchInvoiceForZap = async ({
   });
 };
 
+type SendZap = (
+  props: Partial<{
+    comment: string;
+    amount: number;
+    useNavReplace: boolean;
+  }> | void,
+) => Promise<void>;
+
 export const useZap = ({
   trackId,
   title,
@@ -49,7 +57,7 @@ export const useZap = ({
   artworkUrl?: string;
 }): {
   isLoading: boolean;
-  sendZap: (comment?: string, amount?: number) => Promise<void>;
+  sendZap: SendZap;
 } => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -57,10 +65,12 @@ export const useZap = ({
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
 
-  const sendZap = async (comment: string = "", amount?: number) => {
+  const sendZap: SendZap = async (props) => {
     if (!trackId) {
       return;
     }
+
+    const { comment = "", amount, useNavReplace = false } = props || {};
 
     setIsLoading(true);
     const {
@@ -88,7 +98,7 @@ export const useZap = ({
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then(() => {
-        router.replace({
+        const navEvent = {
           pathname: "/zap/success",
           params: {
             title,
@@ -96,7 +106,9 @@ export const useZap = ({
             artworkUrl,
             zapAmount: amountInSats,
           },
-        });
+        };
+
+        useNavReplace ? router.replace(navEvent) : router.push(navEvent);
       });
     } catch {
       // Fail silently if unable to connect to wavlake relay to get zap receipt.
