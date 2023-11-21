@@ -51,7 +51,7 @@ export default function DeepLinkPage() {
       }}
     >
       <ActivityIndicator animating={true} size="large" />
-      <Text>{status}</Text>
+      <Text>Validating connection...</Text>
       <CancelButton />
     </Center>
   );

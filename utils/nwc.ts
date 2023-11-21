@@ -22,7 +22,7 @@ export interface NWCResponsePayInvoice {
 }
 
 export interface NWCResponseGetBalance {
-  result: { balance: number; budget_renewal: string; max_amount: number };
+  result: { balance?: number; budget_renewal?: string; max_amount?: number };
   error?: {
     code: string;
     message: string;
@@ -233,6 +233,11 @@ export async function getNwcBalance({
   nwcRelay: string;
 }) {
   const { connectionSecret } = await getNwcConnection(userPubkey);
+  if (!connectionSecret) {
+    // there is no NWC to get a balance for
+    return;
+  }
+
   const requestEvent = await sendNWCRequest({
     walletPubkey,
     relay: nwcRelay,
@@ -253,7 +258,6 @@ export async function getNwcBalance({
     walletPubkey,
     relays,
   });
-  console.log("response", response, relays);
 
   return response as NWCResponseGetBalance;
 }

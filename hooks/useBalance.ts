@@ -7,20 +7,23 @@ import { useSettings } from "./useSettings";
 export const useBalance = () => {
   const { pubkey: userPubkey } = useAuth();
   const { data: settings } = useSettings();
-  const { nwcPubkey: walletPubkey, nwcRelay } = settings || {};
-  const enabled = Boolean(userPubkey) && Boolean(settings?.enableNWC);
+  const enabled = Boolean(userPubkey);
   const queryKey = useBalanceQueryKey();
   return useQuery({
     queryKey,
     queryFn: async () => {
-      if (!userPubkey || !walletPubkey || !nwcRelay) return;
+      if (!userPubkey || !settings) return;
 
-      const { result } = await getNwcBalance({
+      const response = await getNwcBalance({
         userPubkey,
-        walletPubkey,
-        nwcRelay,
+        walletPubkey: settings.nwcPubkey,
+        nwcRelay: settings.nwcRelay,
       });
-      const { balance, budget_renewal, max_amount } = result;
+
+      // can't return undefined, so return -1
+      if (!response) return -1;
+
+      const { balance, budget_renewal, max_amount } = response.result;
       return balance;
     },
     enabled,

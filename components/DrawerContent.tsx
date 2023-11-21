@@ -56,7 +56,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
         />
       </View>
       <View>
-        {balance && (
+        {/* balance is -1 if we don't have a value */}
+        {balance && balance >= 0 && (
           <Text style={{ marginHorizontal: 16, marginBottom: 8 }}>
             Wallet Balance: {satsFormatter(balance)} sats
           </Text>
