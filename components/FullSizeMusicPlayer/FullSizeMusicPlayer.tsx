@@ -13,7 +13,7 @@ import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
-import { cacheSettings, getSettings, validateWalletKey } from "@/utils";
+import { cacheSettings, validateWalletKey } from "@/utils";
 import {
   useAuth,
   useAddTrackToLibrary,
@@ -26,6 +26,7 @@ import { LikeButton } from "@/components/LikeButton";
 import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
+import { useSettings } from "@/hooks/useSettings";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
@@ -35,6 +36,7 @@ export const FullSizeMusicPlayer = () => {
   }>();
   const router = useRouter();
   const { currentTrack } = useMusicPlayer();
+  const { data: settings } = useSettings();
   const {
     id: trackId,
     title,
@@ -94,8 +96,7 @@ export const FullSizeMusicPlayer = () => {
   });
 
   const handleZap = async () => {
-    const { defaultZapWallet, enableNWC, defaultZapAmount } =
-      await getSettings(pubkey);
+    const { defaultZapWallet, enableNWC, defaultZapAmount } = settings || {};
     const defaultsAreSet =
       defaultZapAmount && (enableNWC || validateWalletKey(defaultZapWallet));
     if (!defaultsAreSet) {
@@ -134,12 +135,11 @@ export const FullSizeMusicPlayer = () => {
             <TouchableOpacity
               disabled={isLoading}
               onPress={handleZap}
-              onLongPress={async () => {
-                const { defaultZapAmount } = await getSettings(pubkey);
+              onLongPress={() => {
                 router.push({
                   pathname: "/zap",
                   params: {
-                    defaultZapAmount,
+                    defaultZapAmount: settings?.defaultZapAmount,
                     title,
                     artist,
                     artworkUrl,

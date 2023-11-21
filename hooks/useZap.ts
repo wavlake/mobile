@@ -4,14 +4,15 @@ import { useToast } from "./useToast";
 import { useNostrRelayList } from "./nostrRelayList";
 
 import {
+  cacheSettings,
   fetchInvoice,
-  getSettings,
   getZapReceipt,
   openInvoiceInWallet,
   payInvoiceCommand,
   payWithNWC,
 } from "@/utils";
 import { useRouter } from "expo-router";
+import { useSettings } from "./useSettings";
 
 const fetchInvoiceForZap = async ({
   writeRelayList,
@@ -64,6 +65,7 @@ export const useZap = ({
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
+  const { data: settings } = useSettings();
 
   const sendZap: SendZap = async (props) => {
     if (!trackId) {
@@ -80,7 +82,7 @@ export const useZap = ({
       nwcRelay,
       nwcPubkey,
       defaultZapAmount,
-    } = await getSettings(pubkey);
+    } = settings || {};
     const amountInSats = Number(amount || defaultZapAmount);
     const invoice = await fetchInvoiceForZap({
       writeRelayList,
@@ -107,7 +109,6 @@ export const useZap = ({
             zapAmount: amountInSats,
           },
         };
-
         useNavReplace ? router.replace(navEvent) : router.push(navEvent);
       });
     } catch {
@@ -115,13 +116,17 @@ export const useZap = ({
     }
 
     try {
-      if (pubkey && enableNWC && nwcCommands.includes(payInvoiceCommand)) {
+      if (
+        pubkey &&
+        enableNWC &&
+        settings?.nwcCommands.includes(payInvoiceCommand)
+      ) {
         // use NWC, responds with preimage if successful
         const response = await payWithNWC({
           userPubkey: pubkey,
           invoice,
-          walletPubkey: nwcPubkey,
-          nwcRelay,
+          walletPubkey: settings?.nwcPubkey,
+          nwcRelay: settings?.nwcRelay,
         });
         if (response?.error) {
           toast.show(response.error);
@@ -131,7 +136,8 @@ export const useZap = ({
         }
       } else {
         // if no NWC, open invoice in default wallet
-        openInvoiceInWallet(defaultZapWallet, invoice);
+
+        openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
         setIsLoading(false);
       }
     } catch {

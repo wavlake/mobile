@@ -1,9 +1,10 @@
 import { Text, Center, CancelButton } from "@/components";
 import { useAuth, useToast } from "@/hooks";
+import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import { intakeNwcURI } from "@/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 
 export default function DeepLinkPage() {
@@ -16,27 +17,28 @@ export default function DeepLinkPage() {
   const toast = useToast();
   const { pubkey } = useAuth();
   const router = useRouter();
-  const [status, setStatus] = useState("Validating secret...");
+  const settingsKey = useSettingsQueryKey();
 
   useEffect(() => {
     const asyncFunction = async () => {
       if (url && pubkey) {
         if (url.includes("nostr+walletconnect")) {
-          await intakeNwcURI({
+          const { isSuccess, error, fetchInfo } = await intakeNwcURI({
             uri: url,
             pubkey,
-            onUpdate: (message: string) => {
-              setStatus(message);
-            },
-            onSucess: () => {
-              toast.show("Successfully paired with Wallet");
-            },
-            onError: (error: string) => {
-              toast.show(error);
-            },
           });
+          if (isSuccess) {
+            queryClient.invalidateQueries(settingsKey);
+            router.replace("/");
+
+            // fetch the info event and refresh settings after
+            await fetchInfo?.();
+            queryClient.invalidateQueries(settingsKey);
+          } else {
+            error && toast.show(error);
+            router.replace("/");
+          }
         }
-        router.replace("/");
       }
     };
     asyncFunction();
@@ -49,7 +51,7 @@ export default function DeepLinkPage() {
       }}
     >
       <ActivityIndicator animating={true} size="large" />
-      <Text>{status}</Text>
+      <Text>Validating connection...</Text>
       <CancelButton />
     </Center>
   );

@@ -6,6 +6,8 @@ import { useAuth, useToast } from "@/hooks";
 import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
 import { intakeNwcURI } from "@/utils/nwc";
 import LoadingScreen from "@/components/LoadingScreen";
+import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -14,6 +16,8 @@ export default function SettingsPage() {
   const [scanned, setScanned] = useState(false);
   const [newNwcURI, setNewNwcURI] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const settingsKey = useSettingsQueryKey();
+  const queryClient = useQueryClient();
 
   const onBarCodeScanned: BarCodeScannedCallback = async ({ data }) => {
     if (scanned) return;
@@ -24,12 +28,19 @@ export default function SettingsPage() {
 
   const handleSaveNewNwcURI = async (uri: string) => {
     setIsLoading(true);
-    await intakeNwcURI({
+    const { isSuccess, error, fetchInfo } = await intakeNwcURI({
       uri,
       pubkey,
-      onSucess: () => router.back(),
-      onError: (error: string) => toast.show(error),
     });
+    if (isSuccess) {
+      queryClient.invalidateQueries(settingsKey);
+      router.back();
+      // fetch the info event and refresh settings after
+      await fetchInfo?.();
+      queryClient.invalidateQueries(settingsKey);
+    } else {
+      error && toast.show(error);
+    }
     setIsLoading(false);
   };
 

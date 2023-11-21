@@ -88,7 +88,7 @@ export const getMostRecentEvent = (events: Event[]) => {
   return events.sort((a, b) => b.created_at - a.created_at)[0];
 };
 
-const getEventFromRelay = (
+export const getEventFromRelay = (
   relayUri: string,
   filter: Filter,
 ): Promise<Event | null> => {
@@ -275,9 +275,9 @@ export const sendNWCRequest = async ({
   walletPubkey: string;
   relay: string;
   method: string;
-  params: Record<string, any>;
+  params?: Record<string, any>;
   connectionSecret: string;
-}) => {
+}): Promise<Event | void> => {
   try {
     const encryptedCommand = await nip04.encrypt(
       connectionSecret,
@@ -299,12 +299,13 @@ export const sendNWCRequest = async ({
       content: encryptedCommand,
     };
     const signedEvent = await finishEvent(event, connectionSecret);
-    await publishEvent([relay], signedEvent);
-    return signedEvent.id;
+
+    publishEvent([relay], signedEvent);
+
+    return signedEvent;
   } catch (error) {
     console.error(error);
   }
-  return;
 };
 
 export const signEvent = async (eventTemplate: EventTemplate) => {

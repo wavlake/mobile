@@ -10,7 +10,7 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { getSettings } from "@/utils";
+import { WalletBalance } from "./WalletBalance";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
@@ -49,40 +49,43 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
           }}
         />
       </View>
-      {pubkey && (
-        <View>
-          <Divider
-            style={{ marginHorizontal: 16 }}
-            color={brandColors.black.light}
-          />
-          <DrawerItem
-            label={() => <Text style={{ fontSize: 18 }}>Logout</Text>}
-            icon={({ color, size }) => (
-              <Ionicons name="log-out-outline" size={size} color={color} />
-            )}
-            onPress={() => {
-              Alert.alert(
-                "Confirm logout",
-                "Wavlake does not have access to your private key (nsec) so be sure to have it backed up before logging out.",
-                [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "OK",
-                    style: "destructive",
-                    onPress: async () => {
-                      await logout();
-                      props.navigation.closeDrawer();
+      <View>
+        <WalletBalance />
+        {pubkey && (
+          <View>
+            <Divider
+              style={{ marginHorizontal: 16 }}
+              color={brandColors.black.light}
+            />
+            <DrawerItem
+              label={() => <Text style={{ fontSize: 18 }}>Logout</Text>}
+              icon={({ color, size }) => (
+                <Ionicons name="log-out-outline" size={size} color={color} />
+              )}
+              onPress={() => {
+                Alert.alert(
+                  "Confirm logout",
+                  "Wavlake does not have access to your private key (nsec) so be sure to have it backed up before logging out.",
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
                     },
-                  },
-                ],
-              );
-            }}
-          />
-        </View>
-      )}
+                    {
+                      text: "OK",
+                      style: "destructive",
+                      onPress: async () => {
+                        await logout();
+                        props.navigation.closeDrawer();
+                      },
+                    },
+                  ],
+                );
+              }}
+            />
+          </View>
+        )}
+      </View>
     </DrawerContentScrollView>
   );
 };
