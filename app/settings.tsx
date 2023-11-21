@@ -17,7 +17,6 @@ import {
   TrashIcon,
 } from "react-native-heroicons/solid";
 import { useQueryClient } from "@tanstack/react-query";
-import { useBalanceQueryKey } from "@/hooks/useBalanceQueryKey";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 
@@ -37,7 +36,6 @@ export default function SettingsPage() {
   );
   const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
   const queryClient = useQueryClient();
-  const balanceKey = useBalanceQueryKey();
   const settingsKey = useSettingsQueryKey();
 
   const handleSave = async () => {
@@ -68,7 +66,6 @@ export default function SettingsPage() {
       pubkey,
     );
     queryClient.invalidateQueries(settingsKey);
-    queryClient.invalidateQueries(balanceKey);
   };
 
   const nwcCanPay = settings?.nwcCommands.includes(payInvoiceCommand);

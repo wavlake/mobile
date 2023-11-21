@@ -10,17 +10,11 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useBalance } from "@/hooks/useBalance";
+import { WalletBalance } from "./WalletBalance";
 
-const satsFormatter = (mSats: number) => {
-  const sats = (mSats / 1000).toFixed(0);
-  // add commas
-  return sats.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
-  const { data: balance } = useBalance();
 
   return (
     <DrawerContentScrollView
@@ -56,12 +50,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
         />
       </View>
       <View>
-        {/* balance is -1 if we don't have a value */}
-        {balance && balance >= 0 && (
-          <Text style={{ marginHorizontal: 16, marginBottom: 8 }}>
-            Wallet Balance: {satsFormatter(balance)} sats
-          </Text>
-        )}
+        <WalletBalance />
         {pubkey && (
           <View>
             <Divider

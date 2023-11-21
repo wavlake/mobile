@@ -233,10 +233,6 @@ export async function getNwcBalance({
   nwcRelay: string;
 }) {
   const { connectionSecret } = await getNwcConnection(userPubkey);
-  if (!connectionSecret) {
-    // there is no NWC to get a balance for
-    return;
-  }
 
   const requestEvent = await sendNWCRequest({
     walletPubkey,

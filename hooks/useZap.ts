@@ -12,7 +12,6 @@ import {
 } from "@/utils";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useBalanceQueryKey } from "./useBalanceQueryKey";
 import { useSettings } from "./useSettings";
 
 const fetchInvoiceForZap = async ({
@@ -66,7 +65,6 @@ export const useZap = ({
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
-  const balanceKey = useBalanceQueryKey();
   const queryClient = useQueryClient();
   const { data: settings } = useSettings();
 
@@ -103,7 +101,6 @@ export const useZap = ({
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then(() => {
-        queryClient.invalidateQueries(balanceKey);
         const navEvent = {
           pathname: "/zap/success",
           params: {
