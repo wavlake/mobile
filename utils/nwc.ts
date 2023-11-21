@@ -1,10 +1,5 @@
 import { getPublicKey, nip04 } from "nostr-tools";
-import {
-  DEFAULT_READ_RELAY_URIS,
-  getEventFromPool,
-  getNWCInfoEvent,
-  sendNWCRequest,
-} from "./nostr";
+import { getEventFromRelay, getNWCInfoEvent, sendNWCRequest } from "./nostr";
 import { getNwcSecret, saveNwcSecret } from "./secureStorage";
 import { cacheSettings } from "./cache";
 
@@ -96,6 +91,8 @@ export const intakeNwcURI = async ({
         nwcRelay: relay,
         nwcLud16: lud16,
         nwcPubkey,
+        // need to get the balance when adding a new wallet
+        nwcBalanceIsStale: true,
         // we set these to optimistic truthy values, but validate via the fetchInfo below
         enableNWC: true,
         nwcCommands: [payInvoiceCommand],
@@ -244,15 +241,15 @@ export async function getNwcBalance({
     throw new Error("Failed to send NWC get balance request");
   }
 
-  const relays =
+  const relay =
     nwcRelay === "wss://nostr.mutinywallet.com"
-      ? DEFAULT_READ_RELAY_URIS
-      : [nwcRelay];
+      ? "wss://relay.wavlake.com"
+      : nwcRelay;
   const response = await handleNwcResponse({
     userPubkey,
     eventId: requestEvent.id,
     walletPubkey,
-    relays,
+    relay,
   });
 
   return response as NWCResponseGetBalance;
@@ -282,16 +279,16 @@ async function sendNwcPaymentRequest({
   if (!requestEvent) {
     throw new Error("Failed to send NWC request");
   }
-  const relays =
+  const relay =
     nwcRelay === "wss://nostr.mutinywallet.com"
-      ? DEFAULT_READ_RELAY_URIS
-      : [nwcRelay];
+      ? "wss://relay.wavlake.com"
+      : nwcRelay;
 
   const response = (await handleNwcResponse({
     userPubkey,
     eventId: requestEvent.id,
     walletPubkey,
-    relays,
+    relay,
   })) as NWCResponsePayInvoice;
 
   if (!response?.result?.preimage) {
@@ -305,12 +302,12 @@ async function handleNwcResponse({
   eventId,
   walletPubkey,
   userPubkey,
-  relays,
+  relay,
 }: {
   eventId: string;
   walletPubkey: string;
   userPubkey: string;
-  relays: string[];
+  relay: string;
 }): Promise<NWCResponseGetBalance | NWCResponsePayInvoice> {
   const { connectionSecret, connectionPubkey } =
     await getNwcConnection(userPubkey);
@@ -321,7 +318,7 @@ async function handleNwcResponse({
     authors: [walletPubkey],
   };
 
-  const responseEvent = await getEventFromPool(filter, relays);
+  const responseEvent = await getEventFromRelay(relay, filter);
   if (!responseEvent) {
     throw new Error("Failed to get NWC response");
   }

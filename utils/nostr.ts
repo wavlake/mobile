@@ -88,7 +88,7 @@ export const getMostRecentEvent = (events: Event[]) => {
   return events.sort((a, b) => b.created_at - a.created_at)[0];
 };
 
-const getEventFromRelay = (
+export const getEventFromRelay = (
   relayUri: string,
   filter: Filter,
 ): Promise<Event | null> => {
@@ -114,7 +114,7 @@ const getEventFromRelay = (
  * This function is more complicated than it needs to be because SimplePool would not work for some reason.
  * TODO: make an endpoint to fetch nostr profile metadata and remove this function.
  */
-export const getEventFromPool = async (
+const getEventFromPool = async (
   filter: Filter,
   relayUris: string[] = DEFAULT_READ_RELAY_URIS,
 ) => {

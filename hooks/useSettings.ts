@@ -5,16 +5,18 @@ import { useSettingsQueryKey } from "./useSettingsQueryKey";
 
 export const useSettings = () => {
   const { pubkey: userPubkey } = useAuth();
-
   const queryKey = useSettingsQueryKey();
+  const enabled = Boolean(userPubkey);
 
-  return useQuery({
+  const data = useQuery({
     queryKey,
     queryFn: async () => {
       if (!userPubkey) return;
       const settings = await getSettings(userPubkey);
       return settings;
     },
-    enabled: Boolean(userPubkey),
+    enabled,
   });
+
+  return data;
 };

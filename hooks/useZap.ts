@@ -4,6 +4,7 @@ import { useToast } from "./useToast";
 import { useNostrRelayList } from "./nostrRelayList";
 
 import {
+  cacheSettings,
   fetchInvoice,
   getZapReceipt,
   openInvoiceInWallet,
@@ -11,7 +12,6 @@ import {
   payWithNWC,
 } from "@/utils";
 import { useRouter } from "expo-router";
-import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "./useSettings";
 
 const fetchInvoiceForZap = async ({
@@ -65,7 +65,6 @@ export const useZap = ({
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
-  const queryClient = useQueryClient();
   const { data: settings } = useSettings();
 
   const sendZap: SendZap = async (props) => {
@@ -110,7 +109,7 @@ export const useZap = ({
             zapAmount: amountInSats,
           },
         };
-
+        cacheSettings({ nwcBalanceIsStale: true }, pubkey);
         useNavReplace ? router.replace(navEvent) : router.push(navEvent);
       });
     } catch {
