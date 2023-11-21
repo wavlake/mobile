@@ -248,7 +248,7 @@ export async function getNwcBalance({
   if (!requestEvent) {
     throw new Error("Failed to send NWC get balance request");
   }
-
+  // Because mutiny's relay is not readable
   const relay =
     nwcRelay === "wss://nostr.mutinywallet.com"
       ? "wss://relay.wavlake.com"
