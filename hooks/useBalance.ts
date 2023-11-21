@@ -1,17 +1,20 @@
 import { useAuth } from "./useAuth";
-import { getNwcBalance, getSettings } from "@/utils";
+import { getNwcBalance } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useBalanceQueryKey } from "./useBalanceQueryKey";
+import { useSettings } from "./useSettings";
 
 export const useBalance = () => {
   const { pubkey: userPubkey } = useAuth();
+  const { data: settings } = useSettings();
+  const { nwcPubkey: walletPubkey, nwcRelay } = settings || {};
+  const enabled = Boolean(userPubkey) && Boolean(settings?.enableNWC);
   const queryKey = useBalanceQueryKey();
   return useQuery({
     queryKey,
     queryFn: async () => {
-      if (!userPubkey) return;
-      const { nwcPubkey: walletPubkey, nwcRelay } =
-        await getSettings(userPubkey);
+      if (!userPubkey || !walletPubkey || !nwcRelay) return;
+
       const { result } = await getNwcBalance({
         userPubkey,
         walletPubkey,
@@ -20,6 +23,6 @@ export const useBalance = () => {
       const { balance, budget_renewal, max_amount } = result;
       return balance;
     },
-    enabled: Boolean(userPubkey),
+    enabled,
   });
 };

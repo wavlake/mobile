@@ -88,7 +88,7 @@ export const getMostRecentEvent = (events: Event[]) => {
   return events.sort((a, b) => b.created_at - a.created_at)[0];
 };
 
-export const getEventFromRelay = (
+const getEventFromRelay = (
   relayUri: string,
   filter: Filter,
 ): Promise<Event | null> => {
@@ -114,7 +114,7 @@ export const getEventFromRelay = (
  * This function is more complicated than it needs to be because SimplePool would not work for some reason.
  * TODO: make an endpoint to fetch nostr profile metadata and remove this function.
  */
-const getEventFromPool = async (
+export const getEventFromPool = async (
   filter: Filter,
   relayUris: string[] = DEFAULT_READ_RELAY_URIS,
 ) => {
@@ -265,32 +265,6 @@ export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
   };
 };
 
-export interface NWCResponsePayInvoice {
-  result: {
-    preimage: string;
-  };
-  error?: {
-    code: string;
-    message: string;
-  };
-  result_type?: string;
-}
-
-export interface NWCResponseGetBalance {
-  result: { balance: number; budget_renewal: string; max_amount: number };
-  error?: {
-    code: string;
-    message: string;
-  };
-  result_type?: string;
-}
-
-type MethodTypes = "pay_invoice" | "get_balance";
-type ResponseTypes = {
-  pay_invoice: NWCResponsePayInvoice;
-  get_balance: NWCResponseGetBalance;
-};
-
 export const sendNWCRequest = async ({
   walletPubkey,
   relay,
@@ -300,10 +274,9 @@ export const sendNWCRequest = async ({
 }: {
   walletPubkey: string;
   relay: string;
-  method: MethodTypes;
+  method: string;
   params?: Record<string, any>;
   connectionSecret: string;
-  // the return type is dependent on the method
 }): Promise<Event | void> => {
   try {
     const encryptedCommand = await nip04.encrypt(

@@ -1,13 +1,12 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import {
   WalletKey,
   cacheSettings,
   deleteNwcSecret,
-  getSettings,
   payInvoiceCommand,
 } from "@/utils";
 import { Switch } from "@rneui/themed";
@@ -17,20 +16,29 @@ import {
   PlusCircleIcon,
   TrashIcon,
 } from "react-native-heroicons/solid";
+import { useQueryClient } from "@tanstack/react-query";
+import { useBalanceQueryKey } from "@/hooks/useBalanceQueryKey";
+import { useSettings } from "@/hooks/useSettings";
+import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 
 export default function SettingsPage() {
   const toast = useToast();
   const router = useRouter();
   const { pubkey } = useAuth();
-  const [defaultZapAmount, setDefaultZapAmount] = useState("");
-  const [defaultZapWallet, setDefaultZapWallet] =
-    useState<WalletKey>("default");
-  const [allowListeningActivity, setAllowListeningActivity] = useState(false);
-  const [nwcRelay, setNwcRelay] = useState("");
-  const [enableNWC, setEnableNWC] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [screenActive, setScreenActive] = useState(true);
-  const [nwcCommands, setNwcCommands] = useState<string[]>([]);
+  const { data: settings } = useSettings();
+  const [defaultZapAmount, setDefaultZapAmount] = useState(
+    settings?.defaultZapAmount ?? "",
+  );
+  const [defaultZapWallet, setDefaultZapWallet] = useState<WalletKey>(
+    settings?.defaultZapWallet ?? "default",
+  );
+  const [allowListeningActivity, setAllowListeningActivity] = useState(
+    settings?.allowListeningActivity ?? false,
+  );
+  const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
+  const queryClient = useQueryClient();
+  const balanceKey = useBalanceQueryKey();
+  const settingsKey = useSettingsQueryKey();
 
   const handleSave = async () => {
     Keyboard.dismiss();
@@ -38,7 +46,7 @@ export default function SettingsPage() {
       { defaultZapAmount, defaultZapWallet, allowListeningActivity, enableNWC },
       pubkey,
     );
-
+    queryClient.invalidateQueries(settingsKey);
     toast.show("saved");
   };
   const onAddNWC = () => {
@@ -47,9 +55,9 @@ export default function SettingsPage() {
     });
   };
 
-  const onDeleteNWC = () => {
+  const onDeleteNWC = async () => {
     pubkey && deleteNwcSecret(pubkey);
-    cacheSettings(
+    await cacheSettings(
       {
         nwcRelay: undefined,
         nwcCommands: [],
@@ -59,31 +67,13 @@ export default function SettingsPage() {
       },
       pubkey,
     );
-    setNwcRelay("");
+    queryClient.invalidateQueries(settingsKey);
+    queryClient.invalidateQueries(balanceKey);
   };
 
-  const fetchSettings = useCallback(() => {
-    setScreenActive(true);
-    (async () => {
-      setLoading(true);
-      const settings = await getSettings(pubkey);
-      setDefaultZapAmount(settings.defaultZapAmount ?? "");
-      setDefaultZapWallet(settings.defaultZapWallet ?? "default");
-      setAllowListeningActivity(settings.allowListeningActivity ?? false);
-      setNwcRelay(settings.nwcRelay ?? "");
-      setEnableNWC(settings.enableNWC ?? false);
-      setNwcCommands(settings.nwcCommands ?? []);
-      setLoading(false);
-    })();
-    return () => {
-      setScreenActive(false);
-    };
-  }, [screenActive]);
+  const nwcCanPay = settings?.nwcCommands.includes(payInvoiceCommand);
 
-  // fetch settings on mount
-  useFocusEffect(fetchSettings);
-  const nwcCanPay = nwcCommands.includes(payInvoiceCommand);
-  if (loading) return;
+  if (!settings) return;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -117,13 +107,15 @@ export default function SettingsPage() {
                       gap: 4,
                     }}
                   >
-                    {nwcRelay && (
+                    {settings?.nwcRelay && (
                       <CheckCircleIcon color={brandColors.mint.DEFAULT} />
                     )}
-                    <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
+                    <Text>
+                      {settings?.nwcRelay || "Add a NWC compatible wallet."}
+                    </Text>
                   </View>
                 </View>
-                {nwcRelay ? (
+                {settings?.nwcRelay ? (
                   <TrashIcon
                     onPress={onDeleteNWC}
                     color={brandColors.orange.DEFAULT}
@@ -141,13 +133,13 @@ export default function SettingsPage() {
                   />
                 )}
               </View>
-              {nwcRelay && !nwcCanPay && (
+              {settings?.nwcRelay && !nwcCanPay && (
                 <Text>
                   It looks like this wallet cannot pay invoices, please try
                   another connection
                 </Text>
               )}
-              {nwcRelay && (
+              {settings?.nwcRelay && (
                 <View
                   style={{
                     marginTop: 24,

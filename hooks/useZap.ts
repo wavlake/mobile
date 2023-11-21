@@ -5,13 +5,15 @@ import { useNostrRelayList } from "./nostrRelayList";
 
 import {
   fetchInvoice,
-  getSettings,
   getZapReceipt,
   openInvoiceInWallet,
   payInvoiceCommand,
   payWithNWC,
 } from "@/utils";
 import { useRouter } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useBalanceQueryKey } from "./useBalanceQueryKey";
+import { useSettings } from "./useSettings";
 
 const fetchInvoiceForZap = async ({
   writeRelayList,
@@ -56,6 +58,9 @@ export const useZap = ({
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
+  const balanceKey = useBalanceQueryKey();
+  const queryClient = useQueryClient();
+  const { data: settings } = useSettings();
 
   const sendZap = async (comment: string = "", amount?: number) => {
     if (!trackId) {
@@ -70,7 +75,7 @@ export const useZap = ({
       nwcRelay,
       nwcPubkey,
       defaultZapAmount,
-    } = await getSettings(pubkey);
+    } = settings || {};
     const amountInSats = Number(amount || defaultZapAmount);
     const invoice = await fetchInvoiceForZap({
       writeRelayList,
@@ -88,6 +93,7 @@ export const useZap = ({
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then(() => {
+        queryClient.invalidateQueries(balanceKey);
         router.replace({
           pathname: "/zap/success",
           params: {
@@ -103,13 +109,17 @@ export const useZap = ({
     }
 
     try {
-      if (pubkey && enableNWC && nwcCommands.includes(payInvoiceCommand)) {
+      if (
+        pubkey &&
+        enableNWC &&
+        settings?.nwcCommands.includes(payInvoiceCommand)
+      ) {
         // use NWC, responds with preimage if successful
         const response = await payWithNWC({
           userPubkey: pubkey,
           invoice,
-          walletPubkey: nwcPubkey,
-          nwcRelay,
+          walletPubkey: settings?.nwcPubkey,
+          nwcRelay: settings?.nwcRelay,
         });
         if (response?.error) {
           toast.show(response.error);
@@ -119,7 +129,8 @@ export const useZap = ({
         }
       } else {
         // if no NWC, open invoice in default wallet
-        openInvoiceInWallet(defaultZapWallet, invoice);
+
+        openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
         setIsLoading(false);
       }
     } catch {
