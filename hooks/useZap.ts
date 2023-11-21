@@ -109,7 +109,6 @@ export const useZap = ({
             zapAmount: amountInSats,
           },
         };
-        cacheSettings({ nwcBalanceIsStale: true }, pubkey);
         useNavReplace ? router.replace(navEvent) : router.push(navEvent);
       });
     } catch {

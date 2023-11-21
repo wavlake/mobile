@@ -91,8 +91,6 @@ export const intakeNwcURI = async ({
         nwcRelay: relay,
         nwcLud16: lud16,
         nwcPubkey,
-        // need to get the balance when adding a new wallet
-        nwcBalanceIsStale: true,
         // we set these to optimistic truthy values, but validate via the fetchInfo below
         enableNWC: true,
         nwcCommands: [payInvoiceCommand],
