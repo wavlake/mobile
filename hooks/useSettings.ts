@@ -11,7 +11,6 @@ export const useSettings = () => {
   const data = useQuery({
     queryKey,
     queryFn: async () => {
-      if (!userPubkey) return;
       const settings = await getSettings(userPubkey);
       return settings;
     },

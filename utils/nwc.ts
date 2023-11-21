@@ -225,10 +225,18 @@ export async function getNwcBalance({
   walletPubkey,
   nwcRelay,
 }: {
-  userPubkey: string;
-  walletPubkey: string;
-  nwcRelay: string;
+  userPubkey?: string;
+  walletPubkey?: string;
+  nwcRelay?: string;
 }) {
+  if (!userPubkey || !walletPubkey || !nwcRelay) {
+    return {
+      result: {
+        balance: undefined,
+      },
+    };
+  }
+
   const { connectionSecret } = await getNwcConnection(userPubkey);
 
   const requestEvent = await sendNWCRequest({
@@ -245,14 +253,14 @@ export async function getNwcBalance({
     nwcRelay === "wss://nostr.mutinywallet.com"
       ? "wss://relay.wavlake.com"
       : nwcRelay;
-  const response = await handleNwcResponse({
+  const response = (await handleNwcResponse({
     userPubkey,
     eventId: requestEvent.id,
     walletPubkey,
     relay,
-  });
+  })) as NWCResponseGetBalance;
 
-  return response as NWCResponseGetBalance;
+  return response;
 }
 
 async function sendNwcPaymentRequest({
