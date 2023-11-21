@@ -88,6 +88,7 @@ export interface Settings {
   nwcPubkey: string;
   enableNWC: boolean;
   nwcCommands: string[];
+  oneTapZap: boolean;
 }
 
 export const cacheSettings = async (

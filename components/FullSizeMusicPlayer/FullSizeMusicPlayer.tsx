@@ -37,6 +37,7 @@ export const FullSizeMusicPlayer = () => {
   const router = useRouter();
   const { currentTrack } = useMusicPlayer();
   const { data: settings } = useSettings();
+  const { oneTapZap = false } = settings || {};
   const {
     id: trackId,
     title,
@@ -106,6 +107,19 @@ export const FullSizeMusicPlayer = () => {
     sendZap();
   };
 
+  const goToZapPage = () => {
+    router.push({
+      pathname: "/zap",
+      params: {
+        defaultZapAmount: settings?.defaultZapAmount,
+        title,
+        artist,
+        artworkUrl,
+        trackId,
+      },
+    });
+  };
+
   return currentTrack ? (
     <>
       <ScrollView style={{ paddingTop: 8 }}>
@@ -134,19 +148,8 @@ export const FullSizeMusicPlayer = () => {
             </View>
             <TouchableOpacity
               disabled={isLoading}
-              onPress={handleZap}
-              onLongPress={() => {
-                router.push({
-                  pathname: "/zap",
-                  params: {
-                    defaultZapAmount: settings?.defaultZapAmount,
-                    title,
-                    artist,
-                    artworkUrl,
-                    trackId,
-                  },
-                });
-              }}
+              onPress={oneTapZap ? handleZap : goToZapPage}
+              onLongPress={oneTapZap ? goToZapPage : undefined}
               style={{
                 alignItems: "center",
                 justifyContent: "center",

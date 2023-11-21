@@ -4,7 +4,6 @@ import { useToast } from "./useToast";
 import { useNostrRelayList } from "./nostrRelayList";
 
 import {
-  cacheSettings,
   fetchInvoice,
   getZapReceipt,
   openInvoiceInWallet,

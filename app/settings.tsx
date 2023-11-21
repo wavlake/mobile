@@ -35,6 +35,8 @@ export default function SettingsPage() {
     settings?.allowListeningActivity ?? false,
   );
   const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
+  const [oneTapZap, setOneTapZap] = useState(settings?.oneTapZap ?? false);
+
   const queryClient = useQueryClient();
   const settingsKey = useSettingsQueryKey();
 
@@ -111,6 +113,26 @@ export default function SettingsPage() {
             <Switch
               value={allowListeningActivity}
               onValueChange={setAllowListeningActivity}
+              color={brandColors.pink.DEFAULT}
+            />
+          </View>
+          <View
+            style={{
+              marginTop: 24,
+              marginBottom: 4,
+              flexDirection: "row",
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text bold>One tap zaps</Text>
+              <Text>
+                Change the default behavior of the zap button to one tap zap
+                your default amount. Long press to open the comment form.
+              </Text>
+            </View>
+            <Switch
+              value={oneTapZap}
+              onValueChange={setOneTapZap}
               color={brandColors.pink.DEFAULT}
             />
           </View>
