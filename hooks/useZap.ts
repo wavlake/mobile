@@ -130,22 +130,20 @@ export const useZap = ({
         });
         if (response?.error) {
           toast.show(response.error);
-          setIsLoading(false);
         } else if (response?.preimage) {
-          // invoice was paid
+          // invoice was paid, we have the preimage
         }
       } else {
         // if no NWC, open invoice in default wallet
-
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
-        setIsLoading(false);
       }
     } catch {
       toast.show("Something went wrong. Please try again later.");
-      setIsLoading(false);
-
-      return;
     }
+
+    // all done
+    setIsLoading(false);
+    return;
   };
 
   return {
