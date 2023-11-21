@@ -20,7 +20,6 @@ import {
   getBlankEvent,
   nip04,
   Kind,
-  getPublicKey,
 } from "nostr-tools";
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
@@ -89,7 +88,7 @@ export const getMostRecentEvent = (events: Event[]) => {
   return events.sort((a, b) => b.created_at - a.created_at)[0];
 };
 
-const getEventFromRelay = (
+export const getEventFromRelay = (
   relayUri: string,
   filter: Filter,
 ): Promise<Event | null> => {
@@ -305,7 +304,7 @@ export const sendNWCRequest = async ({
   params?: Record<string, any>;
   connectionSecret: string;
   // the return type is dependent on the method
-}): Promise<ResponseTypes[MethodTypes] | void> => {
+}): Promise<Event | void> => {
   try {
     const encryptedCommand = await nip04.encrypt(
       connectionSecret,
@@ -327,74 +326,13 @@ export const sendNWCRequest = async ({
       content: encryptedCommand,
     };
     const signedEvent = await finishEvent(event, connectionSecret);
-    const walletServiceRelay = relayInit(relay);
-    walletServiceRelay.on("error", () => {
-      throw new Error(`failed to connect to ${relay}`);
-    });
 
-    walletServiceRelay.connect();
-    const connectionPubkey = getPublicKey(connectionSecret);
-    const responseSub = walletServiceRelay.sub([
-      {
-        kinds: [23195],
-        "#p": [connectionPubkey],
-        // "#e": [signedEvent.id],
-        // authors: [walletPubkey],
-      },
-    ]);
-    console.log("#e", signedEvent.id);
-    console.log("note", nip19.noteEncode(signedEvent.id));
-    console.log("#p", connectionPubkey);
-    const waitForWalletResponse: () => Promise<
-      NWCResponseGetBalance | NWCResponsePayInvoice
-    > = () =>
-      new Promise((resolve, reject) => {
-        responseSub.on("event", async (event) => {
-          try {
-            const decryptedResponse = await nip04.decrypt(
-              connectionSecret,
-              walletPubkey,
-              event.content,
-            );
-            if (!decryptedResponse) {
-              throw new Error("Failed to decrypt NWC response");
-            }
+    publishEvent([relay], signedEvent);
 
-            const response = JSON.parse(decryptedResponse);
-            if (response.error) {
-              throw new Error(
-                `${response.error.code}: ${response.error.message}`,
-              );
-            }
-            console.log("got balance!", response);
-            resolve(response);
-          } catch (error) {
-            reject((error as Error).message || "Unknown error occurred");
-          } finally {
-            responseSub.unsub();
-          }
-        });
-        publishEvent([relay], signedEvent);
-      });
-
-    const response = await Promise.race<
-      NWCResponseGetBalance | NWCResponsePayInvoice
-    >([
-      waitForWalletResponse(),
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          console.log("NWC reject");
-          reject("NWC Response Timeout");
-        }, 8000);
-      }),
-    ]);
-    console.log("race response", response);
-    return response;
+    return signedEvent;
   } catch (error) {
-    console.log("catch error", error);
     console.error(error);
   }
-  return;
 };
 
 export const signEvent = async (eventTemplate: EventTemplate) => {
