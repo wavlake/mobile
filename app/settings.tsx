@@ -81,8 +81,10 @@ export default function SettingsPage() {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={{ padding: 24, gap: 24, alignItems: "center" }}>
-        <ScrollView style={{ marginBottom: 24, width: "100%" }}>
+      <ScrollView
+        contentContainerStyle={{ padding: 24, gap: 24, alignItems: "center" }}
+      >
+        <View style={{ marginBottom: 24, width: "100%" }}>
           <TextInput
             label="Default zap amount"
             value={defaultZapAmount}
@@ -141,9 +143,9 @@ export default function SettingsPage() {
               color={brandColors.pink.DEFAULT}
             />
           </View>
-        </ScrollView>
+        </View>
         <Button onPress={handleSave}>Save</Button>
-      </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
