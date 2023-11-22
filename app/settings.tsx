@@ -43,7 +43,13 @@ export default function SettingsPage() {
   const handleSave = async () => {
     Keyboard.dismiss();
     await cacheSettings(
-      { defaultZapAmount, defaultZapWallet, allowListeningActivity, enableNWC },
+      {
+        defaultZapAmount,
+        defaultZapWallet,
+        allowListeningActivity,
+        enableNWC,
+        oneTapZap,
+      },
       pubkey,
     );
     queryClient.invalidateQueries(settingsKey);
@@ -69,8 +75,6 @@ export default function SettingsPage() {
     );
     queryClient.invalidateQueries(settingsKey);
   };
-
-  const nwcCanPay = settings?.nwcCommands.includes(payInvoiceCommand);
 
   if (!settings) return;
 
