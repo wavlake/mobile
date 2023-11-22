@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/hooks";
-import { useSettings } from "@/hooks/useSettings";
+import { useAuth } from "./useAuth";
+import { useSettings } from "./useSettings";
 import { getNwcBalance } from "@/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const useWalletBalance = () => {
   const { data: settings } = useSettings();
   const { enableNWC, nwcPubkey, nwcRelay } = settings ?? {};
   const { pubkey: userPubkey } = useAuth();
+  const [balance, setBalance] = useState<number | undefined>(undefined);
 
   const { data, refetch } = useQuery({
     queryKey: ["balance", userPubkey],
@@ -24,6 +25,12 @@ export const useWalletBalance = () => {
   });
 
   useEffect(() => {
+    if (data) {
+      setBalance(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
     (async () => {
       if (!userPubkey || !enableNWC || !nwcPubkey || !nwcRelay) {
         return;
@@ -31,5 +38,6 @@ export const useWalletBalance = () => {
       refetch();
     })();
   }, [enableNWC, userPubkey, nwcPubkey, nwcRelay]);
-  return { balance: enableNWC ? data : undefined };
+
+  return { balance: enableNWC ? balance : undefined, setBalance };
 };

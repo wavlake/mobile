@@ -8,6 +8,7 @@ export const getBalanceCommand = "get_balance";
 export interface NWCResponsePayInvoice {
   result: {
     preimage: string;
+    balance?: number;
   };
   error?: {
     code: string;
@@ -271,7 +272,7 @@ async function sendNwcPaymentRequest({
   invoice: string;
   walletPubkey: string;
   nwcRelay: string;
-}): Promise<{ preimage: string }> {
+}) {
   const { connectionSecret } = await getNwcConnection(userPubkey);
 
   const requestEvent = await sendNWCRequest({
@@ -301,7 +302,7 @@ async function sendNwcPaymentRequest({
     throw new Error("Failed to pay using NWC");
   }
 
-  return { preimage: response?.result.preimage };
+  return response;
 }
 
 async function handleNwcResponse({
@@ -356,7 +357,7 @@ export const payWithNWC = async ({
   invoice: string;
   walletPubkey: string;
   nwcRelay: string;
-}): Promise<{ preimage?: string; error?: string } | void> => {
+}) => {
   try {
     return sendNwcPaymentRequest({
       userPubkey,
@@ -365,6 +366,11 @@ export const payWithNWC = async ({
       nwcRelay,
     });
   } catch (error) {
-    return { error: (error as Error).message || "Unknown error occurred" };
+    return {
+      error: {
+        message: (error as Error).message || "Unknown error occurred",
+      },
+      result: undefined,
+    };
   }
 };

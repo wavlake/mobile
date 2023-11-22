@@ -36,7 +36,7 @@ export const FullSizeMusicPlayer = () => {
   }>();
   const router = useRouter();
   const { currentTrack } = useMusicPlayer();
-  const { data: settings } = useSettings();
+  const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
   const {
     id: trackId,
@@ -96,7 +96,7 @@ export const FullSizeMusicPlayer = () => {
     artworkUrl,
   });
 
-  const handleZap = async () => {
+  const handleOneTapZap = async () => {
     const { defaultZapWallet, enableNWC, defaultZapAmount } = settings || {};
     const defaultsAreSet =
       defaultZapAmount && (enableNWC || validateWalletKey(defaultZapWallet));
@@ -108,6 +108,13 @@ export const FullSizeMusicPlayer = () => {
   };
 
   const goToZapPage = () => {
+    const { defaultZapWallet, enableNWC, defaultZapAmount } = settings || {};
+    const defaultsAreSet =
+      defaultZapAmount && (enableNWC || validateWalletKey(defaultZapWallet));
+    if (!defaultsAreSet) {
+      setIsWalletChooserModalVisible(true);
+      return;
+    }
     router.push({
       pathname: "/zap",
       params: {
@@ -148,7 +155,7 @@ export const FullSizeMusicPlayer = () => {
             </View>
             <TouchableOpacity
               disabled={isLoading}
-              onPress={oneTapZap ? handleZap : goToZapPage}
+              onPress={oneTapZap ? handleOneTapZap : goToZapPage}
               onLongPress={oneTapZap ? goToZapPage : undefined}
               style={{
                 alignItems: "center",
@@ -206,13 +213,13 @@ export const FullSizeMusicPlayer = () => {
       </ScrollView>
       <WalletChooserModal
         onContinue={async () => {
+          await refetchSettings();
           setIsWalletChooserModalVisible(false);
-          await handleZap();
         }}
         onCancel={async () => {
-          setIsWalletChooserModalVisible(false);
           await cacheSettings({ defaultZapWallet: "default" }, pubkey);
-          await handleZap();
+          await refetchSettings();
+          setIsWalletChooserModalVisible(false);
         }}
         visible={isWalletChooserModalVisible}
       />

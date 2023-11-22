@@ -19,6 +19,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -43,7 +44,13 @@ export default function SettingsPage() {
   const handleSave = async () => {
     Keyboard.dismiss();
     await cacheSettings(
-      { defaultZapAmount, defaultZapWallet, allowListeningActivity, enableNWC },
+      {
+        defaultZapAmount,
+        defaultZapWallet,
+        allowListeningActivity,
+        enableNWC,
+        oneTapZap,
+      },
       pubkey,
     );
     queryClient.invalidateQueries(settingsKey);
@@ -70,13 +77,13 @@ export default function SettingsPage() {
     queryClient.invalidateQueries(settingsKey);
   };
 
-  const nwcCanPay = settings?.nwcCommands.includes(payInvoiceCommand);
-
   if (!settings) return;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={{ padding: 24, gap: 24, alignItems: "center" }}>
+      <ScrollView
+        contentContainerStyle={{ padding: 24, gap: 24, alignItems: "center" }}
+      >
         <View style={{ marginBottom: 24, width: "100%" }}>
           <TextInput
             label="Default zap amount"
@@ -138,7 +145,7 @@ export default function SettingsPage() {
           </View>
         </View>
         <Button onPress={handleSave}>Save</Button>
-      </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
