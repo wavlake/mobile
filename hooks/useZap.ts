@@ -12,6 +12,7 @@ import {
 } from "@/utils";
 import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
+import { useWalletBalance } from "./useWalletBalance";
 
 const fetchInvoiceForZap = async ({
   writeRelayList,
@@ -65,6 +66,7 @@ export const useZap = ({
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
+  const { setBalance } = useWalletBalance();
 
   const sendZap: SendZap = async (props) => {
     if (!trackId) {
@@ -121,16 +123,20 @@ export const useZap = ({
         settings?.nwcCommands.includes(payInvoiceCommand)
       ) {
         // use NWC, responds with preimage if successful
-        const response = await payWithNWC({
+        const { error, result } = await payWithNWC({
           userPubkey: pubkey,
           invoice,
           walletPubkey: settings?.nwcPubkey,
           nwcRelay: settings?.nwcRelay,
         });
-        if (response?.error) {
-          toast.show(response.error);
-        } else if (response?.preimage) {
+        console.log({ result });
+        if (error?.message) {
+          toast.show(error.message);
+        } else if (result?.preimage) {
           // invoice was paid, we have the preimage
+        }
+        if (result?.balance) {
+          setBalance(result.balance);
         }
       } else {
         // if no NWC, open invoice in default wallet
