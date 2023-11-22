@@ -19,6 +19,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -81,7 +82,7 @@ export default function SettingsPage() {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={{ padding: 24, gap: 24, alignItems: "center" }}>
-        <View style={{ marginBottom: 24, width: "100%" }}>
+        <ScrollView style={{ marginBottom: 24, width: "100%" }}>
           <TextInput
             label="Default zap amount"
             value={defaultZapAmount}
@@ -140,7 +141,7 @@ export default function SettingsPage() {
               color={brandColors.pink.DEFAULT}
             />
           </View>
-        </View>
+        </ScrollView>
         <Button onPress={handleSave}>Save</Button>
       </View>
     </TouchableWithoutFeedback>

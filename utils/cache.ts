@@ -91,6 +91,7 @@ export interface Settings {
   oneTapZap: boolean;
 }
 
+// TODO expose this call thru the settings hook
 export const cacheSettings = async (
   settings: Partial<Settings>,
   pubkey?: string,
