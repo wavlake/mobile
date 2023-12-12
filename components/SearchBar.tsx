@@ -7,13 +7,19 @@ interface SearchBarProps {
 }
 
 export const SearchBar = ({ query, onChange }: SearchBarProps) => {
+  const iOS = Platform.OS === "ios";
   return (
     <BaseSearchBar
-      platform={Platform.OS === "ios" ? "ios" : "android"}
+      platform={iOS ? "ios" : "android"}
       containerStyle={{
         backgroundColor: "transparent",
       }}
-      inputContainerStyle={{ borderRadius: 16 }}
+      inputContainerStyle={{
+        borderRadius: 16,
+        backgroundColor: "white",
+        marginHorizontal: iOS ? 0 : 20,
+        width: "auto",
+      }}
       onChangeText={onChange}
       value={query}
     />
