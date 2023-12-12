@@ -7,13 +7,19 @@ interface MarqueeTextProps extends TextTickerProps {
   style?: TextStyle;
 }
 
+function easeInSine(x: number): number {
+  return 1 - Math.cos((x * Math.PI) / 2);
+}
+
 export const MarqueeText = ({ bold, style, ...rest }: MarqueeTextProps) => {
   const { colors } = useTheme();
 
   return (
     <TextTicker
-      duration={5000}
-      animationType="bounce"
+      scrollSpeed={20}
+      marqueeDelay={1000}
+      animationType="scroll"
+      easing={easeInSine}
       {...rest}
       style={{
         color: colors.text,
