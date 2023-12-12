@@ -25,7 +25,7 @@ interface PlayerControlsProps {
 export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
   const { colors } = useTheme();
   const { position, duration } = useProgress();
-  const playbackState = usePlaybackState();
+  const { state: playbackState } = usePlaybackState();
   const [sliderValue, setSliderValue] = useState(position);
   const [isSliding, setIsSliding] = useState(false);
 
