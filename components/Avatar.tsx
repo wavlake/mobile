@@ -6,6 +6,9 @@ import { brandColors } from "@/constants";
 // just using a sample blurhash to resemble a loading state
 const blurhash = "L6PZfSi_.AyE_3t7t7R**0o#DgR4";
 
+// hack to prevent a warning from @rneui/themed
+// https://github.com/react-native-elements/react-native-elements/issues/3742#issuecomment-1815876521
+const source = { uri: "https://" };
 interface AvatarProps {
   size: number;
 }
@@ -32,6 +35,7 @@ export const Avatar = ({ size }: AvatarProps) => {
         size={size}
         rounded
         title={initial}
+        source={source}
         containerStyle={{ backgroundColor: brandColors.purple.DEFAULT }}
       />
     );
@@ -45,6 +49,7 @@ export const Avatar = ({ size }: AvatarProps) => {
         name: "user",
         type: "font-awesome",
       }}
+      source={source}
       containerStyle={{ backgroundColor: brandColors.purple.DEFAULT }}
     />
   );
