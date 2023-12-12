@@ -129,7 +129,6 @@ export const useZap = ({
           walletPubkey: settings?.nwcPubkey,
           nwcRelay: settings?.nwcRelay,
         });
-        console.log({ result });
         if (error?.message) {
           toast.show(error.message);
         } else if (result?.preimage) {
