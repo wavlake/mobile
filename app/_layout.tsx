@@ -58,27 +58,29 @@ export default function Layout() {
   }, [loaded]);
 
   useEffect(() => {
-    try {
-      TrackPlayer.registerPlaybackService(() => musicService);
-    } catch (error) {
-      console.log("error registering playback service", error);
-    }
+    (async () => {
+      try {
+        TrackPlayer.registerPlaybackService(() => musicService);
+      } catch (error) {
+        console.log("error registering playback service", error);
+      }
 
-    TrackPlayer.setupPlayer().catch((error) => {
-      console.log("error setting up player", error);
-    });
+      await TrackPlayer.setupPlayer().catch((error) => {
+        console.log("error setting up player", error);
+      });
 
-    TrackPlayer.updateOptions({
-      capabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToNext,
-        Capability.SkipToPrevious,
-        Capability.SeekTo,
-      ],
-    }).catch((error) => {
-      console.log("error updating options", error);
-    });
+      TrackPlayer.updateOptions({
+        capabilities: [
+          Capability.Play,
+          Capability.Pause,
+          Capability.SkipToNext,
+          Capability.SkipToPrevious,
+          Capability.SeekTo,
+        ],
+      }).catch((error) => {
+        console.log("error updating options", error);
+      });
+    })();
   }, []);
 
   const onAppStateChange = (status: AppStateStatus) => {
