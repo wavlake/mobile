@@ -19,7 +19,7 @@ export const PlayButtonSectionHeader = ({
   rightNavHref,
 }: PlayButtonSectionHeaderProps) => {
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
-  const playbackState = usePlaybackState();
+  const { state: playbackState } = usePlaybackState();
   const isThisTrackListLoaded = currentTrackListId === trackListId;
   const isThisTrackListPlaying =
     playbackState !== State.Paused && isThisTrackListLoaded;
