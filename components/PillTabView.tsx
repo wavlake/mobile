@@ -42,6 +42,7 @@ export const PillTabView = ({
           })}
           containerStyle={{ backgroundColor: colors.background }}
           dense
+          style={{ backgroundColor: colors.background }}
           disableIndicator
           titleStyle={(active) => ({
             fontFamily: "Poppins_700Bold",
