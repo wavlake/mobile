@@ -20,7 +20,8 @@ import {
 import { MusicPlayerProvider, Text } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
-import { setupPlayer } from "@/services";
+import TrackPlayer, { Capability } from "react-native-track-player";
+import { musicService } from "@/services";
 import { useBetterURL } from "@/hooks";
 
 // Catch any errors thrown by the Layout component.
@@ -57,7 +58,27 @@ export default function Layout() {
   }, [loaded]);
 
   useEffect(() => {
-    setupPlayer();
+    try {
+      TrackPlayer.registerPlaybackService(() => musicService);
+    } catch (error) {
+      console.log("error registering playback service", error);
+    }
+
+    TrackPlayer.setupPlayer().catch((error) => {
+      console.log("error setting up player", error);
+    });
+
+    TrackPlayer.updateOptions({
+      capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+        Capability.SeekTo,
+      ],
+    }).catch((error) => {
+      console.log("error updating options", error);
+    });
   }, []);
 
   const onAppStateChange = (status: AppStateStatus) => {
