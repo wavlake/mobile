@@ -23,7 +23,8 @@ export const PillTabView = ({
     <>
       <View
         style={{
-          width: 300,
+          // a width of 300 produces a faint line between the pills on Android
+          width: 299,
           alignSelf: "center",
           paddingTop: 16,
           paddingBottom: searchShown ? 0 : 16,
