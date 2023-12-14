@@ -9,6 +9,7 @@ import {
   deleteNwcSecret,
   payInvoiceCommand,
 } from "@/utils";
+import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import {
@@ -25,6 +26,8 @@ export default function SettingsPage() {
   const toast = useToast();
   const router = useRouter();
   const { pubkey } = useAuth();
+  const { colors } = useTheme();
+
   const { data: settings } = useSettings();
   const [defaultZapAmount, setDefaultZapAmount] = useState(
     settings?.defaultZapAmount ?? "",
@@ -121,6 +124,11 @@ export default function SettingsPage() {
               value={allowListeningActivity}
               onValueChange={setAllowListeningActivity}
               color={brandColors.pink.DEFAULT}
+              trackColor={{
+                false: colors.border,
+                true: brandColors.pink.DEFAULT,
+              }}
+              thumbColor={colors.text}
             />
           </View>
           <View
@@ -141,6 +149,11 @@ export default function SettingsPage() {
               value={oneTapZap}
               onValueChange={setOneTapZap}
               color={brandColors.pink.DEFAULT}
+              trackColor={{
+                false: colors.border,
+                true: brandColors.pink.DEFAULT,
+              }}
+              thumbColor={colors.text}
             />
           </View>
         </View>
@@ -234,6 +247,7 @@ const NWCSettings = ({
             value={enableNWC}
             onValueChange={setEnableNWC}
             color={brandColors.pink.DEFAULT}
+            thumbColor={colors.background}
             disabled={nwcCantPayInvoices}
           />
         </View>
