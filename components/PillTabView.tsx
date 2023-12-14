@@ -23,8 +23,7 @@ export const PillTabView = ({
     <>
       <View
         style={{
-          // a width of 300 produces a faint line between the pills on Android
-          width: 299,
+          width: 300,
           alignSelf: "center",
           paddingTop: 16,
           paddingBottom: searchShown ? 0 : 16,
@@ -43,6 +42,7 @@ export const PillTabView = ({
           })}
           containerStyle={{ backgroundColor: colors.background }}
           dense
+          style={{ backgroundColor: colors.background }}
           disableIndicator
           titleStyle={(active) => ({
             fontFamily: "Poppins_700Bold",
