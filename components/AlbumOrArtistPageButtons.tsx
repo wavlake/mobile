@@ -33,7 +33,7 @@ export const AlbumOrArtistPageButtons = ({
   onPlay,
 }: AlbumOrArtistPageButtonsProps) => {
   const { currentTrackListId } = useMusicPlayer();
-  const playbackState = usePlaybackState();
+  const { state: playbackState } = usePlaybackState();
   const isThisTrackListLoaded = currentTrackListId === trackListId;
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;

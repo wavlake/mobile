@@ -42,7 +42,7 @@ export const MiniMusicPlayer = () => {
   const router = useRouter();
   const { colors } = useTheme();
   const { position, duration } = useProgress();
-  const playbackState = usePlaybackState();
+  const { state: playbackState } = usePlaybackState();
   const { currentTrack, reset, isSwitchingTrackList } = useMusicPlayer();
   const willShowPlayer = currentTrack !== null;
   const willDisplayPauseButton =
