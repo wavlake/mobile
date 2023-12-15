@@ -178,6 +178,7 @@ const NWCSettings = ({
   onAddNWC: () => void;
   nwcCommands: string[];
 }) => {
+  const { colors } = useTheme();
   const nwcCantPayInvoices =
     !!nwcRelay && !nwcCommands.includes(payInvoiceCommand);
 
