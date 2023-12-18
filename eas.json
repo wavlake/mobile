@@ -6,14 +6,14 @@
       },
       "channel": "production"
     },
-    "external-preview": {
+    "external": {
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
       "distribution": "store",
       "channel": "staging"
     },
-    "internal-preview": {
+    "internal": {
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
