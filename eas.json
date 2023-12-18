@@ -6,21 +6,14 @@
       },
       "channel": "production"
     },
-    "testflight": {
+    "external-preview": {
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
       "distribution": "store",
-      "channel": "testflight"
+      "channel": "staging"
     },
-    "androidbeta": {
-      "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
-      },
-      "distribution": "store",
-      "channel": "playstore"
-    },
-    "preview": {
+    "internal-preview": {
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
