@@ -43,6 +43,8 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 const getQueryStringParams = (query: string): Record<string, string> => {
+  if (!query) return {};
+
   return query
     .split("&")
     .reduce((params: Record<string, string>, param: string) => {
