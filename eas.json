@@ -10,8 +10,16 @@
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
-      "channel": "testflight",
-      "distribution": "store"
+      "distribution": "store",
+      "channel": "testflight"
+    },
+    "androidbeta": {
+      "env": {
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
+      },
+      "developmentClient": true,
+      "distribution": "store",
+      "channel": "playstore"
     },
     "preview": {
       "env": {

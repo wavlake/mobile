@@ -20,9 +20,11 @@ import {
 import { MusicPlayerProvider, Text } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
-import TrackPlayer, { Capability } from "react-native-track-player";
+import TrackPlayer, {
+  Capability,
+  AppKilledPlaybackBehavior,
+} from "react-native-track-player";
 import { musicService } from "@/services";
-import { useBetterURL } from "@/hooks";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -33,12 +35,6 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 export default function Layout() {
-  const url = useBetterURL();
-  useEffect(() => {
-    queryClient.setQueryData(["deepLink"], () => url);
-    queryClient.invalidateQueries(["deepLink"]);
-  }, [url]);
-
   const [loaded, error] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
@@ -77,6 +73,10 @@ export default function Layout() {
           Capability.SkipToPrevious,
           Capability.SeekTo,
         ],
+        android: {
+          appKilledPlaybackBehavior:
+            AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification,
+        },
       }).catch((error) => {
         console.log("error updating options", error);
       });
@@ -146,10 +146,11 @@ export default function Layout() {
                     headerTitle: () => <Text>Nostr Wallet Connect</Text>,
                   }}
                 />
+                <Stack.Screen name="notification.click" />
                 <Stack.Screen
                   name="[deepLinkPage]"
                   options={{
-                    headerTitle: () => <Text>Adding Wallet</Text>,
+                    headerTitle: () => <Text>Connecting wallet</Text>,
                   }}
                 />
               </Stack>
