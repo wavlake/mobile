@@ -2,7 +2,7 @@ import { Text, Center, CancelButton } from "@/components";
 import { useAuth, useToast } from "@/hooks";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import { intakeNwcURI } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import * as Linking from "expo-linking";
 import { useEffect } from "react";
@@ -10,12 +10,15 @@ import { ActivityIndicator } from "react-native";
 
 export default function DeepLinkPage() {
   const queryClient = useQueryClient();
+  const { data } = useQuery(["deepLink"], () =>
+    queryClient.getQueryData(["deepLink"]),
+  );
+  const url = data as string;
 
   const toast = useToast();
   const { pubkey } = useAuth();
   const router = useRouter();
   const settingsKey = useSettingsQueryKey();
-  const url = Linking.useURL();
 
   useEffect(() => {
     const asyncFunction = async () => {
@@ -39,6 +42,9 @@ export default function DeepLinkPage() {
         }
       }
     };
+    if (url === "notification.click") {
+      router.replace("/player");
+    }
     asyncFunction();
   }, [url, pubkey]);
 
