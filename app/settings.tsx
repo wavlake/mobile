@@ -178,6 +178,7 @@ const NWCSettings = ({
   onAddNWC: () => void;
   nwcCommands: string[];
 }) => {
+  const { colors } = useTheme();
   const nwcCantPayInvoices =
     !!nwcRelay && !nwcCommands.includes(payInvoiceCommand);
 
@@ -246,9 +247,13 @@ const NWCSettings = ({
           <Switch
             value={enableNWC}
             onValueChange={setEnableNWC}
-            color={brandColors.pink.DEFAULT}
-            thumbColor={colors.background}
             disabled={nwcCantPayInvoices}
+            color={brandColors.pink.DEFAULT}
+            trackColor={{
+              false: colors.border,
+              true: brandColors.pink.DEFAULT,
+            }}
+            thumbColor={colors.text}
           />
         </View>
       )}

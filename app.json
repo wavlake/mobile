@@ -5,7 +5,7 @@
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": ["nostr+walletconnect"],
+    "scheme": ["wavlake", "nostr+walletconnect"],
     "userInterfaceStyle": "dark",
     "backgroundColor": "#000000",
     "splash": {
@@ -30,6 +30,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
+        "monochromeImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       }
     },

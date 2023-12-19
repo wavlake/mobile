@@ -4,6 +4,7 @@ import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import { intakeNwcURI } from "@/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import * as Linking from "expo-linking";
 import { useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 
@@ -41,6 +42,9 @@ export default function DeepLinkPage() {
         }
       }
     };
+    if (url === "notification.click") {
+      router.replace("/player");
+    }
     asyncFunction();
   }, [url, pubkey]);
 
