@@ -10,7 +10,7 @@ interface ShareButtonProps {
 export const ShareButton = ({ url, size = 40 }: ShareButtonProps) => {
   const { colors } = useTheme();
   const handleShare = async () => {
-    await Share.share({ url });
+    await Share.share({ message: url });
   };
 
   return (
