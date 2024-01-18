@@ -103,10 +103,12 @@ export const getEventFromRelay = (
     });
     relay.on("error", () => {
       relay.close();
+      reject(new Error(`error connecting to ${relay.url}`));
+    });
+    relay.connect().catch((e) => {
+      relay.close();
       reject(new Error(`failed to connect to ${relay.url}`));
     });
-
-    relay.connect();
   });
 };
 
