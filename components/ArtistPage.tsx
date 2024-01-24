@@ -74,7 +74,7 @@ export const ArtistPage = () => {
 
     goToAlbumPage(album.id, album.title);
   };
-  const hanldlePlayAllPress = async (index: number, playerTitle: string) => {
+  const handlePlayAllPress = async (index: number, playerTitle: string) => {
     const topTracks = artist?.topTracks ?? [];
 
     if (topTracks.length === 0) {
@@ -89,6 +89,13 @@ export const ArtistPage = () => {
     });
   };
 
+  const handleLoadMore = () => {
+    router.push({
+      pathname: `${basePathname}/artist/[artistId]/comments`,
+      params: { artistId, headerTitle: artist?.name, includeBackButton: true },
+    });
+  };
+
   return artist ? (
     <ScrollView>
       <ArtistBanner uri={artist.artworkUrl} />
@@ -98,7 +105,7 @@ export const ArtistPage = () => {
         content={artist}
         trackListId={artist.id}
         trackListTitle={artist.name}
-        onPlay={hanldlePlayAllPress}
+        onPlay={handlePlayAllPress}
       />
       <SectionHeader
         title="Top Tracks"
@@ -114,7 +121,7 @@ export const ArtistPage = () => {
               key={id}
               track={track}
               descriptor={albumTitle}
-              onPress={() => hanldlePlayAllPress(index, artist.name)}
+              onPress={() => handlePlayAllPress(index, artist.name)}
             />
           );
         })}
@@ -182,6 +189,9 @@ export const ArtistPage = () => {
               );
             },
           )}
+          <TouchableOpacity onPress={handleLoadMore}>
+            <Text style={{ textAlign: "center" }}>Load more</Text>
+          </TouchableOpacity>
         </>
       )}
       {artist.bio && (
