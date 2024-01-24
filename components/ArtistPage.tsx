@@ -136,8 +136,27 @@ export const ArtistPage = () => {
         <>
           <SectionHeader title="Latest Messages" />
           {topMessages.map(
-            ({ id, commenterArtworkUrl, content, msatAmount, name, title }) => {
-              const extraText = `from @${name} for "${title}"`;
+            ({
+              id,
+              commenterArtworkUrl,
+              content,
+              msatAmount,
+              name,
+              title,
+              userId,
+              isNostr,
+            }) => {
+              const generateExtraText = () => {
+                if (isNostr) {
+                  // use the provided name, else use the npub (set as the userId for nostr comments)
+                  return `from @${name ?? userId.slice(10)} for "${title}"`;
+                }
+
+                // keysend names may start with @
+                return `from @${name.replace("@", "")} for "${title}"`;
+              };
+
+              const extraText = generateExtraText();
 
               return (
                 <View

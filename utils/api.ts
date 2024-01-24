@@ -47,6 +47,7 @@ interface TrackComment {
   name: string;
   commenterProfileUrl: string;
   commenterArtworkUrl: string;
+  isNostr: boolean;
 }
 
 export interface Artist {
