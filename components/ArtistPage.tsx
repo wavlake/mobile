@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { getArtist } from "@/utils";
+import { encodeNpub, getArtist } from "@/utils";
 import {
   ActivityIndicator,
   ScrollView,
@@ -146,17 +146,19 @@ export const ArtistPage = () => {
               userId,
               isNostr,
             }) => {
-              const generateExtraText = () => {
+              const getDisplayName = () => {
                 if (isNostr) {
                   // use the provided name, else use the npub (set as the userId for nostr comments)
-                  return `from @${name ?? userId.slice(10)} for "${title}"`;
+                  return name ?? encodeNpub(userId)?.slice(0, 10);
                 }
 
                 // keysend names may start with @
-                return `from @${name.replace("@", "")} for "${title}"`;
+                return name.replace("@", "");
               };
 
-              const extraText = generateExtraText();
+              const extraText = `from @${
+                getDisplayName() ?? "anon"
+              } for "${title}"`;
 
               return (
                 <View
