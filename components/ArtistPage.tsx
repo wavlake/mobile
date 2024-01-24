@@ -153,7 +153,7 @@ export const ArtistPage = () => {
                 }
 
                 // keysend names may start with @
-                return name.replace("@", "");
+                return name?.replace("@", "");
               };
 
               const extraText = `from @${
