@@ -2,7 +2,7 @@ import { Avatar } from "@rneui/themed";
 import { brandColors } from "@/constants";
 
 interface BasicAvatarProps {
-  uri?: string;
+  uri?: string | null;
   size?: number;
 }
 

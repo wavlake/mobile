@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { getArtist } from "@/utils";
+import { encodeNpub, getArtist } from "@/utils";
 import {
   ActivityIndicator,
   ScrollView,
@@ -136,8 +136,29 @@ export const ArtistPage = () => {
         <>
           <SectionHeader title="Latest Messages" />
           {topMessages.map(
-            ({ id, commenterArtworkUrl, content, msatAmount, name, title }) => {
-              const extraText = `from @${name} for "${title}"`;
+            ({
+              id,
+              commenterArtworkUrl,
+              content,
+              msatAmount,
+              name,
+              title,
+              userId,
+              isNostr,
+            }) => {
+              const getDisplayName = () => {
+                if (isNostr) {
+                  // use the provided name, else use the npub (set as the userId for nostr comments)
+                  return name ?? encodeNpub(userId)?.slice(0, 10);
+                }
+
+                // keysend names may start with @
+                return name?.replace("@", "");
+              };
+
+              const extraText = `from @${
+                getDisplayName() ?? "anon"
+              } for "${title}"`;
 
               return (
                 <View
