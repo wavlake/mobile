@@ -34,7 +34,7 @@ export interface SearchResult {
   artist?: string;
 }
 
-interface TrackComment {
+export interface Comment {
   id: number;
   contentId: string;
   title: string;
@@ -78,7 +78,7 @@ export interface Artist {
   npub: string | null;
   topAlbums?: Album[];
   topTracks?: TrackResponse[];
-  topMessages?: TrackComment[];
+  topMessages?: Comment[];
 }
 
 export interface Album {
@@ -165,9 +165,9 @@ export const getArtistComments = async (
   artistId: string,
   page: number,
   pageSize: number,
-): Promise<TrackComment[]> => {
+): Promise<Comment[]> => {
   const { data } = await apiClient.get(
-    `/artist${artistId}/${page}/${pageSize}`,
+    `/comments/artist/${artistId}/${page}/${pageSize}`,
   );
 
   return data.data;
