@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { encodeNpub, getArtist } from "@/utils";
+import { getArtist } from "@/utils";
 import {
   ActivityIndicator,
   ScrollView,
@@ -16,7 +16,6 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { TrackRow } from "@/components/TrackRow";
 import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
 import { Text } from "@/components/Text";
-import { SatsEarned } from "@/components/SatsEarned";
 import { WebsiteIcon } from "@/components/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";
@@ -26,8 +25,8 @@ import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
 import { useGoToAlbumPage } from "@/hooks";
 import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
-import { BasicAvatar } from "@/components/BasicAvatar";
 import { ArtistBanner } from "@/components/ArtistBanner";
+import { CommentRow } from "./CommentRow";
 
 interface SocialIconLinkProps {
   url: string;
@@ -74,7 +73,7 @@ export const ArtistPage = () => {
 
     goToAlbumPage(album.id, album.title);
   };
-  const hanldlePlayAllPress = async (index: number, playerTitle: string) => {
+  const handlePlayAllPress = async (index: number, playerTitle: string) => {
     const topTracks = artist?.topTracks ?? [];
 
     if (topTracks.length === 0) {
@@ -89,6 +88,17 @@ export const ArtistPage = () => {
     });
   };
 
+  const handleLoadMore = () => {
+    router.push({
+      pathname: `${basePathname}/artist/[artistId]/comments`,
+      params: {
+        artistId,
+        headerTitle: `Comments for ${artist?.name}`,
+        includeBackButton: true,
+      },
+    });
+  };
+
   return artist ? (
     <ScrollView>
       <ArtistBanner uri={artist.artworkUrl} />
@@ -98,7 +108,7 @@ export const ArtistPage = () => {
         content={artist}
         trackListId={artist.id}
         trackListTitle={artist.name}
-        onPlay={hanldlePlayAllPress}
+        onPlay={handlePlayAllPress}
       />
       <SectionHeader
         title="Top Tracks"
@@ -114,7 +124,7 @@ export const ArtistPage = () => {
               key={id}
               track={track}
               descriptor={albumTitle}
-              onPress={() => hanldlePlayAllPress(index, artist.name)}
+              onPress={() => handlePlayAllPress(index, artist.name)}
             />
           );
         })}
@@ -135,53 +145,12 @@ export const ArtistPage = () => {
       {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          {topMessages.map(
-            ({
-              id,
-              commenterArtworkUrl,
-              content,
-              msatAmount,
-              name,
-              title,
-              userId,
-              isNostr,
-            }) => {
-              const getDisplayName = () => {
-                if (isNostr) {
-                  // use the provided name, else use the npub (set as the userId for nostr comments)
-                  return name ?? encodeNpub(userId)?.slice(0, 10);
-                }
-
-                // keysend names may start with @
-                return name?.replace("@", "");
-              };
-
-              const extraText = `from @${
-                getDisplayName() ?? "anon"
-              } for "${title}"`;
-
-              return (
-                <View
-                  key={id}
-                  style={{
-                    marginBottom: 16,
-                    flexDirection: "row",
-                    paddingHorizontal: 16,
-                  }}
-                >
-                  <BasicAvatar uri={commenterArtworkUrl} />
-                  <View style={{ marginLeft: 10, flex: 1 }}>
-                    <Text bold>{content}</Text>
-                    <SatsEarned
-                      msats={msatAmount}
-                      extraText={extraText}
-                      defaultTextColor
-                    />
-                  </View>
-                </View>
-              );
-            },
-          )}
+          {topMessages.map((comment) => (
+            <CommentRow comment={comment} key={comment.id} />
+          ))}
+          <TouchableOpacity onPress={handleLoadMore}>
+            <Text style={{ textAlign: "center" }}>View more</Text>
+          </TouchableOpacity>
         </>
       )}
       {artist.bio && (
