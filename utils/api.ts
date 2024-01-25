@@ -78,7 +78,7 @@ export interface Artist {
   npub: string | null;
   topAlbums?: Album[];
   topTracks?: TrackResponse[];
-  topMessages?: Comment[];
+  topMessages?: ContentComment[];
 }
 
 export interface Album {
@@ -95,6 +95,7 @@ export interface Album {
   subgenreId: number | null;
   isDraft: boolean;
   publishedAt: string;
+  topMessages?: ContentComment[];
 }
 
 interface Genre {
@@ -177,6 +178,18 @@ export const getAlbumTracks = async (albumId: string): Promise<Track[]> => {
   const { data } = await apiClient.get(`/tracks/${albumId}/album`);
 
   return normalizeTrackResponse(data.data);
+};
+
+export const getAlbumComments = async (
+  albumId: string,
+  page: number,
+  pageSize: number,
+): Promise<ContentComment[]> => {
+  const { data } = await apiClient.get(
+    `/comments/album/${albumId}/${page}/${pageSize}`,
+  );
+
+  return data.data;
 };
 
 export const getArtist = async (artistId: string): Promise<Artist> => {
