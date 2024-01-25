@@ -34,7 +34,7 @@ export interface SearchResult {
   artist?: string;
 }
 
-export interface Comment {
+export interface ContentComment {
   id: number;
   contentId: string;
   title: string;
@@ -165,7 +165,7 @@ export const getArtistComments = async (
   artistId: string,
   page: number,
   pageSize: number,
-): Promise<Comment[]> => {
+): Promise<ContentComment[]> => {
   const { data } = await apiClient.get(
     `/comments/artist/${artistId}/${page}/${pageSize}`,
   );
