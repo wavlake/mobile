@@ -36,17 +36,28 @@ export interface SearchResult {
 
 interface TrackComment {
   id: number;
-  trackId: string;
+  contentId: string;
   title: string;
-  ownerId: string;
   content: string;
   createdAt: string;
   msatAmount: number;
   userId: string;
-  commentMsatSum: number | null;
-  name: string;
-  commenterProfileUrl: string;
-  commenterArtworkUrl: string;
+  name: string | null;
+  commenterArtworkUrl: string | null;
+  isNostr: boolean;
+  replies: CommentReply[];
+}
+
+interface CommentReply {
+  id: number;
+  name: string | null;
+  userId: string;
+  artworkUrl: string | null;
+  profileUrl: string | null;
+  parentId: number;
+  content: string;
+  createdAt: string;
+  msatAmount: number;
 }
 
 export interface Artist {
