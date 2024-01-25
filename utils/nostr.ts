@@ -106,7 +106,11 @@ export const getEventFromRelay = (
       reject(new Error(`failed to connect to ${relay.url}`));
     });
 
-    relay.connect();
+    relay.connect().catch((e) => {
+      console.log(`error connecting to relay ${relay.url}`);
+      relay.close();
+      reject(e);
+    });
   });
 };
 
@@ -230,7 +234,11 @@ const publishEventToRelay = (relayUri: string, event: Event): Promise<void> => {
       reject(new Error(`failed to connect to ${relay.url}`));
     });
 
-    relay.connect();
+    relay.connect().catch((e) => {
+      console.log(`error connecting to relay ${relay.url}`);
+      relay.close();
+      reject(e);
+    });
   });
 };
 
@@ -448,7 +456,18 @@ export const getZapReceipt = async (invoice: string) => {
     throw new Error(`failed to connect to ${relay.url}`);
   });
 
-  await relay.connect();
+  const isConnected = await relay
+    .connect()
+    .then(() => true)
+    .catch((e) => {
+      console.log(`error connecting to relay ${relay.url}`);
+      relay.close();
+      return false;
+    });
+
+  if (!isConnected) {
+    return;
+  }
 
   return new Promise((resolve) => {
     const sub = relay.sub([
