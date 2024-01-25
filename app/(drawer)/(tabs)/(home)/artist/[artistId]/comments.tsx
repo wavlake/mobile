@@ -34,6 +34,7 @@ const ArtistCommentPage = () => {
     isFetching,
     isFetchingNextPage,
     status,
+    isLoading,
   } = useInfiniteQuery({
     queryKey: [artistId, "comments"],
     queryFn: ({ pageParam = 1 }) =>
@@ -41,7 +42,7 @@ const ArtistCommentPage = () => {
     getNextPageParam: (lastPage, allPages) => {
       const nextPage =
         lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined;
-      return undefined;
+      return nextPage;
     },
   });
   const { pages = [] } = data ?? {};
@@ -50,19 +51,51 @@ const ArtistCommentPage = () => {
     <View
       style={{ height: "100%", paddingTop: 16, paddingBottom: height + 16 }}
     >
-      <FlatList
-        data={flattenedData}
-        ListHeaderComponent={() => (
-          <View>
-            <SectionHeader title="Comments" />
-          </View>
-        )}
-        renderItem={({ item, index }) => (
-          <CommentRow comment={item} key={item.id} />
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        scrollEnabled
-      />
+      {isLoading ? (
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <Text>Loading comments...</Text>
+        </View>
+      ) : (
+        <>
+          <FlatList
+            data={flattenedData}
+            ListHeaderComponent={() => (
+              <View>
+                <SectionHeader title="Comments" />
+              </View>
+            )}
+            renderItem={({ item, index }) => {
+              const isLastComment = index === flattenedData.length - 1;
+              return (
+                <>
+                  <CommentRow comment={item} key={item.id} />
+                  {isFetchingNextPage && isLastComment && (
+                    <Text style={{ textAlign: "center" }}>Loading more...</Text>
+                  )}
+                  {isLastComment && !hasNextPage && (
+                    <Text style={{ textAlign: "center" }}>
+                      No more comments
+                    </Text>
+                  )}
+                </>
+              );
+            }}
+            keyExtractor={(item) => item.id.toString()}
+            scrollEnabled
+            onEndReached={() => {
+              if (hasNextPage) {
+                fetchNextPage();
+              }
+            }}
+          />
+        </>
+      )}
     </View>
   );
 };
