@@ -90,7 +90,7 @@ export const ArtistPage = () => {
 
   const handleLoadMore = () => {
     router.push({
-      pathname: `/artist/[artistId]/comments`,
+      pathname: `${basePathname}/artist/[artistId]/comments`,
       params: {
         artistId,
         headerTitle: `Comments for ${artist?.name}`,
