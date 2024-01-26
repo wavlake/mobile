@@ -37,3 +37,5 @@ export * from "./LibraryArtistsPage";
 export * from "./LibraryAlbumsPage";
 export * from "./CommentPage";
 export * from "./CommentRow";
+export * from "./ArtistCommentPage";
+export * from "./AlbumCommentPage";

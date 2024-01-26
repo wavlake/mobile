@@ -17,6 +17,7 @@ interface AlbumPageFooterProps {
 
 const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
   const { description, topMessages = [], title, id: albumId } = album;
+  const basePathname = useGetArtistOrAlbumBasePathname();
   const router = useRouter();
 
   if (!description && topMessages.length === 0) {
@@ -25,7 +26,7 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
 
   const handleLoadMore = () => {
     router.push({
-      pathname: `/album/[albumId]/comments`,
+      pathname: `${basePathname}/album/[albumId]/comments`,
       params: {
         albumId,
         headerTitle: `Comments for ${title}`,
