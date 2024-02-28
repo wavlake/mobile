@@ -146,6 +146,12 @@ export const getRandomMusic = async (): Promise<Track[]> => {
   return normalizeTrackResponse(data);
 };
 
+export const getTopShows = async (): Promise<Track[]> => {
+  const { data } = await apiClient.get("/episodes/featured");
+
+  return normalizeTrackResponse(data.data);
+};
+
 export const search = async (query: string): Promise<SearchResult[]> => {
   const { data } = await apiClient.get("/search", {
     params: {
