@@ -15,6 +15,8 @@ export interface Track {
   duration: number;
   msatTotal?: number;
   podcast?: Podcast;
+  podcastUrl?: string;
+  podcastId?: string;
 }
 
 export interface Episode {
@@ -154,19 +156,31 @@ const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
   }));
 };
 
+function isPodcastTypeInEpisode(item: any): item is Podcast {
+  return !!item.name;
+}
 // Function to format episodes to fit the Track type
 // and work with the rest of the app
 const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
-  const artist = res[0].podcast?.name ? res[0].podcast?.name : res[0].podcast;
   return res.map((episode) => ({
     id: episode.id,
     title: episode.title,
     artistId: episode.id,
-    artist: artist,
-    artistUrl: episode.podcast?.podcastUrl || episode.podcastUrl || "",
-    avatarUrl: episode.podcast?.artworkUrl || episode.artworkUrl || "",
-    artworkUrl: episode.podcast?.artworkUrl || episode.artworkUrl || "",
-    albumId: episode.podcast?.id || episode.podcastId || "",
+    artist: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.name
+      : episode.podcast || "",
+    artistUrl: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.podcastUrl
+      : episode.podcastUrl,
+    avatarUrl: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.artworkUrl
+      : episode.artworkUrl,
+    artworkUrl: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast?.artworkUrl
+      : episode.artworkUrl,
+    albumId: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.id
+      : episode.podcastId || "",
     albumTitle: "podcast",
     liveUrl: episode.liveUrl,
     duration: episode.duration,
