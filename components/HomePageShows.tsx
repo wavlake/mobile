@@ -1,7 +1,6 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getTopShows, Track } from "@/utils";
-import { NewMusicSection } from "@/components/NewMusicSection";
 import { BadgeIcon } from "@/components/BadgeIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -10,25 +9,29 @@ import { SquareArtwork } from "@/components/SquareArtwork";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 
-interface TopMusicRowProps {
-  trackList: Track[];
-  track: Track;
+interface FeaturedShowRowProps {
+  episodeList: Track[];
+  episode: Track;
   index: number;
 }
 
-const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
-  const { artworkUrl, title, artist } = track;
+const FeaturedShowRow = ({
+  episodeList,
+  episode,
+  index,
+}: FeaturedShowRowProps) => {
+  const { title } = episode;
   const { loadTrackList } = useMusicPlayer();
   const { height } = useMiniMusicPlayer();
   const handleRowPress = async (index: number) => {
     await loadTrackList({
-      trackList: trackList,
+      trackList: episodeList,
       trackListId: "trending",
       startIndex: index,
       playerTitle: "Trending",
     });
   };
-  const isLastRow = index === trackList.length - 1;
+  const isLastRow = index === episodeList.length - 1;
   const marginBottom = isLastRow ? height + 16 : 16;
 
   return (
@@ -39,12 +42,12 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
           marginBottom,
         }}
       >
-        <SquareArtwork size={100} url={artworkUrl} />
+        <SquareArtwork size={100} url={episode.artworkUrl} />
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
             {title}
           </Text>
-          <Text>{artist}</Text>
+          {/* <Text>{artist}</Text> */}
         </View>
       </View>
     </TouchableOpacity>
@@ -75,7 +78,7 @@ export const HomePageShows = () => {
         </View>
       )}
       renderItem={({ item, index }) => (
-        <TopMusicRow trackList={data} track={item} index={index} />
+        <FeaturedShowRow episodeList={data} episode={item} index={index} />
       )}
       keyExtractor={(item) => item.id}
     />

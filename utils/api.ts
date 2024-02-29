@@ -14,6 +14,29 @@ export interface Track {
   liveUrl: string;
   duration: number;
   msatTotal?: number;
+  podcast?: Podcast;
+}
+
+export interface Episode {
+  id: string;
+  title: string;
+  description?: string;
+  order: number;
+  playCount?: number;
+  createdAt: string;
+  publishedAt: string;
+  liveUrl: string;
+  duration: number;
+  msatTotal?: number;
+  podcastId: string;
+  podcast: Podcast;
+}
+
+export interface Podcast {
+  id: string;
+  name: string;
+  artworkUrl: string;
+  podcastUrl: string;
 }
 
 interface TrackResponse extends Track {
@@ -128,6 +151,25 @@ const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
   }));
 };
 
+// Function to format episodes to fit the Track type
+// and work with the rest of the app
+const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
+  return res.map((episode) => ({
+    id: episode.id,
+    title: episode.title,
+    artistId: episode.id,
+    artist: episode.podcast?.name || "",
+    artistUrl: episode.podcast?.podcastUrl || "",
+    avatarUrl: episode.podcast?.artworkUrl || "",
+    artworkUrl: episode.podcast?.artworkUrl || "",
+    albumId: episode.podcast?.id || "",
+    albumTitle: "podcast",
+    liveUrl: episode.liveUrl,
+    duration: episode.duration,
+    msatTotal: episode.msatTotal,
+  }));
+};
+
 export const getNewMusic = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/tracks/new");
 
@@ -149,7 +191,7 @@ export const getRandomMusic = async (): Promise<Track[]> => {
 export const getTopShows = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/episodes/featured");
 
-  return normalizeTrackResponse(data.data);
+  return normalilzeEpisodeResponse(data.data);
 };
 
 export const search = async (query: string): Promise<SearchResult[]> => {
