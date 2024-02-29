@@ -11,13 +11,13 @@ import {
   useIsAlbumInLibrary,
   useIsArtistInLibrary,
 } from "@/hooks";
-import { Album, Artist, togglePlayPause } from "@/utils";
+import { Album, Artist, Podcast, togglePlayPause } from "@/utils";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
 
 interface AlbumOrArtistPageButtonsProps {
   type: "album" | "artist";
-  content: Album | Artist;
+  content: Album | Artist | Podcast;
   shareUrl: string;
   trackListId: string;
   trackListTitle: string;

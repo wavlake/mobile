@@ -29,12 +29,15 @@ export interface Episode {
   duration: number;
   msatTotal?: number;
   podcastId: string;
-  podcast: Podcast;
+  podcast: Podcast | string;
+  podcastUrl: string;
+  artworkUrl: string;
 }
 
 export interface Podcast {
   id: string;
   name: string;
+  description?: string;
   artworkUrl: string;
   podcastUrl: string;
 }
@@ -154,15 +157,16 @@ const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
 // Function to format episodes to fit the Track type
 // and work with the rest of the app
 const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
+  const artist = res[0].podcast?.name ? res[0].podcast?.name : res[0].podcast;
   return res.map((episode) => ({
     id: episode.id,
     title: episode.title,
     artistId: episode.id,
-    artist: episode.podcast?.name || "",
-    artistUrl: episode.podcast?.podcastUrl || "",
-    avatarUrl: episode.podcast?.artworkUrl || "",
-    artworkUrl: episode.podcast?.artworkUrl || "",
-    albumId: episode.podcast?.id || "",
+    artist: artist,
+    artistUrl: episode.podcast?.podcastUrl || episode.podcastUrl || "",
+    avatarUrl: episode.podcast?.artworkUrl || episode.artworkUrl || "",
+    artworkUrl: episode.podcast?.artworkUrl || episode.artworkUrl || "",
+    albumId: episode.podcast?.id || episode.podcastId || "",
     albumTitle: "podcast",
     liveUrl: episode.liveUrl,
     duration: episode.duration,
@@ -188,7 +192,7 @@ export const getRandomMusic = async (): Promise<Track[]> => {
   return normalizeTrackResponse(data);
 };
 
-export const getTopShows = async (): Promise<Track[]> => {
+export const getFeaturedShows = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/episodes/featured");
 
   return normalilzeEpisodeResponse(data.data);
@@ -250,6 +254,20 @@ export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {
   const { data } = await apiClient.get(`/albums/${artistId}/artist`);
 
   return data.data;
+};
+
+export const getPodcast = async (podcastId: string): Promise<Podcast> => {
+  const { data } = await apiClient.get(`/podcasts/${podcastId}`);
+
+  return data.data;
+};
+
+export const getPodcastEpisodes = async (
+  podcastId: string,
+): Promise<Track[]> => {
+  const data = await apiClient.get(`/episodes/${podcastId}/podcast`);
+
+  return normalilzeEpisodeResponse(data.data.data);
 };
 
 export const getGenres = async (): Promise<Genre[]> => {

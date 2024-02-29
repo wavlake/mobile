@@ -1,6 +1,6 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { getTopShows, Track } from "@/utils";
+import { getFeaturedShows, Track } from "@/utils";
 import { BadgeIcon } from "@/components/BadgeIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -20,15 +20,15 @@ const FeaturedShowRow = ({
   episode,
   index,
 }: FeaturedShowRowProps) => {
-  const { title } = episode;
+  const { title, artist } = episode;
   const { loadTrackList } = useMusicPlayer();
   const { height } = useMiniMusicPlayer();
   const handleRowPress = async (index: number) => {
     await loadTrackList({
       trackList: episodeList,
-      trackListId: "trending",
+      trackListId: "featured",
       startIndex: index,
-      playerTitle: "Trending",
+      playerTitle: "Featured",
     });
   };
   const isLastRow = index === episodeList.length - 1;
@@ -47,7 +47,7 @@ const FeaturedShowRow = ({
           <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
             {title}
           </Text>
-          {/* <Text>{artist}</Text> */}
+          <Text>{artist}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -56,8 +56,8 @@ const FeaturedShowRow = ({
 
 export const HomePageShows = () => {
   const { data = [] } = useQuery({
-    queryKey: ["topShows"],
-    queryFn: getTopShows,
+    queryKey: ["featuredShows"],
+    queryFn: getFeaturedShows,
   });
 
   return (

@@ -62,18 +62,31 @@ export const FullSizeMusicPlayer = () => {
   const isSmallScreen = Dimensions.get("window").height < 700;
   const paddingHorizontal = 24;
   const { pubkey } = useAuth();
+  const isPodcast = albumTitle === "podcast";
+  const shareUrl = isPodcast
+    ? `https://wavlake.com/episode/${trackId}`
+    : `https://wavlake.com/track/${trackId}`;
   const handleTitlePress = () => {
     router.push({
-      pathname: `${artistOrAlbumBasePathname}/album/[albumId]`,
-      params: { albumId, headerTitle: albumTitle, includeBackButton: true },
+      pathname: isPodcast
+        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
+        : `${artistOrAlbumBasePathname}/album/[albumId]`,
+      params: {
+        albumId,
+        headerTitle: isPodcast ? artist : albumTitle,
+        includeBackButton: true,
+      },
     });
   };
   const handleArtistPress = () => {
     router.push({
-      pathname: `${artistOrAlbumBasePathname}/artist/[artistId]`,
+      pathname: isPodcast
+        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
+        : `${artistOrAlbumBasePathname}/artist/[artistId]`,
       params: {
+        albumId,
         artistId,
-        headerTitle: artist,
+        headerTitle: isPodcast ? artist : albumTitle,
         includeBackButton: true,
       },
     });
@@ -200,7 +213,7 @@ export const FullSizeMusicPlayer = () => {
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
             >
-              <ShareButton url={`https://wavlake.com/track/${trackId}`} />
+              <ShareButton url={shareUrl} />
               <MoreOptions
                 artist={artist}
                 artistId={artistId}

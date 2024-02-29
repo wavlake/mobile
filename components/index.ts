@@ -9,6 +9,7 @@ export * from "./SectionHeader";
 export * from "./NewBadgeIcon";
 export * from "./HomePageMusic";
 export * from "./HomePageShows";
+export * from "./PodcastPage";
 export * from "./MiniMusicPlayer";
 export * from "./FullSizeMusicPlayer";
 export * from "./MusicPlayerProvider";
