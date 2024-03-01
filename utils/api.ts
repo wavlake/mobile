@@ -14,6 +14,7 @@ export interface Track {
   liveUrl: string;
   duration: number;
   msatTotal?: number;
+  msatTotal30Days?: number;
   podcast?: Podcast;
   podcastUrl?: string;
   podcastId?: string;
@@ -29,7 +30,6 @@ export interface Episode {
   publishedAt: string;
   liveUrl: string;
   duration: number;
-  msatTotal?: number;
   podcastId: string;
   podcast: Podcast | string;
   podcastUrl: string;
@@ -184,7 +184,7 @@ const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
     albumTitle: "podcast",
     liveUrl: episode.liveUrl,
     duration: episode.duration,
-    msatTotal: episode.msatTotal,
+    msatTotal: episode.msatTotal30Days || 0,
   }));
 };
 
