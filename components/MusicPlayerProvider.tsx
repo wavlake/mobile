@@ -15,6 +15,7 @@ import {
   getWriteRelayUris,
   publishLiveStatusEvent,
   Track,
+  Episode,
 } from "@/utils";
 
 export type LoadTrackList = ({
@@ -103,6 +104,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setTrackQueue(null);
     await TrackPlayer.reset();
   };
+
   const publishTrackToNostr = async (track: Track) => {
     const pubkey = await getPubkeyFromCachedSeckey();
 
@@ -114,9 +116,15 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     const writeRelayList = relayListEvent
       ? getWriteRelayUris(relayListEvent)
       : null;
+
+    const contentLink =
+      track.albumTitle === "podcast"
+        ? `https://wavlake.com/episode/${track.id}`
+        : `https://wavlake.com/track/${track.id}`;
+
     await publishLiveStatusEvent({
       pubkey,
-      trackUrl: `https://wavlake.com/track/${track.id}`,
+      trackUrl: contentLink,
       content: `${track.title} - ${track.artist}`,
       duration: Math.ceil(track.duration ?? 600),
       relayUris: writeRelayList,

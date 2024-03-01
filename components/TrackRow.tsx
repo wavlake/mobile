@@ -26,6 +26,7 @@ export const TrackRow = ({
   willDisplayLikeButton = true,
 }: TrackRowProps) => {
   const { id, title, msatTotal, artworkUrl } = track;
+  const isEpisode = track.albumTitle === "podcast";
   const isTrackInLibrary = useIsTrackInLibrary(id);
   const addTrackToLibraryMutation = useAddTrackToLibrary();
   const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
@@ -65,15 +66,17 @@ export const TrackRow = ({
             justifyContent: "center",
           }}
         >
-          <LikeButton
-            onPress={handleLikePress}
-            size={32}
-            isLiked={isTrackInLibrary}
-            isLoading={
-              addTrackToLibraryMutation.isLoading ||
-              deleteTrackFromLibraryMutation.isLoading
-            }
-          />
+          {!isEpisode ? (
+            <LikeButton
+              onPress={handleLikePress}
+              size={32}
+              isLiked={isTrackInLibrary}
+              isLoading={
+                addTrackToLibraryMutation.isLoading ||
+                deleteTrackFromLibraryMutation.isLoading
+              }
+            />
+          ) : null}
         </View>
       )}
     </View>
