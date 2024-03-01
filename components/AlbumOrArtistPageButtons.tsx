@@ -16,7 +16,7 @@ import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
 
 interface AlbumOrArtistPageButtonsProps {
-  type: "album" | "artist";
+  type: "album" | "artist" | "podcast";
   content: Album | Artist | Podcast;
   shareUrl: string;
   trackListId: string;
@@ -38,6 +38,7 @@ export const AlbumOrArtistPageButtons = ({
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;
   const isAlbum = type === "album";
+  const isPodcast = type === "podcast";
   const isAlbumInLibrary = useIsAlbumInLibrary(trackListId);
   const addAlbumToLibraryMutation = useAddAlbumToLibrary();
   const deleteAlbumFromLibraryMutation = useDeleteAlbumFromLibrary();
@@ -83,12 +84,14 @@ export const AlbumOrArtistPageButtons = ({
       }}
     >
       <View style={{ flexDirection: "row", gap: 16, alignItems: "center" }}>
-        <LikeButton
-          onPress={handleLikePress}
-          size={32}
-          isLiked={isAlbumInLibrary || isArtistInLibrary}
-          isLoading={isLikeLoading}
-        />
+        {!isPodcast ? (
+          <LikeButton
+            onPress={handleLikePress}
+            size={32}
+            isLiked={isAlbumInLibrary || isArtistInLibrary}
+            isLoading={isLikeLoading}
+          />
+        ) : null}
         <ShareButton url={shareUrl} />
       </View>
       <PlayPauseTrackButton
