@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { Center } from "@/components/Center";
 import { MarqueeText } from "@/components/MarqueeText";
@@ -35,6 +36,7 @@ export const FullSizeMusicPlayer = () => {
     artistOrAlbumBasePathname: string;
   }>();
   const router = useRouter();
+  const { position } = useProgress();
   const { currentTrack } = useMusicPlayer();
   const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
@@ -107,6 +109,7 @@ export const FullSizeMusicPlayer = () => {
     title,
     artist,
     artworkUrl,
+    timestamp: position,
   });
 
   const handleOneTapZap = async () => {
@@ -136,6 +139,7 @@ export const FullSizeMusicPlayer = () => {
         artist,
         artworkUrl,
         trackId,
+        timestamp: position,
       },
     });
   };

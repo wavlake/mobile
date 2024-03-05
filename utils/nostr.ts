@@ -413,12 +413,14 @@ export const fetchInvoice = async ({
   comment,
   addressPointer,
   zappedPubkey,
+  timestamp,
 }: {
   relayUris: string[];
   amountInSats: number;
   comment: string;
   addressPointer: string;
   zappedPubkey: string;
+  timestamp?: number;
 }) => {
   const wavlakeRelayUri = "wss://relay.wavlake.com/";
   const amountInMillisats = amountInSats * 1000;
@@ -432,6 +434,7 @@ export const fetchInvoice = async ({
   });
 
   zapRequestEvent.tags.push(["a", addressPointer, wavlakeRelayUri]);
+  zapRequestEvent.tags.push(["timestamp", timestamp?.toString() ?? ""]);
 
   const signedZapRequestEvent = await signEvent(zapRequestEvent);
   const url = `${zapEndpoint}?amount=${amountInMillisats}&nostr=${encodeURIComponent(
