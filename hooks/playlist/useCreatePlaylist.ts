@@ -1,43 +1,35 @@
 import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
-import { addToLibrary } from "@/utils";
+import { createPlaylist } from "@/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Content {
   id: string;
   [key: string]: any;
 }
 
+export const useCustomPlaylistQueryKey = () => {
+  const { pubkey } = useAuth();
+
+  return ["customPlaylist", pubkey];
+};
+
 // TODO: Implement hook
-export const useCreatePlaylist = (queryKey: QueryKey) => {
+export const useCreatePlaylist = () => {
   const queryClient = useQueryClient();
+  const queryKey = useCustomPlaylistQueryKey();
 
   return useMutation({
-    mutationFn: (title: string) => addToLibrary(title),
+    mutationFn: (title: string) => createPlaylist(title),
     // When mutate is called:
     onMutate: async (content) => {
       // Cancel any outgoing refetches
       // (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey });
-
-      // Snapshot the previous value
-      const previousLibraryContent =
-        queryClient.getQueryData<Content[]>(queryKey) ?? [];
-
-      // Optimistically update to the new value
-      // queryClient.setQueryData<Content[]>(queryKey, (old = []) => [
-      //   content,
-      //   ...old,
-      // ]);
-
-      // Return a context object with the snapshotted value
-      return { previousLibraryContent };
     },
     // If the mutation fails,
     // use the context returned from onMutate to roll back
     onError: (error, _, context) => {
       console.error(error);
-      if (context?.previousLibraryContent) {
-        queryClient.setQueryData(queryKey, context.previousLibraryContent);
-      }
     },
     // Always refetch after error or success:
     onSettled: () => {

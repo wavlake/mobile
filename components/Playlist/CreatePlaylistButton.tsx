@@ -8,6 +8,7 @@ import { brandColors } from "@/constants";
 import { TextInput } from "@/components/TextInput";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/Button";
+import { useCreatePlaylist } from "@/hooks";
 
 interface CreatePlaylistButtonProps {
   contentId: string;
@@ -24,12 +25,14 @@ export const CreatePlaylistButton = ({
   const screenWidth = Dimensions.get("window").width;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const { mutate: createPlaylist } = useCreatePlaylist();
   const handlePress = () => {
     setIsDialogOpen(true);
     // setPrevDialogOpen(false);
   };
 
   const handleCreate = () => {
+    createPlaylist(playlistName);
     setIsDialogOpen(false);
     setPrevDialogOpen(false);
   };
