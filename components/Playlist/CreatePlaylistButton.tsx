@@ -107,5 +107,5 @@ export const CreatePlaylistButton = ({
         </View>
       </Dialog>
     </View>
-  ) : null;
+  );
 };
