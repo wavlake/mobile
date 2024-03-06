@@ -27,7 +27,9 @@ export const ChoosePlaylistButton = ({
     // setPrevDialogOpen(false);
   };
 
-  return pubkey ? (
+  if (!pubkey) return;
+  
+  return (
     <View style={{ backgroundColor: colors.background }}>
       <Pressable onPress={() => handlePress()}>
         <View
