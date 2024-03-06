@@ -92,5 +92,5 @@ export const ChoosePlaylistButton = ({
         </View>
       </Dialog>
     </View>
-  ) : null;
+  );
 };
