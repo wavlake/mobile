@@ -71,5 +71,5 @@ export const PlaylistButton = ({
         </View>
       </Dialog>
     </View>
-  ) : null;
+  );
 };
