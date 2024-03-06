@@ -27,7 +27,9 @@ export const PlaylistButton = ({
   const screenWidth = Dimensions.get("window").width;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  return pubkey && isMusic ? (
+  if (!pubkey || !isMusic) return;
+  
+  return (
     <View style={{ backgroundColor: colors.background }}>
       <Pressable onPress={() => setIsDialogOpen(true)}>
         <MaterialCommunityIcons
