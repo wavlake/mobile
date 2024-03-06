@@ -19,6 +19,7 @@ export * from "./ArtistsIcon";
 export * from "./AlbumsIcon";
 export * from "./SongsIcon";
 export * from "./PlaylistsIcon";
+export * from "./PlaylistButton";
 export * from "./ShareIcon";
 export * from "./HeaderBackButton";
 export * from "./LogoIcon";

@@ -24,6 +24,7 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
+import { PlaylistButton } from "../PlaylistButton";
 import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
@@ -104,6 +105,7 @@ export const FullSizeMusicPlayer = () => {
       addTrackToLibraryMutation.mutate(currentTrack);
     }
   };
+
   const { sendZap, isLoading } = useZap({
     trackId,
     title,
@@ -203,7 +205,9 @@ export const FullSizeMusicPlayer = () => {
               alignItems: "center",
             }}
           >
-            <View>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 24 }}
+            >
               <LikeButton
                 onPress={handleLikePress}
                 size={24}
@@ -212,6 +216,11 @@ export const FullSizeMusicPlayer = () => {
                   addTrackToLibraryMutation.isLoading ||
                   deleteTrackFromLibraryMutation.isLoading
                 }
+              />
+              <PlaylistButton
+                size={30}
+                contentId={currentTrack.id}
+                isMusic={currentTrack.albumTitle != "podcast"}
               />
             </View>
             <View
