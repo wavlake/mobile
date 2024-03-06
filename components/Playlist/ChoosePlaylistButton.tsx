@@ -24,7 +24,6 @@ export const ChoosePlaylistButton = ({
 
   const handlePress = () => {
     setIsDialogOpen(true);
-    // setPrevDialogOpen(false);
   };
 
   if (!pubkey) return;
