@@ -28,7 +28,6 @@ export const CreatePlaylistButton = ({
   const { mutate: createPlaylist } = useCreatePlaylist();
   const handlePress = () => {
     setIsDialogOpen(true);
-    // setPrevDialogOpen(false);
   };
 
   const handleCreate = () => {
