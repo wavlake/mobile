@@ -364,3 +364,16 @@ export const deleteFromLibrary = async (contentId: string) => {
 
   return data;
 };
+
+export const createPlaylist = async (title: string) => {
+  const url = "/playlists";
+  const payload = { title };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
+      "Content-Type": "application/json",
+    },
+  });
+
+  return data;
+};

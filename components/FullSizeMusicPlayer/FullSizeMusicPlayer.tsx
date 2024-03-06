@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { Center } from "@/components/Center";
 import { MarqueeText } from "@/components/MarqueeText";
@@ -23,6 +24,7 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
+import { PlaylistButton } from "../Playlist/PlaylistButton";
 import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
@@ -35,6 +37,7 @@ export const FullSizeMusicPlayer = () => {
     artistOrAlbumBasePathname: string;
   }>();
   const router = useRouter();
+  const { position } = useProgress();
   const { currentTrack } = useMusicPlayer();
   const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
@@ -102,11 +105,13 @@ export const FullSizeMusicPlayer = () => {
       addTrackToLibraryMutation.mutate(currentTrack);
     }
   };
+
   const { sendZap, isLoading } = useZap({
     trackId,
     title,
     artist,
     artworkUrl,
+    timestamp: position,
   });
 
   const handleOneTapZap = async () => {
@@ -136,6 +141,7 @@ export const FullSizeMusicPlayer = () => {
         artist,
         artworkUrl,
         trackId,
+        timestamp: position,
       },
     });
   };
@@ -199,7 +205,9 @@ export const FullSizeMusicPlayer = () => {
               alignItems: "center",
             }}
           >
-            <View>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 24 }}
+            >
               <LikeButton
                 onPress={handleLikePress}
                 size={24}
@@ -208,6 +216,11 @@ export const FullSizeMusicPlayer = () => {
                   addTrackToLibraryMutation.isLoading ||
                   deleteTrackFromLibraryMutation.isLoading
                 }
+              />
+              <PlaylistButton
+                size={30}
+                contentId={currentTrack.id}
+                isMusic={currentTrack.albumTitle != "podcast"}
               />
             </View>
             <View

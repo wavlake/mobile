@@ -12,13 +12,14 @@ import { useLocalSearchParams } from "expo-router";
 import { useZap } from "@/hooks";
 
 export default function ZapPage() {
-  const { defaultZapAmount, title, artist, artworkUrl, trackId } =
+  const { defaultZapAmount, title, artist, artworkUrl, trackId, timestamp } =
     useLocalSearchParams<{
       defaultZapAmount: string;
       title: string;
       artist: string;
       artworkUrl: string;
       trackId: string;
+      timestamp: string;
     }>();
 
   const [zapAmount, setZapAmount] = useState(defaultZapAmount as string);
@@ -28,6 +29,7 @@ export default function ZapPage() {
     title,
     artist,
     artworkUrl,
+    timestamp: timestamp ? parseInt(timestamp) : 0,
   });
   const isZapDisabled =
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
