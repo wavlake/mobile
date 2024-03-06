@@ -8,6 +8,8 @@ import { brandColors } from "@/constants";
 import { Button } from "@/components/Button";
 import { Text } from "@/components/Text";
 import { BadgeIcon } from "@/components/BadgeIcon";
+import { ChoosePlaylistButton } from "./ChoosePlaylistButton";
+import { CreatePlaylistButton } from "./CreatePlaylistButton";
 
 interface PlaylistButtonProps {
   size: number;
@@ -48,50 +50,14 @@ export const PlaylistButton = ({
         }}
       >
         <View style={{ gap: 32 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                }}
-                numberOfLines={1}
-                bold
-              >
-                Add to existing playlist
-              </Text>
-            </View>
-            <MaterialCommunityIcons
-              name={"plus-thick"}
-              size={size}
-              color={colors.text}
-            />
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                }}
-                numberOfLines={1}
-                bold
-              >
-                Create new playlist
-              </Text>
-            </View>
-            <BadgeIcon fill={colors.text} width={24} height={24} />
-          </View>
+          <ChoosePlaylistButton
+            contentId={contentId}
+            setPrevDialogOpen={setIsDialogOpen}
+          />
+          <CreatePlaylistButton
+            contentId={contentId}
+            setPrevDialogOpen={setIsDialogOpen}
+          />
           <Button
             color={colors.border}
             titleStyle={{ color: colors.text }}

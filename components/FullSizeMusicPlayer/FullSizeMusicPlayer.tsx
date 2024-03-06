@@ -24,7 +24,7 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
-import { PlaylistButton } from "../PlaylistButton";
+import { PlaylistButton } from "../Playlist/PlaylistButton";
 import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
