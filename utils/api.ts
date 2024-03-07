@@ -125,6 +125,14 @@ export interface Album {
   publishedAt: string;
   topMessages?: ContentComment[];
 }
+export interface Playlist {
+  id: string;
+  userId: string;
+  title: string;
+  isFavorites: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface Genre {
   id: number;
@@ -376,4 +384,33 @@ export const createPlaylist = async (title: string) => {
   });
 
   return data;
+};
+
+export const addToPlaylist = async ({
+  trackId,
+  playlistId,
+}: {
+  trackId: string;
+  playlistId: string;
+}) => {
+  const url = "/playlists/add-track";
+  const payload = { trackId, playlistId };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
+      "Content-Type": "application/json",
+    },
+  });
+
+  return data;
+};
+
+export const getPlaylists = async (): Promise<Playlist[]> => {
+  const url = "/playlists";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+  return data.data;
 };

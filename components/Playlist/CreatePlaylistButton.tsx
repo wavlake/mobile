@@ -36,7 +36,11 @@ export const CreatePlaylistButton = ({
     setPrevDialogOpen(false);
   };
 
-  return pubkey ? (
+  if (!pubkey) {
+    return null;
+  }
+
+  return (
     <View style={{ backgroundColor: colors.background }}>
       <Pressable onPress={() => handlePress()}>
         <View
