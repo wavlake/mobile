@@ -18,21 +18,20 @@ export const CreatePlaylistButton = ({
       <View
         style={{
           flexDirection: "row",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "space-between",
+          gap: 4,
         }}
       >
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontSize: 18,
-            }}
-            numberOfLines={1}
-            bold
-          >
-            Create new playlist
-          </Text>
-        </View>
+        <Text
+          style={{
+            fontSize: 18,
+          }}
+          numberOfLines={1}
+          bold
+        >
+          Create new playlist
+        </Text>
         <MaterialCommunityIcons
           name={"plus-thick"}
           size={24}

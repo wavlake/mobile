@@ -120,6 +120,7 @@ export const PlaylistDialog = ({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-between",
+            gap: 20,
           }}
         >
           {!!playlists.length && (

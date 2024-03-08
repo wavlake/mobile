@@ -34,13 +34,16 @@ export const ChoosePlaylistForm = ({
     <View style={{ backgroundColor: colors.background }}>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 20,
         }}
       >
         {!!playlists?.length && (
-          <View style={{ backgroundColor: "white", borderRadius: 8 }}>
+          <View
+            style={{ backgroundColor: "white", borderRadius: 8, width: "100%" }}
+          >
             <Picker
               selectedValue={playlistId}
               onValueChange={(itemValue) => setPlaylistId(itemValue)}
