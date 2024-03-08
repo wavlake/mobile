@@ -12,44 +12,28 @@ import {
 export default function PlaylistsPage() {
   const { playlistId } = useLocalSearchParams();
 
-  const { data: playlist } = useQuery({
+  const { data: playlistTracks } = useQuery({
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
   const { height } = useMiniMusicPlayer();
 
-  const handleRowPress = (index: number) => {
-    console.log("press");
+  const handleRowPress = (id: string) => {
+    // TODO - add playlist to queue and start playing the chosen track id
+    console.log("press", id);
   };
-  const data = [
-    {
-      id: "123",
-      userId: "asdf",
-      title: "asdfasdfasdf",
-      isFavorites: false,
-      createdAt: "asdf",
-      updatedAt: "asdf",
-    },
-    {
-      id: "123",
-      userId: "asdf",
-      title: "qweqweqwe",
-      isFavorites: false,
-      createdAt: "asdf",
-      updatedAt: "asdf",
-    },
-  ];
-  return playlist ? (
+
+  return playlistTracks ? (
     <View style={{ height: "100%", paddingTop: 16 }}>
       <FlatList
-        data={data}
+        data={playlistTracks}
         renderItem={({ item, index }) => {
-          const { id, userId, title, isFavorites, createdAt, updatedAt } = item;
-          const isLastRow = index === data.length - 1;
+          const { id, title } = item;
+          const isLastRow = index === playlistTracks.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
 
           return (
-            <TouchableOpacity onPress={() => handleRowPress(index)}>
+            <TouchableOpacity onPress={() => handleRowPress(id)}>
               <View
                 style={{
                   flexDirection: "row",

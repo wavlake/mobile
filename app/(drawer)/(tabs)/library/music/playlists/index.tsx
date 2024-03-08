@@ -1,10 +1,12 @@
 import { LogoIcon, Text, useMiniMusicPlayer } from "@/components";
+import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { Playlist } from "@/utils";
 import { useRouter } from "expo-router";
 import { FlatList, TouchableOpacity, View } from "react-native";
 
 export default function PlaylistsPage() {
   const { height } = useMiniMusicPlayer();
+  const { data: playlists = [] } = usePlaylists();
   const router = useRouter();
   const handleRowPress = (playlist: Playlist) => {
     router.push({
@@ -15,31 +17,14 @@ export default function PlaylistsPage() {
       },
     });
   };
-  const data = [
-    {
-      id: "123",
-      userId: "asdf",
-      title: "asdf",
-      isFavorites: false,
-      createdAt: "asdf",
-      updatedAt: "asdf",
-    },
-    {
-      id: "123",
-      userId: "asdf",
-      title: "asdf",
-      isFavorites: false,
-      createdAt: "asdf",
-      updatedAt: "asdf",
-    },
-  ];
+
   return (
     <View style={{ height: "100%", paddingTop: 16 }}>
       <FlatList
-        data={data}
+        data={playlists}
         renderItem={({ item, index }) => {
-          const { id, userId, title, isFavorites, createdAt, updatedAt } = item;
-          const isLastRow = index === data.length - 1;
+          const { id, title } = item;
+          const isLastRow = index === playlists.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
 
           return (
