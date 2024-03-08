@@ -3,6 +3,8 @@ import { getEventFromRelay, getNWCInfoEvent, sendNWCRequest } from "./nostr";
 import { getNwcSecret, saveNwcSecret } from "./secureStorage";
 import { cacheSettings } from "./cache";
 
+export const MUTINY_RELAY = "wss://relay.mutinywallet.com";
+
 export const payInvoiceCommand = "pay_invoice";
 export const getBalanceCommand = "get_balance";
 export interface NWCResponsePayInvoice {
@@ -102,7 +104,7 @@ export const intakeNwcURI = async ({
     ),
   ]);
 
-  onUpdate?.("Sucess!");
+  onUpdate?.("Success!");
   return {
     isSuccess: true,
     fetchInfo: () =>
@@ -251,9 +253,7 @@ export async function getNwcBalance({
   }
   // Because mutiny's relay is not readable
   const relay =
-    nwcRelay === "wss://nostr.mutinywallet.com"
-      ? "wss://relay.wavlake.com"
-      : nwcRelay;
+    nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
   const response = (await handleNwcResponse({
     userPubkey,
     eventId: requestEvent.id,
@@ -289,9 +289,7 @@ async function sendNwcPaymentRequest({
     throw new Error("Failed to send NWC request");
   }
   const relay =
-    nwcRelay === "wss://nostr.mutinywallet.com"
-      ? "wss://relay.wavlake.com"
-      : nwcRelay;
+    nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
   const response = (await handleNwcResponse({
     userPubkey,
