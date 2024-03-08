@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { CreatePlaylistButton } from "./CreatePlaylistButton";
 import { Picker } from "@react-native-picker/picker";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
+import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";
 
 interface PlaylistButtonProps {
   size: number;
@@ -23,29 +24,39 @@ export const PlaylistButton = ({
 }: PlaylistButtonProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
+  const [selectedContentId, setSelectedContentId] = useState("");
   const screenWidth = Dimensions.get("window").width;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { data: playlists, isLoading } = usePlaylists();
+  const { data: playlists } = usePlaylists();
+  const { mutate: addToPlaylist } = useAddToPlaylist();
   const [playlist, setPlaylist] = useState("");
 
   useEffect(() => {
     if (playlist) {
-      // trigger add to playlist mutation
+      addToPlaylist({ playlistId: playlist, trackId: selectedContentId });
       setIsDialogOpen(false);
     }
   }, [playlist]);
 
-  if (!pubkey || !isMusic) return;
+  if (!pubkey) return;
 
   return (
     <View style={{ backgroundColor: colors.background }}>
-      <Pressable onPress={() => setIsDialogOpen(true)}>
-        <MaterialCommunityIcons
-          name={"playlist-plus"}
-          size={size}
-          color={colors.text}
-        />
-      </Pressable>
+      {isMusic && (
+        <Pressable
+          onPress={() => {
+            // grab the contentId (it may change if the next track plays)
+            setSelectedContentId(contentId);
+            setIsDialogOpen(true);
+          }}
+        >
+          <MaterialCommunityIcons
+            name={"playlist-plus"}
+            size={size}
+            color={colors.text}
+          />
+        </Pressable>
+      )}
       <Dialog
         isVisible={isDialogOpen}
         onBackdropPress={() => setIsDialogOpen(false)}
@@ -72,10 +83,7 @@ export const PlaylistButton = ({
               </Picker>
             </View>
           )}
-          <CreatePlaylistButton
-            contentId={contentId}
-            setPrevDialogOpen={setIsDialogOpen}
-          />
+          <CreatePlaylistButton />
           <Button
             color={colors.border}
             titleStyle={{ color: colors.text }}

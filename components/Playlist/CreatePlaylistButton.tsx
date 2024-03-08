@@ -3,22 +3,16 @@ import { Dialog } from "@rneui/themed";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/hooks";
-import { useState, SetStateAction } from "react";
+import { useState } from "react";
 import { brandColors } from "@/constants";
 import { TextInput } from "@/components/TextInput";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/Button";
 import { useCreatePlaylist } from "@/hooks";
 
-interface CreatePlaylistButtonProps {
-  contentId: string;
-  setPrevDialogOpen: (value: SetStateAction<boolean>) => void;
-}
+interface CreatePlaylistButtonProps {}
 
-export const CreatePlaylistButton = ({
-  contentId,
-  setPrevDialogOpen,
-}: CreatePlaylistButtonProps) => {
+export const CreatePlaylistButton = ({}: CreatePlaylistButtonProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
   const [playlistName, setPlaylistName] = useState("");
@@ -33,7 +27,6 @@ export const CreatePlaylistButton = ({
   const handleCreate = () => {
     createPlaylist(playlistName);
     setIsDialogOpen(false);
-    setPrevDialogOpen(false);
   };
 
   if (!pubkey) {

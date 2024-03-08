@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPlaylist } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { usePlaylistsQueryKey } from "./usePlaylistsQueryKey";
 
 export const useCustomPlaylistQueryKey = () => {
   const { pubkey } = useAuth();
@@ -11,6 +12,7 @@ export const useCustomPlaylistQueryKey = () => {
 export const useCreatePlaylist = () => {
   const queryClient = useQueryClient();
   const queryKey = useCustomPlaylistQueryKey();
+  const userPlaylistsQueryKey = usePlaylistsQueryKey();
 
   return useMutation({
     mutationFn: (title: string) => createPlaylist(title),
@@ -28,6 +30,7 @@ export const useCreatePlaylist = () => {
     // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries(userPlaylistsQueryKey);
     },
   });
 };
