@@ -144,29 +144,7 @@ const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const apiClient = axios.create({
   baseURL,
 });
-const requestInterceptor = apiClient.interceptors.request.use((request) => {
-  console.log("request:", Object.entries(request.data));
-  return request;
-});
 
-const responseInterceptor = apiClient.interceptors.response.use(
-  // on response fulfilled (200 response)
-  (response) => {
-    if (typeof response.data === "object") {
-      console.log("response:", Object.entries(response.data));
-    }
-
-    return response;
-  },
-  // on response rejected (non 200 response)
-  (error) => {
-    if (error?.response?.data) {
-      console.log("error response:", error.response.data);
-    }
-    // need to throw the response, else it will be swallowed here
-    throw error;
-  },
-);
 // Function to normalize the response from the API
 // TODO: Make responses from API consistent
 const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
