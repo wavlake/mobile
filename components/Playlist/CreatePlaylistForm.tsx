@@ -45,6 +45,7 @@ export const CreatePlaylistForm = ({
         onChangeText={setPlaylistName}
       />
       <Button onPress={handleCreate}>Create</Button>
+      <Button onPress={back}>Back</Button>
     </View>
   );
 };

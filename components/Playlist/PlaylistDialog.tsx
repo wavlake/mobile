@@ -23,7 +23,6 @@ export const PlaylistDialog = ({
   setIsOpen,
   contentId,
 }: PlaylistButtonProps) => {
-  const { pubkey } = useAuth();
   const { colors } = useTheme();
   const [isCreating, setIsCreating] = useState(false);
   const [isChoosing, setIsChoosing] = useState(false);
@@ -31,7 +30,6 @@ export const PlaylistDialog = ({
   const { data: playlists = [] } = usePlaylists();
 
   const [isSuccess, setIsSuccess] = useState(false);
-  if (!pubkey) return;
 
   if (isSuccess) {
     return (
@@ -108,6 +106,7 @@ export const PlaylistDialog = ({
           playlists={playlists}
           contentId={contentId}
           setIsSuccess={() => setIsSuccess(true)}
+          back={() => setIsChoosing(false)}
         />
       ) : isCreating ? (
         <CreatePlaylistForm

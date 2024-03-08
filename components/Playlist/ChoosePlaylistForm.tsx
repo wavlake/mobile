@@ -10,12 +10,14 @@ interface ChoosePlaylistFormProps {
   playlists: Playlist[];
   contentId: string;
   setIsSuccess: () => void;
+  back: () => void;
 }
 
 export const ChoosePlaylistForm = ({
   playlists,
   contentId,
   setIsSuccess,
+  back,
 }: ChoosePlaylistFormProps) => {
   const { colors } = useTheme();
   const [playlistId, setPlaylistId] = useState("");
@@ -57,6 +59,7 @@ export const ChoosePlaylistForm = ({
         >
           Add to this playlist
         </Button>
+        <Button onPress={back}>Back</Button>
       </View>
     </View>
   );
