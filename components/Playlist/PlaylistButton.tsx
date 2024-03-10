@@ -21,7 +21,6 @@ export const PlaylistButton = ({
   const { colors } = useTheme();
   const [selectedContentId, setSelectedContentId] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   if (!pubkey) return;
 
@@ -42,20 +41,13 @@ export const PlaylistButton = ({
           />
         </Pressable>
       )}
+      {/* This is conditionally rendered so the dialog state resets when its closed. */}
       {isDialogOpen && (
         <PlaylistDialog
           isOpen={isDialogOpen}
           contentId={selectedContentId}
           isMusic={isMusic}
           setIsOpen={setIsDialogOpen}
-          setIsSuccess={setIsSuccess}
-        />
-      )}
-      {isSuccess && (
-        <SuccessDialog
-          isVisible={isSuccess}
-          setIsVisible={setIsSuccess}
-          text={"Successfully added to playlist"}
         />
       )}
     </View>

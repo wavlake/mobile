@@ -9,26 +9,35 @@ import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { ChoosePlaylistForm } from "./ChoosePlaylistForm";
 import { ChoosePlaylistButton } from "./ChoosePlaylistButton";
 import { CreatePlaylistForm } from "./CreatePlaylistForm";
+import { SuccessDialog } from "./SuccessDialog";
 
 interface PlaylistDialogProps {
   contentId: string;
   isMusic: boolean;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  setIsSuccess: (value: boolean) => void;
 }
 
 export const PlaylistDialog = ({
   isOpen,
   setIsOpen,
   contentId,
-  setIsSuccess,
 }: PlaylistDialogProps) => {
   const { colors } = useTheme();
   const [isCreating, setIsCreating] = useState(false);
   const [isChoosing, setIsChoosing] = useState(false);
   const screenWidth = Dimensions.get("window").width;
   const { data: playlists = [] } = usePlaylists();
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  if (isSuccess) {
+    return (
+      <SuccessDialog
+        setIsOpen={setIsOpen}
+        text={"Successfully added to playlist"}
+      />
+    );
+  }
 
   return (
     <Dialog
@@ -49,8 +58,6 @@ export const PlaylistDialog = ({
           playlists={playlists}
           contentId={contentId}
           onSuccess={() => {
-            setIsChoosing(false);
-            setIsOpen(false);
             setIsSuccess(true);
           }}
           back={() => setIsChoosing(false)}
@@ -60,8 +67,6 @@ export const PlaylistDialog = ({
           back={() => setIsCreating(false)}
           contentId={contentId}
           onSuccess={() => {
-            setIsCreating(false);
-            setIsOpen(false);
             setIsSuccess(true);
           }}
         />

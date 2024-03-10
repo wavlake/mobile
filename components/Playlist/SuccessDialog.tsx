@@ -9,27 +9,24 @@ const SHOW_SUCCESS_DURATION = 4000;
 
 export const SuccessDialog = ({
   text,
-  isVisible,
-  setIsVisible,
+  setIsOpen,
 }: {
   text: string;
-  isVisible: boolean;
-  setIsVisible: (value: boolean) => void;
+  setIsOpen: (value: boolean) => void;
 }) => {
   const { colors } = useTheme();
   const screenWidth = Dimensions.get("window").width;
 
   useEffect(() => {
     setTimeout(() => {
-      console.log("setIsVisible(false)");
-      setIsVisible(false);
+      setIsOpen(false);
     }, SHOW_SUCCESS_DURATION);
   }, []);
 
   return (
     <Dialog
-      isVisible={isVisible}
-      onBackdropPress={() => setIsVisible(false)}
+      isVisible={true}
+      onBackdropPress={() => setIsOpen(false)}
       overlayStyle={{
         backgroundColor: colors.background,
         width: screenWidth - 32,
@@ -60,7 +57,7 @@ export const SuccessDialog = ({
         <Button
           color={colors.border}
           titleStyle={{ color: colors.text }}
-          onPress={() => setIsVisible(false)}
+          onPress={() => setIsOpen(false)}
         >
           Close
         </Button>
