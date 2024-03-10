@@ -4,7 +4,6 @@ import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/hooks";
 import { useState } from "react";
 import { PlaylistDialog } from "./PlaylistDialog";
-import { SuccessDialog } from "./SuccessDialog";
 
 interface PlaylistButtonProps {
   size: number;

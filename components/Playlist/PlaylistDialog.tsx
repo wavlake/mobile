@@ -9,7 +9,7 @@ import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { ChoosePlaylistForm } from "./ChoosePlaylistForm";
 import { ChoosePlaylistButton } from "./ChoosePlaylistButton";
 import { CreatePlaylistForm } from "./CreatePlaylistForm";
-import { SuccessDialog } from "./SuccessDialog";
+import { SuccessComponent } from "./SuccessComponent";
 
 interface PlaylistDialogProps {
   contentId: string;
@@ -30,15 +30,6 @@ export const PlaylistDialog = ({
   const { data: playlists = [] } = usePlaylists();
   const [isSuccess, setIsSuccess] = useState(false);
 
-  if (isSuccess) {
-    return (
-      <SuccessDialog
-        setIsOpen={setIsOpen}
-        text={"Successfully added to playlist"}
-      />
-    );
-  }
-
   return (
     <Dialog
       isVisible={isOpen}
@@ -53,7 +44,12 @@ export const PlaylistDialog = ({
         opacity: 0.8,
       }}
     >
-      {isChoosing ? (
+      {isSuccess ? (
+        <SuccessComponent
+          setIsOpen={setIsOpen}
+          text={"Successfully added to playlist"}
+        />
+      ) : isChoosing ? (
         <ChoosePlaylistForm
           playlists={playlists}
           contentId={contentId}
@@ -71,6 +67,8 @@ export const PlaylistDialog = ({
           }}
         />
       ) : (
+        // this is the default view
+        // the user can choose to create a new playlist or add to an existing
         <View
           style={{
             flexDirection: "column",
