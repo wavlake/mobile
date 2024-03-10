@@ -10,9 +10,11 @@ import { ChoosePlaylistForm } from "./ChoosePlaylistForm";
 import { ChoosePlaylistButton } from "./ChoosePlaylistButton";
 import { CreatePlaylistForm } from "./CreatePlaylistForm";
 import { SuccessComponent } from "./SuccessComponent";
+import { Playlist } from "@/utils";
 
 interface PlaylistDialogProps {
   contentId: string;
+  contentTitle: string;
   isMusic: boolean;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
@@ -21,6 +23,7 @@ interface PlaylistDialogProps {
 export const PlaylistDialog = ({
   isOpen,
   setIsOpen,
+  contentTitle,
   contentId,
 }: PlaylistDialogProps) => {
   const { colors } = useTheme();
@@ -29,7 +32,9 @@ export const PlaylistDialog = ({
   const screenWidth = Dimensions.get("window").width;
   const { data: playlists = [] } = usePlaylists();
   const [isSuccess, setIsSuccess] = useState(false);
-
+  const [selectedPlaylist, setSelectedPlaylist] = useState<
+    Playlist | undefined
+  >(undefined);
   return (
     <Dialog
       isVisible={isOpen}
@@ -47,12 +52,13 @@ export const PlaylistDialog = ({
       {isSuccess ? (
         <SuccessComponent
           setIsOpen={setIsOpen}
-          text={"Successfully added to playlist"}
+          text={`Great! You've added ${contentTitle} to your playlist ${selectedPlaylist?.title}`}
         />
       ) : isChoosing ? (
         <ChoosePlaylistForm
           playlists={playlists}
           contentId={contentId}
+          setSelectedPlaylist={setSelectedPlaylist}
           onSuccess={() => {
             setIsSuccess(true);
           }}

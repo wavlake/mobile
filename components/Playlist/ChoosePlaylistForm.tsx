@@ -11,6 +11,7 @@ interface ChoosePlaylistFormProps {
   contentId: string;
   onSuccess: () => void;
   back: () => void;
+  setSelectedPlaylist: (value: Playlist) => void;
 }
 
 export const ChoosePlaylistForm = ({
@@ -18,6 +19,7 @@ export const ChoosePlaylistForm = ({
   contentId,
   onSuccess,
   back,
+  setSelectedPlaylist,
 }: ChoosePlaylistFormProps) => {
   const { colors } = useTheme();
   const [playlistId, setPlaylistId] = useState(playlists[0]?.id);
@@ -46,7 +48,13 @@ export const ChoosePlaylistForm = ({
           >
             <Picker
               selectedValue={playlistId}
-              onValueChange={(itemValue) => setPlaylistId(itemValue)}
+              onValueChange={(itemValue) => {
+                const selectedPlaylist = playlists.find(
+                  ({ id }) => id === itemValue,
+                );
+                selectedPlaylist && setSelectedPlaylist(selectedPlaylist);
+                setPlaylistId(itemValue);
+              }}
             >
               {playlists.map(({ id, title }) => (
                 <Picker.Item key={id} label={title} value={id} />

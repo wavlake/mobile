@@ -8,17 +8,20 @@ import { PlaylistDialog } from "./PlaylistDialog";
 interface PlaylistButtonProps {
   size: number;
   contentId: string;
+  contentTitle: string;
   isMusic: boolean;
 }
 
 export const PlaylistButton = ({
   size,
   contentId,
+  contentTitle,
   isMusic,
 }: PlaylistButtonProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
   const [selectedContentId, setSelectedContentId] = useState("");
+  const [selectedContentTitle, setSelectedContentTitle] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   if (!pubkey) return;
@@ -30,6 +33,7 @@ export const PlaylistButton = ({
           onPress={() => {
             // grab the contentId (it may change if the next track plays)
             setSelectedContentId(contentId);
+            setSelectedContentTitle(contentTitle);
             setIsDialogOpen(true);
           }}
         >
@@ -45,6 +49,7 @@ export const PlaylistButton = ({
         <PlaylistDialog
           isOpen={isDialogOpen}
           contentId={selectedContentId}
+          contentTitle={selectedContentTitle}
           isMusic={isMusic}
           setIsOpen={setIsDialogOpen}
         />

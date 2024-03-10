@@ -218,6 +218,7 @@ export const FullSizeMusicPlayer = () => {
               <PlaylistButton
                 size={30}
                 contentId={currentTrack.id}
+                contentTitle={currentTrack.title}
                 isMusic={currentTrack.albumTitle != "podcast"}
               />
             </View>

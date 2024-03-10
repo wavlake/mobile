@@ -19,7 +19,7 @@ export default function PlaylistsPage() {
   };
 
   return (
-    <View style={{ height: "100%", paddingTop: 16 }}>
+    <View style={{ height: "100%", paddingTop: 16, paddingHorizontal: 4 }}>
       <FlatList
         data={playlists}
         renderItem={({ item, index }) => {

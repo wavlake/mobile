@@ -13,7 +13,6 @@ export const SuccessComponent = ({
   setIsOpen: (value: boolean) => void;
 }) => {
   const { colors } = useTheme();
-  const screenWidth = Dimensions.get("window").width;
 
   useEffect(() => {
     setTimeout(() => {
@@ -35,7 +34,6 @@ export const SuccessComponent = ({
           fontSize: 20,
           marginBottom: 20,
         }}
-        numberOfLines={1}
       >
         {text}
       </Text>
