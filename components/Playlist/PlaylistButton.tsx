@@ -4,6 +4,7 @@ import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/hooks";
 import { useState } from "react";
 import { PlaylistDialog } from "./PlaylistDialog";
+import { SuccessDialog } from "./SuccessDialog";
 
 interface PlaylistButtonProps {
   size: number;
@@ -20,6 +21,7 @@ export const PlaylistButton = ({
   const { colors } = useTheme();
   const [selectedContentId, setSelectedContentId] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   if (!pubkey) return;
 
@@ -40,12 +42,22 @@ export const PlaylistButton = ({
           />
         </Pressable>
       )}
-      <PlaylistDialog
-        isOpen={isDialogOpen}
-        contentId={selectedContentId}
-        isMusic={isMusic}
-        setIsOpen={setIsDialogOpen}
-      />
+      {isDialogOpen && (
+        <PlaylistDialog
+          isOpen={isDialogOpen}
+          contentId={selectedContentId}
+          isMusic={isMusic}
+          setIsOpen={setIsDialogOpen}
+          setIsSuccess={setIsSuccess}
+        />
+      )}
+      {isSuccess && (
+        <SuccessDialog
+          isVisible={isSuccess}
+          setIsVisible={setIsSuccess}
+          text={"Successfully added to playlist"}
+        />
+      )}
     </View>
   );
 };

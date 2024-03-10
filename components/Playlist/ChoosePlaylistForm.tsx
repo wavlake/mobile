@@ -9,18 +9,18 @@ import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";
 interface ChoosePlaylistFormProps {
   playlists: Playlist[];
   contentId: string;
-  setIsSuccess: () => void;
+  onSuccess: () => void;
   back: () => void;
 }
 
 export const ChoosePlaylistForm = ({
   playlists,
   contentId,
-  setIsSuccess,
+  onSuccess,
   back,
 }: ChoosePlaylistFormProps) => {
   const { colors } = useTheme();
-  const [playlistId, setPlaylistId] = useState("");
+  const [playlistId, setPlaylistId] = useState(playlists[0]?.id);
   const { mutateAsync: addToPlaylist } = useAddToPlaylist();
   const handlePress = async () => {
     if (!playlistId) return;
@@ -28,7 +28,7 @@ export const ChoosePlaylistForm = ({
       playlistId,
       trackId: contentId,
     });
-    success && setIsSuccess();
+    success && onSuccess();
   };
   return (
     <View style={{ backgroundColor: colors.background }}>
@@ -54,15 +54,14 @@ export const ChoosePlaylistForm = ({
             </Picker>
           </View>
         )}
+        <Button onPress={() => handlePress()}>Add to this playlist</Button>
         <Button
-          color={colors.border}
           titleStyle={{ color: colors.text }}
-          onPress={() => handlePress()}
-          width="100%"
+          color={colors.border}
+          onPress={back}
         >
-          Add to this playlist
+          Back
         </Button>
-        <Button onPress={back}>Back</Button>
       </View>
     </View>
   );

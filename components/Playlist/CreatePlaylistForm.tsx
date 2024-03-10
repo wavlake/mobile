@@ -7,13 +7,13 @@ import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";
 interface CreatePlaylistFormProps {
   back: () => void;
   contentId: string;
-  setIsSuccess: () => void;
+  onSuccess: () => void;
 }
 
 export const CreatePlaylistForm = ({
   back,
   contentId,
-  setIsSuccess,
+  onSuccess,
 }: CreatePlaylistFormProps) => {
   const { mutateAsync: createPlaylist } = useCreatePlaylist();
   const { mutateAsync: addToPlaylist } = useAddToPlaylist();
@@ -24,7 +24,7 @@ export const CreatePlaylistForm = ({
       playlistId: id,
       trackId: contentId,
     });
-    success && setIsSuccess();
+    success && onSuccess();
   };
 
   return (

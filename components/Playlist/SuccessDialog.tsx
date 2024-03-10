@@ -3,24 +3,33 @@ import { Dialog } from "@rneui/themed";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
 import { Button, Text } from "@/components";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-const SHOW_SUCCESS_DURATION = 3000;
-export const IsSuccessDialog = () => {
+const SHOW_SUCCESS_DURATION = 4000;
+
+export const SuccessDialog = ({
+  text,
+  isVisible,
+  setIsVisible,
+}: {
+  text: string;
+  isVisible: boolean;
+  setIsVisible: (value: boolean) => void;
+}) => {
   const { colors } = useTheme();
   const screenWidth = Dimensions.get("window").width;
-  const [show, setShow] = useState(true);
 
   useEffect(() => {
     setTimeout(() => {
-      setShow(false);
+      console.log("setIsVisible(false)");
+      setIsVisible(false);
     }, SHOW_SUCCESS_DURATION);
   }, []);
 
   return (
     <Dialog
-      isVisible={show}
-      onBackdropPress={() => setShow(false)}
+      isVisible={isVisible}
+      onBackdropPress={() => setIsVisible(false)}
       overlayStyle={{
         backgroundColor: colors.background,
         width: screenWidth - 32,
@@ -36,34 +45,22 @@ export const IsSuccessDialog = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 5,
         }}
       >
-        <View style={{ alignItems: "center" }}>
-          <Text
-            style={{
-              fontSize: 18,
-              paddingVertical: 12,
-            }}
-            numberOfLines={1}
-            bold
-          >
-            Playlist created
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              paddingVertical: 12,
-            }}
-            numberOfLines={1}
-          >
-            Your track has been added to the playlist
-          </Text>
-        </View>
+        <Text
+          style={{
+            fontSize: 20,
+            marginBottom: 20,
+          }}
+          numberOfLines={1}
+        >
+          {text}
+        </Text>
         <Button
           color={colors.border}
           titleStyle={{ color: colors.text }}
-          onPress={() => setShow(false)}
-          width="100%"
+          onPress={() => setIsVisible(false)}
         >
           Close
         </Button>

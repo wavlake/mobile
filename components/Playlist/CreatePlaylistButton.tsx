@@ -1,8 +1,7 @@
 import { Pressable, View } from "react-native";
-
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { Text } from "@/components/Text";
+import { Text } from "@/components";
 
 interface CreatePlaylistButtonProps {
   handlePress: () => void;
@@ -14,30 +13,33 @@ export const CreatePlaylistButton = ({
   const { colors } = useTheme();
 
   return (
-    <Pressable onPress={() => handlePress()}>
-      <View
+    <Pressable
+      onPress={() => handlePress()}
+      style={({ pressed }) => ({
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        height: 50,
+        paddingHorizontal: 8,
+        borderRadius: 8,
+        backgroundColor: pressed ? colors.card : colors.background,
+      })}
+    >
+      <Text
         style={{
-          flexDirection: "row",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 4,
+          fontSize: 20,
         }}
+        numberOfLines={1}
+        bold
       >
-        <Text
-          style={{
-            fontSize: 18,
-          }}
-          numberOfLines={1}
-          bold
-        >
-          Create new playlist
-        </Text>
-        <MaterialCommunityIcons
-          name={"plus-thick"}
-          size={24}
-          color={colors.text}
-        />
-      </View>
+        Create new playlist
+      </Text>
+      <MaterialCommunityIcons
+        name={"plus-thick"}
+        size={24}
+        color={colors.text}
+      />
     </Pressable>
   );
 };
