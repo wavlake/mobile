@@ -9,20 +9,24 @@ import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { brandColors } from "@/constants";
 import { getPlaylist, togglePlayPause } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   TouchableOpacity,
   View,
 } from "react-native";
 import { State, usePlaybackState } from "react-native-track-player";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useState } from "react";
+import { EditPlaylistDialog } from "@/components/Playlist/EditPlaylistDialog";
 
 export default function PlaylistsPage() {
   const { playlistId, playlistTitle } = useLocalSearchParams();
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
   const { state: playbackState } = usePlaybackState();
-
+  const [moreIsOpen, setMoreIsOpen] = useState(false);
   const isThisTrackListLoaded = playlistId === currentTrackListId;
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;
@@ -55,6 +59,10 @@ export default function PlaylistsPage() {
     });
   };
 
+  const handleMorePress = () => {
+    setMoreIsOpen(true);
+  };
+
   return playlistTracks ? (
     <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
       <View
@@ -74,13 +82,21 @@ export default function PlaylistsPage() {
         <Text
           style={{
             fontSize: 24,
-            textAlign: "center",
+            textAlign: "left",
+            flex: 1,
           }}
           numberOfLines={3}
           bold
         >
           {playlistTitle}
         </Text>
+        <Pressable onPress={handleMorePress}>
+          <MaterialCommunityIcons
+            name="dots-horizontal"
+            size={24}
+            color={brandColors.pink.DEFAULT}
+          />
+        </Pressable>
       </View>
       <FlatList
         data={playlistTracks}
@@ -129,6 +145,14 @@ export default function PlaylistsPage() {
         keyExtractor={(item, index) => item.id + index}
         scrollEnabled
       />
+      {moreIsOpen && (
+        <EditPlaylistDialog
+          playlistId={playlistId as string}
+          playlistTitle={playlistTitle as string}
+          isOpen={moreIsOpen}
+          setIsOpen={setMoreIsOpen}
+        />
+      )}
     </View>
   ) : (
     <Center>

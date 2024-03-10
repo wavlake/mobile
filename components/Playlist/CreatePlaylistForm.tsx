@@ -9,19 +9,22 @@ interface CreatePlaylistFormProps {
   back: () => void;
   contentId: string;
   onSuccess: () => void;
+  selectedPlaylistTitle: string;
+  setSelectedPlaylistTitle: (title: string) => void;
 }
 
 export const CreatePlaylistForm = ({
   back,
   contentId,
   onSuccess,
+  selectedPlaylistTitle,
+  setSelectedPlaylistTitle,
 }: CreatePlaylistFormProps) => {
   const { colors } = useTheme();
   const { mutateAsync: createPlaylist } = useCreatePlaylist();
   const { mutateAsync: addToPlaylist } = useAddToPlaylist();
-  const [playlistName, setPlaylistName] = useState("");
   const handleCreate = async () => {
-    const { id } = await createPlaylist(playlistName);
+    const { id } = await createPlaylist(selectedPlaylistTitle);
     if (!id) return;
 
     const { success } = await addToPlaylist({
@@ -51,9 +54,9 @@ export const CreatePlaylistForm = ({
         Name your new playlist
       </Text>
       <TextInput
-        value={playlistName}
+        value={selectedPlaylistTitle}
         keyboardType="default"
-        onChangeText={setPlaylistName}
+        onChangeText={setSelectedPlaylistTitle}
       />
       <Button onPress={handleCreate}>Create</Button>
       <Button

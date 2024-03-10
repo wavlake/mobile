@@ -424,3 +424,14 @@ export const getPlaylist = async (playlistId: string): Promise<Track[]> => {
   });
   return data.data;
 };
+
+export const deletePlaylist = async (playlistId: string) => {
+  const url = `/playlists/${playlistId}`;
+  const { data } = await apiClient.delete(url, {
+    headers: {
+      Authorization: await createAuthHeader(url, "delete"),
+    },
+  });
+
+  return data;
+};

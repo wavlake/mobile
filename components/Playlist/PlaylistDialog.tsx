@@ -32,9 +32,8 @@ export const PlaylistDialog = ({
   const screenWidth = Dimensions.get("window").width;
   const { data: playlists = [] } = usePlaylists();
   const [isSuccess, setIsSuccess] = useState(false);
-  const [selectedPlaylist, setSelectedPlaylist] = useState<
-    Playlist | undefined
-  >(undefined);
+  const [selectedPlaylistTitle, setSelectedPlaylistTitle] =
+    useState<string>("");
   return (
     <Dialog
       isVisible={isOpen}
@@ -52,13 +51,13 @@ export const PlaylistDialog = ({
       {isSuccess ? (
         <SuccessComponent
           setIsOpen={setIsOpen}
-          text={`Great! You've added ${contentTitle} to your playlist ${selectedPlaylist?.title}`}
+          text={`Great! You've added ${contentTitle} to your playlist ${selectedPlaylistTitle}`}
         />
       ) : isChoosing ? (
         <ChoosePlaylistForm
           playlists={playlists}
           contentId={contentId}
-          setSelectedPlaylist={setSelectedPlaylist}
+          setSelectedPlaylistTitle={setSelectedPlaylistTitle}
           onSuccess={() => {
             setIsSuccess(true);
           }}
@@ -67,6 +66,8 @@ export const PlaylistDialog = ({
       ) : isCreating ? (
         <CreatePlaylistForm
           back={() => setIsCreating(false)}
+          setSelectedPlaylistTitle={setSelectedPlaylistTitle}
+          selectedPlaylistTitle={selectedPlaylistTitle}
           contentId={contentId}
           onSuccess={() => {
             setIsSuccess(true);

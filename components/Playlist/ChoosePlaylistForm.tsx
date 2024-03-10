@@ -3,7 +3,7 @@ import { useTheme } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 import { Button } from "@/components";
 import { Playlist } from "@/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";
 
 interface ChoosePlaylistFormProps {
@@ -11,7 +11,7 @@ interface ChoosePlaylistFormProps {
   contentId: string;
   onSuccess: () => void;
   back: () => void;
-  setSelectedPlaylist: (value: Playlist) => void;
+  setSelectedPlaylistTitle: (title: string) => void;
 }
 
 export const ChoosePlaylistForm = ({
@@ -19,10 +19,10 @@ export const ChoosePlaylistForm = ({
   contentId,
   onSuccess,
   back,
-  setSelectedPlaylist,
+  setSelectedPlaylistTitle,
 }: ChoosePlaylistFormProps) => {
   const { colors } = useTheme();
-  const [playlistId, setPlaylistId] = useState(playlists[0]?.id);
+  const [playlistId, setPlaylistId] = useState("");
   const { mutateAsync: addToPlaylist } = useAddToPlaylist();
   const handlePress = async () => {
     if (!playlistId) return;
@@ -32,6 +32,14 @@ export const ChoosePlaylistForm = ({
     });
     success && onSuccess();
   };
+
+  // initiliaze state to the first playlist in the list (this is the default selection)
+  useEffect(() => {
+    const defaultPlaylist = playlists[0];
+    setPlaylistId(defaultPlaylist.id);
+    setSelectedPlaylistTitle(defaultPlaylist.title);
+  }, []);
+
   return (
     <View style={{ backgroundColor: colors.background }}>
       <View
@@ -52,7 +60,8 @@ export const ChoosePlaylistForm = ({
                 const selectedPlaylist = playlists.find(
                   ({ id }) => id === itemValue,
                 );
-                selectedPlaylist && setSelectedPlaylist(selectedPlaylist);
+                selectedPlaylist &&
+                  setSelectedPlaylistTitle(selectedPlaylist.title);
                 setPlaylistId(itemValue);
               }}
             >
