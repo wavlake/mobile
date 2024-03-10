@@ -383,7 +383,7 @@ export const createPlaylist = async (title: string) => {
     },
   });
 
-  return data;
+  return data.data;
 };
 
 export const addToPlaylist = async ({

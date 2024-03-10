@@ -3,6 +3,7 @@ import { Button, Text, TextInput } from "@/components";
 import { useState } from "react";
 import { useCreatePlaylist } from "@/hooks";
 import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";
+import { useTheme } from "@react-navigation/native";
 
 interface CreatePlaylistFormProps {
   back: () => void;
@@ -15,11 +16,14 @@ export const CreatePlaylistForm = ({
   contentId,
   onSuccess,
 }: CreatePlaylistFormProps) => {
+  const { colors } = useTheme();
   const { mutateAsync: createPlaylist } = useCreatePlaylist();
   const { mutateAsync: addToPlaylist } = useAddToPlaylist();
   const [playlistName, setPlaylistName] = useState("");
   const handleCreate = async () => {
     const { id } = await createPlaylist(playlistName);
+    if (!id) return;
+
     const { success } = await addToPlaylist({
       playlistId: id,
       trackId: contentId,
@@ -28,16 +32,23 @@ export const CreatePlaylistForm = ({
   };
 
   return (
-    <View style={{ flex: 1, gap: 12, alignItems: "center" }}>
+    <View
+      style={{
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 20,
+      }}
+    >
       <Text
         style={{
           fontSize: 18,
-          paddingVertical: 12,
+          paddingVertical: 4,
         }}
         numberOfLines={1}
         bold
       >
-        Name your playlist
+        Name your new playlist
       </Text>
       <TextInput
         value={playlistName}
@@ -45,7 +56,13 @@ export const CreatePlaylistForm = ({
         onChangeText={setPlaylistName}
       />
       <Button onPress={handleCreate}>Create</Button>
-      <Button onPress={back}>Back</Button>
+      <Button
+        titleStyle={{ color: colors.text }}
+        color={colors.border}
+        onPress={back}
+      >
+        Back
+      </Button>
     </View>
   );
 };
