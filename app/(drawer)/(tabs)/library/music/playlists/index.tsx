@@ -12,7 +12,8 @@ export default function PlaylistsPage() {
     router.push({
       pathname: `/library/music/playlists/${playlist.id}`,
       params: {
-        headerTitle: playlist.title,
+        headerTitle: "Songs",
+        playlistTitle: playlist.title,
         includeBackButton: true,
       },
     });
