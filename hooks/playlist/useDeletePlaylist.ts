@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPlaylist } from "@/utils";
 import { usePlaylistsQueryKey } from "./usePlaylistsQueryKey";
+import { deletePlaylist } from "@/utils";
 
-export const useCreatePlaylist = () => {
+export const useDeletePlaylist = () => {
   const queryClient = useQueryClient();
   const queryKey = usePlaylistsQueryKey();
 
   return useMutation({
-    mutationFn: (title: string) => createPlaylist(title),
+    mutationFn: (id: string) => deletePlaylist(id),
     // When mutate is called:
     onMutate: async (content) => {
       // Cancel any outgoing refetches

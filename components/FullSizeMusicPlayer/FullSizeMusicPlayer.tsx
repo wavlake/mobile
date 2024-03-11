@@ -7,8 +7,7 @@ import {
 } from "react-native";
 import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { Center } from "@/components/Center";
-import { MarqueeText } from "@/components/MarqueeText";
+import { Center, PlaylistButton, MarqueeText } from "@/components";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -24,7 +23,6 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
-import { PlaylistButton } from "../Playlist/PlaylistButton";
 import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
@@ -216,10 +214,12 @@ export const FullSizeMusicPlayer = () => {
                   addTrackToLibraryMutation.isLoading ||
                   deleteTrackFromLibraryMutation.isLoading
                 }
+                isMusic={currentTrack.albumTitle != "podcast"}
               />
               <PlaylistButton
                 size={30}
                 contentId={currentTrack.id}
+                contentTitle={currentTrack.title}
                 isMusic={currentTrack.albumTitle != "podcast"}
               />
             </View>

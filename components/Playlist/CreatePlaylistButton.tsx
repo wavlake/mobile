@@ -1,111 +1,45 @@
-import { Dimensions, Pressable, View } from "react-native";
-import { Dialog } from "@rneui/themed";
+import { Pressable, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { useAuth } from "@/hooks";
-import { useState, SetStateAction } from "react";
-import { brandColors } from "@/constants";
-import { TextInput } from "@/components/TextInput";
-import { Text } from "@/components/Text";
-import { Button } from "@/components/Button";
-import { useCreatePlaylist } from "@/hooks";
+import { Text } from "@/components";
 
 interface CreatePlaylistButtonProps {
-  contentId: string;
-  setPrevDialogOpen: (value: SetStateAction<boolean>) => void;
+  handlePress: () => void;
 }
 
 export const CreatePlaylistButton = ({
-  contentId,
-  setPrevDialogOpen,
+  handlePress,
 }: CreatePlaylistButtonProps) => {
-  const { pubkey } = useAuth();
   const { colors } = useTheme();
-  const [playlistName, setPlaylistName] = useState("");
-  const screenWidth = Dimensions.get("window").width;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { mutate: createPlaylist } = useCreatePlaylist();
-  const handlePress = () => {
-    setIsDialogOpen(true);
-  };
-
-  const handleCreate = () => {
-    createPlaylist(playlistName);
-    setIsDialogOpen(false);
-    setPrevDialogOpen(false);
-  };
-
-  return pubkey ? (
-    <View style={{ backgroundColor: colors.background }}>
-      <Pressable onPress={() => handlePress()}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontSize: 18,
-              }}
-              numberOfLines={1}
-              bold
-            >
-              Create new playlist
-            </Text>
-          </View>
-          <MaterialCommunityIcons
-            name={"plus-thick"}
-            size={24}
-            color={colors.text}
-          />
-        </View>
-      </Pressable>
-      <Dialog
-        isVisible={isDialogOpen}
-        onBackdropPress={() => setIsDialogOpen(false)}
-        overlayStyle={{
-          backgroundColor: colors.background,
-          width: screenWidth - 32,
-          paddingVertical: 32,
+  return (
+    <Pressable
+      onPress={() => handlePress()}
+      style={({ pressed }) => ({
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        height: 50,
+        paddingHorizontal: 8,
+        borderRadius: 8,
+        backgroundColor: pressed ? colors.card : colors.background,
+      })}
+    >
+      <Text
+        style={{
+          fontSize: 20,
         }}
-        backdropStyle={{
-          backgroundColor: brandColors.black.light,
-          opacity: 0.8,
-        }}
+        numberOfLines={1}
+        bold
       >
-        <View style={{ gap: 32 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ flex: 1, gap: 12, alignItems: "center" }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  paddingVertical: 12,
-                }}
-                numberOfLines={1}
-                bold
-              >
-                Name your playlist
-              </Text>
-              <TextInput
-                value={playlistName}
-                keyboardType="default"
-                onChangeText={setPlaylistName}
-              />
-              <Button onPress={handleCreate}>Create</Button>
-            </View>
-          </View>
-        </View>
-      </Dialog>
-    </View>
+        Create new playlist
+      </Text>
+      <MaterialCommunityIcons
+        name={"plus-thick"}
+        size={24}
+        color={colors.text}
+      />
+    </Pressable>
   );
 };

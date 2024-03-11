@@ -1,96 +1,43 @@
-import { Dimensions, Pressable, View } from "react-native";
-import { Dialog } from "@rneui/themed";
+import { Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { useAuth } from "@/hooks";
-import { useState, SetStateAction } from "react";
-import { brandColors } from "@/constants";
-
-import { Text } from "@/components/Text";
-
-interface ChoosePlaylistButtonProps {
-  contentId: string;
-  setPrevDialogOpen: (value: SetStateAction<boolean>) => void;
-}
+import { Text } from "@/components";
 
 export const ChoosePlaylistButton = ({
-  contentId,
-  setPrevDialogOpen,
-}: ChoosePlaylistButtonProps) => {
-  const { pubkey } = useAuth();
+  handlePress,
+}: {
+  handlePress: () => void;
+}) => {
   const { colors } = useTheme();
-  const screenWidth = Dimensions.get("window").width;
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handlePress = () => {
-    setIsDialogOpen(true);
-  };
-
-  if (!pubkey) return;
-  
   return (
-    <View style={{ backgroundColor: colors.background }}>
-      <Pressable onPress={() => handlePress()}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontSize: 18,
-              }}
-              numberOfLines={1}
-              bold
-            >
-              Add to existing playlist
-            </Text>
-          </View>
-          <MaterialCommunityIcons
-            name={"plus-thick"}
-            size={24}
-            color={colors.text}
-          />
-        </View>
-      </Pressable>
-      <Dialog
-        isVisible={isDialogOpen}
-        onBackdropPress={() => setIsDialogOpen(false)}
-        overlayStyle={{
-          backgroundColor: colors.background,
-          width: screenWidth - 32,
-          paddingVertical: 32,
+    <Pressable
+      onPress={handlePress}
+      style={({ pressed }) => ({
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        height: 50,
+        paddingHorizontal: 8,
+        borderRadius: 8,
+        backgroundColor: pressed ? colors.card : colors.background,
+      })}
+    >
+      <Text
+        style={{
+          fontSize: 20,
         }}
-        backdropStyle={{
-          backgroundColor: brandColors.black.light,
-          opacity: 0.8,
-        }}
+        numberOfLines={1}
+        bold
       >
-        <View style={{ gap: 32 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                }}
-                numberOfLines={1}
-                bold
-              >
-                Select playlist
-              </Text>
-            </View>
-          </View>
-        </View>
-      </Dialog>
-    </View>
+        Add to existing playlist
+      </Text>
+      <MaterialCommunityIcons
+        name={"plus-thick"}
+        size={24}
+        color={colors.text}
+      />
+    </Pressable>
   );
 };
