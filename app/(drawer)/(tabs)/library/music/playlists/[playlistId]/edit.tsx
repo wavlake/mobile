@@ -1,7 +1,7 @@
 import {
   Button,
   Center,
-  LogoIcon,
+  SquareArtwork,
   Text,
   useMiniMusicPlayer,
 } from "@/components";
@@ -11,24 +11,36 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { brandColors } from "@/constants";
 import DraggableFlatList from "react-native-draggable-flatlist";
+import { useState } from "react";
 
 export default function PlaylistsPage() {
   const router = useRouter();
   const { playlistId } = useLocalSearchParams();
-  const { data: playlistData } = useQuery({
+  const { data: playlistData, isLoading } = useQuery({
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
   const { tracks = [] } = playlistData || {};
   const { height } = useMiniMusicPlayer();
+  const [editedTracks, setEditedTracks] = useState(tracks);
 
   const onSave = () => {
     // TODO add edit mutation
     console.log("onsave");
-    router.back();
+    console.log({ tracks });
+    console.log({ editedTracks });
+    // router.back();
   };
 
-  return tracks ? (
+  if (isLoading) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
+
+  return (
     <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
       <View
         style={{
@@ -52,9 +64,10 @@ export default function PlaylistsPage() {
       <DraggableFlatList
         data={tracks}
         contentContainerStyle={{ flexGrow: 1 }}
+        onDragEnd={({ data }) => setEditedTracks(data)}
         renderItem={({ item, getIndex }) => {
           const index = getIndex();
-          const { id, title, artist } = item;
+          const { id, title, artist, artworkUrl } = item;
           const isLastRow = index === tracks.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
 
@@ -67,9 +80,7 @@ export default function PlaylistsPage() {
                 gap: 4,
               }}
             >
-              {/* TODO - swap placeholder with artwork of first track */}
-              <LogoIcon fill="white" width={60} height={60} />
-              {/* <SquareArtwork size={60} url={artworkUrl} /> */}
+              <SquareArtwork size={60} url={artworkUrl} />
               <View style={{ marginLeft: 10, flex: 1 }}>
                 <Text
                   style={{
@@ -102,9 +113,5 @@ export default function PlaylistsPage() {
         }
       />
     </View>
-  ) : (
-    <Center>
-      <ActivityIndicator />
-    </Center>
   );
 }
