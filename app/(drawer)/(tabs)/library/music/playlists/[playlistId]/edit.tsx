@@ -47,7 +47,8 @@ export default function PlaylistsPage() {
   };
 
   const handleDelete = (index?: number) => {
-    if (!index) return;
+    console.log("delete", index);
+    if (index === undefined) return;
     const newTracks = editedTracks.filter((_, i) => i !== index);
     setEditedTracks(newTracks);
   };
@@ -61,7 +62,13 @@ export default function PlaylistsPage() {
   }
 
   return (
-    <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
+    <View
+      style={{
+        height: "100%",
+        paddingTop: 8,
+        gap: 8,
+      }}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -83,7 +90,7 @@ export default function PlaylistsPage() {
       </View>
       <DraggableFlatList
         data={editedTracks}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ height: "100%" }}
         onDragEnd={({ data }) => setEditedTracks(data)}
         renderItem={({ item, getIndex, drag, isActive }) => {
           const index = getIndex();
@@ -160,8 +167,8 @@ export default function PlaylistsPage() {
         keyExtractor={(item, index) => item.id + index}
         scrollEnabled
         ListEmptyComponent={
-          <Center>
-            <Text>No tracks in this playlist yet.</Text>
+          <Center style={{ flexGrow: 1 }}>
+            <Text>This playlist is empty.</Text>
           </Center>
         }
       />
