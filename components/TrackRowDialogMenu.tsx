@@ -14,6 +14,8 @@ import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text } from "@/components";
+import { useState } from "react";
+import { PlaylistDialogContents } from "./Playlist/PlaylistDialog";
 
 interface Props {
   willDisplayLikeButton: boolean;
@@ -50,11 +52,11 @@ export const TrackRowDialogMenu = ({
     }
   };
   const handleAddToPlaylistPress = () => {
-    // TODO: open PlaylistDialog
+    setIsAddingToPlaylist(true);
   };
   const isEpisode = track.albumTitle === "podcast";
   const screenWidth = Dimensions.get("window").width;
-
+  const [isAddingToPlaylist, setIsAddingToPlaylist] = useState(false);
   if (!willDisplayLikeButton) return;
 
   return (
@@ -71,99 +73,107 @@ export const TrackRowDialogMenu = ({
         opacity: 0.8,
       }}
     >
-      <View
-        style={{
-          marginRight: 16,
-          justifyContent: "center",
-          flexDirection: "column",
-          gap: 12,
-          width: "100%",
-        }}
-      >
-        <Pressable
-          onPress={handleAddToPlaylistPress}
-          style={({ pressed }) => ({
+      {isAddingToPlaylist ? (
+        <PlaylistDialogContents
+          setIsOpen={setIsOpen}
+          contentTitle={track.title}
+          contentId={track.id}
+        />
+      ) : (
+        <View
+          style={{
+            marginRight: 16,
+            justifyContent: "center",
+            flexDirection: "column",
+            gap: 12,
             width: "100%",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            height: 50,
-            paddingHorizontal: 8,
-            borderRadius: 8,
-            backgroundColor: pressed ? colors.card : colors.background,
-          })}
+          }}
         >
-          <Text
-            style={{
-              fontSize: 20,
-            }}
-            numberOfLines={1}
-            bold
+          <Pressable
+            onPress={handleAddToPlaylistPress}
+            style={({ pressed }) => ({
+              width: "100%",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: 50,
+              paddingHorizontal: 8,
+              borderRadius: 8,
+              backgroundColor: pressed ? colors.card : colors.background,
+            })}
           >
-            Add to playlist
-          </Text>
-          <MaterialCommunityIcons
-            name={"plus-thick"}
-            size={24}
-            color={colors.text}
-          />
-        </Pressable>
-        {!isEpisode && (
-          <>
-            <LikeButton
-              label={
-                <View>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                    }}
-                  >
-                    artist
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                    }}
-                    numberOfLines={3}
-                    bold
-                  >
-                    {track.artist}
-                  </Text>
-                </View>
-              }
-              onPress={handleArtistLikePress}
-              size={32}
-              isLiked={isArtistInLibrary}
-              isLoading={
-                deleteArtistFromLibraryMutation.isLoading ||
-                deleteArtistFromLibraryMutation.isLoading
-              }
+            <Text
+              style={{
+                fontSize: 20,
+              }}
+              numberOfLines={1}
+              bold
+            >
+              Add to playlist
+            </Text>
+            <MaterialCommunityIcons
+              name={"plus-thick"}
+              size={24}
+              color={colors.text}
             />
-            <LikeButton
-              label={
-                <View>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                    }}
-                    numberOfLines={3}
-                    bold
-                  >
-                    {track.title}
-                  </Text>
-                </View>
-              }
-              onPress={handleTrackLikePress}
-              size={32}
-              isLiked={isTrackInLibrary}
-              isLoading={
-                addTrackToLibraryMutation.isLoading ||
-                deleteTrackFromLibraryMutation.isLoading
-              }
-            />
-          </>
-        )}
-      </View>
+          </Pressable>
+          {!isEpisode && (
+            <>
+              <LikeButton
+                label={
+                  <View>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                      }}
+                    >
+                      artist
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                      }}
+                      numberOfLines={3}
+                      bold
+                    >
+                      {track.artist}
+                    </Text>
+                  </View>
+                }
+                onPress={handleArtistLikePress}
+                size={32}
+                isLiked={isArtistInLibrary}
+                isLoading={
+                  deleteArtistFromLibraryMutation.isLoading ||
+                  deleteArtistFromLibraryMutation.isLoading
+                }
+              />
+              <LikeButton
+                label={
+                  <View>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                      }}
+                      numberOfLines={3}
+                      bold
+                    >
+                      {track.title}
+                    </Text>
+                  </View>
+                }
+                onPress={handleTrackLikePress}
+                size={32}
+                isLiked={isTrackInLibrary}
+                isLoading={
+                  addTrackToLibraryMutation.isLoading ||
+                  deleteTrackFromLibraryMutation.isLoading
+                }
+              />
+            </>
+          )}
+        </View>
+      )}
     </Dialog>
   );
 };

@@ -26,13 +26,8 @@ export const PlaylistDialog = ({
   contentId,
 }: PlaylistDialogProps) => {
   const { colors } = useTheme();
-  const [isCreating, setIsCreating] = useState(false);
-  const [isChoosing, setIsChoosing] = useState(false);
   const screenWidth = Dimensions.get("window").width;
-  const { data: playlists = [] } = usePlaylists();
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [selectedPlaylistTitle, setSelectedPlaylistTitle] =
-    useState<string>("");
+
   return (
     <Dialog
       isVisible={isOpen}
@@ -47,66 +42,89 @@ export const PlaylistDialog = ({
         opacity: 0.8,
       }}
     >
-      {isSuccess ? (
-        <SuccessComponent
-          setIsOpen={setIsOpen}
-          text={`Great! You've added ${contentTitle} to your playlist ${selectedPlaylistTitle}`}
-        />
-      ) : isChoosing ? (
-        <ChoosePlaylistForm
-          playlists={playlists}
-          contentId={contentId}
-          setSelectedPlaylistTitle={setSelectedPlaylistTitle}
-          onSuccess={() => {
-            setIsSuccess(true);
-          }}
-          back={() => setIsChoosing(false)}
-        />
-      ) : isCreating ? (
-        <CreatePlaylistForm
-          back={() => setIsCreating(false)}
-          setSelectedPlaylistTitle={setSelectedPlaylistTitle}
-          selectedPlaylistTitle={selectedPlaylistTitle}
-          contentId={contentId}
-          onSuccess={() => {
-            setIsSuccess(true);
-          }}
-        />
-      ) : (
-        // this is the default view
-        // the user can choose to create a new playlist or add to an existing
-        <View
-          style={{
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 5,
-          }}
-        >
-          {!!playlists.length && (
-            <ChoosePlaylistButton
-              handlePress={() => {
-                setIsChoosing(true);
-              }}
-            />
-          )}
-          <CreatePlaylistButton
-            handlePress={() => {
-              setIsCreating(true);
-            }}
-          />
-          <Button
-            color={colors.border}
-            titleStyle={{
-              color: colors.text,
-              marginHorizontal: "auto",
-            }}
-            onPress={() => setIsOpen(false)}
-          >
-            Close
-          </Button>
-        </View>
-      )}
+      <PlaylistDialogContents
+        setIsOpen={setIsOpen}
+        contentTitle={contentTitle}
+        contentId={contentId}
+      />
     </Dialog>
+  );
+};
+
+export const PlaylistDialogContents = ({
+  setIsOpen,
+  contentTitle,
+  contentId,
+}: {
+  setIsOpen: (value: boolean) => void;
+  contentTitle: string;
+  contentId: string;
+}) => {
+  const { colors } = useTheme();
+  const [isCreating, setIsCreating] = useState(false);
+  const [isChoosing, setIsChoosing] = useState(false);
+  const { data: playlists = [] } = usePlaylists();
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [selectedPlaylistTitle, setSelectedPlaylistTitle] =
+    useState<string>("");
+  return isSuccess ? (
+    <SuccessComponent
+      setIsOpen={setIsOpen}
+      text={`Great! You've added ${contentTitle} to your playlist ${selectedPlaylistTitle}`}
+    />
+  ) : isChoosing ? (
+    <ChoosePlaylistForm
+      playlists={playlists}
+      contentId={contentId}
+      setSelectedPlaylistTitle={setSelectedPlaylistTitle}
+      onSuccess={() => {
+        setIsSuccess(true);
+      }}
+      back={() => setIsChoosing(false)}
+    />
+  ) : isCreating ? (
+    <CreatePlaylistForm
+      back={() => setIsCreating(false)}
+      setSelectedPlaylistTitle={setSelectedPlaylistTitle}
+      selectedPlaylistTitle={selectedPlaylistTitle}
+      contentId={contentId}
+      onSuccess={() => {
+        setIsSuccess(true);
+      }}
+    />
+  ) : (
+    // this is the default view
+    // the user can choose to create a new playlist or add to an existing
+    <View
+      style={{
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 5,
+      }}
+    >
+      {!!playlists.length && (
+        <ChoosePlaylistButton
+          handlePress={() => {
+            setIsChoosing(true);
+          }}
+        />
+      )}
+      <CreatePlaylistButton
+        handlePress={() => {
+          setIsCreating(true);
+        }}
+      />
+      <Button
+        color={colors.border}
+        titleStyle={{
+          color: colors.text,
+          marginHorizontal: "auto",
+        }}
+        onPress={() => setIsOpen(false)}
+      >
+        Close
+      </Button>
+    </View>
   );
 };
