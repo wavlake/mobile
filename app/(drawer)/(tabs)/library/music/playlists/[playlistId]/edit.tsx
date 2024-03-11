@@ -20,6 +20,7 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useReorderPlaylist } from "@/hooks/playlist/useUpdatePlaylist";
 
 export default function PlaylistsPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function PlaylistsPage() {
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
+  const { mutateAsync: reorderPlaylist } = useReorderPlaylist();
   const { tracks = [] } = playlistData || {};
   const { height } = useMiniMusicPlayer();
   const [editedTracks, setEditedTracks] = useState(tracks);
@@ -38,16 +40,17 @@ export default function PlaylistsPage() {
     }
   }, [tracks]);
 
-  const onSave = () => {
-    // TODO add edit mutation
-    console.log("onsave");
-    console.log(tracks.map((it) => it.title));
-    console.log(editedTracks.map((it) => it.title));
-    // router.back();
+  const onSave = async () => {
+    const newOrder = editedTracks.map((track) => track.id);
+    const { success } = await reorderPlaylist({
+      playlistId: playlistId as string,
+      trackList: newOrder,
+    });
+
+    if (success) router.back();
   };
 
   const handleDelete = (index?: number) => {
-    console.log("delete", index);
     if (index === undefined) return;
     const newTracks = editedTracks.filter((_, i) => i !== index);
     setEditedTracks(newTracks);
