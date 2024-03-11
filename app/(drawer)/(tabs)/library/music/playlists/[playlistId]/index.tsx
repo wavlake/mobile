@@ -132,15 +132,7 @@ export default function PlaylistsPage() {
                   >
                     {title}
                   </Text>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                    }}
-                    numberOfLines={3}
-                    bold
-                  >
-                    {artist}
-                  </Text>
+                  <Text numberOfLines={1}>{artist}</Text>
                 </View>
               </View>
             </TouchableOpacity>
