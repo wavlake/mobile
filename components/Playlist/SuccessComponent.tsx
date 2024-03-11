@@ -1,6 +1,6 @@
-import { Dimensions, View } from "react-native";
+import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { Button, Text } from "@/components";
+import { Button, Text } from "../";
 import { useEffect } from "react";
 
 const SHOW_SUCCESS_DURATION = 4000;

@@ -3,14 +3,13 @@ import { Dialog } from "@rneui/themed";
 import { useTheme } from "@react-navigation/native";
 import { useState } from "react";
 import { brandColors } from "@/constants";
-import { Button } from "@/components";
+import { Button } from "../";
 import { CreatePlaylistButton } from "./CreatePlaylistButton";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { ChoosePlaylistForm } from "./ChoosePlaylistForm";
 import { ChoosePlaylistButton } from "./ChoosePlaylistButton";
 import { CreatePlaylistForm } from "./CreatePlaylistForm";
 import { SuccessComponent } from "./SuccessComponent";
-import { Playlist } from "@/utils";
 
 interface PlaylistDialogProps {
   contentId: string;
