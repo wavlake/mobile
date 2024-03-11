@@ -20,7 +20,7 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useReorderPlaylist } from "@/hooks/playlist/useUpdatePlaylist";
+import { useReorderPlaylist } from "@/hooks/playlist/useReorderPlaylist";
 
 export default function PlaylistsPage() {
   const router = useRouter();
@@ -29,7 +29,10 @@ export default function PlaylistsPage() {
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
-  const { mutateAsync: reorderPlaylist } = useReorderPlaylist();
+  const { mutateAsync: reorderPlaylist } = useReorderPlaylist(
+    // this is used to invalidate the playlist query
+    playlistId as string,
+  );
   const { tracks = [] } = playlistData || {};
   const { height } = useMiniMusicPlayer();
   const [editedTracks, setEditedTracks] = useState(tracks);
@@ -47,7 +50,15 @@ export default function PlaylistsPage() {
       trackList: newOrder,
     });
 
-    if (success) router.back();
+    if (success) {
+      router.push({
+        pathname: `/library/music/playlists/${playlistId}`,
+        params: {
+          headerTitle: "Songs",
+          includeBackButton: true,
+        },
+      });
+    }
   };
 
   const handleDelete = (index?: number) => {
