@@ -8,8 +8,9 @@ import {
 import { getPlaylist } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { brandColors } from "@/constants";
+import DraggableFlatList from "react-native-draggable-flatlist";
 
 export default function PlaylistsPage() {
   const router = useRouter();
@@ -48,10 +49,11 @@ export default function PlaylistsPage() {
           Save Changes
         </Button>
       </View>
-      <FlatList
+      <DraggableFlatList
         data={tracks}
         contentContainerStyle={{ flexGrow: 1 }}
-        renderItem={({ item, index }) => {
+        renderItem={({ item, getIndex }) => {
+          const index = getIndex();
           const { id, title, artist } = item;
           const isLastRow = index === tracks.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
