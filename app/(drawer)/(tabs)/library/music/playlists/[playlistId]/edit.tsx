@@ -8,10 +8,18 @@ import {
 import { getPlaylist } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { brandColors } from "@/constants";
-import DraggableFlatList from "react-native-draggable-flatlist";
-import { useState } from "react";
+import DraggableFlatList, {
+  ScaleDecorator,
+} from "react-native-draggable-flatlist";
+import React, { useEffect, useState } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function PlaylistsPage() {
   const router = useRouter();
@@ -24,12 +32,24 @@ export default function PlaylistsPage() {
   const { height } = useMiniMusicPlayer();
   const [editedTracks, setEditedTracks] = useState(tracks);
 
+  useEffect(() => {
+    if (tracks) {
+      setEditedTracks(tracks);
+    }
+  }, [tracks]);
+
   const onSave = () => {
     // TODO add edit mutation
     console.log("onsave");
-    console.log({ tracks });
-    console.log({ editedTracks });
+    console.log(tracks.map((it) => it.title));
+    console.log(editedTracks.map((it) => it.title));
     // router.back();
+  };
+
+  const handleDelete = (index?: number) => {
+    if (!index) return;
+    const newTracks = editedTracks.filter((_, i) => i !== index);
+    setEditedTracks(newTracks);
   };
 
   if (isLoading) {
@@ -62,46 +82,79 @@ export default function PlaylistsPage() {
         </Button>
       </View>
       <DraggableFlatList
-        data={tracks}
+        data={editedTracks}
         contentContainerStyle={{ flexGrow: 1 }}
         onDragEnd={({ data }) => setEditedTracks(data)}
-        renderItem={({ item, getIndex }) => {
+        renderItem={({ item, getIndex, drag, isActive }) => {
           const index = getIndex();
           const { id, title, artist, artworkUrl } = item;
           const isLastRow = index === tracks.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
 
           return (
-            <View
-              style={{
-                flexDirection: "row",
-                marginBottom,
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              <SquareArtwork size={60} url={artworkUrl} />
-              <View style={{ marginLeft: 10, flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 18,
-                  }}
-                  numberOfLines={3}
-                  bold
+            <>
+              <ScaleDecorator>
+                <TouchableOpacity
+                  activeOpacity={1}
+                  onPressIn={drag}
+                  disabled={isActive}
                 >
-                  {title}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 18,
-                  }}
-                  numberOfLines={3}
-                  bold
-                >
-                  {artist}
-                </Text>
-              </View>
-            </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginBottom,
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <Pressable
+                      style={{
+                        width: 40,
+                        height: 40,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onPress={() => handleDelete(index)}
+                    >
+                      <MaterialCommunityIcons
+                        name={"delete"}
+                        size={30}
+                        color={"red"}
+                      />
+                    </Pressable>
+                    <SquareArtwork size={60} url={artworkUrl} />
+                    <View style={{ marginLeft: 10, flex: 1 }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                        }}
+                        numberOfLines={3}
+                        bold
+                      >
+                        {title}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                        }}
+                        numberOfLines={3}
+                        bold
+                      >
+                        {artist}
+                      </Text>
+                    </View>
+                    <Pressable>
+                      <MaterialCommunityIcons
+                        name={"menu"}
+                        size={24}
+                        color={"gray"}
+                      />
+                    </Pressable>
+                  </View>
+                </TouchableOpacity>
+              </ScaleDecorator>
+            </>
           );
         }}
         keyExtractor={(item, index) => item.id + index}
