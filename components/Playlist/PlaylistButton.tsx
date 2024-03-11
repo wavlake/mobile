@@ -1,75 +1,59 @@
-import { Dimensions, Pressable, View } from "react-native";
-import { Dialog } from "@rneui/themed";
+import { Pressable, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/hooks";
 import { useState } from "react";
-import { brandColors } from "@/constants";
-import { Button } from "@/components/Button";
-import { Text } from "@/components/Text";
-import { BadgeIcon } from "@/components/BadgeIcon";
-import { ChoosePlaylistButton } from "./ChoosePlaylistButton";
-import { CreatePlaylistButton } from "./CreatePlaylistButton";
+import { PlaylistDialog } from "./PlaylistDialog";
 
 interface PlaylistButtonProps {
   size: number;
   contentId: string;
+  contentTitle: string;
   isMusic: boolean;
 }
 
 export const PlaylistButton = ({
   size,
   contentId,
+  contentTitle,
   isMusic,
 }: PlaylistButtonProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
-  const screenWidth = Dimensions.get("window").width;
+  const [selectedContentId, setSelectedContentId] = useState("");
+  const [selectedContentTitle, setSelectedContentTitle] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  if (!pubkey || !isMusic) return;
-  
+  if (!pubkey) return;
+
   return (
     <View style={{ backgroundColor: colors.background }}>
-      <Pressable onPress={() => setIsDialogOpen(true)}>
-        <MaterialCommunityIcons
-          name={"playlist-plus"}
-          size={size}
-          color={colors.text}
+      {isMusic && (
+        <Pressable
+          onPress={() => {
+            // grab the contentId (it may change if the next track plays)
+            setSelectedContentId(contentId);
+            setSelectedContentTitle(contentTitle);
+            setIsDialogOpen(true);
+          }}
+        >
+          <MaterialCommunityIcons
+            name={"playlist-plus"}
+            size={size}
+            color={colors.text}
+          />
+        </Pressable>
+      )}
+      {/* This is conditionally rendered so the dialog state resets when its closed. */}
+      {isDialogOpen && (
+        <PlaylistDialog
+          isOpen={isDialogOpen}
+          contentId={selectedContentId}
+          contentTitle={selectedContentTitle}
+          isMusic={isMusic}
+          setIsOpen={setIsDialogOpen}
         />
-      </Pressable>
-      <Dialog
-        isVisible={isDialogOpen}
-        onBackdropPress={() => setIsDialogOpen(false)}
-        overlayStyle={{
-          backgroundColor: colors.background,
-          width: screenWidth - 32,
-          paddingVertical: 32,
-        }}
-        backdropStyle={{
-          backgroundColor: brandColors.black.light,
-          opacity: 0.8,
-        }}
-      >
-        <View style={{ gap: 32 }}>
-          <ChoosePlaylistButton
-            contentId={contentId}
-            setPrevDialogOpen={setIsDialogOpen}
-          />
-          <CreatePlaylistButton
-            contentId={contentId}
-            setPrevDialogOpen={setIsDialogOpen}
-          />
-          <Button
-            color={colors.border}
-            titleStyle={{ color: colors.text }}
-            onPress={() => setIsDialogOpen(false)}
-            width="100%"
-          >
-            Close
-          </Button>
-        </View>
-      </Dialog>
+      )}
     </View>
   );
 };
