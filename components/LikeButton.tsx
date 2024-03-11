@@ -11,6 +11,7 @@ interface LikeButtonProps {
   label?: ReactNode;
   isLiked?: boolean;
   isLoading?: boolean;
+  isMusic?: boolean;
 }
 
 export const LikeButton = ({
@@ -19,7 +20,10 @@ export const LikeButton = ({
   label,
   isLiked = false,
   isLoading = false,
+  isMusic = true,
 }: LikeButtonProps) => {
+  if (!isMusic) return null;
+
   const { pubkey } = useAuth();
   const { colors } = useTheme();
   const handlePress = () => {

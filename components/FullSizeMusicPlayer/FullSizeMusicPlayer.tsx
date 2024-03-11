@@ -214,6 +214,7 @@ export const FullSizeMusicPlayer = () => {
                   addTrackToLibraryMutation.isLoading ||
                   deleteTrackFromLibraryMutation.isLoading
                 }
+                isMusic={currentTrack.albumTitle != "podcast"}
               />
               <PlaylistButton
                 size={30}
