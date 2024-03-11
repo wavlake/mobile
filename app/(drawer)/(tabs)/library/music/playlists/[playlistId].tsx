@@ -21,8 +21,10 @@ import { State, usePlaybackState } from "react-native-track-player";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { EditPlaylistDialog } from "@/components/Playlist/EditPlaylistDialog";
+import { useTheme } from "@react-navigation/native";
 
 export default function PlaylistsPage() {
+  const { colors } = useTheme();
   const { playlistId, playlistTitle } = useLocalSearchParams();
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
   const { state: playbackState } = usePlaybackState();
@@ -73,12 +75,14 @@ export default function PlaylistsPage() {
           padding: 8,
         }}
       >
-        <PlayPauseTrackButton
-          size={40}
-          color={brandColors.pink.DEFAULT}
-          type={isThisTrackListPlaying ? "pause" : "play"}
-          onPress={handlePlayPausePress}
-        />
+        {!playlistTracks && (
+          <PlayPauseTrackButton
+            size={40}
+            color={brandColors.pink.DEFAULT}
+            type={isThisTrackListPlaying ? "pause" : "play"}
+            onPress={handlePlayPausePress}
+          />
+        )}
         <Text
           style={{
             fontSize: 24,
@@ -94,7 +98,7 @@ export default function PlaylistsPage() {
           <MaterialCommunityIcons
             name="dots-horizontal"
             size={24}
-            color={brandColors.pink.DEFAULT}
+            color={colors.text}
           />
         </Pressable>
       </View>
@@ -144,6 +148,16 @@ export default function PlaylistsPage() {
         }}
         keyExtractor={(item, index) => item.id + index}
         scrollEnabled
+        ListEmptyComponent={
+          <Text
+            style={{
+              marginTop: 40,
+              textAlign: "center",
+            }}
+          >
+            Empty playlist
+          </Text>
+        }
       />
       {moreIsOpen && (
         <EditPlaylistDialog

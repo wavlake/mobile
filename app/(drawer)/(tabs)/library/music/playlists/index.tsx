@@ -58,6 +58,16 @@ export default function PlaylistsPage() {
         }}
         keyExtractor={(item) => item.id}
         scrollEnabled
+        ListEmptyComponent={
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 20,
+            }}
+          >
+            No playlists yet, add one to get started
+          </Text>
+        }
       />
     </View>
   );
