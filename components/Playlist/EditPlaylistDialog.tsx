@@ -41,7 +41,6 @@ export const EditPlaylistDialog = ({
       pathname: `/library/music/playlists/${playlistId}/edit`,
       params: {
         headerTitle: "Songs",
-        playlistTitle,
         includeBackButton: true,
       },
     });

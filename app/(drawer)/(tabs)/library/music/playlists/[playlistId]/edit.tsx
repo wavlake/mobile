@@ -13,11 +13,12 @@ import { brandColors } from "@/constants";
 
 export default function PlaylistsPage() {
   const router = useRouter();
-  const { playlistId, playlistTitle } = useLocalSearchParams();
-  const { data: playlistTracks = [] } = useQuery({
+  const { playlistId } = useLocalSearchParams();
+  const { data: playlistData } = useQuery({
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
+  const { tracks = [] } = playlistData || {};
   const { height } = useMiniMusicPlayer();
 
   const onSave = () => {
@@ -26,7 +27,7 @@ export default function PlaylistsPage() {
     router.back();
   };
 
-  return playlistTracks ? (
+  return tracks ? (
     <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
       <View
         style={{
@@ -48,11 +49,11 @@ export default function PlaylistsPage() {
         </Button>
       </View>
       <FlatList
-        data={playlistTracks}
+        data={tracks}
         contentContainerStyle={{ flexGrow: 1 }}
         renderItem={({ item, index }) => {
           const { id, title, artist } = item;
-          const isLastRow = index === playlistTracks.length - 1;
+          const isLastRow = index === tracks.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
 
           return (
