@@ -25,7 +25,7 @@ import { useTheme } from "@react-navigation/native";
 
 export default function PlaylistsPage() {
   const { colors } = useTheme();
-  const { playlistId, playlistTitle } = useLocalSearchParams();
+  const { playlistId } = useLocalSearchParams();
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
   const { state: playbackState } = usePlaybackState();
   const [moreIsOpen, setMoreIsOpen] = useState(false);
@@ -33,18 +33,19 @@ export default function PlaylistsPage() {
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;
 
-  const { data: playlistTracks = [] } = useQuery({
+  const { data: playlistData } = useQuery({
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
+  const { tracks = [], title } = playlistData || {};
   const { height } = useMiniMusicPlayer();
 
   const handleRowPress = async (index: number) => {
     await loadTrackList({
-      trackList: playlistTracks,
+      trackList: tracks,
       trackListId: playlistId as string,
       startIndex: index,
-      playerTitle: playlistTitle as string,
+      playerTitle: title,
     });
   };
 
@@ -54,10 +55,10 @@ export default function PlaylistsPage() {
     }
 
     return loadTrackList({
-      trackList: playlistTracks,
+      trackList: tracks,
       trackListId: playlistId as string,
       startIndex: 0,
-      playerTitle: playlistTitle as string,
+      playerTitle: title,
     });
   };
 
@@ -65,7 +66,7 @@ export default function PlaylistsPage() {
     setMoreIsOpen(true);
   };
 
-  return playlistTracks ? (
+  return tracks ? (
     <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
       <View
         style={{
@@ -75,7 +76,7 @@ export default function PlaylistsPage() {
           padding: 8,
         }}
       >
-        {!!playlistTracks && (
+        {!!tracks && (
           <PlayPauseTrackButton
             size={40}
             color={brandColors.pink.DEFAULT}
@@ -92,7 +93,7 @@ export default function PlaylistsPage() {
           numberOfLines={3}
           bold
         >
-          {playlistTitle}
+          {title}
         </Text>
         <Pressable onPress={handleMorePress}>
           <MaterialCommunityIcons
@@ -103,11 +104,11 @@ export default function PlaylistsPage() {
         </Pressable>
       </View>
       <FlatList
-        data={playlistTracks}
+        data={tracks}
         contentContainerStyle={{ flexGrow: 1 }}
         renderItem={({ item, index }) => {
           const { id, title, artist, artworkUrl } = item;
-          const isLastRow = index === playlistTracks.length - 1;
+          const isLastRow = index === tracks.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
 
           return (
@@ -148,7 +149,7 @@ export default function PlaylistsPage() {
       {moreIsOpen && (
         <EditPlaylistDialog
           playlistId={playlistId as string}
-          playlistTitle={playlistTitle as string}
+          playlistTitle={title as string}
           isOpen={moreIsOpen}
           setIsOpen={setMoreIsOpen}
         />

@@ -415,7 +415,13 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
   return data.data;
 };
 
-export const getPlaylist = async (playlistId: string): Promise<Track[]> => {
+export const getPlaylist = async (
+  playlistId: string,
+): Promise<{
+  title: string;
+  userId: string;
+  tracks: Track[];
+}> => {
   const url = `/playlists/${playlistId}`;
   const { data } = await apiClient.get(url, {
     headers: {
