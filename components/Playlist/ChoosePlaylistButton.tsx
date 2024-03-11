@@ -1,4 +1,4 @@
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { Text } from "@/components";
@@ -12,7 +12,7 @@ export const ChoosePlaylistButton = ({
 
   return (
     <Pressable
-      onPress={() => handlePress()}
+      onPress={handlePress}
       style={({ pressed }) => ({
         width: "100%",
         flexDirection: "row",

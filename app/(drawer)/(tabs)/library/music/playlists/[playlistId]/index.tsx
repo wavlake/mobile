@@ -1,6 +1,5 @@
 import {
   Center,
-  LogoIcon,
   SquareArtwork,
   Text,
   useMiniMusicPlayer,
