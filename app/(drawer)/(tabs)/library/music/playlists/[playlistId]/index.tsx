@@ -1,6 +1,7 @@
 import {
   Center,
   LogoIcon,
+  SquareArtwork,
   Text,
   useMiniMusicPlayer,
   useMusicPlayer,
@@ -106,7 +107,7 @@ export default function PlaylistsPage() {
         data={playlistTracks}
         contentContainerStyle={{ flexGrow: 1 }}
         renderItem={({ item, index }) => {
-          const { id, title, artist } = item;
+          const { id, title, artist, artworkUrl } = item;
           const isLastRow = index === playlistTracks.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
 
@@ -120,9 +121,7 @@ export default function PlaylistsPage() {
                   gap: 4,
                 }}
               >
-                {/* TODO - swap placeholder with artwork of first track */}
-                <LogoIcon fill="white" width={60} height={60} />
-                {/* <SquareArtwork size={60} url={artworkUrl} /> */}
+                <SquareArtwork size={60} url={artworkUrl} />
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text
                     style={{
