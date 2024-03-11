@@ -153,6 +153,13 @@ export const TrackRowDialogMenu = ({
                   <View>
                     <Text
                       style={{
+                        fontSize: 14,
+                      }}
+                    >
+                      track
+                    </Text>
+                    <Text
+                      style={{
                         fontSize: 18,
                       }}
                       numberOfLines={3}
