@@ -1,4 +1,4 @@
-import { LogoIcon, Text, useMiniMusicPlayer } from "@/components";
+import { Center, LogoIcon, Text, useMiniMusicPlayer } from "@/components";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { Playlist } from "@/utils";
 import { useRouter } from "expo-router";
@@ -22,6 +22,7 @@ export default function PlaylistsPage() {
   return (
     <View style={{ height: "100%", paddingTop: 16, paddingHorizontal: 4 }}>
       <FlatList
+        contentContainerStyle={{ flexGrow: 1 }}
         data={playlists}
         renderItem={({ item, index }) => {
           const { id, title } = item;
@@ -59,14 +60,9 @@ export default function PlaylistsPage() {
         keyExtractor={(item) => item.id}
         scrollEnabled
         ListEmptyComponent={
-          <Text
-            style={{
-              textAlign: "center",
-              marginTop: 20,
-            }}
-          >
-            No playlists yet, add one to get started
-          </Text>
+          <Center>
+            <Text>No playlists in your library yet.</Text>
+          </Center>
         }
       />
     </View>

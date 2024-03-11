@@ -75,7 +75,7 @@ export default function PlaylistsPage() {
           padding: 8,
         }}
       >
-        {!playlistTracks && (
+        {!!playlistTracks && (
           <PlayPauseTrackButton
             size={40}
             color={brandColors.pink.DEFAULT}
@@ -104,6 +104,7 @@ export default function PlaylistsPage() {
       </View>
       <FlatList
         data={playlistTracks}
+        contentContainerStyle={{ flexGrow: 1 }}
         renderItem={({ item, index }) => {
           const { id, title, artist } = item;
           const isLastRow = index === playlistTracks.length - 1;
@@ -149,14 +150,9 @@ export default function PlaylistsPage() {
         keyExtractor={(item, index) => item.id + index}
         scrollEnabled
         ListEmptyComponent={
-          <Text
-            style={{
-              marginTop: 40,
-              textAlign: "center",
-            }}
-          >
-            Empty playlist
-          </Text>
+          <Center>
+            <Text>No tracks in this playlist yet.</Text>
+          </Center>
         }
       />
       {moreIsOpen && (

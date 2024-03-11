@@ -37,7 +37,14 @@ export const EditPlaylistDialog = ({
   };
 
   const handleEdit = () => {
-    console.log("Edit");
+    router.push({
+      pathname: `/library/music/playlists/${playlistId}/edit`,
+      params: {
+        headerTitle: "Songs",
+        playlistTitle,
+        includeBackButton: true,
+      },
+    });
   };
 
   return (
