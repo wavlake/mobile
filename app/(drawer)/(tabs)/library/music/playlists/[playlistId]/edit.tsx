@@ -156,11 +156,7 @@ export default function PlaylistsPage() {
                         {title}
                       </Text>
                       <Text
-                        style={{
-                          fontSize: 18,
-                        }}
-                        numberOfLines={3}
-                        bold
+                        numberOfLines={1}
                       >
                         {artist}
                       </Text>
