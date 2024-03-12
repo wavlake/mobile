@@ -416,7 +416,7 @@ export const addToPlaylist = async ({
   playlistId: string;
 }) => {
   const url = "/playlists/add-track";
-  const payload = { trackId, playlistId: "asdfasd" };
+  const payload = { trackId, playlistId };
   const { data } = await apiClient.post(url, payload, {
     headers: {
       Authorization: await createAuthHeader(url, "post", payload),
