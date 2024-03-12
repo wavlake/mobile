@@ -134,6 +134,15 @@ export interface Playlist {
   updatedAt: string;
 }
 
+export type UserPlaylists = Array<
+  Pick<Playlist, "id" | "title"> & {
+    tracks: Pick<
+      Track,
+      "artworkUrl" | "id" | "duration" | "title" | "artist"
+    >[];
+  }
+>;
+
 interface Genre {
   id: number;
   name: string;
@@ -405,20 +414,7 @@ export const addToPlaylist = async ({
   return data;
 };
 
-export const getPlaylists = async (): Promise<
-  {
-    id: string;
-    title: string;
-    tracks: {
-      id: string;
-      title: string;
-      duration: number;
-      artist: string;
-      artwork_url: string;
-      order: string;
-    }[];
-  }[]
-> => {
+export const getPlaylists = async (): Promise<UserPlaylists> => {
   const url = "/playlists";
   const { data } = await apiClient.get(url, {
     headers: {

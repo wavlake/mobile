@@ -25,10 +25,9 @@ export default function PlaylistsPage() {
         contentContainerStyle={{ flexGrow: 1 }}
         data={playlists}
         renderItem={({ item, index }) => {
-          const { tracks, title } = item;
+          const { tracks = [], title } = item;
           const isLastRow = index === playlists.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
-
           return (
             <TouchableOpacity onPress={() => handleRowPress(item)}>
               <View
@@ -40,7 +39,7 @@ export default function PlaylistsPage() {
                 }}
               >
                 <MosaicImage
-                  imageUrls={tracks.map((track) => track.artwork_url)}
+                  imageUrls={tracks.map((track) => track.artworkUrl)}
                 />
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text
