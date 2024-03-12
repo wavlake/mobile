@@ -102,8 +102,7 @@ export const EditPlaylistDialog = ({
           </>
         ) : (
           <>
-            {/* TODO - Add playlist page in .com */}
-            {/* <ShareButton url={`https://wavlake.com/playlist/${playlistId}`} /> */}
+            <ShareButton url={`https://wavlake.com/playlist/${playlistId}`} />
             <Pressable
               onPress={() => handleEdit()}
               style={({ pressed }) => ({
