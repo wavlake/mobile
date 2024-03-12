@@ -1,8 +1,6 @@
-import { Dimensions, View } from "react-native";
-import { Dialog } from "@rneui/themed";
+import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { useState } from "react";
-import { brandColors } from "@/constants";
 import { Button } from "../";
 import { CreatePlaylistButton } from "./CreatePlaylistButton";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
@@ -10,6 +8,7 @@ import { ChoosePlaylistForm } from "./ChoosePlaylistForm";
 import { ChoosePlaylistButton } from "./ChoosePlaylistButton";
 import { CreatePlaylistForm } from "./CreatePlaylistForm";
 import { SuccessComponent } from "./SuccessComponent";
+import { DialogWrapper } from "../DialogWrapper";
 
 interface PlaylistDialogProps {
   contentId: string;
@@ -25,29 +24,14 @@ export const PlaylistDialog = ({
   contentTitle,
   contentId,
 }: PlaylistDialogProps) => {
-  const { colors } = useTheme();
-  const screenWidth = Dimensions.get("window").width;
-
   return (
-    <Dialog
-      isVisible={isOpen}
-      onBackdropPress={() => setIsOpen(false)}
-      overlayStyle={{
-        backgroundColor: colors.background,
-        width: screenWidth - 32,
-        paddingVertical: 20,
-      }}
-      backdropStyle={{
-        backgroundColor: brandColors.black.light,
-        opacity: 0.3,
-      }}
-    >
+    <DialogWrapper isOpen={isOpen} setIsOpen={setIsOpen}>
       <PlaylistDialogContents
         setIsOpen={setIsOpen}
         contentTitle={contentTitle}
         contentId={contentId}
       />
-    </Dialog>
+    </DialogWrapper>
   );
 };
 

@@ -1,7 +1,5 @@
-import { brandColors } from "@/constants";
-import { Dialog } from "@rneui/base";
 import { useTheme } from "@react-navigation/native";
-import { Dimensions, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Button } from "../Button";
 import { Text } from "@/components";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -9,6 +7,7 @@ import { useDeletePlaylist } from "@/hooks/playlist/useDeletePlaylist";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { ShareButtonWide } from "../ShareButtonWide";
+import { DialogWrapper } from "../DialogWrapper";
 
 interface EditPlaylistDialogProps {
   playlistId: string;
@@ -24,7 +23,6 @@ export const EditPlaylistDialog = ({
   playlistId,
 }: EditPlaylistDialogProps) => {
   const { colors } = useTheme();
-  const screenWidth = Dimensions.get("window").width;
   const { mutateAsync: deletePlaylist } = useDeletePlaylist();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
@@ -48,19 +46,7 @@ export const EditPlaylistDialog = ({
   };
 
   return (
-    <Dialog
-      isVisible={isOpen}
-      onBackdropPress={() => setIsOpen(false)}
-      overlayStyle={{
-        backgroundColor: colors.background,
-        width: screenWidth - 32,
-        paddingVertical: 20,
-      }}
-      backdropStyle={{
-        backgroundColor: brandColors.black.light,
-        opacity: 0.3,
-      }}
-    >
+    <DialogWrapper isOpen={isOpen} setIsOpen={setIsOpen}>
       <View
         style={{
           flexDirection: "column",
@@ -174,6 +160,6 @@ export const EditPlaylistDialog = ({
           </>
         )}
       </View>
-    </Dialog>
+    </DialogWrapper>
   );
 };
