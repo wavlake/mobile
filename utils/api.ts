@@ -441,3 +441,21 @@ export const deletePlaylist = async (playlistId: string) => {
 
   return data;
 };
+
+export const reorderPlaylist = async ({
+  playlistId,
+  trackList,
+}: {
+  playlistId: string;
+  trackList: string[];
+}) => {
+  const url = `/playlists/reorder`;
+  const payload = { trackList, playlistId };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
+    },
+  });
+
+  return data;
+};
