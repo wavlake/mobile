@@ -139,9 +139,9 @@ export default function PlaylistsPage() {
                       onPress={() => handleDelete(index)}
                     >
                       <MaterialCommunityIcons
-                        name={"delete"}
+                        name={"close-circle"}
                         size={30}
-                        color={"red"}
+                        color={"white"}
                       />
                     </Pressable>
                     <SquareArtwork size={60} url={artworkUrl} />
