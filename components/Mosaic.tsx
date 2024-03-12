@@ -6,16 +6,15 @@ import { LogoIcon } from "./LogoIcon";
 const imageSize = 30;
 
 const MosaicImage = ({ imageUrls }: { imageUrls: string[] }) => {
-  if (imageUrls.length === 0) {
-    return (
-      <View>
-        <LogoIcon fill="white" width={60} height={60} />;
-      </View>
-    );
+  // filter out undefined imageUrls to be safe
+  const definedImageUrls = imageUrls.filter((url) => url);
+
+  if (definedImageUrls.length === 0) {
+    return <LogoIcon fill="white" width={60} height={60} />;
   }
 
-  if (imageUrls.length < 4) {
-    const [firstImage] = imageUrls;
+  if (definedImageUrls.length < 4) {
+    const [firstImage] = definedImageUrls;
     return (
       <View>
         <Image
@@ -26,7 +25,7 @@ const MosaicImage = ({ imageUrls }: { imageUrls: string[] }) => {
     );
   }
 
-  const firstFourImages = imageUrls.slice(0, 4);
+  const firstFourImages = definedImageUrls.slice(0, 4);
   return (
     <View>
       <Svg height={imageSize * 2} width={imageSize * 2}>
