@@ -165,13 +165,11 @@ export default function PlaylistsPage() {
                         {artist}
                       </Text>
                     </View>
-                    <Pressable>
-                      <MaterialCommunityIcons
-                        name={"menu"}
-                        size={24}
-                        color={"gray"}
-                      />
-                    </Pressable>
+                    <MaterialCommunityIcons
+                      name={"menu"}
+                      size={24}
+                      color={"gray"}
+                    />
                   </View>
                 </TouchableOpacity>
               </ScaleDecorator>
