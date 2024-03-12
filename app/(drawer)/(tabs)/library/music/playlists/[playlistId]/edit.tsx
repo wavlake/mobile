@@ -155,11 +155,7 @@ export default function PlaylistsPage() {
                       >
                         {title}
                       </Text>
-                      <Text
-                        numberOfLines={1}
-                      >
-                        {artist}
-                      </Text>
+                      <Text numberOfLines={1}>{artist}</Text>
                     </View>
                     <MaterialCommunityIcons
                       name={"menu"}
