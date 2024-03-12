@@ -23,7 +23,7 @@ export const ChoosePlaylistForm = ({
 }: ChoosePlaylistFormProps) => {
   const { colors } = useTheme();
   const [playlistId, setPlaylistId] = useState("");
-  const { mutateAsync: addToPlaylist } = useAddToPlaylist();
+  const { mutateAsync: addToPlaylist, isLoading } = useAddToPlaylist();
   const handlePress = async () => {
     if (!playlistId) return;
     const { success } = await addToPlaylist({
@@ -71,7 +71,9 @@ export const ChoosePlaylistForm = ({
             </Picker>
           </View>
         )}
-        <Button onPress={() => handlePress()}>Add to this playlist</Button>
+        <Button onPress={() => handlePress()} loading={isLoading}>
+          Add to this playlist
+        </Button>
         <Button
           titleStyle={{ color: colors.text }}
           color={colors.border}

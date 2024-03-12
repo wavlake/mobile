@@ -23,7 +23,7 @@ export const EditPlaylistDialog = ({
   playlistId,
 }: EditPlaylistDialogProps) => {
   const { colors } = useTheme();
-  const { mutateAsync: deletePlaylist } = useDeletePlaylist();
+  const { mutateAsync: deletePlaylist, isLoading } = useDeletePlaylist();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
   const handleDelete = async () => {
@@ -72,6 +72,7 @@ export const EditPlaylistDialog = ({
                 marginHorizontal: "auto",
               }}
               onPress={handleDelete}
+              loading={isLoading}
             >
               Yes, delete
             </Button>
