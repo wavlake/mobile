@@ -1,5 +1,5 @@
 import { LikeButton } from "@/components/LikeButton";
-import { Dimensions, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import {
   useAddArtistToLibrary,
   useAddTrackToLibrary,
@@ -9,13 +9,12 @@ import {
   useIsTrackInLibrary,
 } from "@/hooks";
 import { Track } from "@/utils";
-import { Dialog } from "@rneui/base";
 import { useTheme } from "@react-navigation/native";
-import { brandColors } from "@/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text } from "@/components";
 import { useState } from "react";
 import { PlaylistDialogContents } from "./Playlist/PlaylistDialog";
+import { DialogWrapper } from "./DialogWrapper";
 
 interface Props {
   willDisplayLikeButton: boolean;
@@ -55,24 +54,11 @@ export const TrackRowDialogMenu = ({
     setIsAddingToPlaylist(true);
   };
   const isEpisode = track.albumTitle === "podcast";
-  const screenWidth = Dimensions.get("window").width;
   const [isAddingToPlaylist, setIsAddingToPlaylist] = useState(false);
   if (!willDisplayLikeButton) return;
 
   return (
-    <Dialog
-      isVisible={isOpen}
-      onBackdropPress={() => setIsOpen(false)}
-      overlayStyle={{
-        backgroundColor: colors.background,
-        width: screenWidth - 32,
-        paddingVertical: 20,
-      }}
-      backdropStyle={{
-        backgroundColor: brandColors.black.light,
-        opacity: 0.8,
-      }}
-    >
+    <DialogWrapper isOpen={isOpen} setIsOpen={setIsOpen}>
       {isAddingToPlaylist ? (
         <PlaylistDialogContents
           setIsOpen={setIsOpen}
@@ -181,6 +167,6 @@ export const TrackRowDialogMenu = ({
           )}
         </View>
       )}
-    </Dialog>
+    </DialogWrapper>
   );
 };

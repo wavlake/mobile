@@ -21,8 +21,10 @@ export const CreatePlaylistForm = ({
   setSelectedPlaylistTitle,
 }: CreatePlaylistFormProps) => {
   const { colors } = useTheme();
-  const { mutateAsync: createPlaylist } = useCreatePlaylist();
-  const { mutateAsync: addToPlaylist } = useAddToPlaylist();
+  const { mutateAsync: createPlaylist, isLoading: createIsLoading } =
+    useCreatePlaylist();
+  const { mutateAsync: addToPlaylist, isLoading: addIsLoading } =
+    useAddToPlaylist();
   const handleCreate = async () => {
     const { id } = await createPlaylist(selectedPlaylistTitle);
     if (!id) return;
@@ -58,7 +60,9 @@ export const CreatePlaylistForm = ({
         keyboardType="default"
         onChangeText={setSelectedPlaylistTitle}
       />
-      <Button onPress={handleCreate}>Create</Button>
+      <Button onPress={handleCreate} loading={createIsLoading || addIsLoading}>
+        Create
+      </Button>
       <Button
         titleStyle={{ color: colors.text }}
         color={colors.border}

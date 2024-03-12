@@ -29,10 +29,11 @@ export default function PlaylistsPage() {
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
-  const { mutateAsync: reorderPlaylist } = useReorderPlaylist(
-    // this is used to invalidate the playlist query
-    playlistId as string,
-  );
+  const { mutateAsync: reorderPlaylist, isLoading: reorderPlaylistLoading } =
+    useReorderPlaylist(
+      // this is used to invalidate the playlist query
+      playlistId as string,
+    );
   const { tracks = [] } = playlistData || {};
   const { height } = useMiniMusicPlayer();
   const [editedTracks, setEditedTracks] = useState(tracks);
@@ -98,6 +99,7 @@ export default function PlaylistsPage() {
             marginHorizontal: "auto",
           }}
           onPress={onSave}
+          loading={reorderPlaylistLoading}
         >
           Save Changes
         </Button>
@@ -139,9 +141,9 @@ export default function PlaylistsPage() {
                       onPress={() => handleDelete(index)}
                     >
                       <MaterialCommunityIcons
-                        name={"delete"}
+                        name={"close-circle"}
                         size={30}
-                        color={"red"}
+                        color={"white"}
                       />
                     </Pressable>
                     <SquareArtwork size={60} url={artworkUrl} />

@@ -1,6 +1,6 @@
-import { Center, LogoIcon, Text, useMiniMusicPlayer } from "@/components";
+import { Center, Text, useMiniMusicPlayer } from "@/components";
+import MosaicImage from "@/components/Mosaic";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
-import { Playlist } from "@/utils";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -13,7 +13,7 @@ export default function PlaylistsPage() {
   const { height } = useMiniMusicPlayer();
   const { data: playlists = [], isLoading } = usePlaylists();
   const router = useRouter();
-  const handleRowPress = (playlist: Playlist) => {
+  const handleRowPress = (playlist: { id: string; title: string }) => {
     router.push({
       pathname: `/library/music/playlists/${playlist.id}`,
       params: {
@@ -38,10 +38,9 @@ export default function PlaylistsPage() {
         contentContainerStyle={{ flexGrow: 1 }}
         data={playlists}
         renderItem={({ item, index }) => {
-          const { id, title } = item;
+          const { tracks = [], title } = item;
           const isLastRow = index === playlists.length - 1;
           const marginBottom = isLastRow ? height + 16 : 16;
-
           return (
             <TouchableOpacity onPress={() => handleRowPress(item)}>
               <View
@@ -52,9 +51,9 @@ export default function PlaylistsPage() {
                   gap: 4,
                 }}
               >
-                {/* TODO - swap placeholder with artwork of first track */}
-                <LogoIcon fill="white" width={60} height={60} />
-                {/* <SquareArtwork size={60} url={artworkUrl} /> */}
+                <MosaicImage
+                  imageUrls={tracks.map((track) => track.artworkUrl)}
+                />
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text
                     style={{
