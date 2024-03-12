@@ -39,7 +39,7 @@ export const PlaylistDialog = ({
       }}
       backdropStyle={{
         backgroundColor: brandColors.black.light,
-        opacity: 0.8,
+        opacity: 0.3,
       }}
     >
       <PlaylistDialogContents
