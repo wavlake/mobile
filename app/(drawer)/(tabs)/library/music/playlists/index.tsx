@@ -1,4 +1,5 @@
 import { Center, LogoIcon, Text, useMiniMusicPlayer } from "@/components";
+import MosaicImage from "@/components/Mosaic";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { Playlist } from "@/utils";
 import { useRouter } from "expo-router";
@@ -39,9 +40,7 @@ export default function PlaylistsPage() {
                   gap: 4,
                 }}
               >
-                {/* TODO - swap placeholder with artwork of first track */}
-                <LogoIcon fill="white" width={60} height={60} />
-                {/* <SquareArtwork size={60} url={artworkUrl} /> */}
+                <MosaicImage imageUrls={[]} />
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Text
                     style={{
