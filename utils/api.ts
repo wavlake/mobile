@@ -405,7 +405,20 @@ export const addToPlaylist = async ({
   return data;
 };
 
-export const getPlaylists = async (): Promise<Playlist[]> => {
+export const getPlaylists = async (): Promise<
+  {
+    id: string;
+    title: string;
+    tracks: {
+      id: string;
+      title: string;
+      duration: number;
+      artist: string;
+      artwork_url: string;
+      order: string;
+    }[];
+  }[]
+> => {
   const url = "/playlists";
   const { data } = await apiClient.get(url, {
     headers: {
