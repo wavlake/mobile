@@ -2,11 +2,16 @@ import { Center, Text, useMiniMusicPlayer } from "@/components";
 import MosaicImage from "@/components/Mosaic";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { useRouter } from "expo-router";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function PlaylistsPage() {
   const { height } = useMiniMusicPlayer();
-  const { data: playlists = [] } = usePlaylists();
+  const { data: playlists = [], isLoading } = usePlaylists();
   const router = useRouter();
   const handleRowPress = (playlist: { id: string; title: string }) => {
     router.push({
@@ -18,6 +23,14 @@ export default function PlaylistsPage() {
       },
     });
   };
+
+  if (isLoading) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
 
   return (
     <View style={{ height: "100%", paddingTop: 16, paddingHorizontal: 4 }}>

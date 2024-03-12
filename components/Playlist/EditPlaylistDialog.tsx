@@ -44,6 +44,7 @@ export const EditPlaylistDialog = ({
         includeBackButton: true,
       },
     });
+    setIsOpen(false);
   };
 
   return (
