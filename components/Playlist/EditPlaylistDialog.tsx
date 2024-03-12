@@ -6,9 +6,9 @@ import { Button } from "../Button";
 import { Text } from "@/components";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDeletePlaylist } from "@/hooks/playlist/useDeletePlaylist";
-import { ShareButton } from "../ShareButton";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import { ShareButtonWide } from "../ShareButtonWide";
 
 interface EditPlaylistDialogProps {
   playlistId: string;
@@ -102,7 +102,9 @@ export const EditPlaylistDialog = ({
           </>
         ) : (
           <>
-            <ShareButton url={`https://wavlake.com/playlist/${playlistId}`} />
+            <ShareButtonWide
+              url={`https://wavlake.com/playlist/${playlistId}`}
+            />
             <Pressable
               onPress={() => handleEdit()}
               style={({ pressed }) => ({
