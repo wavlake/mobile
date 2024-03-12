@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getAuthToken, signEvent } from "@/utils/nostr";
+import Toast from "react-native-root-toast";
 
 export interface Track {
   id: string;
@@ -153,6 +154,18 @@ const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const apiClient = axios.create({
   baseURL,
 });
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (typeof error.response.data.error === "string") {
+      const apiErrorMessage = error.response.data.error;
+      return Promise.reject(apiErrorMessage);
+    } else {
+      return Promise.reject("An error occurred");
+    }
+  },
+);
 
 // Function to normalize the response from the API
 // TODO: Make responses from API consistent
@@ -403,7 +416,7 @@ export const addToPlaylist = async ({
   playlistId: string;
 }) => {
   const url = "/playlists/add-track";
-  const payload = { trackId, playlistId };
+  const payload = { trackId, playlistId: "asdfasd" };
   const { data } = await apiClient.post(url, payload, {
     headers: {
       Authorization: await createAuthHeader(url, "post", payload),
