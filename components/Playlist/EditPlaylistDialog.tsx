@@ -53,7 +53,7 @@ export const EditPlaylistDialog = ({
       onBackdropPress={() => setIsOpen(false)}
       overlayStyle={{
         backgroundColor: colors.background,
-        width: screenWidth - 140,
+        width: screenWidth - 32,
         paddingVertical: 20,
       }}
       backdropStyle={{
