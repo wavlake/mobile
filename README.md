@@ -50,7 +50,7 @@ These are directions to build the app with EAS and then publish to testflight. T
    ```
 3. Create a testflight build (once an appstore connect key is set, you can auto submit by adding this flag `--auto-submit`)
    ```bash
-   eas build --platform ios --profile testflight
+   eas build --platform ios --profile external
    ```
 4. Submit to appstore
    ```bash
