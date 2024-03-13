@@ -144,7 +144,17 @@ export const FullSizeMusicPlayer = () => {
     });
   };
 
-  return currentTrack ? (
+  if (!currentTrack) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
+
+  const isMusic = currentTrack.albumTitle != "podcast";
+
+  return (
     <>
       <ScrollView style={{ paddingTop: 8 }}>
         <ArtworkCarousel />
@@ -214,26 +224,27 @@ export const FullSizeMusicPlayer = () => {
                   addTrackToLibraryMutation.isLoading ||
                   deleteTrackFromLibraryMutation.isLoading
                 }
-                isMusic={currentTrack.albumTitle != "podcast"}
+                isMusic={isMusic}
               />
               <PlaylistButton
                 size={30}
                 contentId={currentTrack.id}
                 contentTitle={currentTrack.title}
-                isMusic={currentTrack.albumTitle != "podcast"}
+                isMusic={isMusic}
               />
             </View>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
             >
               <ShareButton url={shareUrl} />
-              <MoreOptions
-                artist={artist}
-                artistId={artistId}
-                albumTitle={albumTitle}
-                albumId={albumId}
-                isMusic={currentTrack.albumTitle != "podcast"}
-              />
+              {isMusic && (
+                <MoreOptions
+                  artist={artist}
+                  artistId={artistId}
+                  albumTitle={albumTitle}
+                  albumId={albumId}
+                />
+              )}
             </View>
           </View>
         </View>
@@ -251,9 +262,5 @@ export const FullSizeMusicPlayer = () => {
         visible={isWalletChooserModalVisible}
       />
     </>
-  ) : (
-    <Center>
-      <ActivityIndicator />
-    </Center>
   );
 };
