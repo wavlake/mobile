@@ -55,7 +55,6 @@ export const TrackRowDialogMenu = ({
   };
   const isEpisode = track.albumTitle === "podcast";
   const [isAddingToPlaylist, setIsAddingToPlaylist] = useState(false);
-  if (!willDisplayLikeButton) return;
 
   return (
     <DialogWrapper isOpen={isOpen} setIsOpen={setIsOpen}>
@@ -134,35 +133,37 @@ export const TrackRowDialogMenu = ({
                   deleteArtistFromLibraryMutation.isLoading
                 }
               />
-              <LikeButton
-                label={
-                  <View>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                      }}
-                    >
-                      track
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 18,
-                      }}
-                      numberOfLines={3}
-                      bold
-                    >
-                      {track.title}
-                    </Text>
-                  </View>
-                }
-                onPress={handleTrackLikePress}
-                size={32}
-                isLiked={isTrackInLibrary}
-                isLoading={
-                  addTrackToLibraryMutation.isLoading ||
-                  deleteTrackFromLibraryMutation.isLoading
-                }
-              />
+              {willDisplayLikeButton && (
+                <LikeButton
+                  label={
+                    <View>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                        }}
+                      >
+                        track
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                        }}
+                        numberOfLines={3}
+                        bold
+                      >
+                        {track.title}
+                      </Text>
+                    </View>
+                  }
+                  onPress={handleTrackLikePress}
+                  size={32}
+                  isLiked={isTrackInLibrary}
+                  isLoading={
+                    addTrackToLibraryMutation.isLoading ||
+                    deleteTrackFromLibraryMutation.isLoading
+                  }
+                />
+              )}
             </>
           )}
         </View>
