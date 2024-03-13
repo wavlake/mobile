@@ -116,6 +116,7 @@ export const useZap = ({
             zapAmount: amountInSats,
           },
         };
+        setIsLoading(false);
         useNavReplace ? router.replace(navEvent) : router.push(navEvent);
       });
     } catch {
