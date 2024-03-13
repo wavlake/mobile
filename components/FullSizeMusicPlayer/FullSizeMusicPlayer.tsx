@@ -232,6 +232,7 @@ export const FullSizeMusicPlayer = () => {
                 artistId={artistId}
                 albumTitle={albumTitle}
                 albumId={albumId}
+                isMusic={currentTrack.albumTitle != "podcast"}
               />
             </View>
           </View>

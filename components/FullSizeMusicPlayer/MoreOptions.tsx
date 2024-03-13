@@ -22,6 +22,7 @@ interface MoreOptionsProps {
   artistId: string;
   albumTitle: string;
   albumId: string;
+  isMusic?: boolean;
 }
 
 export const MoreOptions = ({
@@ -29,6 +30,7 @@ export const MoreOptions = ({
   artistId,
   albumTitle,
   albumId,
+  isMusic = true,
 }: MoreOptionsProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
