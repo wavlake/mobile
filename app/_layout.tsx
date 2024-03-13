@@ -25,7 +25,7 @@ import TrackPlayer, {
   AppKilledPlaybackBehavior,
 } from "react-native-track-player";
 import { musicService } from "@/services";
-import { useBetterURL } from "@/hooks";
+import DeepLinkHandler from "@/components/DeepLinkHandler";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -36,12 +36,6 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 export default function Layout() {
-  const url = useBetterURL();
-  useEffect(() => {
-    queryClient.setQueryData(["deepLink"], () => url);
-    queryClient.invalidateQueries(["deepLink"]);
-  }, [url]);
-
   const [loaded, error] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
@@ -154,13 +148,14 @@ export default function Layout() {
                   }}
                 />
                 <Stack.Screen name="notification.click" />
-                <Stack.Screen
+                {/* <Stack.Screen
                   name="[deepLinkPage]"
                   options={{
                     headerTitle: () => <Text>Connecting wallet</Text>,
                   }}
-                />
+                /> */}
               </Stack>
+              <DeepLinkHandler />
             </View>
           </RootSiblingParent>
         </MusicPlayerProvider>
