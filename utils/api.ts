@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getAuthToken, signEvent } from "@/utils/nostr";
+import Toast from "react-native-root-toast";
 
 export interface Track {
   id: string;
@@ -14,6 +15,34 @@ export interface Track {
   liveUrl: string;
   duration: number;
   msatTotal?: number;
+  msatTotal30Days?: number;
+  podcast?: Podcast;
+  podcastUrl?: string;
+  podcastId?: string;
+}
+
+export interface Episode {
+  id: string;
+  title: string;
+  description?: string;
+  order: number;
+  playCount?: number;
+  createdAt: string;
+  publishedAt: string;
+  liveUrl: string;
+  duration: number;
+  podcastId: string;
+  podcast: Podcast | string;
+  podcastUrl: string;
+  artworkUrl: string;
+}
+
+export interface Podcast {
+  id: string;
+  name: string;
+  description?: string;
+  artworkUrl: string;
+  podcastUrl: string;
 }
 
 interface TrackResponse extends Track {
@@ -97,6 +126,23 @@ export interface Album {
   publishedAt: string;
   topMessages?: ContentComment[];
 }
+export interface Playlist {
+  id: string;
+  userId: string;
+  title: string;
+  isFavorites: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type UserPlaylists = Array<
+  Pick<Playlist, "id" | "title"> & {
+    tracks: Pick<
+      Track,
+      "artworkUrl" | "id" | "duration" | "title" | "artist"
+    >[];
+  }
+>;
 
 interface Genre {
   id: number;
@@ -108,6 +154,18 @@ const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const apiClient = axios.create({
   baseURL,
 });
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (typeof error.response.data.error === "string") {
+      const apiErrorMessage = error.response.data.error;
+      return Promise.reject(apiErrorMessage);
+    } else {
+      return Promise.reject("An error occurred");
+    }
+  },
+);
 
 // Function to normalize the response from the API
 // TODO: Make responses from API consistent
@@ -128,6 +186,38 @@ const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
   }));
 };
 
+function isPodcastTypeInEpisode(item: any): item is Podcast {
+  return !!item.name;
+}
+// Function to format episodes to fit the Track type
+// and work with the rest of the app
+const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
+  return res.map((episode) => ({
+    id: episode.id,
+    title: episode.title,
+    artistId: episode.id,
+    artist: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.name
+      : episode.podcast || "",
+    artistUrl: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.podcastUrl
+      : episode.podcastUrl,
+    avatarUrl: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.artworkUrl
+      : episode.artworkUrl,
+    artworkUrl: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast?.artworkUrl
+      : episode.artworkUrl,
+    albumId: isPodcastTypeInEpisode(episode.podcast)
+      ? episode.podcast.id
+      : episode.podcastId || "",
+    albumTitle: "podcast",
+    liveUrl: episode.liveUrl,
+    duration: episode.duration,
+    msatTotal: episode.msatTotal30Days || 0,
+  }));
+};
+
 export const getNewMusic = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/tracks/new");
 
@@ -144,6 +234,12 @@ export const getRandomMusic = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/tracks/random");
 
   return normalizeTrackResponse(data);
+};
+
+export const getFeaturedShows = async (): Promise<Track[]> => {
+  const { data } = await apiClient.get("/episodes/featured");
+
+  return normalilzeEpisodeResponse(data.data);
 };
 
 export const search = async (query: string): Promise<SearchResult[]> => {
@@ -202,6 +298,20 @@ export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {
   const { data } = await apiClient.get(`/albums/${artistId}/artist`);
 
   return data.data;
+};
+
+export const getPodcast = async (podcastId: string): Promise<Podcast> => {
+  const { data } = await apiClient.get(`/podcasts/${podcastId}`);
+
+  return data.data;
+};
+
+export const getPodcastEpisodes = async (
+  podcastId: string,
+): Promise<Track[]> => {
+  const data = await apiClient.get(`/episodes/${podcastId}/podcast`);
+
+  return normalilzeEpisodeResponse(data.data.data);
 };
 
 export const getGenres = async (): Promise<Genre[]> => {
@@ -279,6 +389,93 @@ export const deleteFromLibrary = async (contentId: string) => {
   const { data } = await apiClient.delete(url, {
     headers: {
       Authorization: await createAuthHeader(url, "delete"),
+    },
+  });
+
+  return data;
+};
+
+export const createPlaylist = async (title: string) => {
+  const url = "/playlists";
+  const payload = { title };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
+      "Content-Type": "application/json",
+    },
+  });
+
+  return data.data;
+};
+
+export const addToPlaylist = async ({
+  trackId,
+  playlistId,
+}: {
+  trackId: string;
+  playlistId: string;
+}) => {
+  const url = "/playlists/add-track";
+  const payload = { trackId, playlistId };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
+      "Content-Type": "application/json",
+    },
+  });
+
+  return data;
+};
+
+export const getPlaylists = async (): Promise<UserPlaylists> => {
+  const url = "/playlists";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+  return data.data;
+};
+
+export const getPlaylist = async (
+  playlistId: string,
+): Promise<{
+  title: string;
+  userId: string;
+  tracks: Track[];
+}> => {
+  const url = `/playlists/${playlistId}`;
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+  return data.data;
+};
+
+export const deletePlaylist = async (playlistId: string) => {
+  const url = `/playlists/${playlistId}`;
+  const { data } = await apiClient.delete(url, {
+    headers: {
+      Authorization: await createAuthHeader(url, "delete"),
+    },
+  });
+
+  return data;
+};
+
+export const reorderPlaylist = async ({
+  playlistId,
+  trackList,
+}: {
+  playlistId: string;
+  trackList: string[];
+}) => {
+  const url = `/playlists/reorder`;
+  const payload = { trackList, playlistId };
+  const { data } = await apiClient.post(url, payload, {
+    headers: {
+      Authorization: await createAuthHeader(url, "post", payload),
     },
   });
 

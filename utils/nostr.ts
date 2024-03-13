@@ -93,7 +93,7 @@ export const getEventFromRelay = (
   filter: Filter,
 ): Promise<Event | null> => {
   return new Promise((resolve, reject) => {
-    const relay = relayInit(relayUri);
+    const relay = relayInit(relayUri, { getTimeout: 60000 }); // set timeout to 60 seconds
 
     relay.on("connect", async () => {
       const event = await relay.get(filter);
@@ -413,12 +413,14 @@ export const fetchInvoice = async ({
   comment,
   addressPointer,
   zappedPubkey,
+  timestamp,
 }: {
   relayUris: string[];
   amountInSats: number;
   comment: string;
   addressPointer: string;
   zappedPubkey: string;
+  timestamp?: number;
 }) => {
   const wavlakeRelayUri = "wss://relay.wavlake.com/";
   const amountInMillisats = amountInSats * 1000;
@@ -432,6 +434,7 @@ export const fetchInvoice = async ({
   });
 
   zapRequestEvent.tags.push(["a", addressPointer, wavlakeRelayUri]);
+  zapRequestEvent.tags.push(["timestamp", timestamp?.toString() ?? ""]);
 
   const signedZapRequestEvent = await signEvent(zapRequestEvent);
   const url = `${zapEndpoint}?amount=${amountInMillisats}&nostr=${encodeURIComponent(
@@ -448,7 +451,7 @@ export const fetchInvoice = async ({
 };
 
 export const getZapReceipt = async (invoice: string) => {
-  const relay = relayInit("wss://relay.wavlake.com/");
+  const relay = relayInit("wss://relay.wavlake.com/", { getTimeout: 60000 }); // set timeout to 60 seconds
   const offsetTime = 10;
   const since = Math.round(Date.now() / 1000) - offsetTime;
 

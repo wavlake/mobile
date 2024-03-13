@@ -1,14 +1,12 @@
-import { TouchableOpacity, View } from "react-native";
+import { Pressable, TouchableOpacity, View } from "react-native";
 import { Text } from "@/components/Text";
 import { SatsEarned } from "@/components/SatsEarned";
 import { SquareArtwork } from "@/components/SquareArtwork";
-import { LikeButton } from "@/components/LikeButton";
-import {
-  useAddTrackToLibrary,
-  useDeleteTrackFromLibrary,
-  useIsTrackInLibrary,
-} from "@/hooks";
 import { Track } from "@/utils";
+import React from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTheme } from "@react-navigation/native";
+import { TrackRowDialogMenu } from "./TrackRowDialogMenu";
 
 interface TrackRowProps {
   track: Track;
@@ -25,16 +23,11 @@ export const TrackRow = ({
   willDisplaySatsEarned = true,
   willDisplayLikeButton = true,
 }: TrackRowProps) => {
+  const { colors } = useTheme();
   const { id, title, msatTotal, artworkUrl } = track;
-  const isTrackInLibrary = useIsTrackInLibrary(id);
-  const addTrackToLibraryMutation = useAddTrackToLibrary();
-  const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
-  const handleLikePress = () => {
-    if (isTrackInLibrary) {
-      deleteTrackFromLibraryMutation.mutate(id);
-    } else {
-      addTrackToLibraryMutation.mutate(track);
-    }
+  const [showMenu, setShowMenu] = React.useState(false);
+  const handleMenuPress = () => {
+    setShowMenu(true);
   };
 
   return (
@@ -58,24 +51,19 @@ export const TrackRow = ({
           {willDisplaySatsEarned && <SatsEarned msats={msatTotal} />}
         </View>
       </TouchableOpacity>
-      {willDisplayLikeButton && (
-        <View
-          style={{
-            marginRight: 16,
-            justifyContent: "center",
-          }}
-        >
-          <LikeButton
-            onPress={handleLikePress}
-            size={32}
-            isLiked={isTrackInLibrary}
-            isLoading={
-              addTrackToLibraryMutation.isLoading ||
-              deleteTrackFromLibraryMutation.isLoading
-            }
-          />
-        </View>
-      )}
+      <Pressable onPress={handleMenuPress}>
+        <MaterialCommunityIcons
+          name="dots-horizontal"
+          size={24}
+          color={colors.text}
+        />
+      </Pressable>
+      <TrackRowDialogMenu
+        isOpen={showMenu}
+        setIsOpen={setShowMenu}
+        willDisplayLikeButton={willDisplayLikeButton}
+        track={track}
+      />
     </View>
   );
 };

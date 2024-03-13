@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { Center } from "@/components/Center";
-import { MarqueeText } from "@/components/MarqueeText";
+import { Center, PlaylistButton, MarqueeText } from "@/components";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -35,6 +35,7 @@ export const FullSizeMusicPlayer = () => {
     artistOrAlbumBasePathname: string;
   }>();
   const router = useRouter();
+  const { position } = useProgress();
   const { currentTrack } = useMusicPlayer();
   const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
@@ -62,18 +63,31 @@ export const FullSizeMusicPlayer = () => {
   const isSmallScreen = Dimensions.get("window").height < 700;
   const paddingHorizontal = 24;
   const { pubkey } = useAuth();
+  const isPodcast = albumTitle === "podcast";
+  const shareUrl = isPodcast
+    ? `https://wavlake.com/episode/${trackId}`
+    : `https://wavlake.com/track/${trackId}`;
   const handleTitlePress = () => {
     router.push({
-      pathname: `${artistOrAlbumBasePathname}/album/[albumId]`,
-      params: { albumId, headerTitle: albumTitle, includeBackButton: true },
+      pathname: isPodcast
+        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
+        : `${artistOrAlbumBasePathname}/album/[albumId]`,
+      params: {
+        albumId,
+        headerTitle: isPodcast ? artist : albumTitle,
+        includeBackButton: true,
+      },
     });
   };
   const handleArtistPress = () => {
     router.push({
-      pathname: `${artistOrAlbumBasePathname}/artist/[artistId]`,
+      pathname: isPodcast
+        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
+        : `${artistOrAlbumBasePathname}/artist/[artistId]`,
       params: {
+        albumId,
         artistId,
-        headerTitle: artist,
+        headerTitle: isPodcast ? artist : albumTitle,
         includeBackButton: true,
       },
     });
@@ -89,11 +103,13 @@ export const FullSizeMusicPlayer = () => {
       addTrackToLibraryMutation.mutate(currentTrack);
     }
   };
+
   const { sendZap, isLoading } = useZap({
     trackId,
     title,
     artist,
     artworkUrl,
+    timestamp: position,
   });
 
   const handleOneTapZap = async () => {
@@ -123,11 +139,22 @@ export const FullSizeMusicPlayer = () => {
         artist,
         artworkUrl,
         trackId,
+        timestamp: position,
       },
     });
   };
 
-  return currentTrack ? (
+  if (!currentTrack) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
+
+  const isMusic = currentTrack.albumTitle != "podcast";
+
+  return (
     <>
       <ScrollView style={{ paddingTop: 8 }}>
         <ArtworkCarousel />
@@ -186,7 +213,9 @@ export const FullSizeMusicPlayer = () => {
               alignItems: "center",
             }}
           >
-            <View>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 24 }}
+            >
               <LikeButton
                 onPress={handleLikePress}
                 size={24}
@@ -195,18 +224,27 @@ export const FullSizeMusicPlayer = () => {
                   addTrackToLibraryMutation.isLoading ||
                   deleteTrackFromLibraryMutation.isLoading
                 }
+                isMusic={isMusic}
+              />
+              <PlaylistButton
+                size={30}
+                contentId={currentTrack.id}
+                contentTitle={currentTrack.title}
+                isMusic={isMusic}
               />
             </View>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
             >
-              <ShareButton url={`https://wavlake.com/track/${trackId}`} />
-              <MoreOptions
-                artist={artist}
-                artistId={artistId}
-                albumTitle={albumTitle}
-                albumId={albumId}
-              />
+              <ShareButton url={shareUrl} />
+              {isMusic && (
+                <MoreOptions
+                  artist={artist}
+                  artistId={artistId}
+                  albumTitle={albumTitle}
+                  albumId={albumId}
+                />
+              )}
             </View>
           </View>
         </View>
@@ -224,9 +262,5 @@ export const FullSizeMusicPlayer = () => {
         visible={isWalletChooserModalVisible}
       />
     </>
-  ) : (
-    <Center>
-      <ActivityIndicator />
-    </Center>
   );
 };

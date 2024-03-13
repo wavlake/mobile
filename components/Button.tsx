@@ -6,6 +6,7 @@ import { brandColors } from "@/constants";
 import { Text } from "@/components/Text";
 import { PropsWithChildren } from "react";
 import { DimensionValue } from "react-native";
+import { ActivityIndicator } from "react-native";
 
 export interface ButtonProps extends BaseButtonProps {
   color?: string;
@@ -29,6 +30,8 @@ export const Button = ({
       }}
       disabledStyle={{ opacity: 0.5, backgroundColor: color }}
       {...rest}
+      // this height is needed to match the height of the Text component
+      loadingStyle={{ height: 23 }}
     >
       <Text
         style={[{ color: brandColors.black.DEFAULT, fontSize: 18 }, titleStyle]}

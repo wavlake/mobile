@@ -19,11 +19,13 @@ const fetchInvoiceForZap = async ({
   amountInSats,
   comment,
   contentId,
+  timestamp,
 }: {
   writeRelayList: string[];
   amountInSats: number;
   comment: string;
   contentId: string;
+  timestamp?: number;
 }) => {
   const wavlakeTrackKind = 32123;
   const wavlakePubkey =
@@ -35,6 +37,7 @@ const fetchInvoiceForZap = async ({
     comment,
     addressPointer: nostrEventAddressPointer,
     zappedPubkey: wavlakePubkey,
+    timestamp,
   });
 };
 
@@ -51,11 +54,13 @@ export const useZap = ({
   title,
   artist,
   artworkUrl,
+  timestamp,
 }: {
   trackId?: string;
   title?: string;
   artist?: string;
   artworkUrl?: string;
+  timestamp?: number;
 }): {
   isLoading: boolean;
   sendZap: SendZap;
@@ -90,6 +95,7 @@ export const useZap = ({
       amountInSats,
       comment,
       contentId: trackId,
+      timestamp,
     });
 
     if (!invoice) {
@@ -110,6 +116,7 @@ export const useZap = ({
             zapAmount: amountInSats,
           },
         };
+        setIsLoading(false);
         useNavReplace ? router.replace(navEvent) : router.push(navEvent);
       });
     } catch {

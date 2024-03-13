@@ -1,4 +1,10 @@
-import { PillTabView, Text, Center, HomePageMusic } from "@/components";
+import {
+  PillTabView,
+  Text,
+  Center,
+  HomePageMusic,
+  HomePageShows,
+} from "@/components";
 
 export default function HomePage() {
   return (
@@ -7,9 +13,7 @@ export default function HomePage() {
         <HomePageMusic />
       </PillTabView.Item>
       <PillTabView.Item style={{ width: "100%" }}>
-        <Center>
-          <Text>New and trending shows coming soon</Text>
-        </Center>
+        <HomePageShows />
       </PillTabView.Item>
     </PillTabView>
   );
