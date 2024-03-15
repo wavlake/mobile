@@ -42,6 +42,36 @@
               "scheme": "https",
               "host": "*.wavlake.com",
               "pathPrefix": "/playlist"
+            },
+            {
+              "scheme": "https",
+              "host": "wavlake.com",
+              "pathPrefix": "/playlist/"
+            },
+            {
+              "scheme": "https",
+              "host": "*wavlake.com",
+              "pathPrefix": "/playlist"
+            },
+            {
+              "scheme": "https",
+              "host": "*.wavlake.com",
+              "pathPrefix": "/album"
+            },
+            {
+              "scheme": "https",
+              "host": "*.wavlake.com",
+              "pathPrefix": "/album/"
+            }
+            {
+              "scheme": "https",
+              "host": "*.wavlake.com",
+              "pathPrefix": "/track"
+            },
+            {
+              "scheme": "https",
+              "host": "*.wavlake.com",
+              "pathPrefix": "/track/"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
