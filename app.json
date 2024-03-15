@@ -23,7 +23,8 @@
       "bundleIdentifier": "com.wavlake.mobile",
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "associatedDomains": ["applinks:wavlake.com"]
     },
     "android": {
       "package": "com.wavlake.mobile",
@@ -62,7 +63,7 @@
               "scheme": "https",
               "host": "*.wavlake.com",
               "pathPrefix": "/album/"
-            }
+            },
             {
               "scheme": "https",
               "host": "*.wavlake.com",
