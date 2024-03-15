@@ -4,6 +4,11 @@ import { useRouter } from "expo-router";
 
 const ROUTE_MAPPING = {
   "playlist/": (id: string) => `/library/music/playlists/${id}`,
+  "album/": (id: string) => `/album/${id}`,
+  // used for artists
+  "": (name: string) => `/artist/${name}`,
+  // TODO - build out mobile track page
+  // "track/": (id: string) => `/music/playlists/${id}`,
 };
 
 const DeepLinkHandler = () => {
@@ -17,6 +22,8 @@ const DeepLinkHandler = () => {
         if (path.startsWith(route)) {
           const id = path.split("/")[1];
           const mobilePath = getMobilePath(id);
+          // keeping temporarily to aid in debugging, can remove once deep links are stable
+          console.log("Handling universal link:", { path, id, mobilePath });
           router.push(mobilePath);
           return;
         }
