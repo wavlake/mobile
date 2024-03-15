@@ -3,23 +3,21 @@ import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
 
 const ROUTE_MAPPING = {
-  "/playlist/": (id: string) => `/library/music/playlists/${id}`,
+  "playlist/": (id: string) => `/library/music/playlists/${id}`,
 };
 
 const DeepLinkHandler = () => {
   const router = useRouter();
-
   useEffect(() => {
     const handleDeepLink: Linking.URLListener = async (event) => {
-      console.log("new event:", event);
+      // example: path = "/playlist/<playlist-ID>
       const { path, queryParams } = Linking.parse(event.url);
-      for (const [path, getMobilePath] of Object.entries(ROUTE_MAPPING)) {
-        console.log("mapped path:", path);
-        if (path.startsWith(path)) {
-          const id = path.split("/")[2];
-          console.log("id:", id);
+      if (!path) return;
+      for (const [route, getMobilePath] of Object.entries(ROUTE_MAPPING)) {
+        if (path.startsWith(route)) {
+          const id = path.split("/")[1];
           const mobilePath = getMobilePath(id);
-          router.replace(mobilePath);
+          router.push(mobilePath);
           return;
         }
       }
