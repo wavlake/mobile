@@ -68,7 +68,6 @@ An important thing to remember from the above example is the configVersion prope
 Deep links are links that will open up in the mobile app instead of the browser. These links are defined in the apple-app-site-association (AASA) file, which is hosted on the main wavlake.com website.
 
 The following is the process for adding/removing/editing which paths will open in the app and which will not:
-Process for editing which links are deep linked and which are not (for iOS)
 
 1. Update the AASA file hosted at `wavlake.com/.well-known/apple-app-site-association`
 1. Update the [DeepLinkHandler](components/DeepLinkHandler.tsx) component (if needed). This is responsible for auto-redirecting the user to the proper page in the app.
