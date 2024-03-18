@@ -148,12 +148,12 @@ export default function Layout() {
                   }}
                 />
                 <Stack.Screen name="notification.click" />
-                {/* <Stack.Screen
-                  name="[deepLinkPage]"
+                <Stack.Screen
+                  name="nwcAdd"
                   options={{
                     headerTitle: () => <Text>Connecting wallet</Text>,
                   }}
-                /> */}
+                />
               </Stack>
               <DeepLinkHandler />
             </View>

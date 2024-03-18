@@ -34,8 +34,20 @@ const DeepLinkHandler = () => {
   const router = useRouter();
   useEffect(() => {
     const handleDeepLink: Linking.URLListener = async (event) => {
-      // example: path = "/playlist/<playlist-ID>
       const { path, queryParams } = Linking.parse(event.url);
+      // special NWC case
+      // for "Open in supported app" links
+      if (event.url.startsWith("nostr+walletconnect")) {
+        router.push({
+          pathname: "/nwc",
+          params: {
+            uri: event.url,
+          },
+        });
+        return;
+      }
+
+      // example: path = "/playlist/<playlist-ID>
       if (!path) return;
       for (const [
         route,
