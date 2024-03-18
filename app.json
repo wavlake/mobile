@@ -41,38 +41,13 @@
           "data": [
             {
               "scheme": "https",
-              "host": "*.wavlake.com",
-              "pathPrefix": "/playlist"
-            },
-            {
-              "scheme": "https",
-              "host": "wavlake.com",
+              "host": "www.wavlake.com",
               "pathPrefix": "/playlist/"
             },
             {
-              "scheme": "https",
-              "host": "*wavlake.com",
-              "pathPrefix": "/playlist"
-            },
-            {
-              "scheme": "https",
-              "host": "*.wavlake.com",
-              "pathPrefix": "/album"
-            },
-            {
-              "scheme": "https",
-              "host": "*.wavlake.com",
-              "pathPrefix": "/album/"
-            },
-            {
-              "scheme": "https",
-              "host": "*.wavlake.com",
-              "pathPrefix": "/track"
-            },
-            {
-              "scheme": "https",
-              "host": "*.wavlake.com",
-              "pathPrefix": "/track/"
+              "scheme": "http",
+              "host": "www.wavlake.com",
+              "pathPrefix": "/playlist/"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
