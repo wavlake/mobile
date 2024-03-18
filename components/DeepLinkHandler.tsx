@@ -2,11 +2,30 @@ import { useEffect } from "react";
 import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
 
-const ROUTE_MAPPING = {
-  "playlist/": (id: string) => `/library/music/playlists/${id}`,
-  "album/": (id: string) => `/album/${id}`,
+const ROUTE_MAPPING: Record<
+  string,
+  {
+    getPath: (id: string) => string;
+    includeBackButton: boolean;
+    history: string[];
+  }
+> = {
+  "playlist/": {
+    getPath: (id: string) => `/library/music/playlists/${id}`,
+    includeBackButton: true,
+    history: ["/library"],
+  },
+  "album/": {
+    getPath: (id: string) => `/album/${id}`,
+    includeBackButton: true,
+    history: ["/library"],
+  },
   // used for artists
-  "": (name: string) => `/artist/${name}`,
+  "": {
+    getPath: (name: string) => `/artist/${name}`,
+    includeBackButton: true,
+    history: ["/library"],
+  },
   // TODO - build out mobile track page
   // "track/": (id: string) => `/music/playlists/${id}`,
 };
@@ -18,13 +37,24 @@ const DeepLinkHandler = () => {
       // example: path = "/playlist/<playlist-ID>
       const { path, queryParams } = Linking.parse(event.url);
       if (!path) return;
-      for (const [route, getMobilePath] of Object.entries(ROUTE_MAPPING)) {
+      for (const [
+        route,
+        { getPath, history, includeBackButton },
+      ] of Object.entries(ROUTE_MAPPING)) {
         if (path.startsWith(route)) {
           const id = path.split("/")[1];
-          const mobilePath = getMobilePath(id);
+          const mobilePath = getPath(id);
           // keeping temporarily to aid in debugging, can remove once deep links are stable
           console.log("Handling universal link:", { path, id, mobilePath });
-          router.push(mobilePath);
+
+          // this is needed to replicate the navigation path the user would have normally taken to reach the deep link
+          history.forEach((path) => router.push(path));
+          router.push({
+            pathname: mobilePath,
+            params: {
+              includeBackButton,
+            },
+          });
           return;
         }
       }
