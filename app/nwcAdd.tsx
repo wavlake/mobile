@@ -11,7 +11,6 @@ export default function AddNWC() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const params = useLocalSearchParams();
-  console.log("params", params);
   const toast = useToast();
   const { pubkey } = useAuth();
   const settingsKey = useSettingsQueryKey();
