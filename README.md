@@ -65,11 +65,41 @@ An important thing to remember from the above example is the configVersion prope
 
 ### iOS
 
-Deep links are links that will open up in the mobile app instead of the browser. These links are defined in the apple-app-site-association (AASA) file, which is hosted on the main wavlake.com website.
+Deep links are links that will open up in the mobile app instead of the browser. These links are defined in the apple-app-site-association (AASA) file, which is hosted on the main wavlake.com website, `public/.well-known/apple-app-site-association`.
 
 The following is the process for adding/removing/editing which paths will open in the app and which will not:
 
-1. Update the AASA file hosted at `wavlake.com/.well-known/apple-app-site-association`
+1. Update the AASA file hosted at `wavlake.com/.well-known/apple-app-site-association`.
 1. Update the [DeepLinkHandler](components/DeepLinkHandler.tsx) component (if needed). This is responsible for auto-redirecting the user to the proper page in the app.
-1. Generate a new build for the iOS app
+1. Generate a new build for the iOS app.
 1. Install the new build (or push the update to the app store). This will trigger the app to re-fetch the updated AASA file.
+
+### Android
+
+https://developer.android.com/training/app-links/verify-android-applinks#web-assoc
+
+Deep links for Android function similarly to iOS. The Android links are defined within the mobile app, but there is a verification file hosted on the main wavlake.com website, `public/.well-known/assetlinks.json`. This file contains the signature(s) of the Android app builds that utilize the deep links.
+
+**New Android Builds must have their new signature added to the assetlinks.json file!**
+
+How to obtain a build's signature
+
+1. After installing a development build, execute this adb command:
+   ```
+   adb shell pm get-app-links com.wavlake.mobile
+   ```
+1. For production builds, navigate to the [Play Console](https://play.google.com/console/) and visit `Release > Setup > App signing`.
+
+The following is the process for adding/removing/editing with paths will open in the app and which will not:
+
+1. Modify the mobile app's `app.json` file to include the linking changes.
+   e.g.
+   ```
+   {
+      "scheme": "https",
+      "host": "*.wavlake.com",
+      "pathPrefix": "/playlist/"
+   }
+   ```
+1. Generate a new development build so you can test the change.
+1. Obtain the new build signature (see above for details) and add to the file hosted at `wavlake.com/.well-known/assetlinks.json`.
