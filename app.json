@@ -41,12 +41,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "wavlake.com",
-              "pathPrefix": "/playlist/"
-            },
-            {
-              "scheme": "https",
-              "host": "www.wavlake.com",
+              "host": "*.wavlake.com",
               "pathPrefix": "/playlist/"
             }
           ],
