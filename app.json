@@ -23,7 +23,8 @@
       "bundleIdentifier": "com.wavlake.mobile",
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "associatedDomains": ["applinks:www.wavlake.com", "applinks:wavlake.com"]
     },
     "android": {
       "package": "com.wavlake.mobile",
@@ -32,7 +33,26 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "monochromeImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "wavlake.com",
+              "pathPrefix": "/playlist/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.wavlake.com",
+              "pathPrefix": "/playlist/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "plugins": [
       "expo-router",
