@@ -2,14 +2,12 @@ import { Text, Button, TextInput, Center } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState } from "react";
 import { useAuth } from "@/hooks";
-import { Link, useRouter } from "expo-router";
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { goToRoot, login } = useAuth();
-  const router = useRouter();
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
@@ -45,31 +43,18 @@ export default function Login() {
           />
         </View>
         <Button
-          onPress={() => {
-            router.push("/auth/nsec");
-          }}
+          onPress={handleLogin}
+          disabled={isLoggingIn}
+          loading={isLoggingIn}
         >
-          Google
+          Register
         </Button>
-        <Button
-          onPress={() => {
-            router.push("/auth/nsec");
-          }}
-        >
-          Twitter
-        </Button>
-        <Button
-          onPress={() => {
-            router.push("/auth/nsec");
-          }}
-        >
-          Nostr
-        </Button>
-        <Link href="/auth/skip">
-          <Text style={{ fontSize: 18 }} bold>
-            Skip for now
+        <View style={{ marginTop: 80 }}>
+          <Text style={{ fontSize: 18 }}>
+            Your private key will only be stored on your device and not on
+            Wavlake systems. Wavlake will never have access to your key.
           </Text>
-        </Link>
+        </View>
       </Center>
     </TouchableWithoutFeedback>
   );

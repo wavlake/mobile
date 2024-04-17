@@ -1,13 +1,13 @@
 import { Center, Text, LogoIcon, Button } from "@/components";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { View } from "react-native";
 import { brandColors } from "@/constants";
 
-export default function AuthPage() {
+export default function WelcomePage() {
   const router = useRouter();
 
   return (
-    <Center>
+    <Center style={{ gap: 40 }}>
       <Text style={{ fontSize: 32 }} bold>
         Turn up the value.
       </Text>
@@ -16,28 +16,12 @@ export default function AuthPage() {
       </View>
       <Button
         onPress={() => {
-          router.push("/auth/signup");
+          router.push("/auth/login");
         }}
+        color={brandColors.pink.DEFAULT}
       >
-        Sign up
+        Let's Go
       </Button>
-      <View style={{ marginTop: 16 }}>
-        <Button
-          onPress={() => {
-            router.push("/auth/login");
-          }}
-          color={brandColors.pink.light}
-        >
-          Login
-        </Button>
-      </View>
-      <View style={{ marginTop: 56, marginBottom: 32 }}>
-        <Link href="/auth/skip">
-          <Text style={{ fontSize: 18 }} bold>
-            Skip registration
-          </Text>
-        </Link>
-      </View>
     </Center>
   );
 }
