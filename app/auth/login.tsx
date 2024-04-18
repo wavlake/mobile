@@ -1,22 +1,22 @@
-import { Text, Button, TextInput, Center } from "@/components";
+import { Text, Button, TextInput, Center, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState } from "react";
 import { useAuth } from "@/hooks";
 import { Link, useRouter } from "expo-router";
 
 export default function Login() {
-  const [nsec, setNsec] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { goToRoot, login } = useAuth();
-  const router = useRouter();
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
 
-    const success = await login(nsec);
+    // const success = await login(nsec);
 
-    if (success) {
+    if (false) {
       // add an artifical delay to allow time to fetch profile if it's not cached
       setTimeout(async () => {
         await goToRoot();
@@ -30,47 +30,127 @@ export default function Login() {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <Center style={{ paddingHorizontal: 24 }}>
-        <View style={{ marginBottom: 24, width: "100%" }}>
+      <Center
+        style={{
+          paddingHorizontal: 24,
+          alignContent: "center",
+          paddingVertical: 50,
+        }}
+      >
+        <View style={{ marginVertical: 30 }}>
+          <LogoIcon fill="white" width={130} height={108} />
+        </View>
+        <View
+          style={{
+            width: "100%",
+          }}
+        >
+          <Text
+            style={{ fontSize: 18, textAlign: "center", marginBottom: 10 }}
+            bold
+          >
+            Login or Sign Up
+          </Text>
           <TextInput
-            label="nostr nsec"
+            label="Email"
+            autoCorrect={false}
+            value={email}
+            onChangeText={(value) => {
+              setEmail(value);
+              setErrorMessage("");
+            }}
+            errorMessage={errorMessage}
+          />
+          <TextInput
+            label="Password"
             secureTextEntry
             autoCorrect={false}
-            value={nsec}
+            value={password}
             onChangeText={(value) => {
-              setNsec(value);
+              setPassword(value);
               setErrorMessage("");
             }}
             errorMessage={errorMessage}
           />
         </View>
-        <Button
-          onPress={() => {
-            router.push("/auth/nsec");
+        <OrSeparator />
+        <LoginProviders />
+        <View
+          style={{
+            flexGrow: 1,
+            flexDirection: "column",
+            justifyContent: "flex-end",
           }}
         >
-          Google
-        </Button>
-        <Button
-          onPress={() => {
-            router.push("/auth/nsec");
-          }}
-        >
-          Twitter
-        </Button>
-        <Button
-          onPress={() => {
-            router.push("/auth/nsec");
-          }}
-        >
-          Nostr
-        </Button>
-        <Link href="/auth/skip">
-          <Text style={{ fontSize: 18 }} bold>
-            Skip for now
-          </Text>
-        </Link>
+          <Link href="/auth/skip">
+            <Text style={{ fontSize: 18 }} bold>
+              Skip for now
+            </Text>
+          </Link>
+        </View>
       </Center>
     </TouchableWithoutFeedback>
   );
 }
+
+const LoginProviders = () => {
+  const router = useRouter();
+  return (
+    <View
+      style={{
+        gap: 20,
+        marginVertical: 20,
+      }}
+    >
+      <Button
+        color="white"
+        onPress={() => {
+          router.push("/auth/nsec");
+        }}
+      >
+        Google
+      </Button>
+      <Button
+        color="white"
+        onPress={() => {
+          router.push("/auth/nsec");
+        }}
+      >
+        Twitter
+      </Button>
+      <Button
+        color="white"
+        onPress={() => {
+          router.push("/auth/nsec");
+        }}
+      >
+        Nostr
+      </Button>
+    </View>
+  );
+};
+const OrSeparator = () => (
+  <View
+    style={{
+      flexDirection: "row",
+      gap: 15,
+      alignItems: "center",
+    }}
+  >
+    <View
+      style={{
+        borderBottomColor: "white",
+        borderBottomWidth: 1,
+        flexGrow: 1,
+      }}
+    />
+    <Text style={{ fontSize: 18 }}>or</Text>
+    <View
+      style={{
+        borderBottomColor: "white",
+        borderBottomWidth: 1,
+        flexGrow: 1,
+      }}
+    />
+  </View>
+);
