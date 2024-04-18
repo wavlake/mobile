@@ -4,7 +4,7 @@ import "expo-dev-client";
 // this is needed to polyfill crypto.subtle which nostr-tools uses
 import PolyfillCrypto from "react-native-webview-crypto";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import {
@@ -26,6 +26,8 @@ import TrackPlayer, {
 } from "react-native-track-player";
 import { musicService } from "@/services";
 import DeepLinkHandler from "@/components/DeepLinkHandler";
+import auth from "@react-native-firebase/auth";
+import { useAuth } from "@/hooks";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -36,6 +38,20 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 export default function Layout() {
+  const { setFirebaseUser } = useAuth();
+  const [initializingAuth, setInitializingAuth] = useState(true);
+
+  useEffect(() => {
+    const subcriber = auth().onAuthStateChanged((user) => {
+      console.log("on auth state changed", user);
+
+      setFirebaseUser(user);
+      if (initializingAuth) setInitializingAuth(false);
+    });
+
+    return subcriber;
+  }, []);
+
   const [loaded, error] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
@@ -96,6 +112,7 @@ export default function Layout() {
     return () => subscription.remove();
   }, []);
 
+  if (initializingAuth) return null;
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
       <QueryClientProvider client={queryClient}>
