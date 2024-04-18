@@ -54,7 +54,7 @@
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
       "@react-native-google-signin/google-signin",
-      "@react-native-twitter-signin/twitter-signin",
+      // "@react-native-twitter-signin/twitter-signin",
       [
         "expo-barcode-scanner",
         {
