@@ -1,4 +1,4 @@
-import { SearchBar as BaseSearchBar } from "@rneui/themed";
+import { SearchBar as BaseSearchBar, Icon } from "@rneui/themed";
 import { Platform } from "react-native";
 
 interface SearchBarProps {
@@ -14,6 +14,7 @@ export const SearchBar = ({ query, onChange }: SearchBarProps) => {
       containerStyle={{
         backgroundColor: "transparent",
       }}
+      searchIcon={<Icon name="search" />}
       inputContainerStyle={{
         borderRadius: 16,
         backgroundColor: "white",
