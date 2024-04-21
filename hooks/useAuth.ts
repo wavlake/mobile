@@ -5,15 +5,11 @@ import {
   getPubkeyFromCachedSeckey,
   encodeNsec,
 } from "@/utils";
-import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
-import { useState } from "react";
 
+// this hook manage's the user's locally stored private key
 export const useAuth = () => {
-  const [firebaseUser, setFirebaseUser] =
-    useState<FirebaseAuthTypes.User | null>();
-  console.log("useAuth", firebaseUser);
   const navigation = useNavigation();
   const { data: pubkey, refetch } = useQuery({
     queryKey: ["auth"],
@@ -42,5 +38,5 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, pubkey, goToRoot, firebaseUser, setFirebaseUser };
+  return { login, logout, pubkey, goToRoot };
 };

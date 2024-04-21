@@ -11,11 +11,12 @@ import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { WalletBalance } from "./WalletBalance";
+import { useUser } from "./UserContextProvider";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
-
+  // const { user, initializingAuth } = useUser();
   return (
     <DrawerContentScrollView
       contentContainerStyle={{

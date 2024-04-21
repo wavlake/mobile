@@ -1,6 +1,8 @@
-import auth from "@react-native-firebase/auth";
+import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { NativeModules } from "react-native";
+
+export type FirebaseUser = FirebaseAuthTypes.User | null;
 
 const { RNTwitterSignIn } = NativeModules;
 // todo - add twitter keys
@@ -75,10 +77,14 @@ const signInWithTwitter = async () => {
   return auth().signInWithCredential(twitterCredential);
 };
 
-export const authService = {
+const onAuthStateChange = (callback: FirebaseAuthTypes.AuthListenerCallback) =>
+  auth().onAuthStateChanged(callback);
+
+export const firebaseService = {
   signInWithEmail,
   signInAnonymously,
   signOut,
   signInWithGoogle,
   signInWithTwitter,
+  onAuthStateChange,
 };

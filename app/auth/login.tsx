@@ -3,6 +3,7 @@ import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState } from "react";
 import { useAuth } from "@/hooks";
 import { Link, useRouter } from "expo-router";
+import { firebaseService } from "@/services";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -102,19 +103,12 @@ const LoginProviders = () => {
         marginVertical: 20,
       }}
     >
-      <Button
-        color="white"
-        onPress={() => {
-          router.push("/auth/nsec");
-        }}
-      >
+      {/* <Button color="white" onPress={signInWithGoogle}>
         Google
-      </Button>
+      </Button> */}
       <Button
         color="white"
-        onPress={() => {
-          router.push("/auth/nsec");
-        }}
+        // onPress={musicService.signInWithTwitter}
       >
         Twitter
       </Button>

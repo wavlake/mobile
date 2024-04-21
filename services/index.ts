@@ -1,2 +1,2 @@
 export * from "./musicService";
-export * from "./authService";
+export * from "./firebaseService";

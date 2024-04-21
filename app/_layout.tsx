@@ -26,8 +26,7 @@ import TrackPlayer, {
 } from "react-native-track-player";
 import { musicService } from "@/services";
 import DeepLinkHandler from "@/components/DeepLinkHandler";
-import auth from "@react-native-firebase/auth";
-import { useAuth } from "@/hooks";
+import { UserContextProvider } from "@/components/UserContextProvider";
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -38,20 +37,6 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 export default function Layout() {
-  const { setFirebaseUser } = useAuth();
-  const [initializingAuth, setInitializingAuth] = useState(true);
-
-  useEffect(() => {
-    const subcriber = auth().onAuthStateChanged((user) => {
-      console.log("on auth state changed", user);
-
-      setFirebaseUser(user);
-      if (initializingAuth) setInitializingAuth(false);
-    });
-
-    return subcriber;
-  }, []);
-
   const [loaded, error] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
@@ -112,70 +97,71 @@ export default function Layout() {
     return () => subscription.remove();
   }, []);
 
-  if (initializingAuth) return null;
   return loaded ? (
     <ThemeProvider value={DarkTheme}>
       <QueryClientProvider client={queryClient}>
-        <MusicPlayerProvider>
-          <RootSiblingParent>
-            <View style={{ flex: 1, backgroundColor: "black" }}>
-              <PolyfillCrypto />
-              <Stack
-                screenOptions={{
-                  headerStyle: {
-                    backgroundColor: "black",
-                  },
-                  headerShadowVisible: false,
-                  headerTintColor: "white",
-                  headerBackTitleVisible: false,
-                }}
-              >
-                <Stack.Screen
-                  name="(drawer)"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="auth"
-                  options={{
-                    headerShown: false,
-                    gestureEnabled: false,
-                    gestureDirection: "vertical",
+        <UserContextProvider>
+          <MusicPlayerProvider>
+            <RootSiblingParent>
+              <View style={{ flex: 1, backgroundColor: "black" }}>
+                <PolyfillCrypto />
+                <Stack
+                  screenOptions={{
+                    headerStyle: {
+                      backgroundColor: "black",
+                    },
+                    headerShadowVisible: false,
+                    headerTintColor: "white",
+                    headerBackTitleVisible: false,
                   }}
-                />
-                <Stack.Screen
-                  name="zap"
-                  options={{
-                    headerShown: false,
-                    gestureEnabled: false,
-                    gestureDirection: "vertical",
-                  }}
-                />
-                <Stack.Screen
-                  name="profile"
-                  options={{ headerTitle: () => <Text>Profile</Text> }}
-                />
-                <Stack.Screen
-                  name="settings"
-                  options={{ headerTitle: () => <Text>Settings</Text> }}
-                />
-                <Stack.Screen
-                  name="nwcScanner"
-                  options={{
-                    headerTitle: () => <Text>Nostr Wallet Connect</Text>,
-                  }}
-                />
-                <Stack.Screen name="notification.click" />
-                <Stack.Screen
-                  name="nwcAdd"
-                  options={{
-                    headerTitle: () => <Text>Connecting wallet</Text>,
-                  }}
-                />
-              </Stack>
-              <DeepLinkHandler />
-            </View>
-          </RootSiblingParent>
-        </MusicPlayerProvider>
+                >
+                  <Stack.Screen
+                    name="(drawer)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="auth"
+                    options={{
+                      headerShown: false,
+                      gestureEnabled: false,
+                      gestureDirection: "vertical",
+                    }}
+                  />
+                  <Stack.Screen
+                    name="zap"
+                    options={{
+                      headerShown: false,
+                      gestureEnabled: false,
+                      gestureDirection: "vertical",
+                    }}
+                  />
+                  <Stack.Screen
+                    name="profile"
+                    options={{ headerTitle: () => <Text>Profile</Text> }}
+                  />
+                  <Stack.Screen
+                    name="settings"
+                    options={{ headerTitle: () => <Text>Settings</Text> }}
+                  />
+                  <Stack.Screen
+                    name="nwcScanner"
+                    options={{
+                      headerTitle: () => <Text>Nostr Wallet Connect</Text>,
+                    }}
+                  />
+                  <Stack.Screen name="notification.click" />
+                  <Stack.Screen
+                    name="nwcAdd"
+                    options={{
+                      headerTitle: () => <Text>Connecting wallet</Text>,
+                    }}
+                  />
+                </Stack>
+                <DeepLinkHandler />
+              </View>
+            </RootSiblingParent>
+          </MusicPlayerProvider>
+        </UserContextProvider>
       </QueryClientProvider>
     </ThemeProvider>
   ) : null;
