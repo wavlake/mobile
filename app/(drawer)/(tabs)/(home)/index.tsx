@@ -8,7 +8,7 @@ import {
 
 export default function HomePage() {
   return (
-    <PillTabView searchShown>
+    <PillTabView>
       <PillTabView.Item style={{ width: "100%" }}>
         <HomePageMusic />
       </PillTabView.Item>
