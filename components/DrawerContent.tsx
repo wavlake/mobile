@@ -48,6 +48,19 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             props.navigation.closeDrawer();
           }}
         />
+        <DrawerItem
+          label={() => <Text style={{ fontSize: 24 }}>Events</Text>}
+          icon={({ color, size }) => (
+            <Ionicons name="calendar-outline" size={size} color={color} />
+          )}
+          onPress={async () => {
+            router.push({
+              pathname: "/events",
+              params: { includeBackButton: true },
+            });
+            props.navigation.closeDrawer();
+          }}
+        />
       </View>
       <View>
         <WalletBalance />

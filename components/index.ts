@@ -44,3 +44,4 @@ export * from "./CommentPage";
 export * from "./CommentRow";
 export * from "./ArtistCommentPage";
 export * from "./AlbumCommentPage";
+export * from "./TicketEvents";

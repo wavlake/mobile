@@ -9,6 +9,7 @@ import { Text } from "@/components/Text";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { AdCarousel } from "./AdCarousel";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -75,6 +76,7 @@ export const HomePageMusic = () => {
       data={data}
       ListHeaderComponent={() => (
         <View>
+          <AdCarousel />
           <NewMusicSection />
           <SectionHeader
             title="Trending"
