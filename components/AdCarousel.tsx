@@ -39,13 +39,6 @@ export const AdCarousel = () => {
     const advertisement = advertisements[index];
 
     if (advertisement.eventId) {
-      // first nav to events page so it's in the stack
-      router.push({
-        pathname: "/events",
-        params: {
-          includeBackButton: true,
-        },
-      });
       router.push({
         pathname: "/events/[eventId]",
         params: {
