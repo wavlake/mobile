@@ -45,3 +45,4 @@ export * from "./CommentRow";
 export * from "./ArtistCommentPage";
 export * from "./AlbumCommentPage";
 export * from "./TicketEvents";
+export * from "./SlimButton";
