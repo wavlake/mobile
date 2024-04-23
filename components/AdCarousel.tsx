@@ -20,12 +20,10 @@ export const AdCarousel = () => {
     artworkUrl: string;
   }> = [
     ...ShowEvents.map((event) => {
-      const [imageTag, image] =
-        event.tags.find((tag) => tag[0] === "image") || [];
-
       return {
         eventId: event.id,
-        artworkUrl: image,
+        artworkUrl:
+          "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Fevent-mockup.png?alt=media&token=94235e53-996a-495f-b733-f0901d90a89f",
       };
     }),
     // hardcoded advertisements

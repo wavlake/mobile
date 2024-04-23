@@ -9,7 +9,7 @@ export const ShowEvents: Event[] = [
       ["d", "test-event-guid"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Fevent-mockup.png?alt=media&token=94235e53-996a-495f-b733-f0901d90a89f",
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Flarge-artwork.png?alt=media&token=ed02d334-179d-4beb-a9c3-2c91479bd4f4",
       ],
       ["title", "Joe Martin, Ainsley Costello, Just Loud & Guests"],
       ["location", "Nashvile, TN"],
