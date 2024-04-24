@@ -7,7 +7,7 @@ export const ShowEvents: Event[] = [
       "Wavalke and Tunestr present a special evening with artists, Joe Martin, Ainsley Costello, Just Loud, Death by Lions, The Higher Lowm and after hours LIVE karaoke by Satoshi Rockamoto. Doors open at 7pm, show starts at 7:30. This show is 21+.",
     created_at: 1713814392,
     tags: [
-      ["d", "test-event-guid"],
+      ["d", "1"],
       [
         "image",
         "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Flarge-artwork.png?alt=media&token=ed02d334-179d-4beb-a9c3-2c91479bd4f4",
@@ -19,7 +19,7 @@ export const ShowEvents: Event[] = [
       // July 25, 2024 10pm CST
       ["end", "1721962800"],
       // rsvp fee in sats
-      ["fee", "1000"],
+      ["fee", "1"],
       // replace with pubkeys of artists
       [
         "p",
@@ -39,7 +39,7 @@ export const ShowEvents: Event[] = [
         "artist",
       ],
     ],
-    pubkey: "58abd62e40e7ea1857e818205ab6cd54ae71e4115cab92775a8c0bc11e5f5e81",
+    pubkey: "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397",
     id: "test-event-id",
     sig: "3045022100f4",
   },

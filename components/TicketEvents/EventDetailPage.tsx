@@ -1,5 +1,5 @@
 import { Text, Center, SlimButton } from "@/components";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ScrollView,
   View,
@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { ShowEvents } from "@/constants/events";
-import { Ionicons } from "@expo/vector-icons";
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import { UnsignedEvent } from "nostr-tools";
+import { EventSection, EventHeader } from "./common";
 
 interface ArtistMetadata {
   image: string;
@@ -90,25 +90,13 @@ export const EventDetailPage = () => {
     );
   }
   const [imageTag, image] = event.tags.find((tag) => tag[0] === "image") || [];
-  const description = event.content;
-  const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
-  const [locationTag, location] =
-    event.tags.find((tag) => tag[0] === "location") || [];
-  const [startTag, start] = event.tags.find((tag) => tag[0] === "start") || [];
   const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
   const artistPubkeys =
     event.tags
       .filter((tag) => tag[0] === "p")
       .map(([pTag, pubkey]) => pubkey) || [];
-  const timestemp = new Date(parseInt(start) * 1000);
-  const formattedDate = timestemp.toLocaleDateString("en-US", {
-    weekday: "long",
-    // year: "numeric",
-    month: "long",
-    day: "numeric",
-    // hour: "numeric",
-    // minute: "numeric",
-  });
+  const description = event.content;
+
   return (
     <View
       style={{
@@ -128,30 +116,7 @@ export const EventDetailPage = () => {
           source={{ uri: image }}
           style={{ width: screenWidth, height: 470 }}
         />
-        <Text style={{ fontSize: 28 }} bold>
-          {title}
-        </Text>
-        <EventSection title={formattedDate}>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 4,
-            }}
-          >
-            <Ionicons name="location-outline" size={10} color={"gray"} />
-            <Text
-              style={{
-                fontSize: 12,
-                color: "gray",
-                marginVertical: 8,
-              }}
-            >
-              {location}
-            </Text>
-          </View>
-        </EventSection>
+        <EventHeader />
         <EventSection title="Event Info">
           <Text
             style={{
@@ -177,7 +142,8 @@ export const EventDetailPage = () => {
             })}
           </View>
         </EventSection>
-        <EventSection title="Latest Messages">
+        {/* TODO - add zap comments */}
+        {/* <EventSection title="Latest Messages">
           <View
             style={{
               display: "flex",
@@ -190,7 +156,7 @@ export const EventDetailPage = () => {
               return <CommentRow zapReceipt={zapReceiptEvent} />;
             })}
           </View>
-        </EventSection>
+        </EventSection> */}
       </ScrollView>
       <View
         style={{
@@ -224,26 +190,6 @@ export const EventDetailPage = () => {
   );
 };
 
-const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
-  title,
-  children,
-}) => {
-  return (
-    <View
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        marginVertical: 16,
-      }}
-    >
-      <Text style={{ fontSize: 16 }} bold>
-        {title}
-      </Text>
-      {children}
-    </View>
-  );
-};
 const ArtistRow: React.FC<{ metadata: ArtistMetadata }> = ({ metadata }) => {
   const router = useRouter();
   return (
@@ -263,7 +209,6 @@ const ArtistRow: React.FC<{ metadata: ArtistMetadata }> = ({ metadata }) => {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "flex-start",
-          // marginVertical: 8,
           gap: 8,
         }}
       >

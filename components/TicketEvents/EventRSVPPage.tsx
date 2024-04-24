@@ -1,17 +1,128 @@
-import { Text } from "@/components/Text";
-import { useRouter } from "expo-router";
-import { View } from "react-native";
+import { Center, TextInput, Text } from "@/components";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  TouchableWithoutFeedback,
+  View,
+  Keyboard,
+  ScrollView,
+  KeyboardAvoidingView,
+} from "react-native";
 import { Button } from "../Button";
+import { EventHeader } from "./common";
+import { useState } from "react";
+import { ShowEvents } from "@/constants/events";
+import { Picker } from "@react-native-picker/picker";
+import { useTicketZap } from "@/hooks/useTicketZap";
 
 export const EventRSVPPage = () => {
   const router = useRouter();
+  const { eventId } = useLocalSearchParams();
+  const event = ShowEvents.find((event) => event.id === eventId);
+  if (!event) {
+    return (
+      <Center>
+        <Text>Event not found</Text>
+      </Center>
+    );
+  }
+  const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
+  const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
+  const [quantity, setQuantity] = useState(1);
+  const [message, setMessage] = useState("");
+  const [zapAmount, setZapAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
+  const { sendZap, isLoading } = useTicketZap(showDTag);
+  const onSubmit = async () => {
+    setAmountError("");
+    const parsedZapAmount = parseInt(zapAmount);
+    const parsedFee = parseInt(fee);
+    if (parsedZapAmount < parsedFee) {
+      setAmountError(`Must be more than ${fee} sats`);
+      return;
+    }
+
+    await sendZap({
+      amount: parsedZapAmount,
+      comment: message,
+      quantity,
+    });
+  };
 
   return (
-    <View>
-      <Text>Event RSVP Component</Text>
-      <Button title="Back" onPress={() => router.back()}>
-        Back
-      </Button>
-    </View>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <KeyboardAvoidingView
+        behavior="position"
+        enabled
+        keyboardVerticalOffset={100}
+      >
+        <ScrollView
+          contentContainerStyle={{
+            display: "flex",
+            flexDirection: "column",
+            paddingBottom: 16,
+          }}
+        >
+          <EventHeader />
+          <Text style={{ marginBottom: 4, opacity: 0.8 }}>
+            This event requires a min of {fee} sats to RSVP, though you're free
+            to zap whatever amount you choose. Limit 2 tickets per account.
+          </Text>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <Text style={{ marginBottom: 4 }} bold>
+              Quantity
+            </Text>
+            <View
+              style={{
+                backgroundColor: "white",
+                borderRadius: 8,
+              }}
+            >
+              <Picker
+                selectedValue={quantity}
+                onValueChange={setQuantity}
+                itemStyle={{ height: 120 }}
+              >
+                <Picker.Item label="1 ticket" value={1} />
+                <Picker.Item label="2 tickets" value={2} />
+              </Picker>
+            </View>
+            <TextInput
+              label="amount (sats)"
+              value={zapAmount}
+              onChangeText={setZapAmount}
+              keyboardType="numeric"
+              errorMessage={amountError}
+            />
+            <TextInput
+              label="message (optional)"
+              value={message}
+              onChangeText={setMessage}
+              keyboardType="default"
+            />
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <Button title="Submit" onPress={onSubmit} loading={isLoading}>
+                Submit
+              </Button>
+              <Button title="Cancel" onPress={() => router.back()}>
+                Cancel
+              </Button>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };

@@ -414,6 +414,8 @@ export const fetchInvoice = async ({
   addressPointer,
   zappedPubkey,
   timestamp,
+  zapEndpoint = "https://www.wavlake.com/api/zap",
+  customTags = [],
 }: {
   relayUris: string[];
   amountInSats: number;
@@ -421,10 +423,11 @@ export const fetchInvoice = async ({
   addressPointer: string;
   zappedPubkey: string;
   timestamp?: number;
-}) => {
+  zapEndpoint?: string;
+  customTags?: EventTemplate["tags"];
+}): Promise<{ pr: string } | { status: string; reason: string }> => {
   const wavlakeRelayUri = "wss://relay.wavlake.com/";
   const amountInMillisats = amountInSats * 1000;
-  const zapEndpoint = "https://www.wavlake.com/api/zap";
   const zapRequestEvent = await nip57.makeZapRequest({
     profile: zappedPubkey,
     amount: amountInMillisats,
@@ -433,8 +436,12 @@ export const fetchInvoice = async ({
     event: null,
   });
 
-  zapRequestEvent.tags.push(["a", addressPointer, wavlakeRelayUri]);
-  zapRequestEvent.tags.push(["timestamp", timestamp?.toString() ?? ""]);
+  zapRequestEvent.tags = [
+    ...zapRequestEvent.tags,
+    ["a", addressPointer, wavlakeRelayUri],
+    ["timestamp", timestamp?.toString() ?? ""],
+    ...customTags,
+  ];
 
   const signedZapRequestEvent = await signEvent(zapRequestEvent);
   const url = `${zapEndpoint}?amount=${amountInMillisats}&nostr=${encodeURIComponent(
@@ -443,11 +450,11 @@ export const fetchInvoice = async ({
 
   try {
     const { data } = await axios(url);
-
-    return data.pr;
+    return data;
   } catch (error) {
     console.error(error);
   }
+  return { status: "error", reason: "Failed to fetch invoice" };
 };
 
 export const getZapReceipt = async (invoice: string) => {
