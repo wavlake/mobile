@@ -16,7 +16,7 @@ import { useTicketZap } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 
 export const EventRSVPPage = () => {
-  const [ticketSuccess, setTicketSuccess] = useState(true);
+  const [ticketSuccess, setTicketSuccess] = useState(false);
   const router = useRouter();
   const { eventId } = useLocalSearchParams();
   const event = ShowEvents.find((event) => {
