@@ -9,6 +9,8 @@ export interface Ticket {
   quantity: number;
 }
 
+const DELIMITER = " | ";
+
 export const useTickets = () => {
   const { pubkey = "" } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -24,10 +26,21 @@ export const useTickets = () => {
           console.error("Error decrypting ticket", e);
           return null;
         });
+      if (!ticketDM) return;
+
+      const [
+        message,
+        title,
+        timestamp,
+        location,
+        ticketId = "failed-to-get-ticket-id",
+        quantity = "1",
+        eventId = "1",
+      ] = ticketDM.split(DELIMITER);
       const newTicket: Ticket = {
-        id: "static-replace-me",
-        eventId: "1",
-        quantity: 1,
+        id: ticketId,
+        eventId: eventId,
+        quantity: parseInt(quantity),
       };
       setTickets([newTicket]);
     })();

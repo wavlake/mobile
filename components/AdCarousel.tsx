@@ -20,8 +20,10 @@ export const AdCarousel = () => {
     artworkUrl: string;
   }> = [
     ...ShowEvents.map((event) => {
+      const [dTag, id] = event.tags.find((tag) => tag[0] === "d") || [];
+
       return {
-        eventId: event.id,
+        eventId: id,
         artworkUrl:
           "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Fevent-mockup.png?alt=media&token=94235e53-996a-495f-b733-f0901d90a89f",
       };

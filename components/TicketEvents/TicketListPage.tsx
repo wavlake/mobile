@@ -3,11 +3,12 @@ import { View, TouchableOpacity, FlatList } from "react-native";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useState } from "react";
 import { DialogWrapper } from "../DialogWrapper";
-import { Ticket, useAuth, useTickets } from "@/hooks";
+import { Ticket, useTickets } from "@/hooks";
 import { ShowEvents } from "@/constants/events";
 import { brandColors } from "@/constants";
-import { ItemRow } from "./common";
-import { Button } from "@rneui/base";
+import { EventHeader, ItemRow } from "./common";
+import { TicketQR } from "./TicketQR";
+import { Button } from "../Button";
 
 const Ticketrow = ({
   ticket,
@@ -20,7 +21,7 @@ const Ticketrow = ({
 }) => {
   const event = ShowEvents.find((event) => {
     const [dTag, id] = event.tags.find((tag) => tag[0] === "d") || [];
-    return id === ticket.id;
+    return id === ticket.eventId;
   });
 
   const [showQRDialog, setShowQRDialog] = useState(false);
@@ -39,6 +40,7 @@ const Ticketrow = ({
   const onPress = (index: number) => {
     setShowQRDialog(true);
   };
+
   const timestamp = new Date(parseInt(start) * 1000);
   const formattedDate = timestamp.toLocaleDateString("en-US", {
     weekday: "long",
@@ -52,7 +54,18 @@ const Ticketrow = ({
   return (
     <>
       <DialogWrapper isOpen={showQRDialog} setIsOpen={setShowQRDialog}>
-        <Text>QR Dialog</Text>
+        <EventHeader eventId={ticket.eventId} />
+        <TicketQR ticket={ticket} />
+        <View
+          style={{
+            display: "flex",
+            gap: 20,
+            alignItems: "center",
+          }}
+        >
+          <Text>Quantity: {ticket.quantity}</Text>
+          <Button onPress={() => setShowQRDialog(false)}>Close</Button>
+        </View>
       </DialogWrapper>
       <TouchableOpacity onPress={() => onPress(index)}>
         <ItemRow

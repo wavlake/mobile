@@ -1,11 +1,10 @@
 import { Text } from "@/components/Text";
 import { ShowEvents } from "@/constants/events";
 import { Event } from "nostr-tools";
-import { View, Image, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useRouter } from "expo-router";
-import { LogoIcon } from "../LogoIcon";
 import { ItemRow } from "./common";
 
 const EventRow = ({
@@ -24,9 +23,11 @@ const EventRow = ({
   const [startTag, start] = event.tags.find((tag) => tag[0] === "start") || [];
   const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
   const [imageTag, image] = event.tags.find((tag) => tag[0] === "image") || [];
+  const [dTag, id] = event.tags.find((tag) => tag[0] === "d") || [];
+
   const onPress = (index: number) => {
     router.push({
-      pathname: `/events/${event.id}`,
+      pathname: `/events/${id}`,
       params: {
         includeBackButton: true,
       },

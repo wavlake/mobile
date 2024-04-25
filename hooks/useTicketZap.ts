@@ -51,14 +51,9 @@ type SendZap = (props: {
   quantity: number;
 }) => Promise<void>;
 
-export const useTicketZap = (
-  showEventDTag: string,
-): {
-  isLoading: boolean;
-  sendZap: SendZap;
-} => {
-  const router = useRouter();
+export const useTicketZap = (showEventDTag: string) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
@@ -88,6 +83,7 @@ export const useTicketZap = (
     try {
       getZapReceipt(invoice).then(() => {
         setIsLoading(false);
+        setIsPaid(true);
         toast.show("Ticket purchase successful!");
       });
     } catch {
@@ -130,6 +126,7 @@ export const useTicketZap = (
 
   return {
     isLoading,
+    isPaid,
     sendZap,
   };
 };

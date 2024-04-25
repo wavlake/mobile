@@ -1,11 +1,10 @@
-import React, { PropsWithChildren, ReactNode } from "react";
+import React, { PropsWithChildren } from "react";
 import { View, ViewProps, Image } from "react-native";
-import { Center, Text } from "@/components";
+import { Text } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
 import { ShowEvents } from "@/constants/events";
 import { useLocalSearchParams } from "expo-router";
 import { LogoIcon } from "../LogoIcon";
-import { brandColors } from "@/constants";
 
 export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   title,
@@ -28,16 +27,16 @@ export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   );
 };
 
-export const EventHeader: React.FC<{}> = ({}) => {
-  const { eventId } = useLocalSearchParams();
+export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
+  const { eventId: paramsId } = useLocalSearchParams();
+  const id = eventId ?? paramsId;
+  const event = ShowEvents.find((event) => {
+    const [dTag, dTagId] = event.tags.find((tag) => tag[0] === "d") || [];
+    return dTagId === id;
+  });
 
-  const event = ShowEvents.find((event) => event.id === eventId);
   if (!event) {
-    return (
-      <Center>
-        <Text>Event not found</Text>
-      </Center>
-    );
+    return <Text>Event not found</Text>;
   }
 
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];

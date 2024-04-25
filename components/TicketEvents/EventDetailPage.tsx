@@ -56,7 +56,11 @@ export const EventDetailPage = () => {
 
   const { eventId } = useLocalSearchParams();
   const router = useRouter();
-  const event = ShowEvents.find((event) => event.id === eventId);
+  const event = ShowEvents.find((event) => {
+    const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
+    return showDTag === eventId;
+  });
+
   if (!event) {
     return (
       <Center>
