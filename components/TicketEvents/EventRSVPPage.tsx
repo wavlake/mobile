@@ -23,6 +23,15 @@ export const EventRSVPPage = () => {
     const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
     return showDTag === eventId;
   });
+  const [dTag, showDTag] = event?.tags.find((tag) => tag[0] === "d") || [];
+  const { sendZap, isLoading, isPaid } = useTicketZap(showDTag);
+
+  useEffect(() => {
+    if (isPaid) {
+      // show success dialog
+      setTicketSuccess(true);
+    }
+  }, [isPaid]);
 
   if (!event) {
     return (
@@ -32,13 +41,11 @@ export const EventRSVPPage = () => {
     );
   }
   const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
-  const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState("");
   const [zapAmount, setZapAmount] = useState("");
   const [amountError, setAmountError] = useState("");
-  const { sendZap, isLoading, isPaid } = useTicketZap(showDTag);
   const onSubmit = async () => {
     setAmountError("");
     const parsedZapAmount = parseInt(zapAmount);
@@ -54,13 +61,6 @@ export const EventRSVPPage = () => {
       quantity,
     });
   };
-
-  useEffect(() => {
-    if (isPaid) {
-      // show success dialog
-      setTicketSuccess(true);
-    }
-  }, [isPaid]);
 
   return (
     <>

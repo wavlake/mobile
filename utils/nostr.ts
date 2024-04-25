@@ -108,7 +108,6 @@ export const getEventFromRelay = (
     });
 
     relay.connect().catch((e) => {
-      console.log(e);
       console.log(`error connecting to relay ${relay.url}`);
       relay.close();
       reject(e);

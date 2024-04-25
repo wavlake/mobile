@@ -52,30 +52,28 @@ export const AdCarousel = () => {
   };
 
   return (
-    <View>
-      <FlatList
-        horizontal
-        pagingEnabled
-        data={advertisements}
-        renderItem={({ item, index }) => {
-          return (
-            <TouchableOpacity onPress={() => onPress(index)}>
-              <View
-                style={{
-                  width: screenWidth,
-                }}
-              >
-                <Image
-                  source={{ uri: item.artworkUrl }}
-                  style={{ width: screenWidth, height: 148 }}
-                />
-              </View>
-            </TouchableOpacity>
-          );
-        }}
-        scrollEnabled
-        showsHorizontalScrollIndicator={true}
-      />
-    </View>
+    <FlatList
+      horizontal
+      pagingEnabled
+      data={advertisements}
+      renderItem={({ item, index }) => {
+        return (
+          <TouchableOpacity onPress={() => onPress(index)}>
+            <View
+              style={{
+                width: screenWidth,
+              }}
+            >
+              <Image
+                source={{ uri: item.artworkUrl }}
+                style={{ width: screenWidth, height: 148 }}
+              />
+            </View>
+          </TouchableOpacity>
+        );
+      }}
+      scrollEnabled
+      showsHorizontalScrollIndicator={true}
+    />
   );
 };

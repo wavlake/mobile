@@ -8,7 +8,7 @@ export const TicketQR = ({ ticket }: { ticket: Ticket }) => {
   return (
     <View
       style={{
-        position: "relative", // Ensure that child elements can be positioned absolutely relative to this parent
+        position: "relative",
         padding: 16,
         borderRadius: 8,
         alignItems: "center",
