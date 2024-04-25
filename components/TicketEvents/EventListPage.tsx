@@ -5,6 +5,8 @@ import { View, Image, TouchableOpacity } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useRouter } from "expo-router";
+import { LogoIcon } from "../LogoIcon";
+import { ItemRow } from "./common";
 
 const EventRow = ({
   event,
@@ -34,26 +36,41 @@ const EventRow = ({
   const { height } = useMiniMusicPlayer();
   const isLastRow = index === eventList.length - 1;
   const marginBottom = isLastRow ? height + 16 : 16;
-
+  const timestamp = new Date(parseInt(start) * 1000);
+  const formattedDate = timestamp.toLocaleDateString("en-US", {
+    weekday: "long",
+    // year: "numeric",
+    month: "long",
+    day: "numeric",
+    // hour: "numeric",
+    // minute: "numeric",
+  });
   return (
     <TouchableOpacity onPress={() => onPress(index)}>
-      <View
+      <ItemRow
         style={{
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: 10,
           marginBottom,
         }}
+        title={title}
+        image={image}
       >
-        <Image source={{ uri: image }} style={{ width: 80, height: 80 }} />
-        <View>
-          <Text>{title}</Text>
-          <Text>{start}</Text>
-          <Text>{location}</Text>
-          <Text>{fee} sats</Text>
-        </View>
-      </View>
+        <Text
+          bold
+          numberOfLines={1}
+          style={{
+            fontSize: 16,
+          }}
+        >
+          {title}
+        </Text>
+        <Text>{formattedDate}</Text>
+        <Text>{location}</Text>
+        <Text>{fee} sats</Text>
+      </ItemRow>
     </TouchableOpacity>
   );
 };

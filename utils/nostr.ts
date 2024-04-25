@@ -38,6 +38,7 @@ import {
   getSettings,
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
+import { ShowEvents } from "@/constants/events";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
@@ -107,6 +108,7 @@ export const getEventFromRelay = (
     });
 
     relay.connect().catch((e) => {
+      console.log(e);
       console.log(`error connecting to relay ${relay.url}`);
       relay.close();
       reject(e);
@@ -449,12 +451,15 @@ export const fetchInvoice = async ({
   )}`;
 
   try {
-    const { data } = await axios(url);
+    const { data } = await axios(url, {
+      validateStatus: (status) => {
+        return status < 500; // Resolve only if the status code is less than 500, else reject
+      },
+    });
     return data;
   } catch (error) {
-    console.error(error);
+    return { status: "error", reason: "Failed to fetch invoice" };
   }
-  return { status: "error", reason: "Failed to fetch invoice" };
 };
 
 export const getZapReceipt = async (invoice: string) => {
@@ -541,3 +546,15 @@ export async function getAuthToken(
     base64.encode(utils.utf8Encoder.encode(JSON.stringify(signedEvent)))
   );
 }
+
+// this will only pull in the most recent ticket DM
+export const subscribeToTicket = (pubkey: string) => {
+  const filter: Filter = {
+    kinds: [4],
+    ["#p"]: [pubkey],
+    authors: ShowEvents.map((event) => event.pubkey),
+  };
+  const event = getEventFromRelay("wss://relay.wavlake.com", filter);
+
+  return event;
+};

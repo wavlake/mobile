@@ -1,9 +1,11 @@
 import React, { PropsWithChildren, ReactNode } from "react";
-import { View } from "react-native";
+import { View, ViewProps, Image } from "react-native";
 import { Center, Text } from "@/components";
 import { Ionicons } from "@expo/vector-icons";
 import { ShowEvents } from "@/constants/events";
 import { useLocalSearchParams } from "expo-router";
+import { LogoIcon } from "../LogoIcon";
+import { brandColors } from "@/constants";
 
 export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   title,
@@ -43,8 +45,8 @@ export const EventHeader: React.FC<{}> = ({}) => {
     event.tags.find((tag) => tag[0] === "location") || [];
   const [startTag, start] = event.tags.find((tag) => tag[0] === "start") || [];
 
-  const timestemp = new Date(parseInt(start) * 1000);
-  const formattedDate = timestemp.toLocaleDateString("en-US", {
+  const timestamp = new Date(parseInt(start) * 1000);
+  const formattedDate = timestamp.toLocaleDateString("en-US", {
     weekday: "long",
     // year: "numeric",
     month: "long",
@@ -86,5 +88,46 @@ export const EventHeader: React.FC<{}> = ({}) => {
         </Text>
       </View>
     </>
+  );
+};
+
+interface ItemRowProps extends ViewProps {
+  title: string;
+  image?: string;
+}
+
+export const ItemRow: React.FC<ItemRowProps> = ({
+  title,
+  image,
+  children,
+  ...rest
+}) => {
+  return (
+    <View {...rest}>
+      <View
+        style={{
+          width: 80,
+          height: 80,
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "center",
+        }}
+      >
+        {image ? (
+          <Image source={{ uri: image }} style={{ width: 80, height: 80 }} />
+        ) : (
+          <LogoIcon fill="white" width={37} height={31} />
+        )}
+      </View>
+      <View
+        style={{
+          // ideally this would grow to fill the space
+          // but it extends past the screen when using flexGrow: 1
+          width: "78%",
+        }}
+      >
+        {children}
+      </View>
+    </View>
   );
 };

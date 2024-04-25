@@ -51,31 +51,6 @@ const ArtistMetadataMap: Record<string, ArtistMetadata> = {
   },
 };
 
-const mockMessages: UnsignedEvent[] = [
-  {
-    pubkey: "9630f464cca6a5147aa8a35f0bcdd3ce485324e732fd39e09233b1d848238f31",
-    created_at: 1721955600,
-    kind: 9735,
-    tags: [
-      ["p", "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245"],
-      ["P", "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322"],
-      ["e", "3624762a1274dd9636e0c552b53086d70bc88c165bc4dc0f9e836a1eaf86c3b8"],
-    ],
-    content: "cant wait",
-  },
-  {
-    pubkey: "9630f464cca6a5147aa8a35f0bcdd3ce485324e732fd39e09233b1d848238f31",
-    created_at: 1721955600,
-    kind: 9735,
-    tags: [
-      ["p", "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245"],
-      ["P", "97c70a44366a6535c145b333f973ea86dfdc2d7a99da618c40c64705ad98e322"],
-      ["e", "3624762a1274dd9636e0c552b53086d70bc88c165bc4dc0f9e836a1eaf86c3b8"],
-    ],
-    content: "going to be an awesome show",
-  },
-];
-
 export const EventDetailPage = () => {
   const screenWidth = Dimensions.get("window").width;
 

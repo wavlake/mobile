@@ -12,7 +12,7 @@ import { EventHeader } from "./common";
 import { useState } from "react";
 import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
-import { useTicketZap } from "@/hooks/useTicketZap";
+import { useTicketZap } from "@/hooks";
 
 export const EventRSVPPage = () => {
   const router = useRouter();
