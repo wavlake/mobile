@@ -18,7 +18,11 @@ export const useTickets = () => {
   useEffect(() => {
     (async () => {
       const ticket = await subscribeToTicket(pubkey);
-      if (!ticket) return;
+      if (!ticket) {
+        setTickets([]);
+        return;
+      }
+
       const loggedInUserSeckey = await getSeckey();
       const ticketDM = await nip04
         .decrypt(loggedInUserSeckey ?? "", ticket.pubkey, ticket.content)
