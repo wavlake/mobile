@@ -175,7 +175,7 @@ const ArtistRow: React.FC<{ metadata: ArtistMetadata }> = ({ metadata }) => {
     <TouchableOpacity
       onPress={() => {
         router.push({
-          pathname: `search/artist/${metadata.artistId}`,
+          pathname: `events/artist/${metadata.artistId}`,
           params: {
             includeBackButton: true,
           },
