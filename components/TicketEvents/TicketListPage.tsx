@@ -66,6 +66,7 @@ const Ticketrow = ({
             alignItems: "center",
           }}
         >
+          <Text>{ticket.id}</Text>
           <Text>Quantity: {ticket.quantity}</Text>
           <Button onPress={() => setShowQRDialog(false)}>Close</Button>
         </View>
