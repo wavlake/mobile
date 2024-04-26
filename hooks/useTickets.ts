@@ -14,40 +14,46 @@ const DELIMITER = " | ";
 export const useTickets = () => {
   const { pubkey = "" } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const fetchTickets = async () => {
+    setIsLoading(true);
+    const ticket = await subscribeToTicket(pubkey);
+    if (!ticket) {
+      setTickets([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const loggedInUserSeckey = await getSeckey();
+    const ticketDM = await nip04
+      .decrypt(loggedInUserSeckey ?? "", ticket.pubkey, ticket.content)
+      .catch((e) => {
+        console.error("Error decrypting ticket", e);
+        return null;
+      });
+    if (!ticketDM) return;
+
+    const [
+      message,
+      title,
+      timestamp,
+      location,
+      ticketId = "failed-to-get-ticket-id",
+      quantity = "1",
+      eventId = "1",
+    ] = ticketDM.split(DELIMITER);
+    const newTicket: Ticket = {
+      id: ticketId,
+      eventId: eventId,
+      quantity: parseInt(quantity),
+    };
+    setTickets([newTicket]);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    (async () => {
-      const ticket = await subscribeToTicket(pubkey);
-      if (!ticket) {
-        setTickets([]);
-        return;
-      }
-
-      const loggedInUserSeckey = await getSeckey();
-      const ticketDM = await nip04
-        .decrypt(loggedInUserSeckey ?? "", ticket.pubkey, ticket.content)
-        .catch((e) => {
-          console.error("Error decrypting ticket", e);
-          return null;
-        });
-      if (!ticketDM) return;
-
-      const [
-        message,
-        title,
-        timestamp,
-        location,
-        ticketId = "failed-to-get-ticket-id",
-        quantity = "1",
-        eventId = "1",
-      ] = ticketDM.split(DELIMITER);
-      const newTicket: Ticket = {
-        id: ticketId,
-        eventId: eventId,
-        quantity: parseInt(quantity),
-      };
-      setTickets([newTicket]);
-    })();
+    fetchTickets();
   }, [pubkey]);
-  return { tickets };
+
+  return { tickets, refetch: fetchTickets, isLoading };
 };

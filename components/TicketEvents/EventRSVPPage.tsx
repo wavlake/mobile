@@ -12,10 +12,11 @@ import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
 import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
-import { useTicketZap } from "@/hooks";
+import { useTicketZap, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 
 export const EventRSVPPage = () => {
+  const { refetch: refetchTix } = useTickets();
   const [ticketSuccess, setTicketSuccess] = useState(false);
   const router = useRouter();
   const { eventId } = useLocalSearchParams();
@@ -30,6 +31,7 @@ export const EventRSVPPage = () => {
     if (isPaid) {
       // show success dialog
       setTicketSuccess(true);
+      refetchTix();
     }
   }, [isPaid]);
 
