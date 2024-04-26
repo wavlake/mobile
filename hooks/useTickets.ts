@@ -12,11 +12,17 @@ export interface Ticket {
 const DELIMITER = " | ";
 
 export const useTickets = () => {
-  const { pubkey = "" } = useAuth();
+  const { pubkey } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const fetchTickets = async () => {
     setIsLoading(true);
+    if (!pubkey) {
+      setTickets([]);
+      setIsLoading(false);
+      return;
+    }
+
     const ticket = await subscribeToTicket(pubkey);
     if (!ticket) {
       setTickets([]);

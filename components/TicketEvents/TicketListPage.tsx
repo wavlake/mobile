@@ -23,7 +23,8 @@ const Ticketrow = ({
 }) => {
   const event = ShowEvents.find((event) => {
     const [dTag, id] = event.tags.find((tag) => tag[0] === "d") || [];
-    return id === ticket.eventId;
+
+    return id == ticket.eventId.trim();
   });
 
   const [showQRDialog, setShowQRDialog] = useState(false);
@@ -31,7 +32,7 @@ const Ticketrow = ({
   // if there is no event, we render some defaults
   const [titleTag, title] = event?.tags.find((tag) => tag[0] === "title") || [
     "",
-    `Event not found for id: ${ticket.id}`,
+    `Event not found for id: ${ticket.eventId}`,
   ];
 
   const [startTag, start] = event?.tags.find((tag) => tag[0] === "start") || [];

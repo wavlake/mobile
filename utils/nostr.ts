@@ -457,6 +457,7 @@ export const fetchInvoice = async ({
     });
     return data;
   } catch (error) {
+    console.log(error);
     return { status: "error", reason: "Failed to fetch invoice" };
   }
 };
@@ -547,13 +548,14 @@ export async function getAuthToken(
 }
 
 // this will only pull in the most recent ticket DM
-export const subscribeToTicket = (pubkey: string) => {
+export const subscribeToTicket = async (pubkey: string) => {
   const filter: Filter = {
     kinds: [4],
     ["#p"]: [pubkey],
     authors: ShowEvents.map((event) => event.pubkey),
   };
-  const event = getEventFromRelay("wss://relay.wavlake.com", filter);
 
-  return event;
+  return getEventFromRelay("wss://relay.wavlake.com", filter).catch((e) => {
+    return null;
+  });
 };
