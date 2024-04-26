@@ -1,7 +1,7 @@
 import { Text } from "@/components/Text";
 import { View, TouchableOpacity, FlatList, RefreshControl } from "react-native";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { DialogWrapper } from "../DialogWrapper";
 import { Ticket, useTickets } from "@/hooks";
 import { ShowEvents } from "@/constants/events";
@@ -9,8 +9,6 @@ import { brandColors } from "@/constants";
 import { EventHeader, ItemRow } from "./common";
 import { TicketQR } from "./TicketQR";
 import { Button } from "../Button";
-import { ArrowPathIcon } from "react-native-heroicons/solid";
-import { Center } from "../Center";
 
 const Ticketrow = ({
   ticket,

@@ -29,10 +29,10 @@ export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
 
 export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
   const { eventId: paramsId } = useLocalSearchParams();
-  const id = eventId ?? paramsId;
+  const id = eventId ?? (paramsId as string);
   const event = ShowEvents.find((event) => {
     const [dTag, dTagId] = event.tags.find((tag) => tag[0] === "d") || [];
-    return dTagId === id;
+    return dTagId === id.trim();
   });
 
   if (!event) {
