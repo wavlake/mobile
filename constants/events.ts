@@ -13,7 +13,7 @@ export const ShowEvents: Event[] = [
         "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Flarge-artwork.png?alt=media&token=ed02d334-179d-4beb-a9c3-2c91479bd4f4",
       ],
       ["title", "Joe Martin, Ainsley Costello, Just Loud & Guests"],
-      ["location", "Vinyl Lab 1414 3rd Ave S, Nashvile, TN 37210"],
+      ["location", "Vinyl Lounge 1414 3rd Ave S, Nashvile, TN 37210"],
       ["location_short", "Nashvile, TN"],
       ["location_link", "https://maps.app.goo.gl/Rmy1aL2snpENwJZ68"],
       // July 25, 2024 8pm CST
