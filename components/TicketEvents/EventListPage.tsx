@@ -18,8 +18,8 @@ const EventRow = ({
 }) => {
   const router = useRouter();
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
-  const [locationTag, location] =
-    event.tags.find((tag) => tag[0] === "location") || [];
+  const [shortLocationTag, shortLocation] =
+    event.tags.find((tag) => tag[0] === "location_short") || [];
   const [startTag, start] = event.tags.find((tag) => tag[0] === "start") || [];
   const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
   const [imageTag, image] = event.tags.find((tag) => tag[0] === "image") || [];
@@ -69,7 +69,7 @@ const EventRow = ({
           {title}
         </Text>
         <Text>{formattedDate}</Text>
-        <Text>{location}</Text>
+        <Text>{shortLocation}</Text>
         <Text>{fee} sats</Text>
       </ItemRow>
     </TouchableOpacity>
