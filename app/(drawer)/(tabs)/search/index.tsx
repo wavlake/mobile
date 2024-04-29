@@ -2,7 +2,7 @@ import { Center, PillTabView, Text, GenresSection } from "@/components";
 
 export default function SearchPage() {
   return (
-    <PillTabView searchShown>
+    <PillTabView searchShown tabNames={["Music", "Shows"]}>
       <PillTabView.Item style={{ width: "100%" }}>
         <GenresSection />
       </PillTabView.Item>
