@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  RefreshControl,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -33,7 +34,11 @@ export default function PlaylistsPage() {
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;
 
-  const { data: playlistData } = useQuery({
+  const {
+    data: playlistData,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: [playlistId],
     queryFn: () => getPlaylist(playlistId as string),
   });
@@ -95,7 +100,7 @@ export default function PlaylistsPage() {
         >
           {title}
         </Text>
-        <Pressable onPress={handleMorePress}>
+        <Pressable onPress={handleMorePress} hitSlop={10}>
           <MaterialCommunityIcons
             name="dots-horizontal"
             size={24}
@@ -106,6 +111,9 @@ export default function PlaylistsPage() {
       <FlatList
         data={tracks}
         contentContainerStyle={{ flexGrow: 1 }}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        }
         renderItem={({ item, index }) => {
           const { id, title, artist, artworkUrl } = item;
           const isLastRow = index === tracks.length - 1;
