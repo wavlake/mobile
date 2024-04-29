@@ -1,4 +1,4 @@
-import { Text, Center, SlimButton } from "@/components";
+import { Text, Center, SlimButton, useMiniMusicPlayer } from "@/components";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ScrollView,
@@ -52,6 +52,8 @@ const ArtistMetadataMap: Record<string, ArtistMetadata> = {
 };
 
 export const EventDetailPage = () => {
+  const { height } = useMiniMusicPlayer();
+
   const screenWidth = Dimensions.get("window").width;
 
   const { eventId } = useLocalSearchParams();
@@ -83,6 +85,7 @@ export const EventDetailPage = () => {
         flexDirection: "column",
         justifyContent: "space-between",
         height: "100%",
+        paddingBottom: height,
       }}
     >
       <ScrollView

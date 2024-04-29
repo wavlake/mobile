@@ -1,4 +1,4 @@
-import { Center, TextInput, Text } from "@/components";
+import { Center, TextInput, Text, useMiniMusicPlayer } from "@/components";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   TouchableWithoutFeedback,
@@ -16,6 +16,7 @@ import { useTicketZap, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 
 export const EventRSVPPage = () => {
+  const { height } = useMiniMusicPlayer();
   const { refetch: refetchTix } = useTickets();
   const [ticketSuccess, setTicketSuccess] = useState(false);
   const router = useRouter();
@@ -100,7 +101,7 @@ export const EventRSVPPage = () => {
             contentContainerStyle={{
               display: "flex",
               flexDirection: "column",
-              paddingBottom: 16,
+              paddingBottom: height + 16,
             }}
           >
             <EventHeader />
