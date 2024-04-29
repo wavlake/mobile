@@ -27,7 +27,7 @@ export const AdCarousel = () => {
       return {
         eventId: id,
         artworkUrl:
-          "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Fevent-mockup.png?alt=media&token=94235e53-996a-495f-b733-f0901d90a89f",
+          "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2FEVENT-BANNER.png?alt=media&token=7d8a549f-d299-42d6-8472-b95f465f83ff",
       };
     }),
     // hardcoded advertisements
