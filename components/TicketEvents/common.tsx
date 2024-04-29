@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ShowEvents } from "@/constants/events";
 import { useLocalSearchParams } from "expo-router";
 import { LogoIcon } from "../LogoIcon";
+import { openURL } from "expo-linking";
 
 export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   title,
@@ -59,7 +60,7 @@ export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
       <Text style={{ fontSize: 28 }} bold>
         {title}
       </Text>
-      <Text style={{ fontSize: 16 }} bold>
+      <Text style={{ fontSize: 18 }} bold>
         {formattedDate}
       </Text>
       <View
@@ -79,9 +80,10 @@ export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
         <Text
           style={{
             opacity: 0.8,
-            fontSize: 12,
+            fontSize: 18,
             marginVertical: 8,
           }}
+          onPress={() => openURL(`https://maps.app.goo.gl/Rmy1aL2snpENwJZ68`)}
         >
           {location}
         </Text>
