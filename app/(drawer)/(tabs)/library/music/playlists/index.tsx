@@ -5,19 +5,20 @@ import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   TouchableOpacity,
   View,
 } from "react-native";
 
 export default function PlaylistsPage() {
   const { height } = useMiniMusicPlayer();
-  const { data: playlists = [], isLoading } = usePlaylists();
+  const { data: playlists = [], isLoading, refetch } = usePlaylists();
   const router = useRouter();
   const handleRowPress = (playlist: { id: string; title: string }) => {
     router.push({
       pathname: `/library/music/playlists/${playlist.id}`,
       params: {
-        headerTitle: "Songs",
+        headerTitle: playlist.title,
         playlistTitle: playlist.title,
         includeBackButton: true,
       },
@@ -37,6 +38,9 @@ export default function PlaylistsPage() {
       <FlatList
         contentContainerStyle={{ flexGrow: 1 }}
         data={playlists}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        }
         renderItem={({ item, index }) => {
           const { tracks = [], title } = item;
           const isLastRow = index === playlists.length - 1;
