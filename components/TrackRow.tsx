@@ -14,6 +14,7 @@ interface TrackRowProps {
   onPress: () => void;
   willDisplaySatsEarned?: boolean;
   willDisplayLikeButton?: boolean;
+  showArtwork?: boolean;
 }
 
 export const TrackRow = ({
@@ -22,6 +23,7 @@ export const TrackRow = ({
   onPress,
   willDisplaySatsEarned = true,
   willDisplayLikeButton = true,
+  showArtwork = true,
 }: TrackRowProps) => {
   const { colors } = useTheme();
   const { id, title, msatTotal, artworkUrl } = track;
@@ -42,7 +44,9 @@ export const TrackRow = ({
           alignItems: "center",
         }}
       >
-        {artworkUrl && <SquareArtwork size={60} url={artworkUrl} />}
+        {showArtwork && artworkUrl && (
+          <SquareArtwork size={60} url={artworkUrl} />
+        )}
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text style={{ fontSize: 18 }} numberOfLines={1} bold>
             {title}
