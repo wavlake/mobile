@@ -88,6 +88,7 @@ export const FullSizeMusicPlayer = () => {
       params: {
         albumId,
         artistId,
+        headerTitle: artist,
         includeBackButton: true,
       },
     });
