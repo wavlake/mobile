@@ -8,10 +8,12 @@ import { SearchResults } from "@/components/SearchResults";
 
 interface PillTabViewProps {
   searchShown?: boolean;
+  tabNames: string[];
 }
 
 export const PillTabView = ({
   searchShown = false,
+  tabNames,
   children,
 }: PropsWithChildren<PillTabViewProps>) => {
   const [index, setIndex] = useState(0);
@@ -50,8 +52,9 @@ export const PillTabView = ({
             color: active ? colors.background : colors.text,
           })}
         >
-          <Tab.Item title="Music" />
-          <Tab.Item title="Shows" />
+          {tabNames.map((name) => (
+            <Tab.Item key={name} title={name} />
+          ))}
         </Tab>
       </View>
       {searchShown && (

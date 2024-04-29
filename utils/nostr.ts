@@ -38,6 +38,7 @@ import {
   getSettings,
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
+import { ShowEvents } from "@/constants/events";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
@@ -107,6 +108,7 @@ export const getEventFromRelay = (
     });
 
     relay.connect().catch((e) => {
+      console.log(e);
       console.log(`error connecting to relay ${relay.url}`);
       relay.close();
       reject(e);
@@ -414,6 +416,8 @@ export const fetchInvoice = async ({
   addressPointer,
   zappedPubkey,
   timestamp,
+  zapEndpoint = "https://www.wavlake.com/api/zap",
+  customTags = [],
 }: {
   relayUris: string[];
   amountInSats: number;
@@ -421,10 +425,11 @@ export const fetchInvoice = async ({
   addressPointer: string;
   zappedPubkey: string;
   timestamp?: number;
-}) => {
+  zapEndpoint?: string;
+  customTags?: EventTemplate["tags"];
+}): Promise<{ pr: string } | { status: string; reason: string }> => {
   const wavlakeRelayUri = "wss://relay.wavlake.com/";
   const amountInMillisats = amountInSats * 1000;
-  const zapEndpoint = "https://www.wavlake.com/api/zap";
   const zapRequestEvent = await nip57.makeZapRequest({
     profile: zappedPubkey,
     amount: amountInMillisats,
@@ -433,8 +438,12 @@ export const fetchInvoice = async ({
     event: null,
   });
 
-  zapRequestEvent.tags.push(["a", addressPointer, wavlakeRelayUri]);
-  zapRequestEvent.tags.push(["timestamp", timestamp?.toString() ?? ""]);
+  zapRequestEvent.tags = [
+    ...zapRequestEvent.tags,
+    ["a", addressPointer, wavlakeRelayUri],
+    ["timestamp", timestamp?.toString() ?? ""],
+    ...customTags,
+  ];
 
   const signedZapRequestEvent = await signEvent(zapRequestEvent);
   const url = `${zapEndpoint}?amount=${amountInMillisats}&nostr=${encodeURIComponent(
@@ -442,11 +451,15 @@ export const fetchInvoice = async ({
   )}`;
 
   try {
-    const { data } = await axios(url);
-
-    return data.pr;
+    const { data } = await axios(url, {
+      validateStatus: (status) => {
+        return status < 500; // Resolve only if the status code is less than 500, else reject
+      },
+    });
+    return data;
   } catch (error) {
-    console.error(error);
+    console.log(error);
+    return { status: "error", reason: "Failed to fetch invoice" };
   }
 };
 
@@ -534,3 +547,16 @@ export async function getAuthToken(
     base64.encode(utils.utf8Encoder.encode(JSON.stringify(signedEvent)))
   );
 }
+
+// this will only pull in the most recent ticket DM
+export const subscribeToTicket = async (pubkey: string) => {
+  const filter: Filter = {
+    kinds: [4],
+    ["#p"]: [pubkey],
+    authors: ShowEvents.map((event) => event.pubkey),
+  };
+
+  return getEventFromRelay("wss://relay.wavlake.com", filter).catch((e) => {
+    return null;
+  });
+};
