@@ -27,6 +27,7 @@ import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
+import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
@@ -87,7 +88,6 @@ export const FullSizeMusicPlayer = () => {
       params: {
         albumId,
         artistId,
-        headerTitle: isPodcast ? artist : albumTitle,
         includeBackButton: true,
       },
     });
@@ -166,6 +166,7 @@ export const FullSizeMusicPlayer = () => {
         >
           <View
             style={{
+              display: "flex",
               flexDirection: "row",
               maxWidth: screenWidth - paddingHorizontal * 2,
             }}
@@ -177,7 +178,21 @@ export const FullSizeMusicPlayer = () => {
                 </MarqueeText>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleArtistPress}>
-                <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "flex-end",
+                    gap: 8,
+                    marginRight: 30,
+                  }}
+                >
+                  <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
+                  <ArrowTopRightOnSquareIcon
+                    color={brandColors.beige.dark}
+                    height={30}
+                    width={30}
+                  />
+                </View>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -185,24 +200,32 @@ export const FullSizeMusicPlayer = () => {
               onPress={oneTapZap ? handleOneTapZap : goToZapPage}
               onLongPress={oneTapZap ? goToZapPage : undefined}
               style={{
-                alignItems: "center",
+                alignItems: "flex-end",
                 justifyContent: "center",
-                paddingLeft: 8,
+                width: 50,
               }}
             >
-              {isLoading ? (
-                <ActivityIndicator
-                  animating={true}
-                  size="small"
-                  style={{ paddingRight: 8 }}
-                />
-              ) : (
-                <ZapIcon
-                  fill={brandColors.pink.DEFAULT}
-                  width={40}
-                  height={40}
-                />
-              )}
+              <View
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                }}
+              >
+                {isLoading ? (
+                  <ActivityIndicator
+                    animating={true}
+                    size="small"
+                    style={{ paddingRight: 8 }}
+                  />
+                ) : (
+                  <ZapIcon
+                    fill={brandColors.pink.DEFAULT}
+                    width={40}
+                    height={40}
+                  />
+                )}
+              </View>
             </TouchableOpacity>
           </View>
           <PlayerControls isSmallScreen={isSmallScreen} />
