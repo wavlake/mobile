@@ -95,10 +95,7 @@ export const EventDetailPage = () => {
           flexDirection: "column",
         }}
       >
-        <Image
-          source={{ uri: image }}
-          style={{ width: screenWidth, height: 470 }}
-        />
+        <Image source={{ uri: image }} style={{ height: 415 }} />
         <EventHeader />
         <EventSection title="Event Info">
           <Text

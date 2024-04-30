@@ -77,7 +77,7 @@ export const AdCarousel = () => {
               >
                 <Image
                   source={{ uri: item.artworkUrl }}
-                  style={{ width: screenWidth, height: 148 }}
+                  style={{ width: screenWidth, height: 172 }}
                 />
               </View>
             </TouchableOpacity>
