@@ -10,7 +10,7 @@ export const ShowEvents: Event[] = [
       ["d", "1"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2FEVENT-SQUARE.png?alt=media&token=1c2974ab-9ad0-4147-a048-f99c47ad0d80",
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2FEVENT-SQUARE%20(1).png?alt=media&token=68a70217-8795-4236-8896-e05081da7ee5",
       ],
       ["title", "Joe Martin, Ainsley Costello, Just Loud & Guests"],
       ["location", "Vinyl Lounge 1414 3rd Ave S, Nashvile, TN 37210"],

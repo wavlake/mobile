@@ -33,7 +33,8 @@ export const AdCarousel = () => {
     // hardcoded advertisements
     {
       href: "https://zine.wavlake.com/bring-your-own-lightning-address/",
-      artworkUrl: "https://via.placeholder.com/150",
+      artworkUrl:
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Fbanner2.png?alt=media&token=0810b01f-695d-4cf5-80eb-63df863b3e7e",
     },
   ];
 
