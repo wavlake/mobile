@@ -19,7 +19,7 @@
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       },
-      "buildNumber": "53",
+      "buildNumber": "1",
       "bundleIdentifier": "com.wavlake.mobile",
       "config": {
         "usesNonExemptEncryption": false
@@ -28,7 +28,7 @@
     },
     "android": {
       "package": "com.wavlake.mobile",
-      "versionCode": 8,
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "monochromeImage": "./assets/adaptive-icon.png",
