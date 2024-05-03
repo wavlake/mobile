@@ -55,7 +55,7 @@ export default function PlaylistsPage() {
       router.push({
         pathname: `/library/music/playlists/${playlistId}`,
         params: {
-          headerTitle: "Songs",
+          headerTitle: playlistData?.title ?? "Playlist",
           includeBackButton: true,
         },
       });
@@ -79,9 +79,9 @@ export default function PlaylistsPage() {
   return (
     <View
       style={{
-        height: "100%",
-        paddingTop: 8,
-        gap: 8,
+        flex: 1,
+        flexDirection: "column",
+        marginBottom: height + 50,
       }}
     >
       <View
@@ -106,68 +106,66 @@ export default function PlaylistsPage() {
       </View>
       <DraggableFlatList
         data={editedTracks}
-        contentContainerStyle={{ height: "100%" }}
+        contentContainerStyle={{}}
         onDragEnd={({ data }) => setEditedTracks(data)}
+        autoscrollThreshold={100}
+        autoscrollSpeed={200}
         renderItem={({ item, getIndex, drag, isActive }) => {
           const index = getIndex();
           const { id, title, artist, artworkUrl } = item;
-          const isLastRow = index === tracks.length - 1;
-          const marginBottom = isLastRow ? height + 16 : 16;
 
           return (
-            <>
-              <ScaleDecorator>
-                <TouchableOpacity
-                  activeOpacity={1}
-                  onPressIn={drag}
-                  disabled={isActive}
+            <ScaleDecorator>
+              <TouchableOpacity
+                activeOpacity={1}
+                onLongPress={drag}
+                disabled={isActive}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginBottom: 16,
+                    alignItems: "center",
+                    gap: 4,
+                  }}
                 >
-                  <View
+                  <Pressable
                     style={{
+                      width: 40,
+                      height: 40,
                       flexDirection: "row",
-                      marginBottom,
                       alignItems: "center",
-                      gap: 4,
+                      justifyContent: "center",
                     }}
+                    onPress={() => handleDelete(index)}
                   >
-                    <Pressable
-                      style={{
-                        width: 40,
-                        height: 40,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                      onPress={() => handleDelete(index)}
-                    >
-                      <MaterialCommunityIcons
-                        name={"close-circle"}
-                        size={30}
-                        color={"white"}
-                      />
-                    </Pressable>
-                    <SquareArtwork size={60} url={artworkUrl} />
-                    <View style={{ marginLeft: 10, flex: 1 }}>
-                      <Text
-                        style={{
-                          fontSize: 18,
-                        }}
-                        numberOfLines={3}
-                        bold
-                      >
-                        {title}
-                      </Text>
-                      <Text numberOfLines={1}>{artist}</Text>
-                    </View>
                     <MaterialCommunityIcons
-                      name={"menu"}
-                      size={24}
-                      color={"gray"}
+                      name={"close-circle"}
+                      size={30}
+                      color={"white"}
                     />
+                  </Pressable>
+                  <SquareArtwork size={60} url={artworkUrl} />
+                  <View style={{ marginLeft: 10, flex: 1 }}>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                      }}
+                      numberOfLines={3}
+                      bold
+                    >
+                      {title}
+                    </Text>
+                    <Text numberOfLines={1}>{artist}</Text>
                   </View>
-                </TouchableOpacity>
-              </ScaleDecorator>
-            </>
+                  <MaterialCommunityIcons
+                    name={"menu"}
+                    size={24}
+                    color={"gray"}
+                  />
+                </View>
+              </TouchableOpacity>
+            </ScaleDecorator>
           );
         }}
         keyExtractor={(item, index) => item.id + index}

@@ -112,6 +112,7 @@ export const AlbumPage = () => {
             <TrackRow
               track={item}
               descriptor={artist}
+              showArtwork={false}
               onPress={() => handleRowPress(index, albumTitle)}
             />
           </View>

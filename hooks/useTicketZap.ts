@@ -14,88 +14,62 @@ import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 
-const fetchInvoiceForZap = async ({
+const fetchInvoiceForTicketZap = async ({
   writeRelayList,
   amountInSats,
   comment,
   contentId,
   timestamp,
+  quantity,
 }: {
   writeRelayList: string[];
   amountInSats: number;
   comment: string;
   contentId: string;
   timestamp?: number;
+  quantity: number;
 }) => {
-  const wavlakeTrackKind = 32123;
-  const wavlakePubkey =
-    "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
-  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
+  const ticketEventKind = 31923;
+  const ticketBotPublicKey =
+    "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397";
+  const nostrEventAddressPointer = `${ticketEventKind}:${ticketBotPublicKey}:${contentId}`;
   return fetchInvoice({
+    customTags: [["quantity", quantity.toString()]],
     relayUris: writeRelayList,
     amountInSats: amountInSats,
     comment,
     addressPointer: nostrEventAddressPointer,
-    zappedPubkey: wavlakePubkey,
+    zappedPubkey: ticketBotPublicKey,
     timestamp,
+    zapEndpoint: "https://tickets.wavlake.com/v1/zap",
   });
 };
 
-type SendZap = (
-  props: Partial<{
-    comment: string;
-    amount: number;
-    useNavReplace: boolean;
-  }> | void,
-) => Promise<void>;
+type SendZap = (props: {
+  comment: string;
+  amount: number;
+  quantity: number;
+}) => Promise<void>;
 
-export const useZap = ({
-  trackId,
-  title,
-  artist,
-  artworkUrl,
-  timestamp,
-}: {
-  trackId?: string;
-  title?: string;
-  artist?: string;
-  artworkUrl?: string;
-  timestamp?: number;
-}): {
-  isLoading: boolean;
-  sendZap: SendZap;
-} => {
-  const router = useRouter();
+export const useTicketZap = (showEventDTag: string) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
   const { setBalance } = useWalletBalance();
 
-  const sendZap: SendZap = async (props) => {
-    if (!trackId) {
-      return;
-    }
-
-    const { comment = "", amount, useNavReplace = false } = props || {};
-
+  const sendZap: SendZap = async ({ comment = "", amount, quantity }) => {
     setIsLoading(true);
-    const {
-      defaultZapWallet,
-      enableNWC,
-      nwcCommands,
-      nwcRelay,
-      nwcPubkey,
-      defaultZapAmount,
-    } = settings || {};
-    const amountInSats = Number(amount || defaultZapAmount);
-    const response = await fetchInvoiceForZap({
+    const { enableNWC } = settings || {};
+    const amountInSats = Number(amount);
+    const response = await fetchInvoiceForTicketZap({
       writeRelayList,
       amountInSats,
       comment,
-      contentId: trackId,
-      timestamp,
+      contentId: showEventDTag,
+      quantity,
     });
 
     if ("reason" in response) {
@@ -108,22 +82,13 @@ export const useZap = ({
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then(() => {
-        const navEvent = {
-          pathname: "/zap/success",
-          params: {
-            title,
-            artist,
-            artworkUrl,
-            zapAmount: amountInSats,
-          },
-        };
         setIsLoading(false);
-        useNavReplace ? router.replace(navEvent) : router.push(navEvent);
+        setIsPaid(true);
+        toast.show("Ticket purchase successful!");
       });
     } catch {
       // Fail silently if unable to connect to wavlake relay to get zap receipt.
     }
-
     try {
       if (
         pubkey &&
@@ -161,6 +126,7 @@ export const useZap = ({
 
   return {
     isLoading,
+    isPaid,
     sendZap,
   };
 };
