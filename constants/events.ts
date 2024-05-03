@@ -3,8 +3,11 @@ import { Event } from "nostr-tools";
 export const ShowEvents: Event[] = [
   {
     kind: 31923,
-    content:
-      "Wavalke and Tunestr present a special evening with artists, Joe Martin, Ainsley Costello, Just Loud, Death by Lions, The Higher Lowm and after hours LIVE karaoke by Satoshi Rockamoto. Doors open at 7pm, show starts at 7:30. This show is 21+.",
+    content: `Wavlake and Tunestr present a special evening at The Vinyl Lounge in Nashville with Joe Martin, Ainsley Costello, Just Loud, and more. Stick around after hours for live karaoke by the Satoshi Rockamoto all-stars playing their favorite songs where you can join in, too!
+
+All RSVPs booked through the Wavlake app come with a special gift at the door. 1 sat minimum to RSVP but we encourage everyone to give more as all proceeds will go to the featured performers.
+      
+Doors open at 7pm, show starts at 7:30pm. This show is 21+.`,
     created_at: 1713814392,
     tags: [
       ["d", "1"],
@@ -41,6 +44,7 @@ export const ShowEvents: Event[] = [
         "artist",
       ],
     ],
+    // the ticket DMs will be sent by this pubkeys, and the mobile app will only listen for DMs from this pubkey
     pubkey: "7759fb0b22fa80cc48ba83c4ce0c90d86ac4e7ae7fad4a847ead2cf5d27031af",
     // pubkey: "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397",
     id: "test-event-id",
