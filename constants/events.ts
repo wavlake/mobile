@@ -45,7 +45,7 @@ Doors open at 7pm, show starts at 7:30pm. This show is 21+.`,
       ],
     ],
     // the ticket DMs will be sent by this pubkeys, and the mobile app will only listen for DMs from this pubkey
-    pubkey: "7759fb0b22fa80cc48ba83c4ce0c90d86ac4e7ae7fad4a847ead2cf5d27031af",
+    pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     // pubkey: "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397",
     id: "test-event-id",
     sig: "3045022100f4",
