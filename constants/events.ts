@@ -3,17 +3,22 @@ import { Event } from "nostr-tools";
 export const ShowEvents: Event[] = [
   {
     kind: 31923,
-    content:
-      "Wavalke and Tunestr present a special evening with artists, Joe Martin, Ainsley Costello, Just Loud, Death by Lions, The Higher Lowm and after hours LIVE karaoke by Satoshi Rockamoto. Doors open at 7pm, show starts at 7:30. This show is 21+.",
+    content: `Wavlake and Tunestr present a special evening at The Vinyl Lounge in Nashville with Joe Martin, Ainsley Costello, Just Loud, and more. Stick around after hours for live karaoke by the Satoshi Rockamoto all-stars playing their favorite songs where you can join in, too!
+
+All RSVPs booked through the Wavlake app come with a special gift at the door. 1 sat minimum to RSVP but we encourage everyone to give more as all proceeds will go to the featured performers.
+      
+Doors open at 7pm, show starts at 7:30pm. This show is 21+.`,
     created_at: 1713814392,
     tags: [
       ["d", "1"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Flarge-artwork.png?alt=media&token=ed02d334-179d-4beb-a9c3-2c91479bd4f4",
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2FEVENT-SQUARE%20(1).png?alt=media&token=68a70217-8795-4236-8896-e05081da7ee5",
       ],
       ["title", "Joe Martin, Ainsley Costello, Just Loud & Guests"],
-      ["location", "Vinyl Lab 1414 3rd Ave S, Nashvile, TN 37210"],
+      ["location", "Vinyl Lounge 1414 3rd Ave S, Nashvile, TN 37210"],
+      ["location_short", "Nashvile, TN"],
+      ["location_link", "https://maps.app.goo.gl/Rmy1aL2snpENwJZ68"],
       // July 25, 2024 8pm CST
       ["start", "1721955600"],
       // July 25, 2024 10pm CST
@@ -39,7 +44,8 @@ export const ShowEvents: Event[] = [
         "artist",
       ],
     ],
-    pubkey: "7759fb0b22fa80cc48ba83c4ce0c90d86ac4e7ae7fad4a847ead2cf5d27031af",
+    // the ticket DMs will be sent by this pubkeys, and the mobile app will only listen for DMs from this pubkey
+    pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     // pubkey: "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397",
     id: "test-event-id",
     sig: "3045022100f4",

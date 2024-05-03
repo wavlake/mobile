@@ -60,12 +60,24 @@ const Ticketrow = ({
         <View
           style={{
             display: "flex",
-            gap: 20,
+            gap: 8,
             alignItems: "center",
           }}
         >
-          <Text>{ticket.id}</Text>
-          <Text>Quantity: {ticket.quantity}</Text>
+          <Text
+            style={{
+              fontSize: 20,
+            }}
+          >
+            {ticket.id}
+          </Text>
+          <Text
+            style={{
+              fontSize: 20,
+            }}
+          >
+            Quantity: {ticket.quantity}
+          </Text>
           <Button onPress={() => setShowQRDialog(false)}>Close</Button>
         </View>
       </DialogWrapper>

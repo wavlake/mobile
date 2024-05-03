@@ -11,6 +11,7 @@ import { ShowEvents } from "@/constants/events";
 import React from "react";
 import { UnsignedEvent } from "nostr-tools";
 import { EventSection, EventHeader } from "./common";
+import { brandColors } from "@/constants";
 
 interface ArtistMetadata {
   image: string;
@@ -94,10 +95,7 @@ export const EventDetailPage = () => {
           flexDirection: "column",
         }}
       >
-        <Image
-          source={{ uri: image }}
-          style={{ width: screenWidth, height: 470 }}
-        />
+        <Image source={{ uri: image }} style={{ height: 415 }} />
         <EventHeader />
         <EventSection title="Event Info">
           <Text
@@ -156,6 +154,7 @@ export const EventDetailPage = () => {
         <SlimButton
           title="RSVP"
           width={120}
+          color={brandColors.purple.DEFAULT}
           onPress={() =>
             router.push({
               pathname: `/events/${eventId}/rsvp`,
