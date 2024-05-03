@@ -12,10 +12,11 @@ import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
 import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
-import { useTicketZap, useTickets } from "@/hooks";
+import { useAuth, useTicketZap, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 
 export const EventRSVPPage = () => {
+  const { pubkey } = useAuth();
   const { height } = useMiniMusicPlayer();
   const { refetch: refetchTix } = useTickets();
   const [ticketSuccess, setTicketSuccess] = useState(false);
@@ -43,6 +44,7 @@ export const EventRSVPPage = () => {
       </Center>
     );
   }
+
   const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
   const [quantity, setQuantity] = useState(1);
@@ -64,6 +66,14 @@ export const EventRSVPPage = () => {
       quantity,
     });
   };
+
+  if (!pubkey) {
+    return (
+      <Center>
+        <Text>You must be logged in to RSVP to events</Text>
+      </Center>
+    );
+  }
 
   return (
     <>
