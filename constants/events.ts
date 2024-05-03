@@ -13,7 +13,7 @@ Doors open at 7pm, show starts at 7:30pm. This show is 21+.`,
       ["d", "1"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2FEVENT-SQUARE%20(1).png?alt=media&token=68a70217-8795-4236-8896-e05081da7ee5",
+        "https://d12wklypp119aj.cloudfront.net/image/375bccc5-7e8c-4579-a6c5-1feb34b11ddc.png",
       ],
       ["title", "Joe Martin, Ainsley Costello, Just Loud & Guests"],
       ["location", "Vinyl Lounge 1414 3rd Ave S, Nashvile, TN 37210"],
