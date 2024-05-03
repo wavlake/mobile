@@ -3,12 +3,13 @@ import { View, TouchableOpacity, FlatList, RefreshControl } from "react-native";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useState } from "react";
 import { DialogWrapper } from "../DialogWrapper";
-import { Ticket, useTickets } from "@/hooks";
+import { Ticket, useAuth, useTickets } from "@/hooks";
 import { ShowEvents } from "@/constants/events";
 import { brandColors } from "@/constants";
 import { EventHeader, ItemRow } from "./common";
 import { TicketQR } from "./TicketQR";
 import { Button } from "../Button";
+import { Center } from "../Center";
 
 const Ticketrow = ({
   ticket,
@@ -128,6 +129,16 @@ const Ticketrow = ({
 export const TicketListPage = () => {
   const { tickets, refetch, isLoading } = useTickets();
 
+  const { pubkey } = useAuth();
+
+  if (!pubkey) {
+    return (
+      <Center>
+        <Text>You must be logged in to view your event tickets</Text>
+      </Center>
+    );
+  }
+
   return (
     <FlatList
       data={tickets}
@@ -141,6 +152,13 @@ export const TicketListPage = () => {
           />
         );
       }}
+      ListEmptyComponent={
+        isLoading ? null : (
+          <Center style={{ marginTop: 20 }}>
+            <Text>No tickets yet</Text>
+          </Center>
+        )
+      }
       keyExtractor={(item) => item.id}
       scrollEnabled
       showsHorizontalScrollIndicator={true}
