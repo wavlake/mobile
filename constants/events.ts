@@ -37,7 +37,6 @@ Doors open at 7pm, show starts at 7:30pm. This show is 21+.`,
         "artist",
       ],
       ["p", "JUSTLOUD", "artist"],
-      ["p", "Death by Lions", "artist"],
       [
         "p",
         "npub1jp9s6r7fpuz0q09w7t9q0j3lmvd97gqzqzgps88gu870gulh24xs9xal58",

@@ -38,12 +38,6 @@ const ArtistMetadataMap: Record<string, ArtistMetadata> = {
     artistId: "956f2440-a36d-4163-b89a-c04012a82f6b",
     name: "JUSTLOUD",
   },
-  "Death by Lions": {
-    image:
-      "https://d12wklypp119aj.cloudfront.net/image/1e7f8807-31a7-454c-b612-f2563ba4cf67.jpg",
-    artistId: "1e7f8807-31a7-454c-b612-f2563ba4cf67",
-    name: "Death by Lions",
-  },
   npub1jp9s6r7fpuz0q09w7t9q0j3lmvd97gqzqzgps88gu870gulh24xs9xal58: {
     image:
       "https://d12wklypp119aj.cloudfront.net/image/52babcf0-769d-4863-8c09-9d30b2f55f0a.jpg",
