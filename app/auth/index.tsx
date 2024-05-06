@@ -5,7 +5,7 @@ import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
-import Welcome from "@/components/welcome";
+import Welcome from "@/components/Welcome";
 
 export default function Login() {
   const [email, setEmail] = useState("");
