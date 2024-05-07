@@ -1,9 +1,19 @@
 import { Text, Button, TextInput, Center, LogoIcon } from "@/components";
-import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { useState } from "react";
+import {
+  View,
+  TouchableWithoutFeedback,
+  Keyboard,
+  TouchableOpacity,
+} from "react-native";
+import { ElementType, PropsWithChildren, useState } from "react";
 import { useAuth } from "@/hooks";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
+import { ZBDIcon } from "@/components/ZBDIcon";
+import { TwitterIcon } from "@/components/TwitterIcon";
+import { GoogleIcon } from "@/components/GoogleIcon";
+import { NostrIcon } from "@/components/NostrIcon";
+import { TouchableWithoutFeedbackProps } from "react-native-gesture-handler";
 
 export default function Login() {
   const router = useRouter();
@@ -44,7 +54,7 @@ export default function Login() {
         <Button
           color="white"
           style={{
-            marginVertical: 20,
+            marginTop: 20,
           }}
           onPress={handleSignUp}
         >
@@ -70,6 +80,17 @@ export default function Login() {
   );
 }
 
+const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
+  Icon,
+  onPress,
+}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={{ backgroundColor: "white", padding: 10, borderRadius: 10 }}
+  >
+    <Icon fill="black" width={40} height={40} />
+  </TouchableOpacity>
+);
 const LoginProviders = () => {
   const router = useRouter();
   const { signInWithGoogle } = useUser();
@@ -78,36 +99,58 @@ const LoginProviders = () => {
     user && router.push("/auth/welcome");
   };
 
+  const providers = [
+    {
+      name: "Google",
+      icon: GoogleIcon,
+      onPress: handleGoogleSignIn,
+    },
+    {
+      name: "Twitter",
+      icon: TwitterIcon,
+      onPress: () => {
+        // musicService.signInWithTwitter
+      },
+    },
+    {
+      name: "ZBD",
+      icon: ZBDIcon,
+      onPress: () => {
+        router.push("/auth/nsec");
+      },
+    },
+    {
+      name: "Nostr",
+      icon: NostrIcon,
+      onPress: () => {
+        router.push("/auth/nsec");
+      },
+    },
+  ];
+
   return (
     <View
       style={{
         gap: 20,
-        marginVertical: 20,
+        display: "flex",
+        flexDirection: "row",
+        // marginVertical: 20,
       }}
     >
-      <Button color="white" onPress={handleGoogleSignIn}>
-        Google
-      </Button>
-      <Button
-        color="white"
-        // onPress={musicService.signInWithTwitter}
-      >
-        Twitter
-      </Button>
-      <Button
-        color="white"
-        onPress={() => {
-          router.push("/auth/nsec");
-        }}
-      >
-        Nostr
-      </Button>
+      {providers.map((provider) => (
+        <ProviderButton
+          key={provider.name}
+          Icon={provider.icon}
+          onPress={provider.onPress}
+        />
+      ))}
     </View>
   );
 };
 const OrSeparator = () => (
   <View
     style={{
+      marginVertical: 30,
       flexDirection: "row",
       gap: 15,
       alignItems: "center",
