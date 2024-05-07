@@ -31,7 +31,7 @@ export default function AuthLayout() {
       />
       <Stack.Screen
         name="signup"
-        options={{ headerTitle: () => <Text>Signup</Text> }}
+        options={{ headerTitle: () => <Text>Sign Up</Text> }}
       />
       <Stack.Screen
         name="skip"
@@ -41,8 +41,9 @@ export default function AuthLayout() {
         name="welcome"
         options={{
           headerTitle: () => <Text>Welcome</Text>,
-          // disable back button/back gesture
-          headerLeft: () => null,
+          // Hide back button from header (null doesnt work)
+          headerLeft: () => <Text />,
+          // disable back gesture on Android
           gestureEnabled: false,
         }}
       />

@@ -5,6 +5,7 @@ import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
 import { useState } from "react";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function WelcomePage() {
   const { goToRoot, login } = useAuth();
@@ -56,11 +57,17 @@ export default function WelcomePage() {
           justifyContent: "flex-end",
         }}
       >
-        {/* <Link href="/profile">
-          <Text style={{ fontSize: 18 }} bold>
-            Edit Profile
-          </Text>
-        </Link> */}
+        <Text
+          onPress={() => {
+            // replace with home page so that the profile page's back button doesn't go back to the welcome page
+            router.replace("/");
+            router.push("/profile");
+          }}
+          style={{ fontSize: 18 }}
+          bold
+        >
+          Edit Profile
+        </Text>
         <Button
           style={{
             marginVertical: 40,

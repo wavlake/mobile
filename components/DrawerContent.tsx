@@ -92,8 +92,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
                       onPress: async () => {
                         await logout();
                         await signOut();
-                        props.navigation.closeDrawer();
                         router.replace("/auth");
+                        props.navigation.closeDrawer();
                       },
                     },
                   ],
