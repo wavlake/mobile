@@ -5,11 +5,11 @@ import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
 import { useState } from "react";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function WelcomePage() {
-  const { goToRoot, login } = useAuth();
+  const { login, pubkey } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const router = useRouter();
   const { catalogUser } = useUser();
@@ -17,14 +17,23 @@ export default function WelcomePage() {
   const createNewNostrAccount = useCreateNewNostrAccount();
 
   const goToHomePage = async () => {
+    setIsLoggingIn(true);
+    if (pubkey) {
+      // we're already logged in with an nsec
+      router.replace("/");
+      setIsLoggingIn(false);
+      return;
+    }
+
+    // if not, create a new nostr account and log in
     const nsec = await createNewNostrAccount({ name: generateRandomName() });
     const success = nsec && (await login(nsec));
-    if (success) {
-      router.replace("/");
-    } else {
+    if (!success) {
       setErrorMessage(
         "Something went wrong logging you in. Please try again later.",
       );
+      setIsLoggingIn(false);
+      return;
     }
   };
 
@@ -73,6 +82,7 @@ export default function WelcomePage() {
             marginVertical: 40,
           }}
           onPress={goToHomePage}
+          loading={isLoggingIn}
         >
           Start listening
         </Button>
@@ -85,11 +95,13 @@ export default function WelcomePage() {
         >
           {errorMessage}
         </Text>
-        <Link href="/auth/nsec">
-          <Text style={{ fontSize: 18 }} bold>
-            Nostr user? Click here
-          </Text>
-        </Link>
+        {!pubkey && (
+          <Link href="/auth/nsec">
+            <Text style={{ fontSize: 18 }} bold>
+              Nostr user? Click here
+            </Text>
+          </Link>
+        )}
       </View>
     </Center>
   );

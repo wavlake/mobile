@@ -5,7 +5,7 @@ import {
   Keyboard,
   TouchableOpacity,
 } from "react-native";
-import { ElementType, useState } from "react";
+import { ElementType } from "react";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { ZBDIcon } from "@/components/ZBDIcon";
@@ -15,7 +15,6 @@ import { NostrIcon } from "@/components/NostrIcon";
 
 export default function Login() {
   const router = useRouter();
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = async () => {
     router.push("/auth/login");
@@ -43,7 +42,6 @@ export default function Login() {
           style={{
             marginTop: 20,
           }}
-          loading={isLoggingIn}
           onPress={handleLogin}
         >
           Login
@@ -91,29 +89,28 @@ const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
 const LoginProviders = () => {
   const router = useRouter();
   const { signInWithGoogle } = useUser();
-  const handleGoogleSignIn = async () => {
-    const user = await signInWithGoogle();
-    user && router.push("/auth/welcome");
-  };
 
   const providers = [
     {
       name: "Google",
       icon: GoogleIcon,
-      onPress: handleGoogleSignIn,
+      onPress: async () => {
+        const user = await signInWithGoogle();
+        user && router.push("/auth/welcome");
+      },
     },
     {
       name: "Twitter",
       icon: TwitterIcon,
-      onPress: () => {
+      onPress: async () => {
         // musicService.signInWithTwitter
       },
     },
     {
       name: "ZBD",
       icon: ZBDIcon,
-      onPress: () => {
-        router.push("/auth/nsec");
+      onPress: async () => {
+        // router.push("/auth/nsec");
       },
     },
     {

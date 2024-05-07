@@ -13,7 +13,6 @@ import { PrivateUserData, usePrivateUserData } from "@/utils/catalogApi";
 type UserContextProps = {
   user: FirebaseUser;
   initializingAuth: boolean;
-  goToWelcome: () => void;
   catalogUser: PrivateUserData | undefined;
 } & typeof firebaseService;
 
@@ -66,17 +65,11 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
     return unsubscribe;
   }, []);
 
-  const goToWelcome = () => {
-    console.log("go to welcome");
-    router.push("/auth/welcome");
-  };
-
   return (
     <UserContext.Provider
       value={{
         initializingAuth,
         user,
-        goToWelcome,
         catalogUser,
         ...firebaseService,
       }}

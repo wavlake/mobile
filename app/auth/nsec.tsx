@@ -13,8 +13,8 @@ export default function Login() {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { goToRoot, login } = useAuth();
-  const { signInAnonymously, user, goToWelcome } = useUser();
+  const { login } = useAuth();
+  const { signInAnonymously, user } = useUser();
   const createNewNostrAccount = useCreateNewNostrAccount();
 
   const handleNewNsecPress = async () => {
@@ -29,6 +29,8 @@ export default function Login() {
       // if the user generated a new nsec, create a new nostr account for them
       await createNewNostrAccount({ name: generateRandomName() }, nsec);
     }
+
+    // log in with the nsec (either newly created or provided)
     const success = await login(nsec);
 
     if (success) {
@@ -37,13 +39,12 @@ export default function Login() {
 
       // add an artifical delay to allow time to fetch profile if it's not cached
       setTimeout(async () => {
-        await goToRoot();
+        router.replace("/");
         setIsLoggingIn(false);
       }, 1000);
     } else {
       setErrorMessage("Invalid nostr nsec");
       setIsLoggingIn(false);
-      goToRoot();
     }
   };
 
