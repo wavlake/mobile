@@ -14,11 +14,12 @@ export default function Login() {
     setIsLoggingIn(true);
     const result = await signInWithEmail(email, password);
 
-    if (result.success) {
-      router.replace("/auth/welcome");
-    } else {
+    if ("error" in result) {
       setErrorMessage(result.error);
       setIsLoggingIn(false);
+    } else {
+      // TODO create a new user in catalog
+      router.replace("/auth/welcome");
     }
   };
 

@@ -9,23 +9,9 @@ export const generateRandomName = () => {
     "Gentle",
     "Happy",
     "Intelligent",
-    "Jolly",
-    "Kind",
     "Lively",
     "Merry",
-    "Nice",
-    "Optimistic",
     "Pleasant",
-    "Quick",
-    "Reliable",
-    "Silly",
-    "Tough",
-    "Unique",
-    "Vivacious",
-    "Witty",
-    "Xenial",
-    "Youthful",
-    "Zealous",
     "Melodic",
     "Harmonic",
     "Rhythmic",
@@ -46,6 +32,24 @@ export const generateRandomName = () => {
     "Jazzy",
     "Funky",
     "Tranquil",
+    "Enigmatic",
+    "Mellifluous",
+    "Mystical",
+    "Energetic",
+    "Intriguing",
+    "Sensual",
+    "Haunting",
+    "Whimsical",
+    "Explosive",
+    "Soothing",
+    "Spellbinding",
+    "Enthralling",
+    "Majestic",
+    "Electrifying",
+    "Mesmerizing",
+    "Transcendent",
+    "Fervent",
+    "Thrilling",
   ];
   const nouns = [
     "Aardvark",
@@ -78,5 +82,7 @@ export const generateRandomName = () => {
   const randomAdjective =
     adjectives[Math.floor(Math.random() * adjectives.length)];
   const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-  return `${randomAdjective} ${randomNoun} ${Math.floor(Math.random() * 100)}`;
+  return `${randomAdjective}${randomNoun}${Math.floor(Math.random() * 10)
+    .toString()
+    .padStart(2, "0")}`;
 };

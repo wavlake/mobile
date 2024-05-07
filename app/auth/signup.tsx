@@ -10,15 +10,16 @@ export default function Signup() {
   const { createUserWithEmail, user } = useUser();
 
   const handleSignUp = async (email: string, password: string) => {
+    console.log("signing up");
     setIsLoggingIn(true);
     const result = await createUserWithEmail(email, password);
 
-    if (result.success) {
-      // TODO create a new user in catalog
-      router.replace("/auth/welcome");
-    } else {
+    if ("error" in result) {
       setErrorMessage(result.error);
       setIsLoggingIn(false);
+    } else {
+      // TODO create a new user in catalog
+      router.replace("/auth/welcome");
     }
   };
 

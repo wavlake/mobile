@@ -17,61 +17,30 @@ GoogleSignin.configure({
 const createUserWithEmail = (email: string, password: string) =>
   auth()
     .createUserWithEmailAndPassword(email, password)
-    .then(() => {
-      console.log("User account created & signed in!");
-      return { success: true, error: undefined };
-    })
     .catch((error) => {
-      if (error.code === "auth/email-already-in-use") {
-        console.log("That email address is already in use!");
-      }
-
-      if (error.code === "auth/invalid-email") {
-        console.log("That email address is invalid!");
-      }
-
-      console.error(error);
-      return { success: false, error: error.code };
+      return { error: error.code };
     });
 
 const signInWithEmail = (email: string, password: string) =>
   auth()
     .signInWithEmailAndPassword(email, password)
-    .then(() => {
-      console.log("User signed in!");
-      return { success: true, error: undefined };
-    })
     .catch((error) => {
-      if (error.code === "auth/wrong-password") {
-        console.log("Wrong password!");
-      }
-
-      if (error.code === "auth/user-not-found") {
-        console.log("User not found!");
-      }
-
-      console.error(error);
-      return { success: false, error: error.code };
+      return { error: error.code };
     });
 
 const signInAnonymously = () =>
   auth()
     .signInAnonymously()
-    .then(() => {
-      console.log("User signed in anonymously");
-    })
     .catch((error) => {
-      if (error.code === "auth/operation-not-allowed") {
-        console.log("Enable anonymous in your firebase console.");
-      }
-
-      console.error(error);
+      return { error: error.code };
     });
 
 const signOut = () =>
   auth()
     .signOut()
-    .then(() => console.log("User signed out!"));
+    .catch((error) => {
+      return { error: error.code };
+    });
 
 const signInWithGoogle = async () => {
   // Check if your device supports Google Play

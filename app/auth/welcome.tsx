@@ -4,13 +4,13 @@ import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function WelcomePage() {
   const { login, pubkey } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
+  const randomUsername = useMemo(generateRandomName, []);
   const router = useRouter();
   const { catalogUser } = useUser();
 
@@ -26,8 +26,9 @@ export default function WelcomePage() {
     }
 
     // if not, create a new nostr account and log in
-    const nsec = await createNewNostrAccount({ name: generateRandomName() });
+    const nsec = await createNewNostrAccount({ name: randomUsername });
     const success = nsec && (await login(nsec));
+
     if (!success) {
       setErrorMessage(
         "Something went wrong logging you in. Please try again later.",
@@ -35,6 +36,9 @@ export default function WelcomePage() {
       setIsLoggingIn(false);
       return;
     }
+
+    router.replace("/");
+    setIsLoggingIn(false);
   };
 
   return (
@@ -55,7 +59,9 @@ export default function WelcomePage() {
         }}
       >
         <Avatar size={100} />
-        <Text style={{ fontSize: 18 }}>Hi, {catalogUser?.name}</Text>
+        <Text style={{ fontSize: 18 }}>
+          Hi, {catalogUser?.name ?? randomUsername}
+        </Text>
         <Text style={{ fontSize: 18 }}>Welcome to Wavlake!</Text>
       </View>
       <View
