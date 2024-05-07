@@ -16,6 +16,7 @@ import { useUser } from "./UserContextProvider";
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
+  const { signOut } = useUser();
   // const { user, initializingAuth } = useUser();
   return (
     <DrawerContentScrollView
@@ -90,7 +91,9 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
                       style: "destructive",
                       onPress: async () => {
                         await logout();
+                        await signOut();
                         props.navigation.closeDrawer();
+                        router.replace("/auth");
                       },
                     },
                   ],

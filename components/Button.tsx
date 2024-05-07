@@ -31,7 +31,12 @@ export const Button = ({
       disabledStyle={{ opacity: 0.5, backgroundColor: color }}
       {...rest}
       // this height is needed to match the height of the Text component
-      loadingStyle={{ height: 23 }}
+      loadingStyle={{
+        height: 23,
+      }}
+      loadingProps={{
+        color: color === "white" ? brandColors.black.DEFAULT : "white",
+      }}
     >
       <Text
         style={[{ color: brandColors.black.DEFAULT, fontSize: 18 }, titleStyle]}

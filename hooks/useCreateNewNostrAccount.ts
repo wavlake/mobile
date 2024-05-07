@@ -10,8 +10,8 @@ export const useCreateNewNostrAccount = () => {
   const { save: saveProfile } = useSaveNostrProfile();
   const { save: saveRelayList } = useSaveNostrRelayList();
 
-  return async (profile: NostrUserProfile) => {
-    const seckey = generatePrivateKey();
+  return async (profile: NostrUserProfile, nsec?: string) => {
+    const seckey = nsec ?? generatePrivateKey();
     const success = await login(seckey);
     const pubkey = getPublicKey(seckey);
     const bootstrapRelays = [
@@ -30,5 +30,6 @@ export const useCreateNewNostrAccount = () => {
       saveRelayList(pubkey, bootstrapRelays),
       saveProfile(pubkey, profile),
     ]);
+    return seckey;
   };
 };

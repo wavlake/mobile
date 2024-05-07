@@ -1,43 +1,22 @@
 import { Text, Button, TextInput, Center, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState } from "react";
-import { useAuth, useCreateNewNostrAccount } from "@/hooks";
+import { useAuth } from "@/hooks";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
-import { generateRandomName } from "@/utils/user";
-import Welcome from "@/components/Welcome";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { goToRoot, login } = useAuth();
-  const { signInWithEmail, user, goToWelcome } = useUser();
-  const createNewNostrAccount = useCreateNewNostrAccount();
 
   const handleLogin = async () => {
-    setIsLoggingIn(true);
-    await signInWithEmail(email, password);
-    createNewNostrAccount({ name: generateRandomName() });
-
-    // const success = await login(nsec);
-
-    if (false) {
-      // add an artifical delay to allow time to fetch profile if it's not cached
-      setTimeout(async () => {
-        await goToRoot();
-        setIsLoggingIn(false);
-      }, 1000);
-    } else {
-      setErrorMessage("Invalid nostr nsec");
-      setIsLoggingIn(false);
-    }
+    router.push("/auth/login");
   };
 
-  if (user) {
-    return <Welcome />;
-  }
+  const handleSignUp = async () => {
+    router.push("/auth/signup");
+  };
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -51,42 +30,26 @@ export default function Login() {
         <View style={{ marginVertical: 30 }}>
           <LogoIcon fill="white" width={130} height={108} />
         </View>
-        <View
+
+        <Button
+          color="white"
           style={{
-            width: "100%",
+            marginTop: 20,
           }}
+          loading={isLoggingIn}
+          onPress={handleLogin}
         >
-          {/* <Text
-            style={{ fontSize: 18, textAlign: "center", marginBottom: 10 }}
-            bold
-          >
-            Login or Sign Up
-          </Text> */}
-          <TextInput
-            label="Email"
-            autoCorrect={false}
-            value={email}
-            onChangeText={(value) => {
-              setEmail(value);
-              setErrorMessage("");
-            }}
-            errorMessage={errorMessage}
-          />
-          <TextInput
-            label="Password"
-            secureTextEntry
-            autoCorrect={false}
-            value={password}
-            onChangeText={(value) => {
-              setPassword(value);
-              setErrorMessage("");
-            }}
-            errorMessage={errorMessage}
-          />
-          <Button color="white" onPress={handleLogin}>
-            Login or Sign Up
-          </Button>
-        </View>
+          Login
+        </Button>
+        <Button
+          color="white"
+          style={{
+            marginVertical: 20,
+          }}
+          onPress={handleSignUp}
+        >
+          Sign Up
+        </Button>
         <OrSeparator />
         <LoginProviders />
         <View
@@ -110,6 +73,10 @@ export default function Login() {
 const LoginProviders = () => {
   const router = useRouter();
   const { signInWithGoogle } = useUser();
+  const handleGoogleSignIn = async () => {
+    const user = await signInWithGoogle();
+    user && router.push("/auth/welcome");
+  };
 
   return (
     <View
@@ -118,7 +85,7 @@ const LoginProviders = () => {
         marginVertical: 20,
       }}
     >
-      <Button color="white" onPress={signInWithGoogle}>
+      <Button color="white" onPress={handleGoogleSignIn}>
         Google
       </Button>
       <Button

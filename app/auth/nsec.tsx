@@ -4,9 +4,13 @@ import { useState } from "react";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { generateRandomName } from "@/utils/user";
 import { useUser } from "@/components/UserContextProvider";
+import { useRouter } from "expo-router";
+import { generatePrivateKey } from "@/utils";
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
+  const [isNewNsec, setIsNewNsec] = useState(false);
+  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { goToRoot, login } = useAuth();
@@ -14,22 +18,23 @@ export default function Login() {
   const createNewNostrAccount = useCreateNewNostrAccount();
 
   const handleNewNsecPress = async () => {
-    setIsLoggingIn(true);
-
-    await createNewNostrAccount({ name: generateRandomName() });
-    await signInAnonymously();
-
-    setIsLoggingIn(false);
-    goToRoot();
+    const seckey = generatePrivateKey();
+    setNsec(seckey);
+    setIsNewNsec(true);
   };
 
   const handleNsecSubmit = async () => {
     setIsLoggingIn(true);
-
+    if (isNewNsec) {
+      // if the user generated a new nsec, create a new nostr account for them
+      await createNewNostrAccount({ name: generateRandomName() }, nsec);
+    }
     const success = await login(nsec);
 
     if (success) {
-      await signInAnonymously();
+      // only sign in to firebase anonymously if a user is not already signed in
+      !user && (await signInAnonymously());
+
       // add an artifical delay to allow time to fetch profile if it's not cached
       setTimeout(async () => {
         await goToRoot();
@@ -38,22 +43,25 @@ export default function Login() {
     } else {
       setErrorMessage("Invalid nostr nsec");
       setIsLoggingIn(false);
+      goToRoot();
     }
   };
 
-  if (user) {
-    goToWelcome();
-  }
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <Center style={{ paddingHorizontal: 24 }}>
         <View style={{ marginBottom: 24, width: "100%" }}>
+          <Text style={{ fontSize: 18 }}>
+            Enter your private key (nsec) here:
+          </Text>
           <TextInput
             label="nostr nsec"
             secureTextEntry
             autoCorrect={false}
             value={nsec}
             onChangeText={(value) => {
+              // reset isNewNsec to false if the user changes the random nsec
+              isNewNsec && setIsNewNsec(false);
               setNsec(value);
               setErrorMessage("");
             }}
@@ -78,6 +86,9 @@ export default function Login() {
         </View>
         <Button color="white" onPress={handleNewNsecPress}>
           Generate New Key
+        </Button>
+        <Button color="white" onPress={() => router.back()}>
+          Cancel
         </Button>
       </Center>
     </TouchableWithoutFeedback>

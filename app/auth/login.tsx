@@ -1,30 +1,32 @@
 import { Text, Button, TextInput, Center, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState } from "react";
-import { useAuth } from "@/hooks";
+import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { Link, useRouter } from "expo-router";
 import { firebaseService } from "@/services";
+import { generateRandomName } from "@/utils/user";
+import { useUser } from "@/components/UserContextProvider";
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { goToRoot, login } = useAuth();
+  const { signInWithEmail, user, goToWelcome } = useUser();
+  const createNewNostrAccount = useCreateNewNostrAccount();
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
-
+    const result = await signInWithEmail(email, password);
+    createNewNostrAccount({ name: generateRandomName() });
     // const success = await login(nsec);
 
-    if (false) {
-      // add an artifical delay to allow time to fetch profile if it's not cached
-      setTimeout(async () => {
-        await goToRoot();
-        setIsLoggingIn(false);
-      }, 1000);
+    if (result.success) {
+      router.replace("/auth/welcome");
     } else {
-      setErrorMessage("Invalid nostr nsec");
+      setErrorMessage(result.error);
       setIsLoggingIn(false);
     }
   };
@@ -44,14 +46,12 @@ export default function Login() {
         <View
           style={{
             width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignContent: "center",
           }}
         >
-          <Text
-            style={{ fontSize: 18, textAlign: "center", marginBottom: 10 }}
-            bold
-          >
-            Login or Sign Up
-          </Text>
           <TextInput
             label="Email"
             autoCorrect={false}
@@ -74,8 +74,15 @@ export default function Login() {
             errorMessage={errorMessage}
           />
         </View>
-        <OrSeparator />
-        <LoginProviders />
+        <Button
+          color="white"
+          style={{
+            marginVertical: 20,
+          }}
+          onPress={handleLogin}
+        >
+          Login
+        </Button>
         <View
           style={{
             flexGrow: 1,
@@ -83,9 +90,9 @@ export default function Login() {
             justifyContent: "flex-end",
           }}
         >
-          <Link href="/auth/skip">
+          <Link href="/auth">
             <Text style={{ fontSize: 18 }} bold>
-              Skip for now
+              Back
             </Text>
           </Link>
         </View>
@@ -93,58 +100,3 @@ export default function Login() {
     </TouchableWithoutFeedback>
   );
 }
-
-const LoginProviders = () => {
-  const router = useRouter();
-  return (
-    <View
-      style={{
-        gap: 20,
-        marginVertical: 20,
-      }}
-    >
-      {/* <Button color="white" onPress={signInWithGoogle}>
-        Google
-      </Button> */}
-      <Button
-        color="white"
-        // onPress={musicService.signInWithTwitter}
-      >
-        Twitter
-      </Button>
-      <Button
-        color="white"
-        onPress={() => {
-          router.push("/auth/nsec");
-        }}
-      >
-        Nostr
-      </Button>
-    </View>
-  );
-};
-const OrSeparator = () => (
-  <View
-    style={{
-      flexDirection: "row",
-      gap: 15,
-      alignItems: "center",
-    }}
-  >
-    <View
-      style={{
-        borderBottomColor: "white",
-        borderBottomWidth: 1,
-        flexGrow: 1,
-      }}
-    />
-    <Text style={{ fontSize: 18 }}>or</Text>
-    <View
-      style={{
-        borderBottomColor: "white",
-        borderBottomWidth: 1,
-        flexGrow: 1,
-      }}
-    />
-  </View>
-);
