@@ -1,24 +1,21 @@
-import { Text, Button, TextInput, Center, LogoIcon } from "@/components";
+import { Text, Button, Center, LogoIcon } from "@/components";
 import {
   View,
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
 } from "react-native";
-import { ElementType, PropsWithChildren, useState } from "react";
-import { useAuth } from "@/hooks";
+import { ElementType, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { ZBDIcon } from "@/components/ZBDIcon";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { NostrIcon } from "@/components/NostrIcon";
-import { TouchableWithoutFeedbackProps } from "react-native-gesture-handler";
 
 export default function Login() {
   const router = useRouter();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { goToRoot, login } = useAuth();
 
   const handleLogin = async () => {
     router.push("/auth/login");

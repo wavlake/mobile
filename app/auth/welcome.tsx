@@ -1,7 +1,7 @@
-import { Button, Center, Text } from "@/components";
+import { Avatar, Button, Center, Text } from "@/components";
 import { View } from "react-native";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
 import { useState } from "react";
@@ -12,10 +12,7 @@ export default function WelcomePage() {
 
   const router = useRouter();
   const { catalogUser } = useUser();
-  const goToSettings = () => {
-    router.push("/");
-    router.push("/settings");
-  };
+
   const createNewNostrAccount = useCreateNewNostrAccount();
 
   const goToHomePage = async () => {
@@ -31,26 +28,62 @@ export default function WelcomePage() {
   };
 
   return (
-    <Center>
-      <View style={{ paddingHorizontal: 36, paddingBottom: 120 }}>
-        <Text style={{ fontSize: 18 }}>Hi, {catalogUser?.name}</Text>
-
-        <Text style={{ fontSize: 18 }}>Welcome to Wavlake!</Text>
-      </View>
-      <Button onPress={goToSettings}>Edit Profile</Button>
-      <Button onPress={goToHomePage}>Start listening</Button>
-      <Text
+    <Center
+      style={{
+        paddingHorizontal: 24,
+        paddingVertical: 50,
+      }}
+    >
+      <View
         style={{
-          color: "red",
-          textAlign: "center",
-          marginTop: 20,
+          paddingHorizontal: 36,
+          paddingVertical: 120,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 20,
         }}
       >
-        {errorMessage}
-      </Text>
-      <Button onPress={() => router.push("/auth/nsec")}>
-        Nostr user? Click here
-      </Button>
+        <Avatar size={100} />
+        <Text style={{ fontSize: 18 }}>Hi, {catalogUser?.name}</Text>
+        <Text style={{ fontSize: 18 }}>Welcome to Wavlake!</Text>
+      </View>
+      <View
+        style={{
+          flexGrow: 1,
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-end",
+        }}
+      >
+        {/* <Link href="/profile">
+          <Text style={{ fontSize: 18 }} bold>
+            Edit Profile
+          </Text>
+        </Link> */}
+        <Button
+          style={{
+            marginVertical: 40,
+          }}
+          onPress={goToHomePage}
+        >
+          Start listening
+        </Button>
+        <Text
+          style={{
+            color: "red",
+            textAlign: "center",
+            marginTop: 20,
+          }}
+        >
+          {errorMessage}
+        </Text>
+        <Link href="/auth/nsec">
+          <Text style={{ fontSize: 18 }} bold>
+            Nostr user? Click here
+          </Text>
+        </Link>
+      </View>
     </Center>
   );
 }

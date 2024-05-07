@@ -44,7 +44,6 @@ export const LoginSignUpForm = ({
               setEmail(value);
               setErrorMessage("");
             }}
-            errorMessage={errorMessage}
           />
           <TextInput
             label="Password"

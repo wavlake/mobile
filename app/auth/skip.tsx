@@ -1,6 +1,5 @@
 import { Button, Center, Text } from "@/components";
 import { View } from "react-native";
-import { useAuth } from "@/hooks";
 import { useUser } from "@/components/UserContextProvider";
 import { useRouter } from "expo-router";
 

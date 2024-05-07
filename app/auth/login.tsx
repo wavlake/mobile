@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth, useCreateNewNostrAccount } from "@/hooks";
+import { useCreateNewNostrAccount } from "@/hooks";
 import { useRouter } from "expo-router";
 import { generateRandomName } from "@/utils/user";
 import { useUser } from "@/components/UserContextProvider";

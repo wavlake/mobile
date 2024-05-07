@@ -4,7 +4,7 @@ import "expo-dev-client";
 // this is needed to polyfill crypto.subtle which nostr-tools uses
 import PolyfillCrypto from "react-native-webview-crypto";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import {

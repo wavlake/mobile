@@ -13,12 +13,17 @@ export default function AuthLayout() {
         },
         headerShadowVisible: false,
         headerTintColor: colors.text,
+        headerBackTitleVisible: false,
         headerTitle: "",
       }}
     >
       <Stack.Screen
         name="backup-nsec"
         options={{ headerTitle: () => <Text>Backup nsec</Text> }}
+      />
+      <Stack.Screen
+        name="nsec"
+        options={{ headerTitle: () => <Text>Nsec</Text> }}
       />
       <Stack.Screen
         name="login"
@@ -31,6 +36,15 @@ export default function AuthLayout() {
       <Stack.Screen
         name="skip"
         options={{ headerTitle: () => <Text>Skip registration</Text> }}
+      />
+      <Stack.Screen
+        name="welcome"
+        options={{
+          headerTitle: () => <Text>Welcome</Text>,
+          // disable back button/back gesture
+          headerLeft: () => null,
+          gestureEnabled: false,
+        }}
       />
     </Stack>
   );

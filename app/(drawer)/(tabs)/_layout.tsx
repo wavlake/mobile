@@ -38,7 +38,6 @@ export default function TabLayout() {
 
     (async () => {
       const isFirstAppLaunch = await getIsFirstAppLaunch();
-      console.log({ isFirstAppLaunch });
       if (isFirstAppLaunch) {
         await cacheIsFirstAppLaunch();
 
