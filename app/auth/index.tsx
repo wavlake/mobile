@@ -131,10 +131,9 @@ const LoginProviders = () => {
   return (
     <View
       style={{
-        gap: 20,
         display: "flex",
         flexDirection: "row",
-        // marginVertical: 20,
+        gap: 30,
       }}
     >
       {providers.map((provider) => (
@@ -150,7 +149,7 @@ const LoginProviders = () => {
 const OrSeparator = () => (
   <View
     style={{
-      marginVertical: 30,
+      marginVertical: 50,
       flexDirection: "row",
       gap: 15,
       alignItems: "center",
