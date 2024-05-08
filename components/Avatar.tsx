@@ -8,11 +8,15 @@ const blurhash = "L6PZfSi_.AyE_3t7t7R**0o#DgR4";
 
 interface AvatarProps {
   size: number;
+  imageUrl?: string | null;
 }
 
-export const Avatar = ({ size }: AvatarProps) => {
+export const Avatar = ({ size, imageUrl }: AvatarProps) => {
   const profile = useNostrProfile();
-  const avatarUrl = profile?.picture;
+
+  // use provided imageUrl if available, else use profile picture
+  // this is used on the account creation page before the user has a profile event created
+  const avatarUrl = imageUrl ?? profile?.picture;
   const initial = profile?.name?.[0] ?? "";
 
   if (avatarUrl) {

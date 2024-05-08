@@ -12,6 +12,7 @@ import { ZBDIcon } from "@/components/ZBDIcon";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { NostrIcon } from "@/components/NostrIcon";
+import { useToast } from "@/hooks";
 
 export default function Login() {
   const router = useRouter();
@@ -77,14 +78,20 @@ const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
 const LoginProviders = () => {
   const router = useRouter();
   const { signInWithGoogle } = useUser();
-
+  const { show } = useToast();
   const providers = [
     {
       name: "Google",
       icon: GoogleIcon,
       onPress: async () => {
-        const user = await signInWithGoogle();
-        user && router.push("/auth/welcome");
+        const success = await signInWithGoogle();
+        if (success) {
+          router.push({
+            pathname: "/auth/welcome",
+          });
+        } else {
+          show("Failed to sign in with Google");
+        }
       },
     },
     {

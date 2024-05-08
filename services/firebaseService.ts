@@ -11,7 +11,7 @@ RNTwitterSignIn.init("TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET").then(
 );
 
 GoogleSignin.configure({
-  webClientId: process.env.FIREBASE_OAUTH_CLIENT_ID,
+  webClientId: process.env.EXPO_PUBLIC_FIREBASE_OAUTH_CLIENT_ID,
 });
 
 const createUserWithEmail = (email: string, password: string) =>
@@ -44,10 +44,9 @@ const signOut = () =>
 
 const signInWithGoogle = async () => {
   // Check if your device supports Google Play
-  await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+  await GoogleSignin.hasPlayServices();
   // Get the users ID token
-  const { idToken } = await GoogleSignin.signIn();
-
+  const { idToken, user } = await GoogleSignin.signIn();
   // Create a Google credential with the token
   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 

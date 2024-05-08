@@ -106,7 +106,7 @@ The following is the process for adding/removing/editing with paths will open in
 
 ## Firebase
 
-This app uses Firebase to authenticate most users. The app is not totally dependent on Firebase, a user can still login as a read only account to look around, or with just an nsec.
+This app uses Firebase to authenticate users. The app is not totally dependent on Firebase, a user can still login as a read only account to look around, or with just an nsec.
 
 However, if you are trying to run this app locally, you will need to setup a firebase account, generate the missing files, and place them in the root directory so that you can produce a build for Android and/or iOS
 

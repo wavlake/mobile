@@ -1,7 +1,6 @@
-import { Text, Button, TextInput, Center, LogoIcon } from "@/components";
+import { Button, TextInput, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState } from "react";
-import { Link } from "expo-router";
 
 export const LoginSignUpForm = ({
   onSubmit,

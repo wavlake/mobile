@@ -1,7 +1,13 @@
 import axios from "axios";
 import { getAuthToken, signEvent } from "@/utils/nostr";
 import Toast from "react-native-root-toast";
-
+import { useMutation } from "@tanstack/react-query";
+// response.data should have this shape
+export interface ResponseObject<T = any> {
+  error?: string;
+  success: boolean;
+  data: T;
+}
 export interface Track {
   id: string;
   title: string;
@@ -480,4 +486,33 @@ export const reorderPlaylist = async ({
   });
 
   return data;
+};
+
+export const useCreateUser = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  return useMutation({
+    mutationFn: async ({
+      username,
+      userId,
+    }: {
+      username: string;
+      userId: string;
+    }) => {
+      const { data } = await apiClient.post<
+        ResponseObject<{ userId: string; name: string }>
+      >(`/accounts`, { name: username, userId });
+      return data.data;
+    },
+    onSuccess() {
+      onSuccess?.();
+    },
+    onError(response: ResponseObject) {
+      onError?.(response?.error ?? "Error creating user");
+    },
+  });
 };

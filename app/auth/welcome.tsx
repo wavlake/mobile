@@ -26,7 +26,10 @@ export default function WelcomePage() {
     }
 
     // if not, create a new nostr account and log in
-    const nsec = await createNewNostrAccount({ name: randomUsername });
+    const nsec = await createNewNostrAccount({
+      name: randomUsername,
+      image: catalogUser?.artworkUrl ?? "",
+    });
     const success = nsec && (await login(nsec));
 
     if (!success) {
@@ -58,7 +61,7 @@ export default function WelcomePage() {
           gap: 20,
         }}
       >
-        <Avatar size={100} />
+        <Avatar size={100} imageUrl={catalogUser?.artworkUrl} />
         <Text style={{ fontSize: 18 }}>
           Hi, {catalogUser?.name ?? randomUsername}
         </Text>
@@ -70,6 +73,7 @@ export default function WelcomePage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "flex-end",
+          gap: 30,
         }}
       >
         <Text
@@ -83,20 +87,13 @@ export default function WelcomePage() {
         >
           Edit Profile
         </Text>
-        <Button
-          style={{
-            marginVertical: 40,
-          }}
-          onPress={goToHomePage}
-          loading={isLoggingIn}
-        >
+        <Button onPress={goToHomePage} loading={isLoggingIn}>
           Start listening
         </Button>
         <Text
           style={{
             color: "red",
             textAlign: "center",
-            marginTop: 20,
           }}
         >
           {errorMessage}

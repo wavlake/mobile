@@ -1,15 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
+import { ResponseObject } from "./api";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
-
-// response.data should have this shape
-export interface ResponseObject<T = any> {
-  error?: string;
-  success: boolean;
-  data: T;
-}
 
 export const catalogApiClient = axios.create({
   baseURL: catalogApi,
