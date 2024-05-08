@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { PrivateUserData, usePrivateUserData } from "@/utils/authTokenApi";
 import { useCreateUser } from "@/utils";
+import { firebaseJSService } from "@/services/firebaseJSService";
 
 const generateUsername = (name: string, uid: string) => {
   return `${name}_user${uid.split("").slice(0, 7).join("")}`;
@@ -21,7 +22,8 @@ type UserContextProps = {
   catalogUser: PrivateUserData | undefined;
   signInWithGoogle: () => Promise<boolean>;
   createUserWithEmail: (email: string, password: string) => Promise<boolean>;
-} & Omit<typeof firebaseService, "signInWithGoogle" | "createUserWithEmail">;
+} & Omit<typeof firebaseService, "signInWithGoogle" | "createUserWithEmail"> &
+  typeof firebaseJSService;
 
 const UserContext = createContext<UserContextProps | null>(null);
 
@@ -127,6 +129,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         user,
         catalogUser,
         ...firebaseService,
+        ...firebaseJSService,
         signInWithGoogle,
         createUserWithEmail,
       }}
