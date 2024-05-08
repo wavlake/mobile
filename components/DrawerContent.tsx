@@ -17,7 +17,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
   const { signOut } = useUser();
-  // const { user, initializingAuth } = useUser();
+
   return (
     <DrawerContentScrollView
       contentContainerStyle={{

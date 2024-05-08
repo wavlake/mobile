@@ -30,29 +30,17 @@ export default function Login() {
         style={{
           paddingHorizontal: 24,
           alignContent: "center",
-          paddingVertical: 50,
+          paddingVertical: 20,
+          gap: 20,
         }}
       >
         <View style={{ marginVertical: 30 }}>
           <LogoIcon fill="white" width={130} height={108} />
         </View>
-
-        <Button
-          color="white"
-          style={{
-            marginTop: 20,
-          }}
-          onPress={handleLogin}
-        >
+        <Button color="white" onPress={handleLogin}>
           Login
         </Button>
-        <Button
-          color="white"
-          style={{
-            marginTop: 20,
-          }}
-          onPress={handleSignUp}
-        >
+        <Button color="white" onPress={handleSignUp}>
           Sign Up
         </Button>
         <OrSeparator />
@@ -143,7 +131,7 @@ const LoginProviders = () => {
 const OrSeparator = () => (
   <View
     style={{
-      marginVertical: 50,
+      marginVertical: 30,
       flexDirection: "row",
       gap: 15,
       alignItems: "center",

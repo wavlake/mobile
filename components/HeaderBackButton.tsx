@@ -13,12 +13,9 @@ export const HeaderBackButton = ({ direction = "left" }: HeaderTitleProps) => {
   const router = useRouter();
   const isPresented = router.canGoBack();
   const handlePress = () => {
-    console.log("handlePress");
     if (isPresented) {
-      console.log("isPresented true");
       router.back();
     } else {
-      console.log("pushing ../");
       router.push("../");
     }
   };

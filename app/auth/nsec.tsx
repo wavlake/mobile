@@ -55,6 +55,7 @@ export default function Login() {
           alignContent: "center",
           paddingHorizontal: 24,
           paddingVertical: 50,
+          gap: 20,
         }}
       >
         <Text style={{ fontSize: 18, marginTop: 40 }}>
@@ -77,24 +78,17 @@ export default function Login() {
           onPress={handleNsecSubmit}
           disabled={isLoggingIn}
           loading={isLoggingIn}
-          style={{ marginTop: 20 }}
         >
           Save
         </Button>
-        <Text style={{ marginTop: 20, fontSize: 18 }}>
+        <Text style={{ fontSize: 18 }}>
           Your private key will only be stored on your device and not on Wavlake
           systems. Wavlake will never have access to your key.
-        </Text>
-        <Text style={{ fontSize: 18 }}>
+          {"\n"}
+          {"\n"}
           We can also generate a new, random key for you to use on this app.
         </Text>
-        <Button
-          color="gray"
-          style={{
-            marginTop: 20,
-          }}
-          onPress={handleNewNsecPress}
-        >
+        <Button color="lightgray" onPress={handleNewNsecPress}>
           Generate New Key
         </Button>
         <View
@@ -105,7 +99,7 @@ export default function Login() {
             justifyContent: "flex-end",
           }}
         >
-          <Button color="gray" onPress={() => router.back()}>
+          <Button color="lightgray" onPress={() => router.back()}>
             Cancel
           </Button>
         </View>

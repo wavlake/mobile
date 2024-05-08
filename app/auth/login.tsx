@@ -18,7 +18,6 @@ export default function Login() {
       setErrorMessage(result.error);
       setIsLoggingIn(false);
     } else {
-      // TODO create a new user in catalog
       router.replace("/auth/welcome");
     }
   };

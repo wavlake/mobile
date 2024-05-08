@@ -21,11 +21,14 @@ export const LoginSignUpForm = ({
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <Center
+      <View
         style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           paddingHorizontal: 24,
-          alignContent: "center",
-          paddingVertical: 50,
+          paddingVertical: 20,
+          gap: 20,
         }}
       >
         <View style={{ marginVertical: 30 }}>
@@ -59,28 +62,12 @@ export const LoginSignUpForm = ({
         </View>
         <Button
           color="white"
-          style={{
-            marginVertical: 20,
-          }}
           onPress={() => onSubmit(email, password)}
           loading={isLoading}
         >
           {buttonText}
         </Button>
-        <View
-          style={{
-            flexGrow: 1,
-            flexDirection: "column",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Link href="/auth">
-            <Text style={{ fontSize: 18 }} bold>
-              Back
-            </Text>
-          </Link>
-        </View>
-      </Center>
+      </View>
     </TouchableWithoutFeedback>
   );
 };
