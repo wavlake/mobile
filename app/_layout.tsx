@@ -113,6 +113,7 @@ export default function Layout() {
                     headerShadowVisible: false,
                     headerTintColor: "white",
                     headerBackTitleVisible: false,
+                    headerTitleAlign: "center",
                   }}
                 >
                   <Stack.Screen

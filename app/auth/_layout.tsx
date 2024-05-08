@@ -15,6 +15,7 @@ export default function AuthLayout() {
         headerTintColor: colors.text,
         headerBackTitleVisible: false,
         headerTitle: "",
+        headerTitleAlign: "center",
       }}
     >
       <Stack.Screen
