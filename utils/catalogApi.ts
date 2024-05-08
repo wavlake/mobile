@@ -2,10 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 
-const apiProtocol = process.env.NEXT_PUBLIC_CATALOG_PROTOCOL;
-const apiHost = process.env.NEXT_PUBLIC_CATALOG_HOST;
-const apiPort = process.env.NEXT_PUBLIC_CATALOG_PORT;
-const catalogApi = `${apiProtocol}://${apiHost}:${apiPort}/v1`;
+const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 
 // response.data should have this shape
 export interface ResponseObject<T = any> {
@@ -75,7 +72,6 @@ export const usePrivateUserData = () => {
   return useQuery<PrivateUserData>(
     ["userData"],
     async () => {
-      console.log("fetching user data");
       const { data } = await catalogApiClient
         .get<ResponseObject<PrivateUserData>>(`/accounts`)
         .catch((error) => {
