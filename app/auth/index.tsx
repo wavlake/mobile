@@ -77,24 +77,21 @@ const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
 );
 const LoginProviders = () => {
   const router = useRouter();
-  const { signInWithGoogle, signInWithGoogleJs, signInWithTwitterJS } =
-    useUser();
+  const { signInWithGoogle } = useUser();
   const { show } = useToast();
   const providers = [
     {
       name: "Google",
       icon: GoogleIcon,
       onPress: async () => {
-        const success = await signInWithGoogleJs();
-        console.log("success google HJS", success);
-        // const success = await signInWithGoogle();
-        // if (success) {
-        //   router.push({
-        //     pathname: "/auth/welcome",
-        //   });
-        // } else {
-        //   show("Failed to sign in with Google");
-        // }
+        const success = await signInWithGoogle();
+        if (success) {
+          router.push({
+            pathname: "/auth/welcome",
+          });
+        } else {
+          show("Failed to sign in with Google");
+        }
       },
     },
     {
@@ -102,8 +99,6 @@ const LoginProviders = () => {
       icon: TwitterIcon,
       onPress: async () => {
         // musicService.signInWithTwitter
-        const success = await signInWithTwitterJS();
-        console.log("success twitter", success);
       },
     },
     {
