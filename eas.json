@@ -2,31 +2,27 @@
   "build": {
     "production": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1",
-        "GOOGLE_SERVICES_FILE": ""
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
       "channel": "production"
     },
     "external": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1",
-        "GOOGLE_SERVICES_FILE": ""
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
       "distribution": "store",
       "channel": "staging"
     },
     "internal": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1",
-        "GOOGLE_SERVICES_FILE": ""
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
       "distribution": "internal",
       "channel": "preview"
     },
     "development": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-staging-dot-wavlake-alpha.uc.r.appspot.com/v1",
-        "GOOGLE_SERVICES_FILE": ""
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-staging-dot-wavlake-alpha.uc.r.appspot.com/v1"
       },
       "developmentClient": true,
       "distribution": "internal",
