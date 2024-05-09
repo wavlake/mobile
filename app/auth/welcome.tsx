@@ -5,6 +5,7 @@ import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
 import { useMemo, useState } from "react";
+import { useAssociatePubkeyWithUser } from "@/utils/authTokenApi";
 
 export default function WelcomePage() {
   const { login, pubkey } = useAuth();
@@ -14,6 +15,7 @@ export default function WelcomePage() {
   const router = useRouter();
   const { catalogUser } = useUser();
 
+  const { mutateAsync: addPubkeyToAccount } = useAssociatePubkeyWithUser({});
   const createNewNostrAccount = useCreateNewNostrAccount();
 
   const goToHomePage = async () => {
@@ -26,11 +28,18 @@ export default function WelcomePage() {
     }
 
     // if not, create a new nostr account and log in
-    const nsec = await createNewNostrAccount({
+    const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
       name: randomUsername,
       image: catalogUser?.artworkUrl ?? "",
     });
-    const success = nsec && (await login(nsec));
+    if (!newPubkey || !nsec) {
+      setErrorMessage(
+        "Something went wrong logging you in. Please try again later.",
+      );
+      setIsLoggingIn(false);
+      return;
+    }
+    const success = await login(nsec);
 
     if (!success) {
       setErrorMessage(
@@ -39,6 +48,9 @@ export default function WelcomePage() {
       setIsLoggingIn(false);
       return;
     }
+
+    // associate the pubkey to the firebase userID
+    await addPubkeyToAccount(newPubkey);
 
     router.replace("/");
     setIsLoggingIn(false);

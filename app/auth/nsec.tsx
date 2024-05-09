@@ -5,7 +5,8 @@ import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { generateRandomName } from "@/utils/user";
 import { useUser } from "@/components/UserContextProvider";
 import { useRouter } from "expo-router";
-import { generatePrivateKey } from "@/utils";
+import { generatePrivateKey, getPublicKey } from "@/utils";
+import { useAssociatePubkeyWithUser } from "@/utils/authTokenApi";
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
@@ -16,6 +17,7 @@ export default function Login() {
   const { login } = useAuth();
   const { signInAnonymously, user } = useUser();
   const createNewNostrAccount = useCreateNewNostrAccount();
+  const { mutateAsync: addPubkeyToAccount } = useAssociatePubkeyWithUser({});
 
   const handleNewNsecPress = async () => {
     const seckey = generatePrivateKey();
@@ -27,25 +29,37 @@ export default function Login() {
     setIsLoggingIn(true);
     if (isNewNsec) {
       // if the user generated a new nsec, create a new nostr account for them
-      await createNewNostrAccount({ name: generateRandomName() }, nsec);
+      const { pubkey } = await createNewNostrAccount(
+        { name: generateRandomName() },
+        nsec,
+      );
+
+      // associate the random nsec's pubkey to the userID
+      user && pubkey && (await addPubkeyToAccount(pubkey));
     }
 
     // log in with the nsec (either newly created or provided)
     const success = await login(nsec);
-
-    if (success) {
-      // only sign in to firebase anonymously if a user is not already signed in
-      !user && (await signInAnonymously());
-
-      // add an artifical delay to allow time to fetch profile if it's not cached
-      setTimeout(async () => {
-        router.replace("/");
-        setIsLoggingIn(false);
-      }, 1000);
-    } else {
+    if (!success) {
       setErrorMessage("Invalid nostr nsec");
       setIsLoggingIn(false);
+      return;
     }
+
+    // sign in to firebase anonymously if a user is not already signed in
+    if (!user) {
+      await signInAnonymously();
+      return;
+    }
+
+    // associated the user inputed nsec's pubkey to the userID
+    !isNewNsec && (await addPubkeyToAccount(getPublicKey(nsec)));
+
+    // add an artifical delay to allow time to fetch profile if it's not cached
+    setTimeout(async () => {
+      router.replace("/");
+      setIsLoggingIn(false);
+    }, 1000);
   };
 
   return (
