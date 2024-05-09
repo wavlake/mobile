@@ -94,20 +94,20 @@ const LoginProviders = () => {
         }
       },
     },
-    {
-      name: "Twitter",
-      icon: TwitterIcon,
-      onPress: async () => {
-        // musicService.signInWithTwitter
-      },
-    },
-    {
-      name: "ZBD",
-      icon: ZBDIcon,
-      onPress: async () => {
-        // router.push("/auth/nsec");
-      },
-    },
+    // {
+    //   name: "Twitter",
+    //   icon: TwitterIcon,
+    //   onPress: async () => {
+    //     // signInWithTwitter
+    //   },
+    // },
+    // {
+    //   name: "ZBD",
+    //   icon: ZBDIcon,
+    //   onPress: async () => {
+    //     // router.push("/auth/nsec");
+    //   },
+    // },
     {
       name: "Nostr",
       icon: NostrIcon,
