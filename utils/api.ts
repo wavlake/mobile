@@ -498,14 +498,20 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       username,
-      userId,
-    }: {
+      userId, // TODO - add artworkUrl
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
+      // artworkUrl?: string;
     }) => {
       const { data } = await apiClient.post<
         ResponseObject<{ userId: string; name: string }>
-      >(`/accounts`, { name: username, userId });
+      >(`/accounts`, {
+        name: username,
+        userId,
+        // artworkUrl,
+      });
       return data.data;
     },
     onSuccess() {

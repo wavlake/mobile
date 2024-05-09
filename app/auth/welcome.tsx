@@ -5,7 +5,7 @@ import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
 import { useMemo, useState } from "react";
-import { useAssociatePubkeyWithUser } from "@/utils/authTokenApi";
+import { useAddPubkeyToUser } from "@/utils/authTokenApi";
 
 export default function WelcomePage() {
   const { login, pubkey } = useAuth();
@@ -14,8 +14,7 @@ export default function WelcomePage() {
   const randomUsername = useMemo(generateRandomName, []);
   const router = useRouter();
   const { catalogUser } = useUser();
-
-  const { mutateAsync: addPubkeyToAccount } = useAssociatePubkeyWithUser({});
+  const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
   const createNewNostrAccount = useCreateNewNostrAccount();
 
   const goToHomePage = async () => {
@@ -33,15 +32,6 @@ export default function WelcomePage() {
       image: catalogUser?.artworkUrl ?? "",
     });
     if (!newPubkey || !nsec) {
-      setErrorMessage(
-        "Something went wrong logging you in. Please try again later.",
-      );
-      setIsLoggingIn(false);
-      return;
-    }
-    const success = await login(nsec);
-
-    if (!success) {
       setErrorMessage(
         "Something went wrong logging you in. Please try again later.",
       );

@@ -47,7 +47,11 @@ const signInWithGoogle = async () => {
   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
   // Sign-in the user with the credential
-  return auth().signInWithCredential(googleCredential);
+  return auth()
+    .signInWithCredential(googleCredential)
+    .catch((error) => {
+      return { error: error.code };
+    });
 };
 
 // todo - add twitter implementation
@@ -65,7 +69,11 @@ const signInWithTwitter = async () => {
   );
 
   // Sign-in the user with the credential
-  return auth().signInWithCredential(twitterCredential);
+  return auth()
+    .signInWithCredential(twitterCredential)
+    .catch((error) => {
+      return { error: error.code };
+    });
 };
 
 const onAuthStateChange = (callback: FirebaseAuthTypes.AuthListenerCallback) =>

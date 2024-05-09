@@ -16,10 +16,10 @@ export default function Login() {
 
     if ("error" in result) {
       setErrorMessage(result.error);
-      setIsLoggingIn(false);
     } else {
       router.replace("/auth/welcome");
     }
+    setIsLoggingIn(false);
   };
 
   return (

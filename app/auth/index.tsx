@@ -84,13 +84,13 @@ const LoginProviders = () => {
       name: "Google",
       icon: GoogleIcon,
       onPress: async () => {
-        const success = await signInWithGoogle();
-        if (success) {
+        const result = await signInWithGoogle();
+        if ("error" in result) {
+          show("Failed to sign in with Google");
+        } else {
           router.push({
             pathname: "/auth/welcome",
           });
-        } else {
-          show("Failed to sign in with Google");
         }
       },
     },

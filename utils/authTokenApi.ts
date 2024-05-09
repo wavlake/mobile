@@ -52,7 +52,7 @@ export interface PrivateUserData {
   name: string;
   msatBalance: string;
   ampMsat: number;
-  artworkUrl: string | null;
+  artworkUrl?: string;
   profileUrl: string;
   isLocked: boolean;
   userFavoritesId: string;
@@ -60,7 +60,8 @@ export interface PrivateUserData {
   emailVerified: boolean;
   isRegionVerified: boolean;
   providerId: string;
-  lightningAddress: string | null;
+  lightningAddress?: string;
+  pubkeys: string[];
 }
 
 export const usePrivateUserData = () => {
@@ -128,7 +129,7 @@ export const useEditUser = ({
   });
 };
 
-export const useAssociatePubkeyWithUser = ({
+export const useAddPubkeyToUser = ({
   onSuccess,
   onError,
 }: {
@@ -140,7 +141,7 @@ export const useAssociatePubkeyWithUser = ({
     mutationFn: async (pubkey: string) => {
       const { data } = await catalogApiClient.put<
         ResponseObject<{ pubkey: string; userId: string }>
-      >(`/accounts`, {
+      >(`/accounts/pubkey`, {
         pubkey,
       });
       return data.data;

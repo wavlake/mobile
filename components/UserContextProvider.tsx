@@ -6,22 +6,25 @@ import React, {
   PropsWithChildren,
 } from "react";
 import { FirebaseUser, firebaseService } from "@/services";
-import { useAuth } from "@/hooks";
+import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { useRouter } from "expo-router";
-import { PrivateUserData, usePrivateUserData } from "@/utils/authTokenApi";
+import {
+  PrivateUserData,
+  useAddPubkeyToUser,
+  usePrivateUserData,
+} from "@/utils/authTokenApi";
 import { useCreateUser } from "@/utils";
+import { err } from "react-native-svg";
 
 const generateUsername = (name: string, uid: string) => {
-  return `${name}_user${uid.split("").slice(0, 7).join("")}`;
+  return `${name}_${uid.split("").slice(0, 7).join("")}`;
 };
 
 type UserContextProps = {
   user: FirebaseUser;
   initializingAuth: boolean;
   catalogUser: PrivateUserData | undefined;
-  signInWithGoogle: () => Promise<boolean>;
-  createUserWithEmail: (email: string, password: string) => Promise<boolean>;
-} & Omit<typeof firebaseService, "signInWithGoogle" | "createUserWithEmail">;
+} & typeof firebaseService;
 
 const UserContext = createContext<UserContextProps | null>(null);
 
@@ -33,7 +36,10 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
     undefined,
   );
 
-  const { pubkey } = useAuth();
+  const { pubkey, login } = useAuth();
+  const createNewNostrAccount = useCreateNewNostrAccount();
+  const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
+
   const [user, setUser] = useState<FirebaseUser>(null);
   const [initializingAuth, setInitializingAuth] = useState(true);
 
@@ -45,8 +51,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     const unsubscribe = firebaseService.onAuthStateChange(async (user) => {
-      console.log("on auth state changed", user);
-
       setUser(user);
       if (initializingAuth) setInitializingAuth(false);
 
@@ -74,23 +78,48 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const signInWithGoogle = async () => {
     try {
       const user = await firebaseService.signInWithGoogle();
-      if (user.additionalUserInfo?.isNewUser) {
-        const name = generateUsername(
-          user.user.email?.split("@")[0] ?? "user",
-          user.user.uid,
-        );
+      if ("error" in user) {
+        throw user.error;
+      }
 
-        // if new user, create the wavlake user using the new firebase userId
+      // name only used if creating a new db user or nostr profile
+      const name = generateUsername(
+        user.user.email?.split("@")[0] ?? "user",
+        user.user.uid,
+      );
+
+      if (user.additionalUserInfo?.isNewUser) {
+        // create the wavlake db user using the new firebase userId
         await createUser({
           username: name,
           userId: user.user.uid,
-          // todo - add profile image if available
+          // TODO - add profile image if available
+          // artworkUrl: user.user.photoURL ?? "",
         });
       }
-      return true;
+
+      if (!pubkey) {
+        // new mobile user, so create a new nostr account
+        const { pubkey: newPubkey } = await createNewNostrAccount({
+          name,
+          image: user.user.photoURL ?? "",
+        });
+
+        newPubkey && (await addPubkeyToAccount(newPubkey));
+      } else {
+        const { data: catalogUser } = await refetchUser();
+        if (!catalogUser) {
+          throw "catalog user not found";
+        }
+        // old mobile user, associate the pubkey to the firebase userID
+        !catalogUser.pubkeys.includes(pubkey) &&
+          (await addPubkeyToAccount(pubkey));
+      }
+
+      return user;
     } catch (error) {
       console.error("error signing in with google", error);
-      return false;
+      return { error };
     }
   };
 
@@ -98,8 +127,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
     try {
       const user = await firebaseService.createUserWithEmail(email, password);
       if ("error" in user) {
-        console.error("error creating firebase user with email", user);
-        return false;
+        throw user.error;
       }
 
       const name = generateUsername(
@@ -107,16 +135,68 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         user.user.uid,
       );
 
-      // if new user, create the wavlake user using the new firebase userId
-      await createUser({
+      // create the wavlake db user using the new firebase userId
+      const newUser = await createUser({
         username: name,
         userId: user.user.uid,
+        // todo - add profile image if available
+        // artworkUrl: user.user.photoURL ?? "",
       });
 
-      return true;
-    } catch (e) {
-      console.error("error creating user with email", e);
-      return false;
+      if (!newUser) {
+        throw "error creating user in db";
+      }
+
+      if (!pubkey) {
+        // new mobile user, so create a new nostr account
+        const { pubkey: newPubkey } = await createNewNostrAccount({
+          name: newUser.name,
+          // image: newUser.artworkUrl,
+        });
+
+        newPubkey && (await addPubkeyToAccount(newPubkey));
+      } else {
+        // old mobile user, associate the pubkey to the new firebase userID
+        await addPubkeyToAccount(pubkey);
+      }
+
+      return user;
+    } catch (error) {
+      console.error("error creating user with email");
+      return { error };
+    }
+  };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      const user = await firebaseService.signInWithEmail(email, password);
+      if ("error" in user) {
+        throw user.error;
+      }
+
+      const { data: catalogUser } = await refetchUser();
+      if (!catalogUser) {
+        throw "catalog user not found";
+      }
+
+      if (!pubkey) {
+        // new mobile user, so create a new nostr account
+        const { pubkey: newPubkey } = await createNewNostrAccount({
+          name: catalogUser.name,
+          image: catalogUser.artworkUrl,
+        });
+
+        newPubkey && (await addPubkeyToAccount(newPubkey));
+      } else {
+        // old mobile user, associate the pubkey to the firebase userID if its not already there
+        !catalogUser.pubkeys.includes(pubkey) &&
+          (await addPubkeyToAccount(pubkey));
+      }
+
+      return user;
+    } catch (error) {
+      console.error("error signing in with email");
+      return { error };
     }
   };
 
@@ -128,6 +208,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         catalogUser,
         ...firebaseService,
         signInWithGoogle,
+        signInWithEmail,
         createUserWithEmail,
       }}
     >

@@ -6,7 +6,7 @@ import { generateRandomName } from "@/utils/user";
 import { useUser } from "@/components/UserContextProvider";
 import { useRouter } from "expo-router";
 import { generatePrivateKey, getPublicKey } from "@/utils";
-import { useAssociatePubkeyWithUser } from "@/utils/authTokenApi";
+import { useAddPubkeyToUser } from "@/utils/authTokenApi";
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
@@ -17,7 +17,7 @@ export default function Login() {
   const { login } = useAuth();
   const { signInAnonymously, user } = useUser();
   const createNewNostrAccount = useCreateNewNostrAccount();
-  const { mutateAsync: addPubkeyToAccount } = useAssociatePubkeyWithUser({});
+  const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
 
   const handleNewNsecPress = async () => {
     const seckey = generatePrivateKey();

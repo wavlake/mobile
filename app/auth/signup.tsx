@@ -13,12 +13,12 @@ export default function Signup() {
 
   const handleSignUp = async (email: string, password: string) => {
     setIsLoggingIn(true);
-    const success = await createUserWithEmail(email, password);
+    const result = await createUserWithEmail(email, password);
 
-    if (success) {
-      router.replace("/auth/welcome");
+    if ("error" in result) {
+      setErrorMessage(result.error);
     } else {
-      show("Failed to sign up. Please try again later.");
+      router.replace("/auth/welcome");
     }
 
     setIsLoggingIn(false);
