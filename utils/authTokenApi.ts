@@ -1,7 +1,8 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { ResponseObject } from "./api";
+import { useUser } from "@/components/UserContextProvider";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 
@@ -80,4 +81,76 @@ export const usePrivateUserData = () => {
       retry: false,
     },
   );
+};
+
+interface UserEditForm {
+  name: string;
+  ampSat: string;
+  artwork?: any;
+  artworkUrl?: any;
+  uid: string;
+}
+
+export const useEditUser = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      user: Omit<UserEditForm, "ampSat"> & { ampMsat: number },
+    ) => {
+      const requestFormData = new FormData();
+      requestFormData.append("name", user.name);
+      requestFormData.append("ampMsat", user.ampMsat.toString());
+      user.artwork &&
+        requestFormData.append(
+          "artwork",
+          user.artwork as any as Blob,
+          `${user.uid}.jpg`,
+        );
+
+      const { data } = await catalogApiClient.put<
+        ResponseObject<{ userId: string }>
+      >(`/accounts`, requestFormData);
+      return data.data;
+    },
+    onSuccess() {
+      queryClient.invalidateQueries(["userData"]);
+      onSuccess?.();
+    },
+    onError(response: ResponseObject) {
+      onError?.(response.error ?? "Error editing user");
+    },
+  });
+};
+
+export const useAssociatePubkeyWithUser = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (pubkey: string) => {
+      const { data } = await catalogApiClient.put<
+        ResponseObject<{ pubkey: string; userId: string }>
+      >(`/accounts`, {
+        pubkey,
+      });
+      return data.data;
+    },
+    onSuccess() {
+      queryClient.invalidateQueries(["userData"]);
+      onSuccess?.();
+    },
+    onError(response: ResponseObject) {
+      onError?.(response.error ?? "Error editing user");
+    },
+  });
 };

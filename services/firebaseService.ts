@@ -5,10 +5,6 @@ import { NativeModules } from "react-native";
 export type FirebaseUser = FirebaseAuthTypes.User | null;
 
 const { RNTwitterSignIn } = NativeModules;
-// todo - add twitter keys
-RNTwitterSignIn.init("TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET").then(
-  () => console.log("Twitter SDK initialized"),
-);
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_FIREBASE_OAUTH_CLIENT_ID,
@@ -53,6 +49,11 @@ const signInWithGoogle = async () => {
   // Sign-in the user with the credential
   return auth().signInWithCredential(googleCredential);
 };
+
+// todo - add twitter implementation
+// RNTwitterSignIn.init("TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET").then(
+//   () => console.log("Twitter SDK initialized"),
+// );
 const signInWithTwitter = async () => {
   // Perform the login request
   const { authToken, authTokenSecret } = await RNTwitterSignIn.logIn();

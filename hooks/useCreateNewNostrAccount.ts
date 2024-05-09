@@ -23,13 +23,17 @@ export const useCreateNewNostrAccount = () => {
 
     if (!success) {
       toast.show("Something went wrong. Please try again later.");
-      return;
+      return {
+        nsec: undefined,
+        pubkey: undefined,
+      };
     }
 
     await Promise.allSettled([
       saveRelayList(pubkey, bootstrapRelays),
       saveProfile(pubkey, profile),
     ]);
-    return seckey;
+
+    return { nsec: seckey, pubkey };
   };
 };
