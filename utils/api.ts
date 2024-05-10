@@ -500,8 +500,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -533,13 +533,12 @@ export const useAddPubkeyToUser = ({
 }) => {
   const url = `/accounts/pubkey`;
 
-  const payload = {
-    authToken: auth().currentUser?.getIdToken(),
-  };
-  console.log({ payload });
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
+      const payload = {
+        authToken: await auth().currentUser?.getIdToken(),
+      };
       const { data } = await apiClient.post<
         ResponseObject<{ pubkey: string; userId: string }>
       >(url, payload, {
@@ -548,7 +547,6 @@ export const useAddPubkeyToUser = ({
           "Content-Type": "application/json",
         },
       });
-
       return data.data;
     },
     onSuccess() {
