@@ -184,8 +184,8 @@ export const InfoDialog = ({
           You can access your private key from your profile page and back it up
           later if you are unable to back it up securely right now. Just keep in
           mind that Wavlake does not have access to your private key, so if log
-          out of Wavlake without backing up your nsec first, you will lose
-          access to your account.
+          out of Wavlake without backing up your nsec first, you will lose your
+          Nostr identity. Your Wavlake account will remain intact.
         </Text>
 
         <Button
