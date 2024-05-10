@@ -21,11 +21,18 @@ type UserContextProps = {
   catalogUser: PrivateUserData | undefined;
 } & typeof firebaseService;
 
-const UserContext = createContext<UserContextProps | null>(null);
+const UserContext = createContext<UserContextProps>({
+  user: null,
+  initializingAuth: true,
+  catalogUser: undefined,
+  ...firebaseService,
+  signInWithGoogle: async () => ({ error: "not initialized" }),
+  signInWithEmail: async () => ({ error: "not initialized" }),
+  createUserWithEmail: async () => ({ error: "not initialized" }),
+});
 
 // this hook manages the user's firebase auth state
 export const UserContextProvider = ({ children }: PropsWithChildren) => {
-  const router = useRouter();
   const { mutateAsync: createUser } = useCreateUser({});
   const [catalogUser, setCatalogUser] = useState<PrivateUserData | undefined>(
     undefined,
@@ -95,11 +102,12 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
       if (!pubkey) {
         // new mobile user, so create a new nostr account
-        const { pubkey: newPubkey } = await createNewNostrAccount({
+        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
           name,
           image: user.user.photoURL ?? "",
         });
 
+        nsec && (await login(nsec));
         newPubkey && (await addPubkeyToAccount());
       } else {
         const { data: catalogUser } = await refetchUser();
@@ -143,11 +151,12 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
       if (!pubkey) {
         // new mobile user, so create a new nostr account
-        const { pubkey: newPubkey } = await createNewNostrAccount({
+        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
           name: newUser.name,
           // image: newUser.artworkUrl,
         });
 
+        nsec && (await login(nsec));
         newPubkey && (await addPubkeyToAccount());
       } else {
         // old mobile user, associate the pubkey to the new firebase userID
@@ -175,11 +184,12 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
       if (!pubkey) {
         // new mobile user, so create a new nostr account
-        const { pubkey: newPubkey } = await createNewNostrAccount({
+        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
           name: catalogUser.name,
           image: catalogUser.artworkUrl,
         });
 
+        nsec && (await login(nsec));
         newPubkey && (await addPubkeyToAccount());
       } else {
         // old mobile user, associate the pubkey to the firebase userID if its not already there
