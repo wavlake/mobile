@@ -6,26 +6,42 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
 } from "react-native";
-import { useState } from "react";
-import { useAuth } from "@/hooks";
+import { useEffect, useState } from "react";
+import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { useRouter } from "expo-router";
-import { getSeckey, useAddPubkeyToUser } from "@/utils";
+import { generatePrivateKey, getSeckey, useAddPubkeyToUser } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useUser } from "@/components/UserContextProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { DialogWrapper } from "@/components/DialogWrapper";
+import { generateRandomName } from "@/utils/user";
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
-  const [isNewNsec, setIsNewNsec] = useState(false);
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { login } = useAuth();
+  const { user } = useUser();
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
   const { colors } = useTheme();
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
+
+  // initialize the nsec input
+  useEffect(() => {
+    (async () => {
+      if (user) {
+        // if the user has logged in via firebase, we should have an nsec
+        const savedNsec = await getSeckey();
+        savedNsec && setNsec(savedNsec);
+      } else {
+        // if the user is not logged in, generate a new nsec for them
+        const nsec = generatePrivateKey();
+        setNsec(nsec);
+      }
+    })();
+  }, []);
 
   const handleNsecSubmit = async () => {
     const savedSecKey = await getSeckey();
@@ -36,6 +52,7 @@ export default function Login() {
     }
 
     setIsLoggingIn(true);
+
     // log in with the nsec on the form
     const success = await login(nsec);
     if (!success) {
@@ -44,8 +61,12 @@ export default function Login() {
       return;
     }
 
-    // add the new pubkey to user_pubkey table (this will delete the old associated pubkey from user_pubkey)
-    await addPubkeyToAccount();
+    // if the user is logged into firebase
+    if (user) {
+      // add the new pubkey to user_pubkey table
+      // this will delete the old associated pubkey from user_pubkey
+      await addPubkeyToAccount();
+    }
 
     // add an artifical delay to allow time to fetch profile if it's not cached
     setTimeout(async () => {
@@ -108,8 +129,6 @@ export default function Login() {
             autoCorrect={false}
             value={nsec}
             onChangeText={(value) => {
-              // reset isNewNsec to false if the user changes the random nsec
-              isNewNsec && setIsNewNsec(false);
               setNsec(value);
               setErrorMessage("");
             }}
@@ -155,6 +174,11 @@ export const InfoDialog = ({
       >
         <Text bold style={{ fontSize: 18 }}>
           What is a Nostr private key (nsec)?
+        </Text>
+        <Text style={{ fontSize: 18 }}>
+          Nostr is a way for people to communicate online using a universal
+          public identity, kind of like an email address. A nsec is a private
+          key used to sign messages on Nostr.
         </Text>
         <Text style={{ fontSize: 18 }}>
           You can access your private key from your profile page and back it up

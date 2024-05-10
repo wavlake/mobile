@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { FirebaseUser, firebaseService } from "@/services";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
-import { useRouter } from "expo-router";
 import { PrivateUserData, usePrivateUserData } from "@/utils/authTokenApi";
 import { useAddPubkeyToUser, useCreateUser } from "@/utils";
 
