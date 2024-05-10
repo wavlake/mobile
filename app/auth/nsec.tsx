@@ -9,7 +9,13 @@ import {
 import { useEffect, useState } from "react";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { useRouter } from "expo-router";
-import { generatePrivateKey, getSeckey, useAddPubkeyToUser } from "@/utils";
+import {
+  decodeNsec,
+  encodeNsec,
+  generatePrivateKey,
+  getSeckey,
+  useAddPubkeyToUser,
+} from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useUser } from "@/components/UserContextProvider";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,25 +33,27 @@ export default function Login() {
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
   const { colors } = useTheme();
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
+  const [hideSecureText, setHideSecureText] = useState(true);
 
   // initialize the nsec input
   useEffect(() => {
     (async () => {
       if (user) {
         // if the user has logged in via firebase, we should have an nsec
-        const savedNsec = await getSeckey();
-        savedNsec && setNsec(savedNsec);
+        const savedPrivateKey = await getSeckey();
+        savedPrivateKey && setNsec(encodeNsec(savedPrivateKey) ?? "");
       } else {
         // if the user is not logged in, generate a new nsec for them
-        const nsec = generatePrivateKey();
-        setNsec(nsec);
+        const privateKey = generatePrivateKey();
+        setNsec(encodeNsec(privateKey) ?? "");
       }
     })();
   }, []);
 
   const handleNsecSubmit = async () => {
     const savedSecKey = await getSeckey();
-    if (savedSecKey === nsec) {
+    const savedNsec = encodeNsec(savedSecKey ?? "");
+    if (savedNsec === nsec) {
       // if the user is trying to log in with the same nsec, just log in
       router.replace("/");
       return;
@@ -125,7 +133,9 @@ export default function Login() {
         >
           <TextInput
             label="nsec"
-            secureTextEntry
+            secureTextEntry={hideSecureText}
+            onFocus={() => setHideSecureText(false)}
+            onBlur={() => setHideSecureText(true)}
             autoCorrect={false}
             value={nsec}
             onChangeText={(value) => {
