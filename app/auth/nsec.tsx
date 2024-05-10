@@ -1,18 +1,21 @@
-import { Text, Button, TextInput } from "@/components";
+import { Text, Button, TextInput, Avatar } from "@/components";
 import {
   View,
   TouchableWithoutFeedback,
   Keyboard,
   KeyboardAvoidingView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useAuth, useCreateNewNostrAccount } from "@/hooks";
+import { useAuth, useLookupNostrProfile } from "@/hooks";
 import { useRouter } from "expo-router";
 import {
   decodeNsec,
+  encodeNpub,
   encodeNsec,
   generatePrivateKey,
+  getPublicKey,
   getSeckey,
   useAddPubkeyToUser,
 } from "@/utils";
@@ -22,6 +25,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { generateRandomName } from "@/utils/user";
+
+const getNpubFromNsec = (nsec: string) => {
+  const seckey = decodeNsec(nsec);
+  if (!seckey) return { npub: null, pubkey: null };
+  const pubkey = getPublicKey(seckey);
+  const npub = encodeNpub(pubkey);
+
+  return {
+    npub,
+    pubkey,
+  };
+};
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
@@ -34,7 +49,10 @@ export default function Login() {
   const { colors } = useTheme();
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const [hideSecureText, setHideSecureText] = useState(true);
+  const { npub, pubkey } = getNpubFromNsec(nsec);
 
+  const { profileEvent, loading } = useLookupNostrProfile(pubkey);
+  console.log("profileEvent", profileEvent);
   // initialize the nsec input
   useEffect(() => {
     (async () => {
@@ -127,24 +145,79 @@ export default function Login() {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "flex-end",
             gap: 20,
           }}
         >
-          <TextInput
-            label="nsec"
-            secureTextEntry={hideSecureText}
-            onFocus={() => setHideSecureText(false)}
-            onBlur={() => setHideSecureText(true)}
-            autoCorrect={false}
-            value={nsec}
-            onChangeText={(value) => {
-              setNsec(value);
-              setErrorMessage("");
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
             }}
-            errorMessage={errorMessage}
-            rightIcon={<CopyButton value={nsec} />}
-          />
+          >
+            <TextInput
+              label="nsec"
+              secureTextEntry={hideSecureText}
+              onFocus={() => setHideSecureText(false)}
+              onBlur={() => setHideSecureText(true)}
+              autoCorrect={false}
+              value={nsec}
+              onChangeText={(value) => {
+                setNsec(value);
+                setErrorMessage("");
+              }}
+              errorMessage={errorMessage}
+              rightIcon={<CopyButton value={nsec} />}
+            />
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                gap: 10,
+                width: "100%",
+              }}
+            >
+              {npub && (
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: colors.text,
+                  }}
+                >
+                  {npub.slice(0, 10)}...
+                  {npub.slice(npub.length - 7, npub.length)}
+                </Text>
+              )}
+              {loading ? (
+                <ActivityIndicator animating={loading} size="small" />
+              ) : (
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  {profileEvent?.picture && (
+                    <Avatar size={20} imageUrl={profileEvent.picture} />
+                  )}
+                  {profileEvent?.name && (
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: colors.text,
+                      }}
+                    >
+                      {profileEvent.name}
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
+          </View>
           <Button
             onPress={handleNsecSubmit}
             disabled={isLoggingIn}
@@ -155,6 +228,26 @@ export default function Login() {
           <Button color="lightgray" onPress={() => router.back()}>
             Cancel
           </Button>
+          <TouchableOpacity
+            onPress={() => {
+              const randomKey = generatePrivateKey();
+              setNsec(encodeNsec(randomKey) ?? "");
+            }}
+          >
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                paddingVertical: 10,
+              }}
+            >
+              <Text>Random key</Text>
+              <Ionicons name="dice-outline" size={30} color={colors.text} />
+            </View>
+          </TouchableOpacity>
           <Text style={{ fontSize: 18 }}>
             Your private key will only be stored on your device and not on
             Wavlake systems. Wavlake will never have access to your key.
@@ -210,3 +303,6 @@ export const InfoDialog = ({
     </DialogWrapper>
   );
 };
+function useNostrProfileEvent(npub: string | null | undefined) {
+  throw new Error("Function not implemented.");
+}

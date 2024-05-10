@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   getCachedNostrProfileEvent,
@@ -7,6 +8,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
+import { Event } from "nostr-tools";
 
 const useNostrProfileEvent = (pubkey: string) => {
   const { readRelayList } = useNostrRelayList();
@@ -55,5 +57,38 @@ export const useNostrProfile = () => {
     return JSON.parse(mostRecentProfileEvent.content);
   } catch {
     return null;
+  }
+};
+
+export const useLookupNostrProfile = (pubkey?: string | null) => {
+  const [profileEvent, setProfileEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { readRelayList } = useNostrRelayList();
+
+  useEffect(() => {
+    if (pubkey) {
+      setLoading(true);
+      getProfileMetadata(pubkey, readRelayList)
+        .then((event) => {
+          setProfileEvent(event);
+          setLoading(false);
+        })
+        .catch(() => {
+          setProfileEvent(null);
+          setLoading(false);
+        });
+    } else {
+      setProfileEvent(null);
+      setLoading(false);
+    }
+  }, [pubkey, readRelayList]);
+
+  if (!profileEvent?.content) {
+    return { profileEvent: null, loading };
+  }
+  try {
+    return { profileEvent: JSON.parse(profileEvent.content), loading };
+  } catch {
+    return { profileEvent: null, loading };
   }
 };
