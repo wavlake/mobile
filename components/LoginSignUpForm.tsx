@@ -116,6 +116,7 @@ const LoginProviders = () => {
         }
       },
     },
+    // TODO: implement these providers
     // {
     //   name: "Twitter",
     //   icon: TwitterIcon,
