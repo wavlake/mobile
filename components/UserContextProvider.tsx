@@ -182,7 +182,10 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       }
 
       if (!pubkey) {
-        // new mobile user, so create a new nostr account
+        // New login (may or may not have an npub yet, so we give them a brand new one)
+        // if a user re-logs in to the app via firebase email and has saved their old mobile app's nsec
+        // they'll need to manually log in with that by clicking "Nostr user? Click here" on the welcome page
+        // and pasting it in the input field (we dont have it saved in the db so we cant log them in automatically)
         const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
           name: catalogUser.name,
           image: catalogUser.artworkUrl,
@@ -191,7 +194,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         nsec && (await login(nsec));
         newPubkey && (await addPubkeyToAccount());
       } else {
-        // old mobile user, associate the pubkey to the firebase userID if its not already there
+        // already logged in mobile user, associate the pubkey to the firebase userID if its not already there
         !catalogUser.pubkeys.includes(pubkey) && (await addPubkeyToAccount());
       }
 
