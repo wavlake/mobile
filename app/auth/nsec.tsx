@@ -1,12 +1,10 @@
 import { Text, Button, TextInput, Center } from "@/components";
-import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import { useState } from "react";
-import { useAuth, useCreateNewNostrAccount } from "@/hooks";
-import { generateRandomName } from "@/utils/user";
-import { useUser } from "@/components/UserContextProvider";
+import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
-import { generatePrivateKey, getPublicKey } from "@/utils";
-import { useAddPubkeyToUser } from "@/utils/authTokenApi";
+import { getSeckey, useAddPubkeyToUser } from "@/utils";
+import { CopyButton } from "@/components/CopyButton";
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
@@ -15,30 +13,18 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { login } = useAuth();
-  const { signInAnonymously, user } = useUser();
-  const createNewNostrAccount = useCreateNewNostrAccount();
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
 
-  const handleNewNsecPress = async () => {
-    const seckey = generatePrivateKey();
-    setNsec(seckey);
-    setIsNewNsec(true);
-  };
-
   const handleNsecSubmit = async () => {
-    setIsLoggingIn(true);
-    if (isNewNsec) {
-      // if the user generated a new nsec, create a new nostr account for them
-      const { pubkey } = await createNewNostrAccount(
-        { name: generateRandomName() },
-        nsec,
-      );
-
-      // associate the random nsec's pubkey to the userID
-      user && pubkey && (await addPubkeyToAccount(pubkey));
+    const savedSecKey = await getSeckey();
+    if (savedSecKey === nsec) {
+      // if the user is trying to log in with the same nsec, just log in
+      router.replace("/");
+      return;
     }
 
-    // log in with the nsec (either newly created or provided)
+    setIsLoggingIn(true);
+    // log in with the nsec on the form
     const success = await login(nsec);
     if (!success) {
       setErrorMessage("Invalid nostr nsec");
@@ -46,14 +32,8 @@ export default function Login() {
       return;
     }
 
-    // sign in to firebase anonymously if a user is not already signed in
-    if (!user) {
-      await signInAnonymously();
-      return;
-    }
-
-    // associated the user inputed nsec's pubkey to the userID
-    !isNewNsec && (await addPubkeyToAccount(getPublicKey(nsec)));
+    // add the new pubkey to user_pubkey table (this will delete the old associated pubkey from user_pubkey)
+    await addPubkeyToAccount();
 
     // add an artifical delay to allow time to fetch profile if it's not cached
     setTimeout(async () => {
@@ -72,39 +52,16 @@ export default function Login() {
           gap: 20,
         }}
       >
-        <Text style={{ fontSize: 18, marginTop: 40 }}>
-          Enter your private key (nsec) here:
-        </Text>
-        <TextInput
-          label="nostr nsec"
-          secureTextEntry
-          autoCorrect={false}
-          value={nsec}
-          onChangeText={(value) => {
-            // reset isNewNsec to false if the user changes the random nsec
-            isNewNsec && setIsNewNsec(false);
-            setNsec(value);
-            setErrorMessage("");
-          }}
-          errorMessage={errorMessage}
-        />
-        <Button
-          onPress={handleNsecSubmit}
-          disabled={isLoggingIn}
-          loading={isLoggingIn}
-        >
-          Save
-        </Button>
         <Text style={{ fontSize: 18 }}>
+          This is your current private key. Back this up if you want to continue
+          using this identity. This key will always be available in your
+          Settings if you want to save it later.
+          {"\n"}
+          You can also enter your own private key to use if you have one.
+          {"\n"}
           Your private key will only be stored on your device and not on Wavlake
           systems. Wavlake will never have access to your key.
-          {"\n"}
-          {"\n"}
-          We can also generate a new, random key for you to use on this app.
         </Text>
-        <Button color="lightgray" onPress={handleNewNsecPress}>
-          Generate New Key
-        </Button>
         <View
           style={{
             flexGrow: 1,
@@ -113,6 +70,27 @@ export default function Login() {
             justifyContent: "flex-end",
           }}
         >
+          <TextInput
+            label="nsec"
+            secureTextEntry
+            autoCorrect={false}
+            value={nsec}
+            onChangeText={(value) => {
+              // reset isNewNsec to false if the user changes the random nsec
+              isNewNsec && setIsNewNsec(false);
+              setNsec(value);
+              setErrorMessage("");
+            }}
+            errorMessage={errorMessage}
+            rightIcon={<CopyButton value={nsec} />}
+          />
+          <Button
+            onPress={handleNsecSubmit}
+            disabled={isLoggingIn}
+            loading={isLoggingIn}
+          >
+            Save
+          </Button>
           <Button color="lightgray" onPress={() => router.back()}>
             Cancel
           </Button>

@@ -8,13 +8,8 @@ import React, {
 import { FirebaseUser, firebaseService } from "@/services";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { useRouter } from "expo-router";
-import {
-  PrivateUserData,
-  useAddPubkeyToUser,
-  usePrivateUserData,
-} from "@/utils/authTokenApi";
-import { useCreateUser } from "@/utils";
-import { err } from "react-native-svg";
+import { PrivateUserData, usePrivateUserData } from "@/utils/authTokenApi";
+import { useAddPubkeyToUser, useCreateUser } from "@/utils";
 
 const generateUsername = (name: string, uid: string) => {
   return `${name}_${uid.split("").slice(0, 7).join("")}`;
@@ -105,15 +100,14 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           image: user.user.photoURL ?? "",
         });
 
-        newPubkey && (await addPubkeyToAccount(newPubkey));
+        newPubkey && (await addPubkeyToAccount());
       } else {
         const { data: catalogUser } = await refetchUser();
         if (!catalogUser) {
           throw "catalog user not found";
         }
         // old mobile user, associate the pubkey to the firebase userID
-        !catalogUser.pubkeys.includes(pubkey) &&
-          (await addPubkeyToAccount(pubkey));
+        !catalogUser.pubkeys.includes(pubkey) && (await addPubkeyToAccount());
       }
 
       return user;
@@ -154,10 +148,10 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           // image: newUser.artworkUrl,
         });
 
-        newPubkey && (await addPubkeyToAccount(newPubkey));
+        newPubkey && (await addPubkeyToAccount());
       } else {
         // old mobile user, associate the pubkey to the new firebase userID
-        await addPubkeyToAccount(pubkey);
+        await addPubkeyToAccount();
       }
 
       return user;
@@ -186,11 +180,10 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           image: catalogUser.artworkUrl,
         });
 
-        newPubkey && (await addPubkeyToAccount(newPubkey));
+        newPubkey && (await addPubkeyToAccount());
       } else {
         // old mobile user, associate the pubkey to the firebase userID if its not already there
-        !catalogUser.pubkeys.includes(pubkey) &&
-          (await addPubkeyToAccount(pubkey));
+        !catalogUser.pubkeys.includes(pubkey) && (await addPubkeyToAccount());
       }
 
       return user;

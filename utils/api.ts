@@ -1,7 +1,8 @@
 import axios from "axios";
 import { getAuthToken, signEvent } from "@/utils/nostr";
-import Toast from "react-native-root-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import auth from "@react-native-firebase/auth";
+
 // response.data should have this shape
 export interface ResponseObject<T = any> {
   error?: string;
@@ -519,6 +520,43 @@ export const useCreateUser = ({
     },
     onError(response: ResponseObject) {
       onError?.(response?.error ?? "Error creating user");
+    },
+  });
+};
+
+export const useAddPubkeyToUser = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  const url = `/accounts/pubkey`;
+
+  const payload = {
+    authToken: auth().currentUser?.getIdToken(),
+  };
+  console.log({ payload });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await apiClient.post<
+        ResponseObject<{ pubkey: string; userId: string }>
+      >(url, payload, {
+        headers: {
+          Authorization: await createAuthHeader(url, "post", payload),
+          "Content-Type": "application/json",
+        },
+      });
+
+      return data.data;
+    },
+    onSuccess() {
+      queryClient.invalidateQueries(["userData"]);
+      onSuccess?.();
+    },
+    onError(response: ResponseObject) {
+      onError?.(response.error ?? "Error adding pubkey to user");
     },
   });
 };

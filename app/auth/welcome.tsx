@@ -1,49 +1,17 @@
 import { Avatar, Button, Center, Text } from "@/components";
 import { View } from "react-native";
-import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { generateRandomName } from "@/utils/user";
-import { useMemo, useState } from "react";
-import { useAddPubkeyToUser } from "@/utils/authTokenApi";
+import { useMemo } from "react";
 
 export default function WelcomePage() {
-  const { login, pubkey } = useAuth();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const randomUsername = useMemo(generateRandomName, []);
   const router = useRouter();
   const { catalogUser } = useUser();
-  const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
-  const createNewNostrAccount = useCreateNewNostrAccount();
 
   const goToHomePage = async () => {
-    setIsLoggingIn(true);
-    if (pubkey) {
-      // we're already logged in with an nsec
-      router.replace("/");
-      setIsLoggingIn(false);
-      return;
-    }
-
-    // if not, create a new nostr account and log in
-    const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-      name: randomUsername,
-      image: catalogUser?.artworkUrl ?? "",
-    });
-    if (!newPubkey || !nsec) {
-      setErrorMessage(
-        "Something went wrong logging you in. Please try again later.",
-      );
-      setIsLoggingIn(false);
-      return;
-    }
-
-    // associate the pubkey to the firebase userID
-    await addPubkeyToAccount(newPubkey);
-
     router.replace("/");
-    setIsLoggingIn(false);
   };
 
   return (
@@ -89,24 +57,12 @@ export default function WelcomePage() {
         >
           Edit Profile
         </Text>
-        <Button onPress={goToHomePage} loading={isLoggingIn}>
-          Start listening
-        </Button>
-        <Text
-          style={{
-            color: "red",
-            textAlign: "center",
-          }}
-        >
-          {errorMessage}
-        </Text>
-        {!pubkey && (
-          <Link href="/auth/nsec">
-            <Text style={{ fontSize: 18 }} bold>
-              Nostr user? Click here
-            </Text>
-          </Link>
-        )}
+        <Button onPress={goToHomePage}>Start listening</Button>
+        <Link href="/auth/nsec">
+          <Text style={{ fontSize: 18 }} bold>
+            Nostr user? Click here
+          </Text>
+        </Link>
       </View>
     </Center>
   );
