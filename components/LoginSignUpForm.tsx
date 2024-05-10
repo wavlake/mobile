@@ -1,6 +1,19 @@
-import { Button, TextInput, LogoIcon } from "@/components";
-import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState } from "react";
+import { Text, Button, TextInput, LogoIcon } from "@/components";
+import {
+  View,
+  TouchableWithoutFeedback,
+  Keyboard,
+  TouchableOpacity,
+} from "react-native";
+import { ElementType } from "react";
+import { useRouter } from "expo-router";
+import { useUser } from "@/components/UserContextProvider";
+import { ZBDIcon } from "@/components/ZBDIcon";
+import { TwitterIcon } from "@/components/TwitterIcon";
+import { GoogleIcon } from "@/components/GoogleIcon";
+import { NostrIcon } from "@/components/NostrIcon";
+import { useToast } from "@/hooks";
 
 export const LoginSignUpForm = ({
   onSubmit,
@@ -66,7 +79,107 @@ export const LoginSignUpForm = ({
         >
           {buttonText}
         </Button>
+        <OrSeparator />
+        <LoginProviders />
       </View>
     </TouchableWithoutFeedback>
   );
 };
+
+const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
+  Icon,
+  onPress,
+}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={{ backgroundColor: "white", padding: 10, borderRadius: 10 }}
+  >
+    <Icon fill="black" width={40} height={40} />
+  </TouchableOpacity>
+);
+const LoginProviders = () => {
+  const router = useRouter();
+  const { signInWithGoogle } = useUser();
+  const { show } = useToast();
+  const providers = [
+    {
+      name: "Google",
+      icon: GoogleIcon,
+      onPress: async () => {
+        const result = await signInWithGoogle();
+        if ("error" in result) {
+          show("Failed to sign in with Google");
+        } else {
+          router.push({
+            pathname: "/auth/welcome",
+          });
+        }
+      },
+    },
+    // {
+    //   name: "Twitter",
+    //   icon: TwitterIcon,
+    //   onPress: async () => {
+    //     // signInWithTwitter
+    //   },
+    // },
+    // {
+    //   name: "ZBD",
+    //   icon: ZBDIcon,
+    //   onPress: async () => {
+    //     // router.push("/auth/nsec");
+    //   },
+    // },
+    {
+      name: "Nostr",
+      icon: NostrIcon,
+      onPress: () => {
+        router.push("/auth/nsec");
+      },
+    },
+  ];
+
+  return (
+    <View
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 30,
+      }}
+    >
+      {providers.map((provider) => (
+        <ProviderButton
+          key={provider.name}
+          Icon={provider.icon}
+          onPress={provider.onPress}
+        />
+      ))}
+    </View>
+  );
+};
+const OrSeparator = () => (
+  <View
+    style={{
+      marginVertical: 30,
+      flexDirection: "row",
+      gap: 15,
+      alignItems: "center",
+    }}
+  >
+    <View
+      style={{
+        borderBottomColor: "white",
+        borderBottomWidth: 1,
+        flexGrow: 1,
+      }}
+    />
+    <Text style={{ fontSize: 18 }}>or</Text>
+    <View
+      style={{
+        borderBottomColor: "white",
+        borderBottomWidth: 1,
+        flexGrow: 1,
+      }}
+    />
+  </View>
+);
