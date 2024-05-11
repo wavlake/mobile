@@ -16,7 +16,7 @@ import { useUser } from "./UserContextProvider";
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
-  const { signOut } = useUser();
+  const { signOut, user } = useUser();
 
   return (
     <DrawerContentScrollView
@@ -72,6 +72,20 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               style={{ marginHorizontal: 16 }}
               color={brandColors.black.light}
             />
+            {user && (
+              <DrawerItem
+                label={() => (
+                  <Text style={{ fontSize: 18 }}>Link to wavlake.com</Text>
+                )}
+                icon={({ color, size }) => (
+                  <Ionicons name="log-in-outline" size={size} color={color} />
+                )}
+                onPress={() => {
+                  router.replace("/auth");
+                  props.navigation.closeDrawer();
+                }}
+              />
+            )}
             <DrawerItem
               label={() => <Text style={{ fontSize: 18 }}>Logout</Text>}
               icon={({ color, size }) => (
