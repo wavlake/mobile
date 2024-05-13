@@ -243,7 +243,7 @@ export const getRandomMusic = async (): Promise<Track[]> => {
   return normalizeTrackResponse(data);
 };
 
-export const getFeaturedShows = async (): Promise<Track[]> => {
+export const getFeaturedPodcasts = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/episodes/featured");
 
   return normalilzeEpisodeResponse(data.data);
@@ -500,8 +500,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;

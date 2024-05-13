@@ -19,7 +19,7 @@ export default function LibraryPage() {
   const router = useRouter();
 
   return pubkey ? (
-    <PillTabView tabNames={["Music", "Shows"]}>
+    <PillTabView tabNames={["Music", "Podcasts"]}>
       <PillTabView.Item style={{ width: "100%" }}>
         <LibraryMenu>
           <LibraryMenu.Item
