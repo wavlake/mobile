@@ -109,7 +109,7 @@ export default function ProfilePage() {
           color={colors.border}
           titleStyle={{ color: colors.text }}
           onPress={handleRevealNsec}
-          width="100%"
+          width={280}
           style={{ marginTop: 24 }}
         >
           Reveal private key (nsec)
