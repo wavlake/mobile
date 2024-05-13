@@ -100,7 +100,6 @@ const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
 );
 const LoginProviders = () => {
   const router = useRouter();
-  const [error, setError] = useState("");
   const { signInWithGoogle } = useUser();
   const { show } = useToast();
   const providers = [
@@ -110,7 +109,6 @@ const LoginProviders = () => {
       onPress: async () => {
         const result = await signInWithGoogle();
         if ("error" in result) {
-          setError(result.error);
           show("Failed to sign in with Google");
         } else {
           router.push({
@@ -158,7 +156,6 @@ const LoginProviders = () => {
           onPress={provider.onPress}
         />
       ))}
-      {error && <Text style={{ color: "red" }}>{error}</Text>}
     </View>
   );
 };
