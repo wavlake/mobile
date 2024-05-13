@@ -75,7 +75,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             {!user && (
               <DrawerItem
                 label={() => (
-                  <Text style={{ fontSize: 18 }}>Link to wavlake.com</Text>
+                  <Text style={{ fontSize: 18 }}>Link Wavlake.com</Text>
                 )}
                 icon={({ color, size }) => (
                   <Ionicons name="log-in-outline" size={size} color={color} />

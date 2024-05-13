@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuth, useLookupNostrProfile } from "@/hooks";
@@ -52,7 +53,7 @@ export default function Login() {
   const { npub, pubkey } = getNpubFromNsec(nsec);
 
   const { profileEvent, loading } = useLookupNostrProfile(pubkey);
-  console.log("profileEvent", profileEvent);
+
   // initialize the nsec input
   useEffect(() => {
     (async () => {
@@ -103,24 +104,14 @@ export default function Login() {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <KeyboardAvoidingView
-        behavior="position"
+      <ScrollView
         style={{
           display: "flex",
           flexDirection: "column",
           paddingHorizontal: 24,
-          paddingVertical: 20,
+          paddingBottom: 50,
         }}
       >
-        <Text style={{ fontSize: 18, paddingBottom: 10 }}>
-          A Nostr private key (nsec) has been generated for you and is stored
-          securely on this device. Your nsec is a secret and should never be
-          shared with anyone.
-        </Text>
-        <Text style={{ fontSize: 18, paddingBottom: 10 }}>
-          Alternatively, you can enter your own private key to use if you have
-          one.
-        </Text>
         <TouchableOpacity onPress={() => setIsInfoDialogOpen(true)}>
           <View
             style={{
@@ -249,12 +240,21 @@ export default function Login() {
             </View>
           </TouchableOpacity>
           <Text style={{ fontSize: 18 }}>
+            A Nostr private key (nsec) has been generated for you and is stored
+            securely on this device. Your nsec is a secret and should never be
+            shared with anyone.
+            {"\n"}
+            {"\n"}
+            Alternatively, you can enter your own private key to use if you have
+            one.
+            {"\n"}
+            {"\n"}
             Your private key will only be stored on your device and not on
             Wavlake systems. Wavlake will never have access to your key.
           </Text>
         </View>
         <InfoDialog isOpen={isInfoDialogOpen} setIsOpen={setIsInfoDialogOpen} />
-      </KeyboardAvoidingView>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
