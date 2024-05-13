@@ -14,6 +14,7 @@ import { TwitterIcon } from "@/components/TwitterIcon";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { useToast } from "@/hooks";
+import { ScrollView } from "react-native";
 
 export const LoginSignUpForm = ({
   onSubmit,
@@ -33,7 +34,7 @@ export const LoginSignUpForm = ({
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View
+      <ScrollView
         style={{
           display: "flex",
           flexDirection: "column",
@@ -81,7 +82,7 @@ export const LoginSignUpForm = ({
         </Button>
         <OrSeparator />
         <LoginProviders />
-      </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 };
@@ -164,7 +165,7 @@ const LoginProviders = () => {
 const OrSeparator = () => (
   <View
     style={{
-      marginVertical: 30,
+      marginVertical: 20,
       flexDirection: "row",
       gap: 15,
       alignItems: "center",
