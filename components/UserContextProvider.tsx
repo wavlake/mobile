@@ -113,7 +113,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         if (!catalogUser) {
           throw "catalog user not found";
         }
-        // old mobile user, associate the pubkey to the firebase userID
+        // mobile user thats already logged in with an nsec, associate the pubkey to the firebase userID
         !catalogUser.pubkeys.includes(pubkey) && (await addPubkeyToAccount());
       }
 
@@ -197,7 +197,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         nsec && (await login(nsec));
         newPubkey && (await addPubkeyToAccount());
       } else {
-        // already logged in mobile user, associate the pubkey to the firebase userID if its not already there
+        // mobile user thats already logged in with an nsec, associate the pubkey to the firebase userID
         !catalogUser.pubkeys.includes(pubkey) && (await addPubkeyToAccount());
       }
 
