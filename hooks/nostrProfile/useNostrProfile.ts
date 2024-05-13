@@ -60,6 +60,8 @@ export const useNostrProfile = () => {
   }
 };
 
+// TODO - swap to using the npub cloud run service
+// need to update the cloud run service to return the profile metadata
 export const useLookupNostrProfile = (pubkey?: string | null) => {
   const [profileEvent, setProfileEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ export const useLookupNostrProfile = (pubkey?: string | null) => {
       setProfileEvent(null);
       setLoading(false);
     }
-  }, [pubkey, readRelayList]);
+  }, [pubkey]);
 
   if (!profileEvent?.content) {
     return { profileEvent: null, loading };
