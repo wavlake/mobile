@@ -72,7 +72,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               style={{ marginHorizontal: 16 }}
               color={brandColors.black.light}
             />
-            {user && (
+            {!user && (
               <DrawerItem
                 label={() => (
                   <Text style={{ fontSize: 18 }}>Link to wavlake.com</Text>
