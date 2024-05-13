@@ -120,7 +120,10 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       return user;
     } catch (error) {
       console.error("error signing in with google", error);
-      return { error };
+      return {
+        error:
+          typeof error === "string" ? error : "Failed to sign in with Google",
+      };
     }
   };
 

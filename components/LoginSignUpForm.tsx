@@ -109,7 +109,7 @@ const LoginProviders = () => {
       onPress: async () => {
         const result = await signInWithGoogle();
         if ("error" in result) {
-          show("Failed to sign in with Google");
+          show(result.error);
         } else {
           router.push({
             pathname: "/auth/welcome",
