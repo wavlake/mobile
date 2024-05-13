@@ -82,12 +82,12 @@ Deep links for Android function similarly to iOS. The Android links are defined 
 
 **New Android Builds must have their new signature added to the assetlinks.json file!**
 
-How to obtain a build's signature
-
-1. After installing a development build, execute this adb command:
+1. Obtain a build's signature
+   - After installing a development build, execute this adb command:
    ```
    adb shell pm get-app-links com.wavlake.mobile
    ```
+   - Or, run `eas credentials` and select a build profile
 1. For production builds, navigate to the [Play Console](https://play.google.com/console/) and visit `Release > Setup > App signing`.
 
 The following is the process for adding/removing/editing with paths will open in the app and which will not:
@@ -103,3 +103,16 @@ The following is the process for adding/removing/editing with paths will open in
    ```
 1. Generate a new development build so you can test the change.
 1. Obtain the new build signature (see above for details) and add to the file hosted at `wavlake.com/.well-known/assetlinks.json`.
+
+## Firebase
+
+This app uses Firebase to authenticate users. The app is not totally dependent on Firebase, a user can still login as a read only account to look around, or with just an nsec.
+
+However, if you are trying to run this app locally, you will need to setup a firebase account, generate the missing files, and place them in the root directory so that you can produce a build for Android and/or iOS
+
+- Android https://firebase.google.com/docs/android/setup will produce `google-services.json`
+- iOS https://firebase.google.com/docs/ios/setup will produce `GoogleService-Info.plist`
+
+Alternatively, you can modify the build process to not depend on firebase. You will also need to modify the login page and any other firebase dependent features in the app.
+
+Additional reading - https://rnfirebase.io/#configure-react-native-firebase-modules

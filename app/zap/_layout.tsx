@@ -14,6 +14,7 @@ export default function ZapLayout() {
         headerShadowVisible: false,
         headerTintColor: colors.text,
         headerTitle: () => <Text>Zap</Text>,
+        headerTitleAlign: "center",
       }}
     >
       <Stack.Screen

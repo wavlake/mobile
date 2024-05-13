@@ -1,6 +1,11 @@
 import { Button, Text, TextInput, WalletChooser } from "@/components";
 import { useRouter } from "expo-router";
-import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import {
+  Keyboard,
+  TouchableWithoutFeedback,
+  View,
+  ScrollView,
+} from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import {
@@ -20,7 +25,6 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
-import { ScrollView } from "react-native-gesture-handler";
 
 export default function SettingsPage() {
   const toast = useToast();

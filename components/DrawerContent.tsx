@@ -11,10 +11,12 @@ import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { WalletBalance } from "./WalletBalance";
+import { useUser } from "./UserContextProvider";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
+  const { signOut, user } = useUser();
 
   return (
     <DrawerContentScrollView
@@ -70,6 +72,20 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               style={{ marginHorizontal: 16 }}
               color={brandColors.black.light}
             />
+            {!user && (
+              <DrawerItem
+                label={() => (
+                  <Text style={{ fontSize: 18 }}>Link Wavlake.com</Text>
+                )}
+                icon={({ color, size }) => (
+                  <Ionicons name="log-in-outline" size={size} color={color} />
+                )}
+                onPress={() => {
+                  router.replace("/auth");
+                  props.navigation.closeDrawer();
+                }}
+              />
+            )}
             <DrawerItem
               label={() => <Text style={{ fontSize: 18 }}>Logout</Text>}
               icon={({ color, size }) => (
@@ -89,6 +105,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
                       style: "destructive",
                       onPress: async () => {
                         await logout();
+                        await signOut();
+                        router.replace("/auth");
                         props.navigation.closeDrawer();
                       },
                     },

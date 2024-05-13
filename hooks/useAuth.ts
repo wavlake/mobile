@@ -8,6 +8,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 
+// this hook manage's the user's locally stored private key
 export const useAuth = () => {
   const navigation = useNavigation();
   const { data: pubkey, refetch } = useQuery({

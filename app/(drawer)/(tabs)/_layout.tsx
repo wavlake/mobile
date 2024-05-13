@@ -19,6 +19,7 @@ import {
 } from "@/utils";
 import { useAuth, useIsNavigationReady } from "@/hooks";
 import { useEffect } from "react";
+import { useUser } from "@/components/UserContextProvider";
 
 export default function TabLayout() {
   const pathname = usePathname();
@@ -26,6 +27,7 @@ export default function TabLayout() {
   const { loadTrackList, reset } = useMusicPlayer();
   const tabsBarHeight = 88;
   const { logout } = useAuth();
+  const { signOut } = useUser();
   const router = useRouter();
   const isNavigationReady = useIsNavigationReady();
 
@@ -36,14 +38,15 @@ export default function TabLayout() {
 
     (async () => {
       const isFirstAppLaunch = await getIsFirstAppLaunch();
-
       if (isFirstAppLaunch) {
         await cacheIsFirstAppLaunch();
 
         // make sure to delete stored private key if any on first app launch.
         await logout();
+        // ensure user is logged out of firebase
+        await signOut();
 
-        router.push("/auth");
+        await router.push("/auth");
       }
     })();
   }, [logout, isNavigationReady]);

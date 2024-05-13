@@ -10,8 +10,8 @@ export const useCreateNewNostrAccount = () => {
   const { save: saveProfile } = useSaveNostrProfile();
   const { save: saveRelayList } = useSaveNostrRelayList();
 
-  return async (profile: NostrUserProfile) => {
-    const seckey = generatePrivateKey();
+  return async (profile: NostrUserProfile, nsec?: string) => {
+    const seckey = nsec ?? generatePrivateKey();
     const success = await login(seckey);
     const pubkey = getPublicKey(seckey);
     const bootstrapRelays = [
@@ -23,12 +23,17 @@ export const useCreateNewNostrAccount = () => {
 
     if (!success) {
       toast.show("Something went wrong. Please try again later.");
-      return;
+      return {
+        nsec: undefined,
+        pubkey: undefined,
+      };
     }
 
     await Promise.allSettled([
       saveRelayList(pubkey, bootstrapRelays),
       saveProfile(pubkey, profile),
     ]);
+
+    return { nsec: seckey, pubkey };
   };
 };

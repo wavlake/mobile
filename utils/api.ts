@@ -1,7 +1,14 @@
 import axios from "axios";
 import { getAuthToken, signEvent } from "@/utils/nostr";
-import Toast from "react-native-root-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import auth from "@react-native-firebase/auth";
 
+// response.data should have this shape
+export interface ResponseObject<T = any> {
+  error?: string;
+  success: boolean;
+  data: T;
+}
 export interface Track {
   id: string;
   title: string;
@@ -236,7 +243,7 @@ export const getRandomMusic = async (): Promise<Track[]> => {
   return normalizeTrackResponse(data);
 };
 
-export const getFeaturedShows = async (): Promise<Track[]> => {
+export const getFeaturedPodcasts = async (): Promise<Track[]> => {
   const { data } = await apiClient.get("/episodes/featured");
 
   return normalilzeEpisodeResponse(data.data);
@@ -480,4 +487,74 @@ export const reorderPlaylist = async ({
   });
 
   return data;
+};
+
+export const useCreateUser = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  return useMutation({
+    mutationFn: async ({
+      username,
+      userId, // TODO - add artworkUrl
+    } // artworkUrl,
+    : {
+      username: string;
+      userId: string;
+      // artworkUrl?: string;
+    }) => {
+      const { data } = await apiClient.post<
+        ResponseObject<{ userId: string; name: string }>
+      >(`/accounts`, {
+        name: username,
+        userId,
+        // artworkUrl,
+      });
+      return data.data;
+    },
+    onSuccess() {
+      onSuccess?.();
+    },
+    onError(response: ResponseObject) {
+      onError?.(response?.error ?? "Error creating user");
+    },
+  });
+};
+
+export const useAddPubkeyToUser = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  const url = `/accounts/pubkey`;
+
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const payload = {
+        authToken: await auth().currentUser?.getIdToken(),
+      };
+      const { data } = await apiClient.post<
+        ResponseObject<{ pubkey: string; userId: string }>
+      >(url, payload, {
+        headers: {
+          Authorization: await createAuthHeader(url, "post", payload),
+          "Content-Type": "application/json",
+        },
+      });
+      return data.data;
+    },
+    onSuccess() {
+      queryClient.invalidateQueries(["userData"]);
+      onSuccess?.();
+    },
+    onError(response: ResponseObject) {
+      onError?.(response.error ?? "Error adding pubkey to user");
+    },
+  });
 };

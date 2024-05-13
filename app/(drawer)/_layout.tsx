@@ -67,6 +67,7 @@ export default function DrawerLayout() {
         headerTitle,
         headerLeft,
         headerRight,
+        headerTitleAlign: "center",
         headerTintColor: colors.text,
         drawerLabelStyle: { color: colors.text },
         drawerStatusBarAnimation: "none",

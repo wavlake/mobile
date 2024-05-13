@@ -8,7 +8,7 @@ export * from "./SearchResults";
 export * from "./SectionHeader";
 export * from "./NewBadgeIcon";
 export * from "./HomePageMusic";
-export * from "./HomePageShows";
+export * from "./HomePagePodcasts";
 export * from "./PodcastPage";
 export * from "./MiniMusicPlayer";
 export * from "./FullSizeMusicPlayer";

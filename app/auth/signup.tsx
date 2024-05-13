@@ -1,41 +1,36 @@
-import { Button, Center, TextInput } from "@/components";
-import { useRouter } from "expo-router";
-import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
-import { useCreateNewNostrAccount } from "@/hooks";
+import { useUser } from "@/components/UserContextProvider";
+import { LoginSignUpForm } from "@/components/LoginSignUpForm";
+import { useRouter } from "expo-router";
+import { useToast } from "@/hooks";
 
 export default function Signup() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-  const isCreateAccountButtonDisabled =
-    username.length === 0 || isCreatingAccount;
-  const createNewNostrAccount = useCreateNewNostrAccount();
-  const handleCreateAccount = async () => {
-    setIsCreatingAccount(true);
-    await createNewNostrAccount({ name: username });
-    setIsCreatingAccount(false);
-    router.push("/auth/backup-nsec");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { createUserWithEmail, user } = useUser();
+  const { show } = useToast();
+
+  const handleSignUp = async (email: string, password: string) => {
+    setIsLoggingIn(true);
+    const result = await createUserWithEmail(email, password);
+
+    if ("error" in result) {
+      setErrorMessage(result.error);
+    } else {
+      router.replace("/auth/welcome");
+    }
+
+    setIsLoggingIn(false);
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <Center style={{ paddingHorizontal: 24 }}>
-        <View style={{ marginBottom: 24, width: "100%" }}>
-          <TextInput
-            label="username"
-            value={username}
-            onChangeText={setUsername}
-          />
-        </View>
-        <Button
-          onPress={handleCreateAccount}
-          disabled={isCreateAccountButtonDisabled}
-          loading={isCreatingAccount}
-        >
-          Create Account
-        </Button>
-      </Center>
-    </TouchableWithoutFeedback>
+    <LoginSignUpForm
+      onSubmit={handleSignUp}
+      buttonText="Sign Up"
+      errorMessage={errorMessage}
+      setErrorMessage={setErrorMessage}
+      isLoading={isLoggingIn}
+    />
   );
 }
