@@ -35,7 +35,7 @@ export const LoginSignUpForm = ({
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
-        style={{
+        contentContainerStyle={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
