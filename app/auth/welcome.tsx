@@ -2,11 +2,8 @@ import { Avatar, Button, Center, Text } from "@/components";
 import { View } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
-import { generateRandomName } from "@/utils/user";
-import { useMemo } from "react";
 
 export default function WelcomePage() {
-  const randomUsername = useMemo(generateRandomName, []);
   const router = useRouter();
   const { catalogUser } = useUser();
 
@@ -32,9 +29,7 @@ export default function WelcomePage() {
         }}
       >
         <Avatar size={100} imageUrl={catalogUser?.artworkUrl} />
-        <Text style={{ fontSize: 18 }}>
-          Hi, {catalogUser?.name ?? randomUsername}
-        </Text>
+        <Text style={{ fontSize: 18 }}>Hi, {catalogUser?.name}</Text>
         <Text style={{ fontSize: 18 }}>Welcome to Wavlake!</Text>
       </View>
       <View
