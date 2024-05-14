@@ -3,7 +3,6 @@ import {
   View,
   TouchableWithoutFeedback,
   Keyboard,
-  KeyboardAvoidingView,
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
@@ -25,7 +24,6 @@ import { useUser } from "@/components/UserContextProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { DialogWrapper } from "@/components/DialogWrapper";
-import { generateRandomName } from "@/utils/user";
 
 const getNpubFromNsec = (nsec: string) => {
   const seckey = decodeNsec(nsec);
@@ -41,6 +39,7 @@ const getNpubFromNsec = (nsec: string) => {
 
 export default function Login() {
   const [nsec, setNsec] = useState("");
+  const [isGeneratedNsec, setIsGeneratedNsec] = useState(false);
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -52,19 +51,26 @@ export default function Login() {
   const [hideSecureText, setHideSecureText] = useState(true);
   const { npub, pubkey } = getNpubFromNsec(nsec);
 
-  const { profileEvent, loading } = useLookupNostrProfile(pubkey);
+  const createRandomNsec = () => {
+    const privateKey = generatePrivateKey();
+    setNsec(encodeNsec(privateKey) ?? "");
+    setIsGeneratedNsec(true);
+  };
+
+  // If we generated a new random nsec, dont bother fetching the profile since it's not created yet
+  const { profileEvent, loading } = useLookupNostrProfile(
+    isGeneratedNsec ? null : pubkey,
+  );
 
   // initialize the nsec input
   useEffect(() => {
     (async () => {
       if (user) {
-        // if the user has logged in via firebase, we should have an nsec
         const savedPrivateKey = await getSeckey();
         savedPrivateKey && setNsec(encodeNsec(savedPrivateKey) ?? "");
       } else {
         // if the user is not logged in, generate a new nsec for them
-        const privateKey = generatePrivateKey();
-        setNsec(encodeNsec(privateKey) ?? "");
+        createRandomNsec();
       }
     })();
   }, []);
@@ -154,8 +160,10 @@ export default function Login() {
               autoCorrect={false}
               value={nsec}
               onChangeText={(value) => {
+                // user is entering their own nsec
                 setNsec(value);
                 setErrorMessage("");
+                setIsGeneratedNsec(false);
               }}
               errorMessage={errorMessage}
               rightIcon={<CopyButton value={nsec} />}
@@ -170,43 +178,49 @@ export default function Login() {
                 width: "100%",
               }}
             >
-              {npub && (
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: colors.text,
-                  }}
-                >
-                  {npub.slice(0, 10)}...
-                  {npub.slice(npub.length - 7, npub.length)}
-                </Text>
-              )}
-              {loading ? (
-                <ActivityIndicator animating={loading} size="small" />
-              ) : (
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  {profileEvent?.picture && (
-                    <Avatar size={20} imageUrl={profileEvent.picture} />
-                  )}
-                  {profileEvent?.name && (
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        color: colors.text,
-                      }}
-                    >
-                      {profileEvent.name}
-                    </Text>
-                  )}
-                </View>
-              )}
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                  height: 24,
+                }}
+              >
+                {npub && (
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: colors.text,
+                    }}
+                  >
+                    {npub.slice(0, 10)}...
+                    {npub.slice(npub.length - 7, npub.length)}
+                  </Text>
+                )}
+                {loading ? (
+                  <>
+                    <ActivityIndicator animating={loading} size="small" />
+                    <Text>Searching for profile...</Text>
+                  </>
+                ) : (
+                  <>
+                    {profileEvent?.image && (
+                      <Avatar size={24} imageUrl={profileEvent.image} />
+                    )}
+                    {profileEvent?.name && (
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color: colors.text,
+                        }}
+                      >
+                        {profileEvent.name}
+                      </Text>
+                    )}
+                  </>
+                )}
+              </View>
             </View>
           </View>
           <Button
@@ -219,12 +233,7 @@ export default function Login() {
           <Button color="lightgray" onPress={() => router.back()}>
             Cancel
           </Button>
-          <TouchableOpacity
-            onPress={() => {
-              const randomKey = generatePrivateKey();
-              setNsec(encodeNsec(randomKey) ?? "");
-            }}
-          >
+          <TouchableOpacity onPress={createRandomNsec}>
             <View
               style={{
                 display: "flex",
