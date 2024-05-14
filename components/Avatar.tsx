@@ -16,7 +16,7 @@ export const Avatar = ({ size, imageUrl }: AvatarProps) => {
 
   // use provided imageUrl if available, else use profile picture
   // this is used on the account creation page before the user has a profile event created
-  const avatarUrl = imageUrl ?? profile?.picture;
+  const avatarUrl = imageUrl ?? profile?.image;
   const initial = profile?.name?.[0] ?? "";
 
   if (avatarUrl) {
