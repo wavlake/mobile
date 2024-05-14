@@ -70,6 +70,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       } else {
         // user has signed out, so we need to update the user context
         setCatalogUser(undefined);
+        setUser(null);
       }
     });
 
