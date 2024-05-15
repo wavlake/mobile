@@ -254,7 +254,7 @@ export interface NostrUserProfile {
   [key: string]: string | undefined; // allows custom fields
   name?: string;
   displayName?: string;
-  image?: string;
+  picture?: string;
   banner?: string;
   bio?: string;
   nip05?: string;

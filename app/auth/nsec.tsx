@@ -61,6 +61,7 @@ export default function Login() {
   const { profileEvent, loading } = useLookupNostrProfile(
     isGeneratedNsec ? null : pubkey,
   );
+  console.log(profileEvent);
 
   // initialize the nsec input
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function Login() {
       setIsLoggingIn(false);
     }, 1000);
   };
-
+  const npubAvatarSize = 40;
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
@@ -168,45 +169,48 @@ export default function Login() {
               errorMessage={errorMessage}
               rightIcon={<CopyButton value={nsec} />}
             />
+
             <View
               style={{
                 display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "flex-start",
+                flexDirection: "column",
+                alignItems: "flex-start",
                 gap: 10,
+                height: 60,
                 width: "100%",
               }}
             >
+              {npub && (
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: colors.text,
+                  }}
+                >
+                  {npub.slice(0, 10)}...
+                  {npub.slice(npub.length - 7, npub.length)}
+                </Text>
+              )}
               <View
                 style={{
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "center",
                   gap: 6,
-                  height: 24,
                 }}
               >
-                {npub && (
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: colors.text,
-                    }}
-                  >
-                    {npub.slice(0, 10)}...
-                    {npub.slice(npub.length - 7, npub.length)}
-                  </Text>
-                )}
                 {loading ? (
                   <>
-                    <ActivityIndicator animating={loading} size="small" />
+                    <ActivityIndicator animating={true} size={npubAvatarSize} />
                     <Text>Searching for profile...</Text>
                   </>
                 ) : (
                   <>
-                    {profileEvent?.image && (
-                      <Avatar size={24} imageUrl={profileEvent.image} />
+                    {profileEvent?.picture && (
+                      <Avatar
+                        size={npubAvatarSize}
+                        imageUrl={profileEvent.picture}
+                      />
                     )}
                     {profileEvent?.name && (
                       <Text
@@ -215,7 +219,8 @@ export default function Login() {
                           color: colors.text,
                         }}
                       >
-                        {profileEvent.name}
+                        {"Some fake name placeholder that is super long" ||
+                          profileEvent.name}
                       </Text>
                     )}
                   </>
