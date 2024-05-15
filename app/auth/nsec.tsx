@@ -61,7 +61,6 @@ export default function Login() {
   const { profileEvent, loading } = useLookupNostrProfile(
     isGeneratedNsec ? null : pubkey,
   );
-  console.log(profileEvent);
 
   // initialize the nsec input
   useEffect(() => {
