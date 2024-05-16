@@ -127,3 +127,33 @@ export const useEditUser = ({
     },
   });
 };
+
+interface ZapPayload {
+  contentId: string;
+  msatAmount: number;
+  comment?: string;
+  contentTime?: number;
+}
+
+export const useWavlakeWalletZap = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}) => {
+  return useMutation({
+    mutationFn: async (zapPayload: ZapPayload) => {
+      const { data } = await catalogApiClient.post<
+        ResponseObject<{ userId: string }>
+      >(`/send`, zapPayload);
+      return data.data;
+    },
+    onSuccess() {
+      onSuccess?.();
+    },
+    onError(response: ResponseObject) {
+      onError?.(response.error ?? "Error editing user");
+    },
+  });
+};
