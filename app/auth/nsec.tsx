@@ -218,8 +218,7 @@ export default function Login() {
                           color: colors.text,
                         }}
                       >
-                        {
-                          profileEvent.name}
+                        {profileEvent.name}
                       </Text>
                     )}
                   </>
