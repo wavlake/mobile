@@ -218,7 +218,7 @@ export default function Login() {
                           color: colors.text,
                         }}
                       >
-                        {"Some fake name placeholder that is super long" ||
+                        {
                           profileEvent.name}
                       </Text>
                     )}
