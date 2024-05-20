@@ -107,7 +107,7 @@ export default function Login() {
       setIsLoggingIn(false);
     }, 1000);
   };
-  const npubAvatarSize = 40;
+  const NPUB_AVATAR_SIZE = 40;
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
