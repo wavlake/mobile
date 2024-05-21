@@ -20,6 +20,7 @@ import {
 import { useAuth, useIsNavigationReady } from "@/hooks";
 import { useEffect } from "react";
 import { useUser } from "@/components/UserContextProvider";
+import { Octicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   const pathname = usePathname();
@@ -73,6 +74,15 @@ export default function TabLayout() {
             options={{
               title: "Home",
               tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+            }}
+          />
+          <Tabs.Screen
+            name="pulse"
+            options={{
+              title: "Pulse",
+              tabBarIcon: ({ color }) => (
+                <Octicons name="pulse" size={24} color={color} />
+              ),
             }}
           />
           <Tabs.Screen

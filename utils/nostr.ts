@@ -251,18 +251,19 @@ export const publishEvent = async (relayUris: string[], event: Event) => {
 };
 
 export interface NostrUserProfile {
-  [key: string]: string | undefined; // allows custom fields
   name?: string;
+  banner?: string;
+  about?: string;
+  website?: string;
+  lud16?: string;
+  nip05?: string;
+  picture?: string;
+  // non standard fields below
+  [key: string]: string | undefined; // allows custom fields
   displayName?: string;
   image?: string;
-  banner?: string;
-  bio?: string;
-  nip05?: string;
   lud06?: string;
-  lud16?: string;
-  about?: string;
   zapService?: string;
-  website?: string;
 }
 
 export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
@@ -559,4 +560,24 @@ export const subscribeToTicket = async (pubkey: string) => {
   return getEventFromRelay("wss://relay.wavlake.com", filter).catch((e) => {
     return null;
   });
+};
+
+export const getFollows = async (pubkey: string) => {
+  const filter: Filter = {
+    kinds: [3],
+    authors: [pubkey],
+    limit: 1,
+  };
+
+  return getEventFromPool(filter, DEFAULT_READ_RELAY_URIS);
+};
+
+export const getFollowers = async (pubkey: string) => {
+  const filter: Filter = {
+    kinds: [3],
+    ["#p"]: [pubkey],
+  };
+
+  // todo - subcribe and get multiple events
+  return getEventFromPool(filter, DEFAULT_READ_RELAY_URIS);
 };

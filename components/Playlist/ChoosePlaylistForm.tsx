@@ -2,12 +2,12 @@ import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 import { Button } from "@/components";
-import { UserPlaylists } from "@/utils";
+import { Playlist } from "@/utils";
 import { useEffect, useState } from "react";
 import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";
 
 interface ChoosePlaylistFormProps {
-  playlists: UserPlaylists;
+  playlists: Playlist[];
   contentId: string;
   onSuccess: () => void;
   back: () => void;

@@ -140,16 +140,8 @@ export interface Playlist {
   isFavorites: boolean;
   createdAt: string;
   updatedAt: string;
+  tracks: Pick<Track, "artworkUrl" | "id" | "duration" | "title" | "artist">[];
 }
-
-export type UserPlaylists = Array<
-  Pick<Playlist, "id" | "title"> & {
-    tracks: Pick<
-      Track,
-      "artworkUrl" | "id" | "duration" | "title" | "artist"
-    >[];
-  }
->;
 
 interface Genre {
   id: number;
@@ -434,7 +426,7 @@ export const addToPlaylist = async ({
   return data;
 };
 
-export const getPlaylists = async (): Promise<UserPlaylists> => {
+export const getPlaylists = async (): Promise<Playlist[]> => {
   const url = "/playlists";
   const { data } = await apiClient.get(url, {
     headers: {
