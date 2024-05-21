@@ -125,9 +125,15 @@ export const FullSizeMusicPlayer = () => {
   };
 
   const goToZapPage = () => {
-    const { defaultZapWallet, enableNWC, defaultZapAmount } = settings || {};
+    const {
+      defaultZapWallet,
+      enableNWC,
+      defaultZapAmount,
+      enableWavlakeWallet,
+    } = settings || {};
     const defaultsAreSet =
-      defaultZapAmount && (enableNWC || validateWalletKey(defaultZapWallet));
+      defaultZapAmount &&
+      (enableNWC || validateWalletKey(defaultZapWallet) || enableWavlakeWallet);
     if (!defaultsAreSet) {
       setIsWalletChooserModalVisible(true);
       return;

@@ -25,11 +25,13 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { useUser } from "@/components/UserContextProvider";
 
 export default function SettingsPage() {
   const toast = useToast();
   const router = useRouter();
   const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
   const { colors } = useTheme();
 
   const { data: settings } = useSettings();
@@ -43,6 +45,9 @@ export default function SettingsPage() {
     settings?.allowListeningActivity ?? false,
   );
   const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
+  const [enableWavlakeWallet, setEnableWavlakeWallet] = useState(
+    settings?.enableWavlakeWallet ?? false,
+  );
   const [oneTapZap, setOneTapZap] = useState(settings?.oneTapZap ?? false);
 
   const queryClient = useQueryClient();
@@ -98,9 +103,37 @@ export default function SettingsPage() {
             keyboardType="numeric"
             onChangeText={setDefaultZapAmount}
           />
+          {catalogUser?.isRegionVerified && (
+            <View
+              style={{
+                marginBottom: 24,
+                flexDirection: "row",
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text bold>Use Wavlake Wallet</Text>
+                <Text>
+                  {enableWavlakeWallet
+                    ? "Disable to use a different wallet."
+                    : "Enable to use your wavlake wallet."}
+                </Text>
+              </View>
+              <Switch
+                value={enableWavlakeWallet}
+                onValueChange={setEnableWavlakeWallet}
+                color={brandColors.pink.DEFAULT}
+                trackColor={{
+                  false: colors.border,
+                  true: brandColors.pink.DEFAULT,
+                }}
+                thumbColor={colors.text}
+              />
+            </View>
+          )}
           <WalletChooser
             selectedWallet={defaultZapWallet}
             onSelectedWalletChange={setDefaultZapWallet}
+            enabled={!enableWavlakeWallet}
           />
           <NWCSettings
             nwcRelay={settings.nwcRelay}
@@ -244,8 +277,8 @@ const NWCSettings = ({
             <Text bold>Enable NWC Wallet</Text>
             <Text>
               {enableNWC
-                ? "Disable to use a different wallet for zaps."
-                : "Enable to use NWC wallet for zaps."}
+                ? "Disable to use a different wallet."
+                : "Enable to use NWC wallet."}
             </Text>
           </View>
           <Switch

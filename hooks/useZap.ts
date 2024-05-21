@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
+import { useWavlakeWalletZap } from "@/utils/authTokenApi";
 
 const fetchInvoiceForZap = async ({
   writeRelayList,
@@ -65,6 +66,7 @@ export const useZap = ({
   isLoading: boolean;
   sendZap: SendZap;
 } => {
+  const { mutateAsync: wavlakeWalletZap } = useWavlakeWalletZap({});
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
@@ -83,6 +85,7 @@ export const useZap = ({
     setIsLoading(true);
     const {
       defaultZapWallet,
+      enableWavlakeWallet,
       enableNWC,
       nwcCommands,
       nwcRelay,
@@ -125,7 +128,14 @@ export const useZap = ({
     }
 
     try {
-      if (
+      if (pubkey && enableWavlakeWallet) {
+        await wavlakeWalletZap({
+          contentId: trackId,
+          msatAmount: amountInSats * 1000,
+          comment,
+          contentTime: timestamp,
+        });
+      } else if (
         pubkey &&
         enableNWC &&
         settings?.nwcCommands.includes(payInvoiceCommand)

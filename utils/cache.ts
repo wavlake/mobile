@@ -87,6 +87,7 @@ export interface Settings {
   nwcLud16: string;
   nwcPubkey: string;
   enableNWC: boolean;
+  enableWavlakeWallet: boolean;
   nwcCommands: string[];
   oneTapZap: boolean;
 }
