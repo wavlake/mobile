@@ -207,7 +207,7 @@ export default function Login() {
                   <>
                     {profileEvent?.picture && (
                       <Avatar
-                        size={npubAvatarSize}
+                        size={NPUB_AVATAR_SIZE}
                         imageUrl={profileEvent.picture}
                       />
                     )}
