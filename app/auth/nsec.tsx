@@ -200,7 +200,7 @@ export default function Login() {
               >
                 {loading ? (
                   <>
-                    <ActivityIndicator animating={true} size={npubAvatarSize} />
+                    <ActivityIndicator animating={true} size={NPUB_AVATAR_SIZE} />
                     <Text>Searching for profile...</Text>
                   </>
                 ) : (
