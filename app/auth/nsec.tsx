@@ -52,7 +52,7 @@ export default function Login() {
   const [hideSecureText, setHideSecureText] = useState(true);
   const { npub, pubkey } = getNpubFromNsec(nsec);
 
-  const { profileEvent, loading } = useLookupNostrProfile(pubkey);
+  const { data: profileEvent, isLoading } = useLookupNostrProfile(pubkey);
 
   // initialize the nsec input
   useEffect(() => {
@@ -181,8 +181,8 @@ export default function Login() {
                   {npub.slice(npub.length - 7, npub.length)}
                 </Text>
               )}
-              {loading ? (
-                <ActivityIndicator animating={loading} size="small" />
+              {isLoading ? (
+                <ActivityIndicator animating={true} size="small" />
               ) : (
                 <View
                   style={{
@@ -303,6 +303,3 @@ export const InfoDialog = ({
     </DialogWrapper>
   );
 };
-function useNostrProfileEvent(npub: string | null | undefined) {
-  throw new Error("Function not implemented.");
-}
