@@ -63,7 +63,7 @@ export const useNostrProfile = () => {
 
 // TODO - swap to using the npub cloud run service
 // need to update the cloud run service to return the profile metadata
-export const useLookupNostrProfile = (pubkey?: string | null) => {
+export const useLookupNostrProfile2 = (pubkey?: string | null) => {
   const [profileEvent, setProfileEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
   const { readRelayList } = useNostrRelayList();
@@ -109,4 +109,26 @@ export const useLookupNostrProfile = (pubkey?: string | null) => {
   } catch {
     return { profileEvent: null, loading };
   }
+};
+
+export const useLookupNostrProfile = (pubkey?: string | null) => {
+  const { readRelayList } = useNostrRelayList();
+
+  return useQuery({
+    queryKey: ["nostrProfileMetadata", pubkey],
+    queryFn: async () => {
+      if (!pubkey) return null;
+
+      const event = await getProfileMetadata(pubkey, readRelayList);
+      if (!event) return null;
+
+      try {
+        return JSON.parse(event?.content) as NostrUserProfile;
+      } catch {
+        return null;
+      }
+    },
+    enabled: Boolean(pubkey),
+    staleTime: Infinity,
+  });
 };

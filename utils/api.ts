@@ -436,6 +436,13 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
   return data.data;
 };
 
+export const getUserPlaylists = async (uid: string): Promise<Playlist[]> => {
+  const url = `/playlists/user/${uid}`;
+  const { data } = await apiClient.get(url);
+
+  return data.data;
+};
+
 export const getPlaylist = async (
   playlistId: string,
 ): Promise<{
@@ -492,8 +499,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
