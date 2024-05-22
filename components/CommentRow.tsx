@@ -1,11 +1,11 @@
-import { Comment, encodeNpub } from "@/utils";
+import { ContentComment, encodeNpub } from "@/utils";
 import { View, ViewProps } from "react-native";
 import { BasicAvatar } from "./BasicAvatar";
 import { SatsEarned } from "./SatsEarned";
 import { Text } from "@/components/Text";
 
 interface CenterProps extends ViewProps {
-  comment: Comment;
+  comment: ContentComment;
 }
 
 export const CommentRow = ({ comment }: CenterProps) => {
@@ -40,7 +40,10 @@ export const CommentRow = ({ comment }: CenterProps) => {
         paddingHorizontal: 16,
       }}
     >
-      <BasicAvatar uri={commenterArtworkUrl} />
+      <BasicAvatar
+        uri={commenterArtworkUrl}
+        pubkey={isNostr ? userId : undefined}
+      />
       <View style={{ marginLeft: 10, flex: 1 }}>
         <Text bold>{content}</Text>
         <SatsEarned msats={msatAmount} extraText={extraText} defaultTextColor />
