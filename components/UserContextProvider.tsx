@@ -70,6 +70,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       } else {
         // user has signed out, so we need to update the user context
         setCatalogUser(undefined);
+        setUser(null);
       }
     });
 
@@ -103,7 +104,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         // new mobile user, so create a new nostr account
         const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
           name,
-          image: user.user.photoURL ?? "",
+          // picture: user.user.photoURL ?? "",
         });
 
         nsec && (await login(nsec));
@@ -155,7 +156,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         // new mobile user, so create a new nostr account
         const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
           name: newUser.name,
-          // image: newUser.artworkUrl,
+          // picture: newUser.artworkUrl,
         });
 
         nsec && (await login(nsec));

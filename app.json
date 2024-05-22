@@ -17,9 +17,10 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": ["audio"],
+        "NSLocationWhenInUseUsageDescription": "This app does not use or store your location data. Location is not required."
       },
-      "buildNumber": "5",
+      "buildNumber": "7",
       "bundleIdentifier": "com.wavlake.mobile",
       "config": {
         "usesNonExemptEncryption": false

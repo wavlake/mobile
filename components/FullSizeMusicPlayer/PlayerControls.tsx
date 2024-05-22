@@ -75,11 +75,7 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
         }}
       >
         <Pressable onPress={skipToPrevious}>
-          <Ionicons
-            name="ios-play-skip-back-sharp"
-            size={36}
-            color={colors.text}
-          />
+          <Ionicons name="play-skip-back-sharp" size={36} color={colors.text} />
         </Pressable>
         <PlayPauseTrackButton
           size={80}
@@ -88,7 +84,7 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
         />
         <Pressable onPress={skipToNext}>
           <Ionicons
-            name="ios-play-skip-forward-sharp"
+            name="play-skip-forward-sharp"
             size={36}
             color={colors.text}
           />

@@ -15,7 +15,7 @@ import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 
 interface PlayerButtonProps {
   onPress: () => void;
-  iconName: "ios-play-sharp" | "ios-pause-sharp" | "ios-close-sharp";
+  iconName: "play-sharp" | "pause-sharp" | "close-sharp";
 }
 
 const PlayerButton = ({ onPress, iconName }: PlayerButtonProps) => {
@@ -93,16 +93,13 @@ export const MiniMusicPlayer = () => {
               {willDisplayPauseButton && (
                 <PlayerButton
                   onPress={togglePlayPause}
-                  iconName="ios-pause-sharp"
+                  iconName="pause-sharp"
                 />
               )}
               {willDisplayPlayButton && (
-                <PlayerButton
-                  onPress={togglePlayPause}
-                  iconName="ios-play-sharp"
-                />
+                <PlayerButton onPress={togglePlayPause} iconName="play-sharp" />
               )}
-              <PlayerButton onPress={reset} iconName="ios-close-sharp" />
+              <PlayerButton onPress={reset} iconName="close-sharp" />
             </View>
           </View>
         </View>
