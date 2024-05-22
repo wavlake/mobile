@@ -1,6 +1,6 @@
 import { Dialog } from "@rneui/themed";
 import { useState } from "react";
-import { Dimensions, Pressable, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { Text } from "@/components/Text";
 import { LikeButton } from "@/components/LikeButton";
 import { Button } from "@/components/Button";
@@ -16,12 +16,14 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
+import { PressableIcon } from "../PressableIcon";
 
 interface MoreOptionsProps {
   artist: string;
   artistId: string;
   albumTitle: string;
   albumId: string;
+  size?: number;
 }
 
 export const MoreOptions = ({
@@ -29,6 +31,7 @@ export const MoreOptions = ({
   artistId,
   albumTitle,
   albumId,
+  size = 24,
 }: MoreOptionsProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
@@ -61,15 +64,16 @@ export const MoreOptions = ({
     }
   };
 
-  return pubkey ? (
-    <View style={{ backgroundColor: colors.background }}>
-      <Pressable onPress={() => setIsDialogOpen(true)}>
+  if (!pubkey) return null;
+  return (
+    <>
+      <PressableIcon onPress={() => setIsDialogOpen(true)}>
         <Ionicons
           name="ellipsis-horizontal-sharp"
-          size={24}
+          size={size}
           color={colors.text}
         />
-      </Pressable>
+      </PressableIcon>
       <Dialog
         isVisible={isDialogOpen}
         onBackdropPress={() => setIsDialogOpen(false)}
@@ -151,6 +155,6 @@ export const MoreOptions = ({
           </Button>
         </View>
       </Dialog>
-    </View>
-  ) : null;
+    </>
+  );
 };
