@@ -21,14 +21,13 @@ export const LoginSignUpForm = ({
   buttonText,
   setErrorMessage,
   errorMessage,
-  isLoading,
 }: {
   onSubmit: (email: string, password: string) => void;
   buttonText: string;
   setErrorMessage: (message: string) => void;
   errorMessage: string;
-  isLoading: boolean;
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -75,13 +74,17 @@ export const LoginSignUpForm = ({
         </View>
         <Button
           color="white"
-          onPress={() => onSubmit(email, password)}
+          onPress={async () => {
+            setIsLoading(true);
+            await onSubmit(email, password);
+            setIsLoading(false);
+          }}
           loading={isLoading}
         >
           {buttonText}
         </Button>
         <OrSeparator />
-        <LoginProviders />
+        <LoginProviders setIsLoading={setIsLoading} />
       </ScrollView>
     </TouchableWithoutFeedback>
   );
@@ -98,7 +101,11 @@ const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
     <Icon fill="black" width={40} height={40} />
   </TouchableOpacity>
 );
-const LoginProviders = () => {
+const LoginProviders = ({
+  setIsLoading,
+}: {
+  setIsLoading: (loading: boolean) => void;
+}) => {
   const router = useRouter();
   const { signInWithGoogle } = useUser();
   const { show } = useToast();
@@ -107,6 +114,7 @@ const LoginProviders = () => {
       name: "Google",
       icon: GoogleIcon,
       onPress: async () => {
+        setIsLoading(true);
         const result = await signInWithGoogle();
         if ("error" in result) {
           show(result.error);
@@ -115,6 +123,7 @@ const LoginProviders = () => {
             pathname: "/auth/welcome",
           });
         }
+        setIsLoading(false);
       },
     },
     // TODO: implement these providers
@@ -136,7 +145,9 @@ const LoginProviders = () => {
       name: "Nostr",
       icon: NostrIcon,
       onPress: () => {
+        setIsLoading(true);
         router.push("/auth/nsec");
+        setIsLoading(false);
       },
     },
   ];

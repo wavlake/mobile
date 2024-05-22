@@ -1,13 +1,10 @@
 import { Button, Center, Text } from "@/components";
 import { View } from "react-native";
-import { useUser } from "@/components/UserContextProvider";
 import { useRouter } from "expo-router";
 
 export default function Skip() {
   const router = useRouter();
-  const { signInAnonymously, user } = useUser();
   const handleLoginAnonymously = async () => {
-    !user && (await signInAnonymously());
     router.replace("/");
   };
   return (

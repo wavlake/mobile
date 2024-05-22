@@ -37,5 +37,6 @@ jobs:
       - name: Build Android
         run: eas build --profile external --platform android
 
-      - name: Build iOS
-        run: eas build --profile external --platform ios
+      # TODO fix this build
+      # - name: Build iOS
+      #   run: eas build --profile external --platform ios

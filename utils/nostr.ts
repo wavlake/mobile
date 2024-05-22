@@ -261,7 +261,7 @@ export interface NostrUserProfile {
   // non standard fields below
   [key: string]: string | undefined; // allows custom fields
   displayName?: string;
-  image?: string;
+  bio?: string;
   lud06?: string;
   zapService?: string;
 }
