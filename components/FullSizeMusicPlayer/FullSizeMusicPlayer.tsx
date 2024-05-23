@@ -23,7 +23,7 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
-import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
+import { OverflowMenu } from "@/components/FullSizeMusicPlayer/OverflowMenu";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
@@ -262,7 +262,7 @@ export const FullSizeMusicPlayer = () => {
             >
               <ShareButton url={shareUrl} />
               {isMusic && (
-                <MoreOptions
+                <OverflowMenuMenu
                   artist={artist}
                   artistId={artistId}
                   albumTitle={albumTitle}

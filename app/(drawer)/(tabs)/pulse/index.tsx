@@ -5,28 +5,20 @@ import {
   useMiniMusicPlayer,
   useMusicPlayer,
 } from "@/components";
-import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
+import { OverflowMenuDialog } from "@/components/FullSizeMusicPlayer/OverflowMenuDialog";
 import { LikeButton } from "@/components/LikeButton";
 import MosaicImage from "@/components/Mosaic";
 import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
 import { ShareButton } from "@/components/ShareButton";
 import { Text } from "@/components/Text";
-import {
-  useAddAlbumToLibrary,
-  useAddArtistToLibrary,
-  useAddTrackToLibrary,
-  useDeleteAlbumFromLibrary,
-  useDeleteArtistFromLibrary,
-  useDeleteTrackFromLibrary,
-  useIsAlbumInLibrary,
-  useIsArtistInLibrary,
-  useIsTrackInLibrary,
-} from "@/hooks";
+
 import { usePubkeyPlaylists } from "@/hooks/playlist/usePubkeyPlaylists";
 import { Playlist, togglePlayPause } from "@/utils";
 import { Link, useRouter } from "expo-router";
+import { useState } from "react";
 import {
   FlatList,
+  Pressable,
   RefreshControl,
   ScrollView,
   TouchableOpacity,
@@ -178,18 +170,9 @@ const ActivityItemRow = ({
     parentContentId,
     parentContentTitle,
   } = activityItem;
+  const [overflowDialogIsOpen, setOverflowDialogIsOpen] = useState(false);
   const { height } = useMiniMusicPlayer();
   const marginBottom = isLastRow ? height + 16 : 16;
-  const isTrackInLibrary = useIsTrackInLibrary(contentId);
-  const isArtistInLibrary = useIsArtistInLibrary(contentId);
-  const isAlbumInLibrary = useIsAlbumInLibrary(contentId);
-  const addTrackToLibraryMutation = useAddTrackToLibrary();
-  const addArtistToLibraryMutation = useAddArtistToLibrary();
-  const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
-  const deleteArtistFromLibraryMutation = useDeleteArtistFromLibrary();
-  const addAlbumToLibraryMutation = useAddAlbumToLibrary();
-  const deleteAlbumFromLibraryMutation = useDeleteAlbumFromLibrary();
-
   const { state: playbackState } = usePlaybackState();
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
 
@@ -228,42 +211,6 @@ const ActivityItemRow = ({
     // contentType === "playlist" ||
     contentType === "album" ||
     contentType === "artist";
-  const handleLikePress = async () => {
-    if (!activityIsMusic) return;
-
-    if (contentType === "track") {
-      if (isTrackInLibrary) {
-        deleteTrackFromLibraryMutation.mutate(contentId);
-      } else {
-        addTrackToLibraryMutation.mutate({ id: contentId });
-      }
-    }
-
-    if (contentType === "artist") {
-      if (isArtistInLibrary) {
-        deleteArtistFromLibraryMutation.mutate(contentId);
-      } else {
-        addArtistToLibraryMutation.mutate({ id: contentId });
-      }
-    }
-
-    if (contentType === "album") {
-      if (isAlbumInLibrary) {
-        deleteAlbumFromLibraryMutation.mutate(contentId);
-      } else {
-        addAlbumToLibraryMutation.mutate({ id: contentId });
-      }
-    }
-
-    // TODO - handle playlists
-    // if (contentType === "playlist") {
-    // if (isArtistInLibrary) {
-    //   deleteArtistFromLibraryMutation.mutate(contentId);
-    // } else {
-    //   addArtistToLibraryMutation.mutate({ id: contentId });
-    // }
-    // }
-  };
 
   if (!contentId || !contentTitle) return null;
 
@@ -293,7 +240,9 @@ const ActivityItemRow = ({
           }}
         />
       )}
-      <View
+      <Pressable
+        onPress={handlePlayPausePress}
+        onLongPress={() => setOverflowDialogIsOpen(true)}
         style={{
           display: "flex",
           flexDirection: "row",
@@ -325,47 +274,19 @@ const ActivityItemRow = ({
               {contentTitle}
             </Text>
           </View>
-          <PlayPauseTrackButton
-            size={50}
-            type={isThisTrackListPlaying ? "pause" : "play"}
-            onPress={handlePlayPausePress}
-          />
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 15,
-              justifyContent: "flex-start",
-            }}
-          >
-            <LikeButton
-              onPress={handleLikePress}
-              size={30}
-              isLiked={isTrackInLibrary}
-              isLoading={
-                addTrackToLibraryMutation.isLoading ||
-                deleteTrackFromLibraryMutation.isLoading
-              }
-              isMusic={activityIsMusic}
+          {activityIsMusic && (
+            <OverflowMenuDialog
+              // TODO - implement this
+              artist={"artist"}
+              artistId={"artistId"}
+              albumTitle={"albumTitle"}
+              albumId={"albumId"}
+              setIsOpen={setOverflowDialogIsOpen}
+              isOpen={overflowDialogIsOpen}
             />
-            <PlaylistButton
-              contentId={contentId}
-              contentTitle={contentTitle}
-              isMusic={activityIsMusic}
-            />
-            {shareUrl && <ShareButton url={shareUrl} />}
-            {activityIsMusic && (
-              <MoreOptions
-                // TODO - implement this
-                artist={"artist"}
-                artistId={"artistId"}
-                albumTitle={"albumTitle"}
-                albumId={"albumId"}
-              />
-            )}
-          </View>
+          )}
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 };

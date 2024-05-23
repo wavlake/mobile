@@ -198,7 +198,7 @@ export default function Login() {
                   gap: 6,
                 }}
               >
-                {loading ? (
+                {isLoading ? (
                   <>
                     <ActivityIndicator
                       animating={true}
