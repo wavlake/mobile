@@ -75,7 +75,7 @@ export interface ContentComment {
   id: number;
   contentId: string;
   title: string;
-  content: string;
+  content?: string;
   createdAt: string;
   msatAmount: number;
   userId: string;
@@ -440,7 +440,7 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
 export const getUserPlaylists = async (uid: string): Promise<Playlist[]> => {
   const url = `/playlists/user/${uid}`;
   const { data } = await apiClient.get(url);
-
+  console.log("data", data);
   return data.data;
 };
 
@@ -452,11 +452,7 @@ export const getPlaylist = async (
   tracks: Track[];
 }> => {
   const url = `/playlists/${playlistId}`;
-  const { data } = await apiClient.get(url, {
-    headers: {
-      Authorization: await createAuthHeader(url),
-    },
-  });
+  const { data } = await apiClient.get(url);
   return data.data;
 };
 
@@ -500,8 +496,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -566,5 +562,5 @@ export const getPubkeyMetadata = async (pubkey?: string | null) => {
     {},
   );
 
-  return data.data;
+  return data?.data;
 };

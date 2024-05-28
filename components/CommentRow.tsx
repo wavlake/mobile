@@ -5,12 +5,11 @@ import { SatsEarned } from "./SatsEarned";
 import { Text } from "@/components/Text";
 
 interface CenterProps extends ViewProps {
-  comment: ContentComment;
+  comment: Omit<ContentComment, "id">;
 }
 
 export const CommentRow = ({ comment }: CenterProps) => {
   const {
-    id,
     commenterArtworkUrl,
     content,
     msatAmount,
@@ -33,7 +32,6 @@ export const CommentRow = ({ comment }: CenterProps) => {
 
   return (
     <View
-      key={id}
       style={{
         marginBottom: 16,
         flexDirection: "row",
@@ -45,7 +43,7 @@ export const CommentRow = ({ comment }: CenterProps) => {
         pubkey={isNostr ? userId : undefined}
       />
       <View style={{ marginLeft: 10, flex: 1 }}>
-        <Text bold>{content}</Text>
+        {content && <Text bold>{content}</Text>}
         <SatsEarned msats={msatAmount} extraText={extraText} defaultTextColor />
       </View>
     </View>

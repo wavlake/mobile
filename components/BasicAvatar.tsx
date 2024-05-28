@@ -18,11 +18,14 @@ export const BasicAvatar = ({ uri, size = 32, pubkey }: BasicAvatarProps) => {
       size={size}
       rounded
       source={{ uri }}
-      onPress={() =>
-        router.push({
-          pathname: `/pulse/profile/${pubkey}`,
-          params: { includeBackButton: true },
-        })
+      onPress={
+        pubkey
+          ? () =>
+              router.push({
+                pathname: `/pulse/profile/${pubkey}`,
+                params: { includeBackButton: true },
+              })
+          : undefined
       }
     />
   ) : (

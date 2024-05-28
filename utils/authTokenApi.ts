@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { ResponseObject } from "./api";
+import { NostrUserProfile } from "./nostr";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 
@@ -62,7 +63,7 @@ export interface NostrProfileData {
     display_name?: string;
     displayName?: string;
     username?: string;
-  };
+  } & NostrUserProfile;
   followerCount: number;
   follows: { pubkey: string }[];
 }

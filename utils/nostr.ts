@@ -561,23 +561,3 @@ export const subscribeToTicket = async (pubkey: string) => {
     return null;
   });
 };
-
-export const getFollows = async (pubkey: string) => {
-  const filter: Filter = {
-    kinds: [3],
-    authors: [pubkey],
-    limit: 1,
-  };
-
-  return getEventFromPool(filter, DEFAULT_READ_RELAY_URIS);
-};
-
-export const getFollowers = async (pubkey: string) => {
-  const filter: Filter = {
-    kinds: [3],
-    ["#p"]: [pubkey],
-  };
-
-  // todo - subcribe and get multiple events
-  return getEventFromPool(filter, DEFAULT_READ_RELAY_URIS);
-};

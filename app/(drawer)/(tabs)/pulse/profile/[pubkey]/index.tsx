@@ -1,37 +1,20 @@
-import {
-  ScrollView,
-  TouchableOpacity,
-  View,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { View, Image, ActivityIndicator, FlatList } from "react-native";
 import { SectionHeader } from "@/components/SectionHeader";
-import { Divider } from "@rneui/themed";
-import { useQuery } from "@tanstack/react-query";
-import { NostrUserProfile, Playlist, getGenres } from "@/utils";
 import { brandColors } from "@/constants";
 import { Text } from "@/components/Text";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 import { Avatar, SlimButton, Center } from "@/components";
 import { usePubkeyPlaylists } from "@/hooks/playlist/usePubkeyPlaylists";
 import { PlaylistRow } from "@/components/PlaylistRow";
-import { useLookupNostrProfile } from "@/hooks";
 import { useEffect, useState } from "react";
-import {
-  useNostrFollowers,
-  useNostrFollows,
-} from "@/hooks/nostrProfile/useFollowers";
 import { openURL } from "expo-linking";
-import { useUser } from "@/components/UserContextProvider";
+import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
+import { ActivityItem, mockActivityItems } from "../..";
 
 const AVATAR_SIZE = 80;
-export default function PulsePage() {
-  const { height } = useMiniMusicPlayer();
+export default function PulseProfilePage() {
   const { pubkey } = useLocalSearchParams();
-  const { data: profileEvent, isLoading } = useLookupNostrProfile(
-    pubkey as string,
-  );
 
   if (!pubkey || typeof pubkey !== "string") {
     return (
@@ -41,43 +24,37 @@ export default function PulsePage() {
     );
   }
 
-  if (isLoading) {
-    return (
-      <Center>
-        <Text>Loading...</Text>
-      </Center>
-    );
-  }
-
-  return (
-    <ScrollView style={{ paddingTop: 10, marginBottom: height + 16 }}>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {profileEvent && (
-          <UserDetails pubkey={pubkey} profileEvent={profileEvent} />
-        )}
-        <Playlists />
-        <Activity />
-      </View>
-    </ScrollView>
-  );
+  return <PubkeyProfilePage pubkey={pubkey} />;
 }
 
-const UserDetails = ({
-  profileEvent,
-  pubkey,
-}: {
-  profileEvent: NostrUserProfile;
-  pubkey: string;
-}) => {
-  const { picture, name, banner, about, website, nip05 } = profileEvent;
+const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
+  const { height } = useMiniMusicPlayer();
+  const activity: ActivityItem[] = mockActivityItems;
+  // const { data: activity = [], isLoading } = usePubkeyActivity(
+  //   pubkey as string,
+  // );
+  return (
+    <FlatList
+      data={activity}
+      ListHeaderComponent={() => (
+        <View>
+          <UserDetails pubkey={pubkey} />
+          <Playlists pubkey={pubkey} />
+        </View>
+      )}
+      renderItem={({ item, index }) => <ActivityItemRow item={item} />}
+      keyExtractor={(item) => item.contentId + item.timestamp}
+    />
+  );
+};
+
+const UserDetails = ({ pubkey }: { pubkey: string }) => {
+  const { data: profileData, isLoading } = useCatalogPubkey(pubkey as string);
+  const { picture, name, banner, about, website, nip05 } =
+    profileData?.metadata ?? {};
+  const { followerCount, follows } = profileData || {};
+
   const [isNip05Verified, setIsNip05Verified] = useState(false);
-  const { followerList, loading: followersLoading } = useNostrFollowers(pubkey);
-  const { followList, loading: followsLoading } = useNostrFollows(pubkey);
   useEffect(() => {
     if (!nip05) return;
     // TODO - update nostr-tools to include a queryProfile function
@@ -137,11 +114,13 @@ const UserDetails = ({
               {name}
             </Text>
 
-            <Text style={{ fontSize: 12 }}>
-              {`${followerList?.length ?? 0} followers • ${
-                followList?.length ?? 0
-              } following`}
-            </Text>
+            {profileData && (
+              <Text style={{ fontSize: 12 }}>
+                {`${followerCount ?? 0} followers • ${
+                  follows?.length ?? 0
+                } following`}
+              </Text>
+            )}
           </View>
           <View
             style={{
@@ -187,19 +166,15 @@ const UserDetails = ({
   );
 };
 
-const Playlists = () => {
-  const { pubkey } = useLocalSearchParams();
+const Playlists = ({ pubkey }: { pubkey: string }) => {
   const router = useRouter();
-  const user = useUser();
   const { data: playlists = [], isLoading } = usePubkeyPlaylists(
-    // pubkey as string,
-    user.catalogUser?.id,
+    pubkey as string,
   );
 
-  console.log("playlists", playlists);
   const handlePlaylistPress = (playlist: { id: string; title: string }) => {
     router.push({
-      pathname: `/library/music/playlists/${playlist.id}`,
+      pathname: `/pulse/profile/${pubkey}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
         playlistTitle: playlist.title,
@@ -213,10 +188,8 @@ const Playlists = () => {
         title="Playlists"
         rightNavText="View All"
         rightNavHref={{
-          pathname: `/home`,
+          pathname: `/pulse/profile/${pubkey}/playlists`,
           params: {
-            // artistId,
-            // headerTitle: artist.name,
             includeBackButton: true,
           },
         }}
@@ -239,51 +212,23 @@ const Playlists = () => {
   ) : null;
 };
 
-const Activity = () => {
-  const { pubkey } = useLocalSearchParams();
+const ActivityItemRow = ({ item }: { item: ActivityItem }) => {
   const router = useRouter();
-  const { data: activity = [], isLoading } = usePubkeyPlaylists(
-    pubkey as string,
-  );
-  const handlePlaylistPress = (playlist: { id: string; title: string }) => {
-    router.push({
-      pathname: `/library/music/playlists/${playlist.id}`,
-      params: {
-        headerTitle: playlist.title,
-        playlistTitle: playlist.title,
-        includeBackButton: true,
-      },
-    });
+
+  const handlePlaylistPress = () => {
+    // router.push({
+    //   pathname: `/library/music/playlists/${playlist.id}`,
+    //   params: {
+    //     headerTitle: playlist.title,
+    //     playlistTitle: playlist.title,
+    //     includeBackButton: true,
+    //   },
+    // });
   };
 
-  return activity.length ? (
+  return (
     <View>
-      <SectionHeader
-        title="Playlists"
-        rightNavText="View All"
-        rightNavHref={{
-          pathname: `/home`,
-          params: {
-            // artistId,
-            // headerTitle: artist.name,
-            includeBackButton: true,
-          },
-        }}
-      />
-      {isLoading ? (
-        <Center>
-          <ActivityIndicator />
-        </Center>
-      ) : (
-        activity.map((item, index) => (
-          <PlaylistRow
-            playlist={item}
-            onPress={() => handlePlaylistPress(item)}
-            isLastRow={index === activity.length - 1}
-            height={20}
-          />
-        ))
-      )}
+      <Text>{item.contentTitle}</Text>
     </View>
-  ) : null;
+  );
 };

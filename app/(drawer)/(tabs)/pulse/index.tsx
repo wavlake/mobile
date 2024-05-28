@@ -1,116 +1,78 @@
 import {
   Center,
   CommentRow,
-  PlaylistButton,
   useMiniMusicPlayer,
   useMusicPlayer,
 } from "@/components";
-import { OverflowMenuDialog } from "@/components/FullSizeMusicPlayer/OverflowMenuDialog";
-import { LikeButton } from "@/components/LikeButton";
 import MosaicImage from "@/components/Mosaic";
-import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
-import { ShareButton } from "@/components/ShareButton";
 import { Text } from "@/components/Text";
-
-import { usePubkeyPlaylists } from "@/hooks/playlist/usePubkeyPlaylists";
-import { Playlist, togglePlayPause } from "@/utils";
-import { Link, useRouter } from "expo-router";
+import { togglePlayPause } from "@/utils";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 import { State, usePlaybackState } from "react-native-track-player";
-interface ActivityItem {
-  artwork?: string;
-  shareUrl?: string;
-  contentTitle?: string;
-  contentId: string;
-  parentContentTitle?: string;
-  parentContentId?: string;
-  contentType: string;
-  timestamp: string;
+
+export interface ActivityItem {
+  picture: string;
+  name: string;
   userId: string;
-  // zap metadata
-  zap?: {
-    ampId: number;
-    userId: string | "keysend" | "invoice";
-    msatAmount: number;
-    createdAt: string;
-    contentId: string;
-    contentType: "track" | "playlist" | "episode";
-    comment: string;
-  };
+  pubkey: string;
+  description: string;
+  type: string;
+  message?: string;
+  zapAmount?: number;
+  timestamp: string;
+  contentId: string;
+  contentTitle: string;
+  contentType: string;
+  contentArtwork: string[];
+  parentContentId: string;
+  parentContentTitle: string;
+  parentContentType: string;
 }
 
-const mockActivityItems: ActivityItem[] = [
+export const mockActivityItems: ActivityItem[] = [
   {
-    artwork: "https://picsum.photos/200",
-    shareUrl: "https://picsum.photos/200",
+    picture: "https://picsum.photos/200",
+    contentId: "d6ea5835-e584-46eb-8e2b-ff17d1a822e5",
     contentTitle: "item #1",
-    contentId:
-      "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
     contentType: "track",
-    timestamp: "2021-08-24T20:00:06Z",
+    contentArtwork: ["https://picsum.photos/200"],
+    timestamp: "2021-08-24T20:20:06Z",
     userId: "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
+    pubkey: "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
+    name: "Josh",
+    description: "@Josh zapped this track",
+    type: "zap",
+    zapAmount: 10000,
+    parentContentId: "727c7538-1a3c-4120-a81e-8e63f5dbe027",
+    parentContentTitle: "playlist title",
+    parentContentType: "playlist",
   },
   {
-    artwork: "https://picsum.photos/200",
-    shareUrl: "https://picsum.photos/200",
-    contentTitle: "A song name",
-    contentId: "6ce6d43f-39f0-47fb-b3ef-80c5d0726c09",
-    contentType: "album",
-    timestamp: "2021-08-24T20:00:05Z",
-    userId: "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
-    zap: {
-      ampId: 1,
-      userId:
-        "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
-      msatAmount: 100000,
-      contentId: "6ce6d43f-39f0-47fb-b3ef-80c5d0726c09",
-      createdAt: "2021-08-24T20:00:04Z",
-      contentType: "track",
-      comment: "This is a message from a zap",
-    },
-  },
-  {
-    artwork: "https://picsum.photos/200",
-    shareUrl: "https://picsum.photos/200",
-    contentTitle: "Free Fall",
-    contentId: "d1151095-727f-45ee-b46a-0b8b93e4020b",
-    contentType: "album",
-    timestamp: "2021-08-22T20:00:10Z",
-    userId: "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
-    zap: {
-      ampId: 1,
-      userId:
-        "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
-      msatAmount: 120000,
-      createdAt: "2021-08-22T20:00:20Z",
-      contentId: "d1151095-727f-45ee-b46a-0b8b93e4020b",
-      contentType: "track",
-      comment: "dope song",
-    },
-  },
-  {
-    artwork: "https://picsum.photos/200",
-    shareUrl: "https://picsum.photos/200",
-    contentTitle: "Item #4",
-    contentId:
-      "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
+    picture: "https://picsum.photos/200",
+    contentId: "0010ec00-2ac4-4b25-88ff-70d604413dc3",
+    contentTitle: "item #1",
     contentType: "track",
-    timestamp: "2021-08-24T20:00:30Z",
+    contentArtwork: ["https://picsum.photos/200"],
+    timestamp: "2021-08-24T20:00:16Z",
     userId: "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
+    pubkey: "93e174736c4719f80627854aca8b67efd0b59558c8ece267a8eccbbd2e7c5535",
+    name: "Josh",
+    description: "@Josh commented on this track",
+    type: "zap",
+    message: "great track!!",
+    zapAmount: 312000,
+    parentContentId: "db63f4ca-4017-4843-b4b0-aefee929238e",
+    parentContentTitle: "album title here",
+    parentContentType: "album",
   },
 ];
 
 const PulsePage = () => {
   const router = useRouter();
   const activity = mockActivityItems;
+  // TODO - add activty endpoint
   // const {
   //   data: activity = [],
   //   isLoading,
@@ -129,13 +91,7 @@ const PulsePage = () => {
         // }
         renderItem={({ item, index }) => {
           const isLastRow = index === activity.length - 1;
-          return (
-            <ActivityItemRow
-              activityItem={item}
-              onPress={() => console.log(item)}
-              isLastRow={isLastRow}
-            />
-          );
+          return <ActivityItemRow activityItem={item} isLastRow={isLastRow} />;
         }}
         keyExtractor={(item) => item.contentId + item.timestamp}
         scrollEnabled
@@ -151,24 +107,24 @@ const PulsePage = () => {
 
 const ActivityItemRow = ({
   activityItem,
-  onPress,
   isLastRow,
 }: {
   activityItem: ActivityItem;
-  onPress: () => void;
   isLastRow: boolean;
 }) => {
   const {
     contentTitle,
-    artwork,
+    contentArtwork,
     contentType,
     timestamp,
     userId,
-    zap,
     contentId,
-    shareUrl,
     parentContentId,
     parentContentTitle,
+    message,
+    picture,
+    zapAmount,
+    name,
   } = activityItem;
   const [overflowDialogIsOpen, setOverflowDialogIsOpen] = useState(false);
   const { height } = useMiniMusicPlayer();
@@ -184,16 +140,6 @@ const ActivityItemRow = ({
     if (isThisTrackListLoaded) {
       return togglePlayPause();
     }
-
-    if (!parentContentId) {
-      return;
-    }
-
-    // const topTracks = artist?.topTracks ?? [];
-
-    // if (topTracks.length === 0) {
-    //   return;
-    // }
 
     // TODO - get content list from activity item
     // e.g. an albums tracks, playlist tracks, etc.
@@ -223,20 +169,19 @@ const ActivityItemRow = ({
         alignItems: "center",
       }}
     >
-      {zap && (
+      {zapAmount && (
         <CommentRow
           comment={{
-            content: zap.comment,
+            content: message,
             createdAt: timestamp,
-            commenterArtworkUrl: "https://picsum.photos/200",
-            msatAmount: zap.msatAmount,
+            commenterArtworkUrl: picture,
+            msatAmount: zapAmount,
             userId,
-            id: zap.ampId,
-            name: "Josh",
-            title: contentTitle ?? "",
-            isNostr: false,
+            name: name,
+            title: contentTitle,
+            isNostr: true,
             replies: [],
-            contentId: zap.contentId,
+            contentId,
           }}
         />
       )}
@@ -252,7 +197,7 @@ const ActivityItemRow = ({
           justifyContent: "space-between",
         }}
       >
-        <MosaicImage imageUrls={artwork ? [artwork] : []} size={75} />
+        <MosaicImage imageUrls={contentArtwork} size={75} />
         <View
           style={{
             display: "flex",
@@ -271,10 +216,10 @@ const ActivityItemRow = ({
               {contentTitle}
             </Text>
             <Text style={{ fontSize: 18 }} numberOfLines={3} bold>
-              {contentTitle}
+              {parentContentTitle}
             </Text>
           </View>
-          {activityIsMusic && (
+          {/* {activityIsMusic && (
             <OverflowMenuDialog
               // TODO - implement this
               artist={"artist"}
@@ -284,7 +229,7 @@ const ActivityItemRow = ({
               setIsOpen={setOverflowDialogIsOpen}
               isOpen={overflowDialogIsOpen}
             />
-          )}
+          )} */}
         </View>
       </Pressable>
     </View>

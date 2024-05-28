@@ -262,7 +262,7 @@ export const FullSizeMusicPlayer = () => {
             >
               <ShareButton url={shareUrl} />
               {isMusic && (
-                <OverflowMenuMenu
+                <OverflowMenu
                   artist={artist}
                   artistId={artistId}
                   albumTitle={albumTitle}
