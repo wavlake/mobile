@@ -2,6 +2,7 @@ import axios from "axios";
 import { getAuthToken, signEvent } from "@/utils/nostr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
+import { NostrProfileData } from "./authTokenApi";
 
 // response.data should have this shape
 export interface ResponseObject<T = any> {
@@ -499,8 +500,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -556,4 +557,14 @@ export const useAddPubkeyToUser = ({
       onError?.(response.error ?? "Error adding pubkey to user");
     },
   });
+};
+
+export const getPubkeyMetadata = async (pubkey?: string | null) => {
+  if (!pubkey) return null;
+  const { data } = await apiClient.get<ResponseObject<NostrProfileData>>(
+    `/accounts/${pubkey}`,
+    {},
+  );
+
+  return data.data;
 };

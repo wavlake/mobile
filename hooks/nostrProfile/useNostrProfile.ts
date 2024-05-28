@@ -7,9 +7,9 @@ import {
   getProfileMetadata,
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { Event } from "nostr-tools";
+import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
 const useNostrProfileEvent = (pubkey: string) => {
   const { readRelayList } = useNostrRelayList();
