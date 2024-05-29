@@ -3,14 +3,15 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { brandColors } from "@/constants";
 import { Text } from "@/components/Text";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
-import { Avatar, SlimButton, Center } from "@/components";
+import { Avatar, SlimButton, Center, ActivityItemRow } from "@/components";
 import { usePubkeyPlaylists } from "@/hooks/playlist/usePubkeyPlaylists";
 import { PlaylistRow } from "@/components/PlaylistRow";
 import { useEffect, useState } from "react";
 import { openURL } from "expo-linking";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
-import { ActivityItem, mockActivityItems } from "../..";
+import { useUser } from "@/components/UserContextProvider";
+import { useAddFollower, useRemoveFollower } from "@/utils";
+import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
 
 const AVATAR_SIZE = 80;
 export default function PulseProfilePage() {
@@ -28,11 +29,10 @@ export default function PulseProfilePage() {
 }
 
 const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
-  const { height } = useMiniMusicPlayer();
-  const activity: ActivityItem[] = mockActivityItems;
-  // const { data: activity = [], isLoading } = usePubkeyActivity(
-  //   pubkey as string,
-  // );
+  const { data: activity = [], isLoading } = usePubkeyActivity(
+    pubkey as string,
+  );
+
   return (
     <FlatList
       data={activity}
@@ -40,19 +40,48 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
         <View>
           <UserDetails pubkey={pubkey} />
           <Playlists pubkey={pubkey} />
+          <SectionHeader
+            title="Recent Activity"
+            rightNavText="View All"
+            rightNavHref={{
+              pathname: `/pulse/profile/${pubkey}/activity`,
+              params: {
+                includeBackButton: true,
+              },
+            }}
+          />
         </View>
       )}
-      renderItem={({ item, index }) => <ActivityItemRow item={item} />}
+      renderItem={({ item, index }) => (
+        <ActivityItemRow
+          item={item}
+          isLastRow={index === activity.length - 1}
+        />
+      )}
       keyExtractor={(item) => item.contentId + item.timestamp}
     />
   );
 };
 
 const UserDetails = ({ pubkey }: { pubkey: string }) => {
+  const { catalogUser } = useUser();
   const { data: profileData, isLoading } = useCatalogPubkey(pubkey as string);
   const { picture, name, banner, about, website, nip05 } =
     profileData?.metadata ?? {};
   const { followerCount, follows } = profileData || {};
+  const { mutateAsync: addFollower } = useAddFollower();
+  const { mutateAsync: removeFollower } = useRemoveFollower();
+  const userIsFollowing = catalogUser?.nostrProfileData[0]?.follows.some(
+    (follow) => follow.pubkey === pubkey,
+  );
+
+  const onFollowPress = () => {
+    if (userIsFollowing) {
+      removeFollower(pubkey);
+    } else {
+      addFollower(pubkey);
+    }
+  };
 
   const [isNip05Verified, setIsNip05Verified] = useState(false);
   useEffect(() => {
@@ -129,8 +158,13 @@ const UserDetails = ({ pubkey }: { pubkey: string }) => {
               justifyContent: "center",
             }}
           >
-            <SlimButton width={100} color="white" titleStyle={{ fontSize: 14 }}>
-              Follow
+            <SlimButton
+              width={100}
+              color="white"
+              titleStyle={{ fontSize: 14 }}
+              onPress={onFollowPress}
+            >
+              {userIsFollowing ? "Unfollow" : "Follow"}
             </SlimButton>
           </View>
         </View>
@@ -210,25 +244,4 @@ const Playlists = ({ pubkey }: { pubkey: string }) => {
       )}
     </View>
   ) : null;
-};
-
-const ActivityItemRow = ({ item }: { item: ActivityItem }) => {
-  const router = useRouter();
-
-  const handlePlaylistPress = () => {
-    // router.push({
-    //   pathname: `/library/music/playlists/${playlist.id}`,
-    //   params: {
-    //     headerTitle: playlist.title,
-    //     playlistTitle: playlist.title,
-    //     includeBackButton: true,
-    //   },
-    // });
-  };
-
-  return (
-    <View>
-      <Text>{item.contentTitle}</Text>
-    </View>
-  );
 };

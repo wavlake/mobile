@@ -47,3 +47,4 @@ export * from "./AlbumCommentPage";
 export * from "./TicketEvents";
 export * from "./SlimButton";
 export * from "./PlaylistPage";
+export * from "./ActivityItemRow";

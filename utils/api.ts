@@ -3,6 +3,7 @@ import { getAuthToken, signEvent } from "@/utils/nostr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
 import { NostrProfileData } from "./authTokenApi";
+import { ActivityItem } from "@/components";
 
 // response.data should have this shape
 export interface ResponseObject<T = any> {
@@ -569,6 +570,27 @@ export const getPubkeyMetadata = async (pubkey?: string | null) => {
   if (!pubkey) return null;
   const { data } = await apiClient.get<ResponseObject<NostrProfileData>>(
     `/accounts/${pubkey}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const getActivityFeed = async (pubkey?: string | null) => {
+  if (!pubkey) return [];
+
+  const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
+    `/social/feed/${pubkey}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const getPubkeyActivity = async (pubkey?: string | null) => {
+  if (!pubkey) return [];
+  const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
+    `/social/feed/user/${pubkey}`,
     {},
   );
 

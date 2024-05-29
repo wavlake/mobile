@@ -21,7 +21,7 @@ export default function ProfilePlaylistsPage() {
   } = usePubkeyPlaylists(pubkey as string);
   const handleRowPress = (playlist: { id: string; title: string }) => {
     router.push({
-      pathname: `/library/music/playlists/${playlist.id}`,
+      pathname: `/pulse/profile/${pubkey}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
         playlistTitle: playlist.title,
