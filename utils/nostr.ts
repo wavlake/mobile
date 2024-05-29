@@ -39,6 +39,7 @@ import {
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
 import { ShowEvents } from "@/constants/events";
+import { useMutation } from "@tanstack/react-query";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
@@ -559,5 +560,27 @@ export const subscribeToTicket = async (pubkey: string) => {
 
   return getEventFromRelay("wss://relay.wavlake.com", filter).catch((e) => {
     return null;
+  });
+};
+
+export const useAddFollower = () => {
+  return useMutation({
+    mutationFn: (pubkey: string) => {
+      console.log("add follower", pubkey);
+      // TODO: add follower
+
+      return Promise.resolve();
+    },
+  });
+};
+
+export const useRemoveFollower = () => {
+  return useMutation({
+    mutationFn: (pubkey: string) => {
+      console.log("remove follower", pubkey);
+      // TODO: remove follower
+
+      return Promise.resolve();
+    },
   });
 };
