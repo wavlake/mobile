@@ -50,13 +50,7 @@ export const OverflowMenuDialog = ({
         opacity: 0.8,
       }}
     >
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+      <View style={{ gap: 24 }}>
         {artist && artistId && (
           <ArtistSection artistId={artistId} artist={artist} />
         )}
@@ -100,7 +94,13 @@ const ArtistSection = ({
     }
   };
   return (
-    <View style={{ gap: 24 }}>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
       <View style={{ flex: 1 }}>
         <Text>Artist</Text>
         <Text
@@ -150,6 +150,7 @@ const AlbumSection = ({
       });
     }
   };
+
   return (
     <View
       style={{

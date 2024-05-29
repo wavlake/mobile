@@ -28,7 +28,6 @@ import { useAuth } from "@/hooks";
 import { ShareButton } from "./ShareButton";
 
 export const PlaylistPage = () => {
-  const { pubkey } = useAuth();
   const { colors } = useTheme();
   const { playlistId } = useLocalSearchParams();
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
@@ -73,7 +72,6 @@ export const PlaylistPage = () => {
   const handleMorePress = () => {
     setMoreIsOpen(true);
   };
-  const isOwner = pubkey === playlistData?.userId;
   return tracks ? (
     <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
       <View
@@ -103,17 +101,13 @@ export const PlaylistPage = () => {
         >
           {title}
         </Text>
-        {isOwner ? (
-          <Pressable onPress={handleMorePress} hitSlop={10}>
-            <MaterialCommunityIcons
-              name="dots-horizontal"
-              size={24}
-              color={colors.text}
-            />
-          </Pressable>
-        ) : (
-          <ShareButton url={`https://wavlake.com/playlist/${playlistId}`} />
-        )}
+        <Pressable onPress={handleMorePress} hitSlop={10}>
+          <MaterialCommunityIcons
+            name="dots-horizontal"
+            size={24}
+            color={colors.text}
+          />
+        </Pressable>
       </View>
       <FlatList
         data={tracks}
@@ -161,10 +155,10 @@ export const PlaylistPage = () => {
           </Center>
         }
       />
-      {moreIsOpen && (
+      {moreIsOpen && playlistData && (
         <EditPlaylistDialog
           playlistId={playlistId as string}
-          playlistTitle={title as string}
+          playlistData={playlistData}
           isOpen={moreIsOpen}
           setIsOpen={setMoreIsOpen}
         />

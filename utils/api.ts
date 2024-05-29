@@ -371,6 +371,16 @@ export const getLibraryTracks = async (): Promise<Track[]> => {
   return normalizeTrackResponse(data.data.tracks);
 };
 
+export const getLibraryPlaylists = async (): Promise<Playlist[]> => {
+  const url = "/library/playlists";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+  return data.data.playlists;
+};
+
 export const addToLibrary = async (contentId: string) => {
   const url = "/library";
   const payload = { contentId };
@@ -440,7 +450,7 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
 export const getUserPlaylists = async (uid: string): Promise<Playlist[]> => {
   const url = `/playlists/user/${uid}`;
   const { data } = await apiClient.get(url);
-  console.log("data", data);
+
   return data.data;
 };
 
@@ -496,8 +506,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;
