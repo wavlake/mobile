@@ -66,7 +66,7 @@ export const PubkeyProfile = ({
           display: "flex",
           flexDirection: "row",
           height: 50,
-          paddingHorizontal: 10,
+          paddingHorizontal: 16,
           gap: 10,
         }}
       >
@@ -86,6 +86,7 @@ export const PubkeyProfile = ({
             flexDirection: "row",
             justifyContent: "space-between",
             flexGrow: 1,
+            alignItems: "center",
             gap: 10,
           }}
         >
@@ -106,11 +107,21 @@ export const PubkeyProfile = ({
               {name}
             </Text>
             {profileData && (
-              <Text style={{ fontSize: 12 }}>
-                {`${followerCount ?? 0} followers • ${
-                  follows?.length ?? 0
-                } following`}
-              </Text>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                }}
+              >
+                <Text style={{ fontSize: 12 }} bold>
+                  {followerCount ?? 0}
+                </Text>
+                <Text style={{ fontSize: 12 }}>{` followers • `}</Text>
+                <Text style={{ fontSize: 12 }} bold>
+                  {follows?.length ?? 0}
+                </Text>
+                <Text style={{ fontSize: 12 }}>{` following`}</Text>
+              </View>
             )}
           </View>
           <SlimButton
@@ -127,7 +138,7 @@ export const PubkeyProfile = ({
         style={{
           display: "flex",
           flexDirection: "column",
-          paddingHorizontal: 10,
+          paddingHorizontal: 16,
         }}
       >
         <Text>{about}</Text>
