@@ -566,8 +566,7 @@ export const subscribeToTicket = async (pubkey: string) => {
 export const useAddFollower = () => {
   return useMutation({
     mutationFn: (pubkey: string) => {
-      console.log("add follower", pubkey);
-      // TODO: add follower
+      console.log("TODO - add follower", pubkey);
 
       return Promise.resolve();
     },
@@ -577,8 +576,7 @@ export const useAddFollower = () => {
 export const useRemoveFollower = () => {
   return useMutation({
     mutationFn: (pubkey: string) => {
-      console.log("remove follower", pubkey);
-      // TODO: remove follower
+      console.log("TODO - remove follower", pubkey);
 
       return Promise.resolve();
     },

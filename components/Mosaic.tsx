@@ -5,7 +5,7 @@ import { LogoIcon } from "./LogoIcon";
 
 const MosaicImage = ({
   imageUrls,
-  size = 30,
+  size = 60,
 }: {
   imageUrls: string[];
   size?: number;
@@ -23,7 +23,7 @@ const MosaicImage = ({
       <View>
         <Image
           source={{ uri: firstImage }}
-          style={{ width: size * 2, height: size * 2 }}
+          style={{ width: size, height: size }}
         />
       </View>
     );
@@ -32,14 +32,14 @@ const MosaicImage = ({
   const firstFourImages = definedImageUrls.slice(0, 4);
   return (
     <View>
-      <Svg height={size * 2} width={size * 2}>
+      <Svg height={size} width={size}>
         {firstFourImages.map((image, index) => (
           <SvgImage
             key={index}
-            x={(index % 2) * size}
-            y={Math.floor(index / 2) * size}
-            width={size}
-            height={size}
+            x={((index % 2) * size) / 2}
+            y={(Math.floor(index / 2) * size) / 2}
+            width={size / 2}
+            height={size / 2}
             href={{ uri: image }}
           />
         ))}

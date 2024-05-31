@@ -37,11 +37,12 @@ export const TrackList = ({ data, playerTitle }: TrackListProps) => {
               <View
                 style={{
                   flexDirection: "row",
+                  gap: 10,
                   marginBottom,
                 }}
               >
                 <SquareArtwork size={124} url={artworkUrl} />
-                <View style={{ marginLeft: 10, flex: 1 }}>
+                <View style={{ flex: 1 }}>
                   <Text
                     style={{
                       fontSize: 18,

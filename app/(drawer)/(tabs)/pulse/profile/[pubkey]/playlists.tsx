@@ -39,33 +39,30 @@ export default function ProfilePlaylistsPage() {
   }
 
   return (
-    <View style={{ height: "100%", paddingTop: 16, paddingHorizontal: 4 }}>
-      <FlatList
-        contentContainerStyle={{ flexGrow: 1 }}
-        data={playlists}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
-        renderItem={({ item, index }) => {
-          const isLastRow = index === playlists.length - 1;
-          const onPress = () => handleRowPress(item);
-          return (
-            <PlaylistRow
-              playlist={item}
-              onPress={onPress}
-              isLastRow={isLastRow}
-              height={height}
-            />
-          );
-        }}
-        keyExtractor={(item) => item.id}
-        scrollEnabled
-        ListEmptyComponent={
-          <Center>
-            <Text>This user has no playlists yet.</Text>
-          </Center>
-        }
-      />
-    </View>
+    <FlatList
+      contentContainerStyle={{ flexGrow: 1, padding: 16 }}
+      data={playlists}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
+      renderItem={({ item, index }) => {
+        const onPress = () => handleRowPress(item);
+        return (
+          <PlaylistRow
+            playlist={item}
+            onPress={onPress}
+            isLastRow={index === playlists.length - 1}
+            height={height}
+          />
+        );
+      }}
+      keyExtractor={(item) => item.id}
+      scrollEnabled
+      ListEmptyComponent={
+        <Center>
+          <Text>This user has no playlists yet.</Text>
+        </Center>
+      }
+    />
   );
 }

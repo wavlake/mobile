@@ -147,7 +147,6 @@ export const ActivityItemRow = ({
     if (contentType === "playlist" && currentTrackListId === contentId) {
       return togglePlayPause();
     }
-    console.log({ contentId, contentTitle, contentType });
 
     if (cachedTrackListData) {
       return loadTrackList(cachedTrackListData);
@@ -197,22 +196,23 @@ export const ActivityItemRow = ({
       )}
       <TouchableOpacity
         onPress={handlePlayPausePress}
-        onLongPress={() => setOverflowDialogIsOpen(true)}
+        onLongPress={() => {
+          setOverflowDialogIsOpen(true);
+        }}
         style={{
           display: "flex",
           flexDirection: "row",
           flexGrow: 1,
           gap: 10,
-          justifyContent: "space-between",
           opacity: isFetching ? 0.5 : 1,
         }}
       >
-        <MosaicImage imageUrls={contentArtwork} size={isExpanded ? 75 : 30} />
+        <MosaicImage imageUrls={contentArtwork} size={isExpanded ? 150 : 60} />
         <View
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-around",
+            justifyContent: "flex-start",
             flex: 1,
           }}
         >
@@ -223,13 +223,12 @@ export const ActivityItemRow = ({
             {isExpanded ? parentContentTitle : generateDesc(item)}
           </Text>
         </View>
-        {activityIsMusic && (
-          <OverflowMenuDialog
-            {...generateOverflowMenuProps(item)}
-            setIsOpen={setOverflowDialogIsOpen}
-            isOpen={overflowDialogIsOpen}
-          />
-        )}
+
+        <OverflowMenuDialog
+          {...generateOverflowMenuProps(item)}
+          setIsOpen={setOverflowDialogIsOpen}
+          isOpen={overflowDialogIsOpen}
+        />
       </TouchableOpacity>
     </View>
   );

@@ -1,4 +1,4 @@
-import { Dimensions, FlatList, RefreshControl, View } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { SectionHeader } from "@/components/SectionHeader";
 import { useLocalSearchParams } from "expo-router";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
@@ -9,8 +9,8 @@ import {
   Text,
   ActivityItemRow,
 } from "@/components/";
-import { useEffect, useState } from "react";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
+import { RefreshControl } from "react-native-gesture-handler";
 
 export default function PulseProfilePage() {
   const { pubkey } = useLocalSearchParams();
@@ -27,86 +27,55 @@ export default function PulseProfilePage() {
   return <PubkeyProfilePage pubkey={pubkey} />;
 }
 
+const NUM_ACTIVITY_ROWS = 3;
 const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
-  const [upperSectionHeight, setUpperSectionHeight] = useState(100);
-  const [activityRowHeight, setActivityRowHeight] = useState(0);
-  const [numberOfRows, setNumberOfRows] = useState(0);
   const {
     data: profileData,
-    refetch: refetchPubkeyData,
-    isLoading: isLoadingPubkeyData,
+    isLoading: metadataLoading,
+    refetch: refetchMetadata,
   } = useCatalogPubkey(pubkey as string);
-  const banner = profileData?.metadata?.banner;
   const {
     data: activity = [],
-    isLoading,
-    refetch,
+    isLoading: activityLoading,
+    refetch: refetchActivity,
   } = usePubkeyActivity(pubkey as string);
 
-  const screenHeight = Dimensions.get("window").height;
-  useEffect(() => {
-    const buffer = banner ? 80 : 110;
-    // calculate the number of rows that can fit on the screen
-    const activityRowCount = Math.floor(
-      (screenHeight - upperSectionHeight - buffer) / activityRowHeight,
-    );
-    setNumberOfRows(activityRowCount);
-  }, [screenHeight, upperSectionHeight, banner, activityRowHeight]);
-
   return (
-    <FlatList
-      data={activity.slice(0, numberOfRows)}
+    <ScrollView
       refreshControl={
         <RefreshControl
-          refreshing={isLoading || isLoadingPubkeyData}
+          refreshing={metadataLoading || activityLoading}
           onRefresh={() => {
-            refetch();
-            refetchPubkeyData();
+            refetchMetadata();
+            refetchActivity();
           }}
         />
       }
-      ListHeaderComponent={() => (
-        <View
-          onLayout={(event) => {
-            setUpperSectionHeight(event.nativeEvent.layout.height);
+    >
+      {profileData && <PubkeyProfile profileData={profileData} />}
+      <View
+        style={{
+          paddingHorizontal: 16,
+        }}
+      >
+        <PubkeyPlaylists pubkey={pubkey} maxRows={3} />
+        <SectionHeader
+          title="Recent Activity"
+          rightNavText="View All"
+          rightNavHref={{
+            pathname: `/pulse/profile/${pubkey}/activity`,
+            params: {
+              includeBackButton: true,
+            },
           }}
-        >
-          {profileData && <PubkeyProfile profileData={profileData} />}
-          <View
-            style={{
-              padding: 16,
-            }}
-          >
-            <PubkeyPlaylists pubkey={pubkey} maxRows={3} />
-            <SectionHeader
-              title="Recent Activity"
-              rightNavText="View All"
-              rightNavHref={{
-                pathname: `/pulse/profile/${pubkey}/activity`,
-                params: {
-                  includeBackButton: true,
-                },
-              }}
-            />
-          </View>
-        </View>
-      )}
-      renderItem={({ item, index }) => (
-        <View
-          onLayout={(event) =>
-            setActivityRowHeight(event.nativeEvent.layout.height)
-          }
-          style={{
-            paddingHorizontal: 16,
-          }}
-        >
+        />
+        {activity.slice(0, NUM_ACTIVITY_ROWS).map((item, index) => (
           <ActivityItemRow
             item={item}
-            isLastRow={index === activity.length - 1}
+            isLastRow={index === NUM_ACTIVITY_ROWS - 1}
           />
-        </View>
-      )}
-      keyExtractor={(item) => item.contentId + item.timestamp}
-    />
+        ))}
+      </View>
+    </ScrollView>
   );
 };

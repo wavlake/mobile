@@ -68,12 +68,11 @@ export const PlaylistPage = () => {
       playerTitle: title,
     });
   };
-
   const handleMorePress = () => {
     setMoreIsOpen(true);
   };
   return tracks ? (
-    <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
+    <View style={{ height: "100%", padding: 16, gap: 8 }}>
       <View
         style={{
           flexDirection: "row",

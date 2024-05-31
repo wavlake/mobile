@@ -1,9 +1,4 @@
-import {
-  ActivityItemRow,
-  Center,
-  Text,
-  useMiniMusicPlayer,
-} from "@/components";
+import { ActivityItemRow, Center, Text } from "@/components";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
 import { useLocalSearchParams } from "expo-router";
 import {
@@ -31,29 +26,27 @@ export default function ProfileActivityPage() {
   }
 
   return (
-    <View style={{ height: "100%", paddingTop: 16, paddingHorizontal: 4 }}>
-      <FlatList
-        contentContainerStyle={{ flexGrow: 1 }}
-        data={activity}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
-        renderItem={({ item, index }) => {
-          return (
-            <ActivityItemRow
-              item={item}
-              isLastRow={index === activity.length - 1}
-            />
-          );
-        }}
-        keyExtractor={(item) => item.contentId + item.timestamp}
-        scrollEnabled
-        ListEmptyComponent={
-          <Center>
-            <Text>This user has no activity.</Text>
-          </Center>
-        }
-      />
-    </View>
+    <FlatList
+      contentContainerStyle={{ flexGrow: 1, height: "100%", padding: 16 }}
+      data={activity}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
+      renderItem={({ item, index }) => {
+        return (
+          <ActivityItemRow
+            item={item}
+            isLastRow={index === activity.length - 1}
+          />
+        );
+      }}
+      keyExtractor={(item) => item.contentId + item.timestamp}
+      scrollEnabled
+      ListEmptyComponent={
+        <Center>
+          <Text>This user has no activity.</Text>
+        </Center>
+      }
+    />
   );
 }
