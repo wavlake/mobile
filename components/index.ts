@@ -48,3 +48,6 @@ export * from "./TicketEvents";
 export * from "./SlimButton";
 export * from "./PlaylistPage";
 export * from "./ActivityItemRow";
+export * from "./PubkeyProfile";
+export * from "./PubkeyPlaylists";
+export * from "./UserContextProvider";

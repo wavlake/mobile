@@ -6,7 +6,6 @@ import { brandColors } from "@/constants";
 import { Text } from "@/components/Text";
 import { PropsWithChildren } from "react";
 import { DimensionValue } from "react-native";
-import { ActivityIndicator } from "react-native";
 
 export interface SlimButtonProps extends BaseButtonProps {
   color?: string;

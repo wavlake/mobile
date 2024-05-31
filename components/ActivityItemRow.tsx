@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
-import { State, usePlaybackState } from "react-native-track-player";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { togglePlayPause } from "@/utils";
-import { CommentRow } from "./CommentRow";
-import { Pressable, View } from "react-native";
+import { getPlaylist, togglePlayPause } from "@/utils";
+import { TouchableOpacity, View } from "react-native";
 import MosaicImage from "./Mosaic";
 import { Text } from "@/components/Text";
+import { BasicAvatar } from "./BasicAvatar";
+import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";
+import { useQuery } from "@tanstack/react-query";
 
 export interface ActivityItem {
   picture: string;
@@ -14,18 +15,84 @@ export interface ActivityItem {
   userId: string;
   pubkey: string;
   description: string;
-  type: string;
+  type: ActivityType;
   message?: string;
   zapAmount?: number;
   timestamp: string;
   contentId: string;
   contentTitle: string;
-  contentType: string;
+  contentType: ContentType;
   contentArtwork: string[];
   parentContentId: string;
   parentContentTitle: string;
   parentContentType: string;
 }
+type ContentType =
+  | "track"
+  | "episode"
+  | "podcast"
+  | "album"
+  | "artist"
+  | "playlist";
+
+type ActivityType = "playlistCreate" | "zap" | "playlistUpdate";
+
+const generateTitle = (item: ActivityItem) => {
+  const actionMap: Record<ActivityType, string> = {
+    playlistUpdate: `@${item.name} updated a playlist`,
+    zap: `@${item.name} sent ${item.zapAmount} sats`,
+    playlistCreate: `@${item.name} created a playlist`,
+  };
+
+  return actionMap[item.type];
+};
+const generateDesc = (item: ActivityItem) => {
+  const actionMap: Record<ActivityType, string> = {
+    playlistUpdate: `"${item.contentTitle}"`,
+    zap: `"${item.message}"`,
+    playlistCreate: `"${item.contentTitle}"`,
+  };
+
+  return actionMap?.[item.type];
+};
+
+const generateOverflowMenuProps = (item: ActivityItem) => {
+  const actionMap: Record<
+    ContentType,
+    {
+      artist?: string;
+      artistId?: string;
+      albumTitle?: string;
+      albumId?: string;
+      playlistTitle?: string;
+      playlistId?: string;
+    }
+  > = {
+    playlist: {
+      playlistTitle: item.contentTitle,
+      playlistId: item.contentId,
+    },
+    artist: {
+      artist: item.contentTitle,
+      artistId: item.contentId,
+    },
+    album: {
+      albumTitle: item.contentTitle,
+      albumId: item.contentId,
+      artist: item.parentContentTitle,
+      artistId: item.parentContentId,
+    },
+    track: {
+      albumTitle: item.parentContentTitle,
+      albumId: item.parentContentId,
+    },
+    // TODO - update overflow menu to support podcasts
+    episode: {},
+    podcast: {},
+  };
+
+  return actionMap?.[item.contentType];
+};
 
 export const ActivityItemRow = ({
   item,
@@ -51,30 +118,43 @@ export const ActivityItemRow = ({
     name,
     description,
   } = item;
-  console.log("ActivityItemRow", item.contentArtwork);
   const [overflowDialogIsOpen, setOverflowDialogIsOpen] = useState(false);
   const { height } = useMiniMusicPlayer();
   const marginBottom = isLastRow ? height + 16 : 16;
-  const { state: playbackState } = usePlaybackState();
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
 
-  const isThisTrackListLoaded = currentTrackListId === parentContentId;
-  const isThisTrackListPlaying =
-    isThisTrackListLoaded && playbackState !== State.Paused;
-
+  const {
+    refetch,
+    isFetching,
+    data: cachedTrackListData,
+  } = useQuery({
+    queryKey: [contentType, contentId],
+    queryFn: async () => {
+      // TODO - add more content types here
+      if (contentType === "playlist") {
+        const playlist = await getPlaylist(contentId);
+        return {
+          trackList: playlist.tracks,
+          trackListId: contentId,
+          startIndex: 0,
+          playerTitle: contentTitle,
+        };
+      }
+    },
+    enabled: false,
+  });
   const handlePlayPausePress = () => {
-    if (isThisTrackListLoaded) {
+    if (contentType === "playlist" && currentTrackListId === contentId) {
       return togglePlayPause();
     }
+    console.log({ contentId, contentTitle, contentType });
 
-    // TODO - get content list from activity item
-    // e.g. an albums tracks, playlist tracks, etc.
-    return loadTrackList({
-      trackList: [],
-      trackListId: parentContentId,
-      // use index of selected item in the list
-      startIndex: 0,
-      playerTitle: parentContentTitle,
+    if (cachedTrackListData) {
+      return loadTrackList(cachedTrackListData);
+    }
+
+    refetch().then(({ data: trackListData }) => {
+      trackListData && loadTrackList(trackListData);
     });
   };
 
@@ -93,25 +173,29 @@ export const ActivityItemRow = ({
         flexDirection: "column",
         marginBottom,
         alignItems: "center",
+        gap: 10,
       }}
     >
-      {isExpanded && zapAmount && (
-        <CommentRow
-          comment={{
-            content: message,
-            createdAt: timestamp,
-            commenterArtworkUrl: picture,
-            msatAmount: zapAmount,
-            userId,
-            name: name,
-            title: contentTitle,
-            isNostr: true,
-            replies: [],
-            contentId,
+      {isExpanded && (
+        <View
+          style={{
+            flexDirection: "row",
+            paddingHorizontal: 16,
+            height: 40,
           }}
-        />
+        >
+          <BasicAvatar uri={picture} pubkey={userId} />
+          <View style={{ marginLeft: 10, flex: 1 }}>
+            <Text ellipsizeMode="tail" numberOfLines={1} bold>
+              {generateTitle(item)}
+            </Text>
+            <Text ellipsizeMode="tail" numberOfLines={1}>
+              {generateDesc(item)}
+            </Text>
+          </View>
+        </View>
       )}
-      <Pressable
+      <TouchableOpacity
         onPress={handlePlayPausePress}
         onLongPress={() => setOverflowDialogIsOpen(true)}
         style={{
@@ -120,6 +204,7 @@ export const ActivityItemRow = ({
           flexGrow: 1,
           gap: 10,
           justifyContent: "space-between",
+          opacity: isFetching ? 0.5 : 1,
         }}
       >
         <MosaicImage imageUrls={contentArtwork} size={isExpanded ? 75 : 30} />
@@ -127,36 +212,25 @@ export const ActivityItemRow = ({
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
             flex: 1,
           }}
         >
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Text style={{ fontSize: 18 }} numberOfLines={3} bold>
-              {isExpanded ? contentTitle : description}
-            </Text>
-            <Text style={{ fontSize: 18 }} numberOfLines={3} bold>
-              {isExpanded ? parentContentTitle : message}
-            </Text>
-          </View>
-          {/* {activityIsMusic && (
-            <OverflowMenuDialog
-              // TODO - implement this
-              artist={"artist"}
-              artistId={"artistId"}
-              albumTitle={"albumTitle"}
-              albumId={"albumId"}
-              setIsOpen={setOverflowDialogIsOpen}
-              isOpen={overflowDialogIsOpen}
-            />
-          )} */}
+          <Text numberOfLines={1} bold>
+            {isExpanded ? contentTitle : generateTitle(item)}
+          </Text>
+          <Text numberOfLines={1}>
+            {isExpanded ? parentContentTitle : generateDesc(item)}
+          </Text>
         </View>
-      </Pressable>
+        {activityIsMusic && (
+          <OverflowMenuDialog
+            {...generateOverflowMenuProps(item)}
+            setIsOpen={setOverflowDialogIsOpen}
+            isOpen={overflowDialogIsOpen}
+          />
+        )}
+      </TouchableOpacity>
     </View>
   );
 };

@@ -44,7 +44,13 @@ export const CommentRow = ({ comment }: CenterProps) => {
       />
       <View style={{ marginLeft: 10, flex: 1 }}>
         {content && <Text bold>{content}</Text>}
-        <SatsEarned msats={msatAmount} extraText={extraText} defaultTextColor />
+        {msatAmount && (
+          <SatsEarned
+            msats={msatAmount}
+            extraText={extraText}
+            defaultTextColor
+          />
+        )}
       </View>
     </View>
   );

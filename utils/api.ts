@@ -507,8 +507,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -569,7 +569,7 @@ export const useAddPubkeyToUser = ({
 export const getPubkeyMetadata = async (pubkey?: string | null) => {
   if (!pubkey) return null;
   const { data } = await apiClient.get<ResponseObject<NostrProfileData>>(
-    `/accounts/${pubkey}`,
+    `/accounts/pubkey/${pubkey}`,
     {},
   );
 

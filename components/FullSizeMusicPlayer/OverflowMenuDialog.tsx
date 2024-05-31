@@ -6,11 +6,14 @@ import { Button } from "@/components/Button";
 import {
   useAddAlbumToLibrary,
   useAddArtistToLibrary,
+  useAddPlaylistToLibrary,
   useAuth,
   useDeleteAlbumFromLibrary,
   useDeleteArtistFromLibrary,
+  useDeletePlaylistFromLibrary,
   useIsAlbumInLibrary,
   useIsArtistInLibrary,
+  useIsPlaylistInLibrary,
 } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
@@ -20,6 +23,8 @@ export interface OverflowMenuProps {
   artistId?: string;
   albumTitle?: string;
   albumId?: string;
+  playlistId?: string;
+  playlistTitle?: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
@@ -29,6 +34,8 @@ export const OverflowMenuDialog = ({
   artistId,
   albumTitle,
   albumId,
+  playlistId,
+  playlistTitle,
   isOpen,
   setIsOpen,
 }: OverflowMenuProps) => {
@@ -59,6 +66,12 @@ export const OverflowMenuDialog = ({
             albumId={albumId}
             albumTitle={albumTitle}
             artist={artist}
+          />
+        )}
+        {playlistId && playlistTitle && (
+          <PlaylistSection
+            playlistId={playlistId}
+            playlistTitle={playlistTitle}
           />
         )}
         <Button
@@ -178,6 +191,60 @@ const AlbumSection = ({
         isLoading={
           addAlbumToLibraryMutation.isLoading ||
           deleteAlbumFromLibraryMutation.isLoading
+        }
+      />
+    </View>
+  );
+};
+
+const PlaylistSection = ({
+  playlistId,
+  playlistTitle,
+}: {
+  playlistId: string;
+  playlistTitle: string;
+}) => {
+  const isPlaylistInLibrary = useIsPlaylistInLibrary(playlistId);
+  const addPlaylistToLibraryMutation = useAddPlaylistToLibrary();
+  const deletePlaylistFromLibraryMutation = useDeletePlaylistFromLibrary();
+  const handlePlaylistLikePress = () => {
+    if (isPlaylistInLibrary) {
+      deletePlaylistFromLibraryMutation.mutate(playlistId);
+    } else {
+      addPlaylistToLibraryMutation.mutate({
+        id: playlistId,
+        title: playlistTitle,
+      });
+    }
+  };
+
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <Text>Playlist</Text>
+        <Text
+          style={{
+            fontSize: 18,
+          }}
+          numberOfLines={1}
+          bold
+        >
+          {playlistTitle}
+        </Text>
+      </View>
+      <LikeButton
+        onPress={handlePlaylistLikePress}
+        size={32}
+        isLiked={isPlaylistInLibrary}
+        isLoading={
+          addPlaylistToLibraryMutation.isLoading ||
+          deletePlaylistFromLibraryMutation.isLoading
         }
       />
     </View>

@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Dimensions, FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Album, ContentComment, getAlbum, getAlbumTracks } from "@/utils";
+import { Album, getAlbum, getAlbumTracks } from "@/utils";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";

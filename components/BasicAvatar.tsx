@@ -8,9 +8,6 @@ interface BasicAvatarProps {
   pubkey?: string;
 }
 
-/**
- * This component does not support animated webp images. Use the `Avatar` component instead if you need that.
- */
 export const BasicAvatar = ({ uri, size = 32, pubkey }: BasicAvatarProps) => {
   const router = useRouter();
   return uri ? (
