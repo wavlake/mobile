@@ -18,7 +18,6 @@ export default function PlaylistsPage() {
       pathname: `/library/music/playlists/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
-        playlistTitle: playlist.title,
         includeBackButton: true,
       },
     });
