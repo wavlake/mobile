@@ -16,10 +16,9 @@ export const PubkeyPlaylists = ({
   const { data: playlists = [], isLoading } = usePubkeyPlaylists(
     pubkey as string,
   );
-
   const handlePlaylistPress = (playlist: { id: string; title: string }) => {
     router.push({
-      pathname: `/pulse/profile/${pubkey}/playlist/${playlist.id}`,
+      pathname: `/pulse/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
         playlistTitle: playlist.title,

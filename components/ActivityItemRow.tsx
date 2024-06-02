@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
-import { useMusicPlayer } from "./MusicPlayerProvider";
-import { getPlaylist, togglePlayPause } from "@/utils";
 import { TouchableOpacity, View } from "react-native";
 import MosaicImage from "./Mosaic";
 import { Text } from "@/components/Text";
 import { BasicAvatar } from "./BasicAvatar";
 import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";
-import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 
 export interface ActivityItem {
   picture: string;
@@ -103,6 +101,7 @@ export const ActivityItemRow = ({
   isLastRow: boolean;
   isExpanded?: boolean;
 }) => {
+  const router = useRouter();
   const {
     contentTitle,
     contentArtwork,
@@ -121,40 +120,45 @@ export const ActivityItemRow = ({
   const [overflowDialogIsOpen, setOverflowDialogIsOpen] = useState(false);
   const { height } = useMiniMusicPlayer();
   const marginBottom = isLastRow ? height + 16 : 16;
-  const { loadTrackList, currentTrackListId } = useMusicPlayer();
 
-  const {
-    refetch,
-    isFetching,
-    data: cachedTrackListData,
-  } = useQuery({
-    queryKey: [contentType, contentId],
-    queryFn: async () => {
-      // TODO - add more content types here
-      if (contentType === "playlist") {
-        const playlist = await getPlaylist(contentId);
-        return {
-          trackList: playlist.tracks,
-          trackListId: contentId,
-          startIndex: 0,
-          playerTitle: contentTitle,
-        };
-      }
-    },
-    enabled: false,
-  });
-  const handlePlayPausePress = () => {
-    if (contentType === "playlist" && currentTrackListId === contentId) {
-      return togglePlayPause();
+  const handlePress = () => {
+    if (contentType === "playlist") {
+      router.push({
+        pathname: `/pulse/playlist/${contentId}`,
+        params: {
+          headerTitle: contentTitle,
+          includeBackButton: true,
+        },
+      });
     }
 
-    if (cachedTrackListData) {
-      return loadTrackList(cachedTrackListData);
+    if (contentType === "track") {
+      router.push({
+        pathname: `/pulse/album/${parentContentId}`,
+        params: {
+          headerTitle: parentContentTitle,
+          includeBackButton: true,
+        },
+      });
     }
-
-    refetch().then(({ data: trackListData }) => {
-      trackListData && loadTrackList(trackListData);
-    });
+    if (contentType === "album") {
+      router.push({
+        pathname: `/pulse/album/${contentId}`,
+        params: {
+          headerTitle: contentTitle,
+          includeBackButton: true,
+        },
+      });
+    }
+    if (contentType === "artist") {
+      router.push({
+        pathname: `/pulse/artist/${contentId}`,
+        params: {
+          headerTitle: contentTitle,
+          includeBackButton: true,
+        },
+      });
+    }
   };
 
   const activityIsMusic =
@@ -195,7 +199,7 @@ export const ActivityItemRow = ({
         </View>
       )}
       <TouchableOpacity
-        onPress={handlePlayPausePress}
+        onPress={handlePress}
         onLongPress={() => {
           setOverflowDialogIsOpen(true);
         }}
@@ -204,7 +208,6 @@ export const ActivityItemRow = ({
           flexDirection: "row",
           flexGrow: 1,
           gap: 10,
-          opacity: isFetching ? 0.5 : 1,
         }}
       >
         <MosaicImage imageUrls={contentArtwork} size={isExpanded ? 150 : 60} />
@@ -212,7 +215,7 @@ export const ActivityItemRow = ({
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "flex-start",
+            justifyContent: "center",
             flex: 1,
           }}
         >
