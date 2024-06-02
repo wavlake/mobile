@@ -24,28 +24,28 @@ export const PlaylistRow = ({
     <TouchableOpacity
       onPress={onPress}
       onLongPress={() => setOverflowDialogIsOpen(true)}
+      style={{
+        flexDirection: "row",
+        marginBottom,
+        alignItems: "center",
+        gap: 10,
+      }}
     >
+      <MosaicImage imageUrls={tracks.map((track) => track.artworkUrl)} />
       <View
         style={{
-          flexDirection: "row",
-          marginBottom,
-          alignItems: "center",
-          gap: 10,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          flex: 1,
         }}
       >
-        <MosaicImage imageUrls={tracks.map((track) => track.artworkUrl)} />
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "flex-start",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Text numberOfLines={1} bold>
-            {title}
-          </Text>
-        </View>
+        <Text numberOfLines={1} bold>
+          {title}
+        </Text>
+        <Text numberOfLines={1}>
+          {tracks.length} track{tracks.length > 1 ? "s" : ""}
+        </Text>
       </View>
       <OverflowMenuDialog
         playlistTitle={playlist.title}
