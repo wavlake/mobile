@@ -38,7 +38,9 @@ type ActivityType = "playlistCreate" | "zap" | "playlistUpdate";
 const generateTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: `@${item.name} updated a playlist`,
-    zap: `@${item.name} sent ${item.zapAmount} sats`,
+    zap: `@${item.name} sent ${
+      item?.zapAmount ? item.zapAmount / 1000 : 0
+    } sats`,
     playlistCreate: `@${item.name} created a playlist`,
   };
 
@@ -226,7 +228,6 @@ export const ActivityItemRow = ({
             {isExpanded ? parentContentTitle : generateDesc(item)}
           </Text>
         </View>
-
         <OverflowMenuDialog
           {...generateOverflowMenuProps(item)}
           setIsOpen={setOverflowDialogIsOpen}
