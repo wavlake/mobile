@@ -14,7 +14,7 @@ const MosaicImage = ({
   const definedImageUrls = imageUrls.filter((url) => url);
 
   if (definedImageUrls.length === 0) {
-    return <LogoIcon fill="white" width={60} height={60} />;
+    return <LogoIcon fill="white" width={size} height={size} />;
   }
 
   if (definedImageUrls.length < 4) {
