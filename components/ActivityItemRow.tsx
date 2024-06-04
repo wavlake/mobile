@@ -64,6 +64,8 @@ const generateOverflowMenuProps = (item: ActivityItem) => {
       artistId?: string;
       albumTitle?: string;
       albumId?: string;
+      trackTitle?: string;
+      trackId?: string;
       playlistTitle?: string;
       playlistId?: string;
     }
@@ -85,6 +87,8 @@ const generateOverflowMenuProps = (item: ActivityItem) => {
     track: {
       albumTitle: item.parentContentTitle,
       albumId: item.parentContentId,
+      trackTitle: item.contentTitle,
+      trackId: item.contentId,
     },
     // TODO - update overflow menu to support podcasts
     episode: {},

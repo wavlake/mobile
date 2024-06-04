@@ -1,12 +1,7 @@
 import { ActivityItemRow, Center, Text } from "@/components";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
 import { useLocalSearchParams } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl } from "react-native";
 
 export default function ProfileActivityPage() {
   const { pubkey } = useLocalSearchParams();
