@@ -7,13 +7,16 @@ import {
   useAddAlbumToLibrary,
   useAddArtistToLibrary,
   useAddPlaylistToLibrary,
+  useAddTrackToLibrary,
   useAuth,
   useDeleteAlbumFromLibrary,
   useDeleteArtistFromLibrary,
   useDeletePlaylistFromLibrary,
+  useDeleteTrackFromLibrary,
   useIsAlbumInLibrary,
   useIsArtistInLibrary,
   useIsPlaylistInLibrary,
+  useIsTrackInLibrary,
 } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
@@ -23,6 +26,8 @@ export interface OverflowMenuProps {
   artistId?: string;
   albumTitle?: string;
   albumId?: string;
+  trackTitle?: string;
+  trackId?: string;
   playlistId?: string;
   playlistTitle?: string;
   isOpen: boolean;
@@ -34,6 +39,8 @@ export const OverflowMenuDialog = ({
   artistId,
   albumTitle,
   albumId,
+  trackTitle,
+  trackId,
   playlistId,
   playlistTitle,
   isOpen,
@@ -61,12 +68,15 @@ export const OverflowMenuDialog = ({
         {artist && artistId && (
           <ArtistSection artistId={artistId} artist={artist} />
         )}
-        {albumId && albumTitle && artist && (
+        {albumId && albumTitle && (
           <AlbumSection
             albumId={albumId}
             albumTitle={albumTitle}
             artist={artist}
           />
+        )}
+        {trackId && trackTitle && (
+          <TrackSection trackId={trackId} trackTitle={trackTitle} />
         )}
         {playlistId && playlistTitle && (
           <PlaylistSection
@@ -146,7 +156,7 @@ const AlbumSection = ({
 }: {
   albumId: string;
   albumTitle: string;
-  artist: string;
+  artist?: string;
 }) => {
   const isAlbumInLibrary = useIsAlbumInLibrary(albumId);
   const addAlbumToLibraryMutation = useAddAlbumToLibrary();
@@ -197,6 +207,59 @@ const AlbumSection = ({
   );
 };
 
+const TrackSection = ({
+  trackId,
+  trackTitle,
+}: {
+  trackId: string;
+  trackTitle: string;
+}) => {
+  const isTrackInLibrary = useIsTrackInLibrary(trackId);
+  const addTrackToLibraryMutation = useAddTrackToLibrary();
+  const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
+  const handleTrackLikePress = () => {
+    if (isTrackInLibrary) {
+      deleteTrackFromLibraryMutation.mutate(trackId);
+    } else {
+      addTrackToLibraryMutation.mutate({
+        id: trackId,
+        title: trackTitle,
+      });
+    }
+  };
+
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <Text>Track</Text>
+        <Text
+          style={{
+            fontSize: 18,
+          }}
+          numberOfLines={1}
+          bold
+        >
+          {trackTitle}
+        </Text>
+      </View>
+      <LikeButton
+        onPress={handleTrackLikePress}
+        size={32}
+        isLiked={isTrackInLibrary}
+        isLoading={
+          addTrackToLibraryMutation.isLoading ||
+          deleteTrackFromLibraryMutation.isLoading
+        }
+      />
+    </View>
+  );
+};
 const PlaylistSection = ({
   playlistId,
   playlistTitle,
