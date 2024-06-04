@@ -163,12 +163,6 @@ export const ActivityItemRow = ({
     }
   };
 
-  const activityIsMusic =
-    contentType === "track" ||
-    // contentType === "playlist" ||
-    contentType === "album" ||
-    contentType === "artist";
-
   if (!contentId || !contentTitle) return null;
 
   return (
