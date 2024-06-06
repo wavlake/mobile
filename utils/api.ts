@@ -507,8 +507,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -576,21 +576,29 @@ export const getPubkeyMetadata = async (pubkey?: string | null) => {
   return data?.data;
 };
 
-export const getActivityFeed = async (pubkey?: string | null) => {
+export const getActivityFeed = async (
+  pubkey: string | null,
+  page: number,
+  pageSize: number,
+) => {
   if (!pubkey) return [];
 
   const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
-    `/social/feed/${pubkey}`,
+    `/social/feed/${pubkey}/${page}/${pageSize}`,
     {},
   );
 
   return data?.data;
 };
 
-export const getPubkeyActivity = async (pubkey?: string | null) => {
+export const getPubkeyActivity = async (
+  pubkey: string | null,
+  page: number,
+  pageSize: number,
+) => {
   if (!pubkey) return [];
   const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
-    `/social/feed/user/${pubkey}`,
+    `/social/feed/user/${pubkey}/${page}/${pageSize}`,
     {},
   );
 

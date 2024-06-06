@@ -1,7 +1,6 @@
-import { Dimensions, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { SectionHeader } from "@/components/SectionHeader";
 import { useLocalSearchParams } from "expo-router";
-import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
 import {
   PubkeyPlaylists,
   PubkeyProfile,
@@ -11,6 +10,7 @@ import {
 } from "@/components/";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 import { RefreshControl } from "react-native-gesture-handler";
+import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
 
 export default function PulseProfilePage() {
   const { pubkey } = useLocalSearchParams();
@@ -69,11 +69,8 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
             },
           }}
         />
-        {activity.slice(0, NUM_ACTIVITY_ROWS).map((item, index) => (
-          <ActivityItemRow
-            item={item}
-            isLastRow={index === NUM_ACTIVITY_ROWS - 1}
-          />
+        {activity.slice(0, NUM_ACTIVITY_ROWS).map((item) => (
+          <ActivityItemRow item={item} />
         ))}
       </View>
     </ScrollView>

@@ -100,11 +100,9 @@ const generateOverflowMenuProps = (item: ActivityItem) => {
 
 export const ActivityItemRow = ({
   item,
-  isLastRow,
   isExpanded = false,
 }: {
   item: ActivityItem;
-  isLastRow: boolean;
   isExpanded?: boolean;
 }) => {
   const router = useRouter();
@@ -124,8 +122,6 @@ export const ActivityItemRow = ({
     description,
   } = item;
   const [overflowDialogIsOpen, setOverflowDialogIsOpen] = useState(false);
-  const { height } = useMiniMusicPlayer();
-  const marginBottom = isLastRow ? height + 16 : 16;
 
   const handlePress = () => {
     if (contentType === "playlist") {
@@ -174,7 +170,7 @@ export const ActivityItemRow = ({
       style={{
         display: "flex",
         flexDirection: "column",
-        marginBottom,
+        marginBottom: 16,
         alignItems: "center",
         gap: 10,
       }}
