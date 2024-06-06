@@ -6,6 +6,7 @@ import { Text } from "@/components/Text";
 import { BasicAvatar } from "./BasicAvatar";
 import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";
 import { useRouter } from "expo-router";
+import { satsFormatter } from "./WalletBalance";
 
 export interface ActivityItem {
   picture: string;
@@ -38,9 +39,7 @@ type ActivityType = "playlistCreate" | "zap" | "playlistUpdate";
 const generateTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: `@${item.name} updated a playlist`,
-    zap: `@${item.name} sent ${
-      item?.zapAmount ? item.zapAmount / 1000 : 0
-    } sats`,
+    zap: `@${item.name} sent ${satsFormatter(item?.zapAmount ?? 0)} sats`,
     playlistCreate: `@${item.name} created a playlist`,
   };
 

@@ -70,7 +70,7 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
           }}
         />
         {activity.slice(0, NUM_ACTIVITY_ROWS).map((item) => (
-          <ActivityItemRow item={item} />
+          <ActivityItemRow item={item} key={item.contentId + item.timestamp} />
         ))}
       </View>
     </ScrollView>
