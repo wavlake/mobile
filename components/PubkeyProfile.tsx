@@ -100,9 +100,7 @@ export const PubkeyProfile = ({
               ellipsizeMode="tail"
               numberOfLines={1}
               bold
-              // This is a temporary fix to prevent the text from running off the screen
-              // this text width should be dynamic and grow to fit the screen
-              style={{ fontSize: 18, maxWidth: 180 }}
+              style={{ fontSize: 18 }}
             >
               {name}
             </Text>
@@ -124,14 +122,14 @@ export const PubkeyProfile = ({
               </View>
             )}
           </View>
-          <SlimButton
+          {/* <SlimButton
             width={100}
             color="white"
             titleStyle={{ fontSize: 14 }}
             onPress={onFollowPress}
           >
             {userIsFollowing ? "Unfollow" : "Follow"}
-          </SlimButton>
+          </SlimButton> */}
         </View>
       </View>
       <View
