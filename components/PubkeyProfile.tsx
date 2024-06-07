@@ -1,10 +1,14 @@
 import { brandColors } from "@/constants";
-import { View, Image } from "react-native";
+import { View, Image, TouchableOpacity } from "react-native";
 import { Avatar, SlimButton, useUser, Text } from "@/components";
 import { useEffect, useState } from "react";
 import { openURL } from "expo-linking";
 import { useAddFollower, useRemoveFollower } from "@/utils";
 import { NostrProfileData } from "@/utils/authTokenApi";
+import { useAuth } from "@/hooks";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { useTheme } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 const AVATAR_SIZE = 80;
 export const PubkeyProfile = ({
@@ -12,6 +16,9 @@ export const PubkeyProfile = ({
 }: {
   profileData: NostrProfileData;
 }) => {
+  const { colors } = useTheme();
+  const { pubkey } = useAuth();
+  const userOwnsProfile = pubkey === profileData.publicHex;
   const { catalogUser } = useUser();
   const { picture, name, banner, about, website, nip05 } =
     profileData?.metadata ?? {};
@@ -21,7 +28,7 @@ export const PubkeyProfile = ({
   const userIsFollowing = catalogUser?.nostrProfileData[0]?.follows.some(
     (follow) => follow.pubkey === profileData.publicHex,
   );
-
+  const router = useRouter();
   const onFollowPress = () => {
     if (userIsFollowing) {
       removeFollower(profileData.publicHex);
@@ -44,6 +51,32 @@ export const PubkeyProfile = ({
         flexDirection: "column",
       }}
     >
+      {userOwnsProfile && (
+        <TouchableOpacity
+          onPress={() => {
+            router.push({
+              pathname: "/profileEdit",
+              params: { showBackButton: true },
+            });
+          }}
+          style={{
+            backgroundColor: "black",
+            opacity: 0.7,
+            padding: 5,
+            borderRadius: 10,
+            right: 5,
+            top: 5,
+            zIndex: 1,
+            position: "absolute",
+            display: "flex",
+            flexDirection: "row",
+            gap: 5,
+          }}
+        >
+          <Text bold>Edit</Text>
+          <Icon name="edit" size={20} color={colors.text} />
+        </TouchableOpacity>
+      )}
       {banner ? (
         <Image
           source={{

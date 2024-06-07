@@ -141,6 +141,10 @@ export default function Layout() {
                     options={{ headerTitle: () => <Text>Profile</Text> }}
                   />
                   <Stack.Screen
+                    name="profileEdit"
+                    options={{ headerTitle: () => <Text>Edit Profile</Text> }}
+                  />
+                  <Stack.Screen
                     name="settings"
                     options={{ headerTitle: () => <Text>Settings</Text> }}
                   />
