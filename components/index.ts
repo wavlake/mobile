@@ -51,3 +51,4 @@ export * from "./ActivityItemRow";
 export * from "./PubkeyProfile";
 export * from "./PubkeyPlaylists";
 export * from "./UserContextProvider";
+export * from "./PulseProfilePage";

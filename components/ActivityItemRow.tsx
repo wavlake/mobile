@@ -206,7 +206,7 @@ export const ActivityItemRow = ({
           gap: 10,
         }}
       >
-        <MosaicImage imageUrls={contentArtwork} size={isExpanded ? 124 : 60} />
+        <MosaicImage imageUrls={contentArtwork} size={60} />
         <View
           style={{
             display: "flex",
