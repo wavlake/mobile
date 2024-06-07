@@ -54,9 +54,11 @@ const PulsePage = () => {
       keyExtractor={(item) => item.contentId + item.timestamp}
       scrollEnabled
       ListEmptyComponent={
-        <Center>
-          <Text>No follower activity yet.</Text>
-        </Center>
+        !isLoading ? (
+          <Center>
+            <Text>No follower activity yet.</Text>
+          </Center>
+        ) : null
       }
       onEndReached={() => {
         if (hasNextPage) {
