@@ -52,3 +52,5 @@ export * from "./PubkeyProfile";
 export * from "./PubkeyPlaylists";
 export * from "./UserContextProvider";
 export * from "./PulseProfilePage";
+export * from "./PulseUserActivityFeed";
+export * from "./PulseGlobalActivityFeed";

@@ -507,8 +507,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -585,6 +585,15 @@ export const getActivityFeed = async (
 
   const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
     `/social/feed/${pubkey}/${page}/${pageSize}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const getGlobalActivityFeed = async (page: number, pageSize: number) => {
+  const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
+    `/social/feed/global/${page}/${pageSize}`,
     {},
   );
 
