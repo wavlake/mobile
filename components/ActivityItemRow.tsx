@@ -45,11 +45,11 @@ const generateTitle = (item: ActivityItem) => {
 
   return actionMap[item.type];
 };
-const generateDesc = (item: ActivityItem) => {
+const generateSubTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
-    playlistUpdate: `"${item.contentTitle}"`,
+    playlistUpdate: item.parentContentTitle,
     zap: `"${item.message}"`,
-    playlistCreate: `"${item.contentTitle}"`,
+    playlistCreate: item.parentContentTitle,
   };
 
   return actionMap?.[item.type];
@@ -179,6 +179,7 @@ export const ActivityItemRow = ({
           style={{
             flexDirection: "row",
             paddingHorizontal: 16,
+            marginTop: 20,
             height: 40,
           }}
         >
@@ -188,7 +189,7 @@ export const ActivityItemRow = ({
               {generateTitle(item)}
             </Text>
             <Text ellipsizeMode="tail" numberOfLines={1}>
-              {generateDesc(item)}
+              {contentType === "playlist" ? "" : generateSubTitle(item)}
             </Text>
           </View>
         </View>
@@ -205,7 +206,7 @@ export const ActivityItemRow = ({
           gap: 10,
         }}
       >
-        <MosaicImage imageUrls={contentArtwork} size={isExpanded ? 150 : 60} />
+        <MosaicImage imageUrls={contentArtwork} size={isExpanded ? 124 : 60} />
         <View
           style={{
             display: "flex",
@@ -218,7 +219,7 @@ export const ActivityItemRow = ({
             {isExpanded ? contentTitle : generateTitle(item)}
           </Text>
           <Text numberOfLines={1}>
-            {isExpanded ? parentContentTitle : generateDesc(item)}
+            {isExpanded ? parentContentTitle : generateSubTitle(item)}
           </Text>
         </View>
         <OverflowMenuDialog
