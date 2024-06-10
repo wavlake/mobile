@@ -8,6 +8,7 @@ import { PressableIcon } from "./PressableIcon";
 interface LikeButtonProps {
   size: number;
   onPress: () => void;
+  fullWidth?: boolean;
   label?: ReactNode;
   isLiked?: boolean;
   isLoading?: boolean;
@@ -18,6 +19,7 @@ export const LikeButton = ({
   size,
   onPress,
   label,
+  fullWidth = false,
   isLiked = false,
   isLoading = false,
   isMusic = true,
@@ -33,7 +35,7 @@ export const LikeButton = ({
   if (!isMusic || !pubkey) return null;
 
   return (
-    <PressableIcon onPress={handlePress} label={label}>
+    <PressableIcon onPress={handlePress} label={label} fullWidth={fullWidth}>
       <MaterialCommunityIcons
         name={isLiked ? "cards-heart" : "cards-heart-outline"}
         size={size}

@@ -5,12 +5,14 @@ import { Text } from "@/components/Text";
 
 interface PressableIconProps {
   onPress: () => void;
+  fullWidth?: boolean;
   size?: number;
   label?: ReactNode;
 }
 
 export const PressableIcon = ({
   onPress,
+  fullWidth = false,
   size = 40,
   label,
   children,
@@ -23,10 +25,10 @@ export const PressableIcon = ({
       style={{
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "space-between",
         backgroundColor: colors.background,
         borderRadius: size / 2,
-        width: size,
+        width: fullWidth ? "100%" : size,
         height: size,
       }}
     >

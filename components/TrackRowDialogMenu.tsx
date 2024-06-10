@@ -60,7 +60,10 @@ export const TrackRowDialogMenu = ({
     <DialogWrapper isOpen={isOpen} setIsOpen={setIsOpen}>
       {isAddingToPlaylist ? (
         <PlaylistDialogContents
-          setIsOpen={setIsOpen}
+          setIsOpen={() => {
+            setIsAddingToPlaylist(false);
+            setIsOpen(false);
+          }}
           contentTitle={track.title}
           contentId={track.id}
         />
@@ -72,6 +75,7 @@ export const TrackRowDialogMenu = ({
             flexDirection: "column",
             gap: 12,
             width: "100%",
+            paddingHorizontal: 8,
           }}
         >
           <Pressable
@@ -82,7 +86,6 @@ export const TrackRowDialogMenu = ({
               alignItems: "center",
               justifyContent: "space-between",
               height: 50,
-              paddingHorizontal: 8,
               borderRadius: 8,
               backgroundColor: pressed ? colors.card : colors.background,
             })}
@@ -105,6 +108,7 @@ export const TrackRowDialogMenu = ({
           {!isEpisode && (
             <>
               <LikeButton
+                fullWidth
                 label={
                   <View>
                     <Text
@@ -135,6 +139,7 @@ export const TrackRowDialogMenu = ({
               />
               {willDisplayLikeButton && (
                 <LikeButton
+                  fullWidth
                   label={
                     <View>
                       <Text
