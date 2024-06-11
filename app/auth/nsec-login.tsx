@@ -5,6 +5,7 @@ import {
   Keyboard,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
@@ -67,6 +68,7 @@ export default function Login() {
       }
     })();
   }, []);
+
   const mostRecentUserData = catalogUser?.nostrProfileData?.[0];
   const mostRecentUserNpub =
     catalogUser?.nostrProfileData?.[0]?.publicHex &&
@@ -97,27 +99,52 @@ export default function Login() {
 
       // if the nsec was generated, we need to add the pubkey to the user's account
       await addPubkeyToAccount();
+      setTimeout(async () => {
+        router.replace("/");
+        setIsLoggingIn(false);
+      }, 1000);
     } else if (mostRecentUserNpub !== npub) {
-      setErrorMessage(
-        "This nsec does not match the one associated with your account",
+      Alert.alert(
+        "This nsec does not match the one associated with your account, are you sure you want to continue?",
+        "You won't be able to access any previous library contents.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Continue",
+            style: "destructive",
+            onPress: async () => {
+              const success = await login(nsec);
+              // if the nsec was generated, we need to add the pubkey to the user's account
+              await addPubkeyToAccount();
+              if (!success) {
+                setErrorMessage("Invalid nostr nsec");
+                setIsLoggingIn(false);
+                return;
+              }
+              setTimeout(async () => {
+                router.replace("/");
+                setIsLoggingIn(false);
+              }, 1000);
+            },
+          },
+        ],
       );
-      setIsLoggingIn(false);
-
-      return;
     } else {
-      // log in with the nsec on the form
+      // nsec matches the one associated with the account
       const success = await login(nsec);
       if (!success) {
         setErrorMessage("Invalid nostr nsec");
         setIsLoggingIn(false);
         return;
       }
+      setTimeout(async () => {
+        router.replace("/");
+        setIsLoggingIn(false);
+      }, 1000);
     }
-
-    setTimeout(async () => {
-      router.replace("/");
-      setIsLoggingIn(false);
-    }, 1000);
   };
 
   const NPUB_AVATAR_SIZE = 40;
@@ -173,6 +200,7 @@ export default function Login() {
                 // user is entering their own nsec
                 setNsec(value);
                 setErrorMessage("");
+                setIsGeneratedNsec(false);
               }}
               errorMessage={errorMessage}
               rightIcon={<CopyButton value={nsec} />}
