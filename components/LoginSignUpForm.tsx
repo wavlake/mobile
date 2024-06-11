@@ -101,6 +101,7 @@ const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
     <Icon fill="black" width={40} height={40} />
   </TouchableOpacity>
 );
+
 const LoginProviders = ({
   setIsLoading,
 }: {
@@ -119,9 +120,16 @@ const LoginProviders = ({
         if ("error" in result) {
           show(result.error);
         } else {
-          router.push({
-            pathname: "/auth/welcome",
-          });
+          if (result.hasExistingNostrProfile) {
+            router.push({
+              pathname: "/auth/nsec-login",
+            });
+          } else {
+            // they didnt have an existing nostr profile, so we auto created one and logged them in
+            router.replace({
+              pathname: "/auth/welcome",
+            });
+          }
         }
         setIsLoading(false);
       },

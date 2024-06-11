@@ -10,11 +10,19 @@ export default function Login() {
 
   const handleLogin = async (email: string, password: string) => {
     const result = await signInWithEmail(email, password);
-
     if ("error" in result) {
       setErrorMessage(result.error);
+      return;
+    }
+    if (result.hasExistingNostrProfile) {
+      router.push({
+        pathname: "/auth/nsec-login",
+      });
     } else {
-      router.replace("/auth/welcome");
+      // they didnt have an existing nostr profile, so we auto created one and logged them in
+      router.replace({
+        pathname: "/auth/welcome",
+      });
     }
   };
 

@@ -9,6 +9,7 @@ import { FirebaseUser, firebaseService } from "@/services";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { PrivateUserData, usePrivateUserData } from "@/utils/authTokenApi";
 import { useAddPubkeyToUser, useCreateUser } from "@/utils";
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 
 const generateUsername = (name: string, uid: string) => {
   return `${name}_${uid.split("").slice(0, 7).join("")}`;
@@ -18,6 +19,14 @@ type UserContextProps = {
   user: FirebaseUser;
   initializingAuth: boolean;
   catalogUser: PrivateUserData | undefined;
+  signInWithEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{ error?: any; hasExistingNostrProfile?: boolean }>;
+  signInWithGoogle: () => Promise<{
+    error?: any;
+    hasExistingNostrProfile?: boolean;
+  }>;
 } & typeof firebaseService;
 
 const UserContext = createContext<UserContextProps>({
@@ -99,28 +108,32 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           // artworkUrl: user.user.photoURL ?? "",
         });
       }
+      const { data: catalogUser } = await refetchUser();
+
+      const hasExistingNostrProfile =
+        catalogUser?.nostrProfileData.length !== 0;
 
       if (!pubkey) {
-        // new mobile user, so create a new nostr account
-        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-          name,
-          // picture: user.user.photoURL ?? "",
-        });
+        if (!hasExistingNostrProfile) {
+          // new mobile user, so create a new nostr account
+          const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
+            name,
+            // picture: user.user.photoURL ?? "",
+          });
 
-        nsec && (await login(nsec));
-        newPubkey && (await addPubkeyToAccount());
-      } else {
-        const { data: catalogUser } = await refetchUser();
-        if (!catalogUser) {
-          throw "catalog user not found";
+          nsec && (await login(nsec));
+          newPubkey && (await addPubkeyToAccount());
+        } else {
+          // user has an npub, so we don't need to create a new one
         }
+      } else {
         // mobile user thats already logged in with an nsec, associate the pubkey to the firebase userID
-        !catalogUser.nostrProfileData
+        !catalogUser?.nostrProfileData
           .map((data) => data.publicHex)
           .includes(pubkey) && (await addPubkeyToAccount());
       }
 
-      return user;
+      return { ...user, hasExistingNostrProfile };
     } catch (error) {
       console.error("error signing in with google", error);
       return {
@@ -187,18 +200,23 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw "catalog user not found";
       }
 
+      const hasExistingNostrProfile = catalogUser.nostrProfileData.length !== 0;
       if (!pubkey) {
-        // New login (may or may not have an npub yet, so we give them a brand new one)
-        // if a user re-logs in to the app via firebase email and has saved their old mobile app's nsec
-        // they'll need to manually log in with that by clicking "Nostr user? Click here" on the welcome page
-        // and pasting it in the input field (we dont have it saved in the db so we cant log them in automatically)
-        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-          name: catalogUser.name,
-          image: catalogUser.artworkUrl,
-        });
+        if (!hasExistingNostrProfile) {
+          // New login (may or may not have an npub yet, so we give them a brand new one)
+          // if a user re-logs in to the app via firebase email and has saved their old mobile app's nsec
+          // they'll need to manually log in with that by clicking "Nostr user? Click here" on the welcome page
+          // and pasting it in the input field (we dont have it saved in the db so we cant log them in automatically)
+          const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
+            name: catalogUser.name,
+            image: catalogUser.artworkUrl,
+          });
 
-        nsec && (await login(nsec));
-        newPubkey && (await addPubkeyToAccount());
+          nsec && (await login(nsec));
+          newPubkey && (await addPubkeyToAccount());
+        } else {
+          // user has an npub, so we don't need to create a new one
+        }
       } else {
         // mobile user thats already logged in with an nsec, associate the pubkey to the firebase userID
         !catalogUser.nostrProfileData
@@ -206,7 +224,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           .includes(pubkey) && (await addPubkeyToAccount());
       }
 
-      return user;
+      return { ...user, hasExistingNostrProfile };
     } catch (error) {
       console.error("error signing in with email");
       return { error };
