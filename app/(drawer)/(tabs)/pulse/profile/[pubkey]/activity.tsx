@@ -2,7 +2,7 @@ import { ActivityItemRow, Center, Text } from "@/components";
 import { getPubkeyActivity } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, FlatList, RefreshControl } from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 
 const PAGE_SIZE = 10;
 export default function ProfileActivityPage() {
@@ -27,13 +27,6 @@ export default function ProfileActivityPage() {
   });
   const { pages = [] } = data ?? {};
   const flattenedData = pages.flatMap((page) => page ?? []);
-  if (isLoading) {
-    return (
-      <Center>
-        <ActivityIndicator />
-      </Center>
-    );
-  }
 
   return (
     <FlatList
@@ -60,9 +53,11 @@ export default function ProfileActivityPage() {
       keyExtractor={(item) => item.contentId + item.timestamp}
       scrollEnabled
       ListEmptyComponent={
-        <Center>
-          <Text>This user has no activity.</Text>
-        </Center>
+        !isLoading ? (
+          <Center>
+            <Text>This user has no activity.</Text>
+          </Center>
+        ) : null
       }
       onEndReached={() => {
         if (hasNextPage) {

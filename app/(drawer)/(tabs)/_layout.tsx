@@ -107,6 +107,13 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
+            name="profile"
+            options={{
+              // this hides the tab from showing in the tab bar
+              href: null,
+            }}
+          />
+          <Tabs.Screen
             name="radio"
             options={{
               title: "Radio",

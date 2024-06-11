@@ -45,7 +45,16 @@ export default function DrawerLayout() {
 
     return (
       <View style={{ marginRight: 16 }}>
-        <Pressable onPress={() => router.push("/profile")}>
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/profile",
+              params: {
+                includeBackButton: true,
+              },
+            })
+          }
+        >
           <Avatar size={24} />
         </Pressable>
       </View>

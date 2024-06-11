@@ -67,16 +67,26 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
         }}
       >
         <PubkeyPlaylists pubkey={pubkey} maxRows={3} />
-        <SectionHeader
-          title="Recent Activity"
-          rightNavText="View All"
-          rightNavHref={{
-            pathname: `/pulse/profile/${pubkey}/activity`,
-            params: {
-              includeBackButton: true,
-            },
-          }}
-        />
+        {!!activity.length ? (
+          <SectionHeader
+            title="Recent Activity"
+            rightNavText="View All"
+            rightNavHref={{
+              pathname: `/pulse/profile/${pubkey}/activity`,
+              params: {
+                includeBackButton: true,
+              },
+            }}
+          />
+        ) : (
+          <Center
+            style={{
+              paddingTop: 40,
+            }}
+          >
+            <Text>This user has no activity</Text>
+          </Center>
+        )}
         {activity.slice(0, NUM_ACTIVITY_ROWS).map((item) => (
           <ActivityItemRow item={item} key={item.contentId + item.timestamp} />
         ))}

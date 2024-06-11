@@ -34,22 +34,34 @@ type ContentType =
   | "artist"
   | "playlist";
 
-type ActivityType = "playlistCreate" | "zap" | "playlistUpdate";
+type ActivityType =
+  | "playlistCreate"
+  | "zap"
+  | "playlistUpdate"
+  | "trackPublish"
+  | "trending"
+  | "hot";
 
 const generateTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: `@${item.name} updated a playlist`,
     zap: `@${item.name} sent ${satsFormatter(item?.zapAmount ?? 0)} sats`,
     playlistCreate: `@${item.name} created a playlist`,
+    trackPublish: `@${item.name} published a track`,
+    trending: `${item.contentTitle} is trending`,
+    hot: `${item.contentTitle} is hot`,
   };
 
-  return actionMap[item.type];
+  return actionMap?.[item.type];
 };
 const generateSubTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: item.parentContentTitle,
-    zap: `"${item.message}"`,
+    zap: item.message ? `"${item.message}"` : "",
     playlistCreate: item.parentContentTitle,
+    trackPublish: item.contentTitle,
+    trending: "",
+    hot: "",
   };
 
   return actionMap?.[item.type];
@@ -163,6 +175,8 @@ export const ActivityItemRow = ({
   };
 
   if (!contentId || !contentTitle) return null;
+  const firstLine = isExpanded ? contentTitle : generateTitle(item);
+  const secondLine = isExpanded ? parentContentTitle : generateSubTitle(item);
 
   return (
     <View
@@ -215,12 +229,12 @@ export const ActivityItemRow = ({
             flex: 1,
           }}
         >
-          <Text numberOfLines={1} bold>
-            {isExpanded ? contentTitle : generateTitle(item)}
-          </Text>
-          <Text numberOfLines={1}>
-            {isExpanded ? parentContentTitle : generateSubTitle(item)}
-          </Text>
+          {firstLine && (
+            <Text numberOfLines={1} bold>
+              {firstLine}
+            </Text>
+          )}
+          {secondLine && <Text numberOfLines={1}>{secondLine}</Text>}
         </View>
         <OverflowMenuDialog
           {...generateOverflowMenuProps(item)}

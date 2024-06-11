@@ -55,7 +55,7 @@ export const PubkeyProfile = ({
         <TouchableOpacity
           onPress={() => {
             router.push({
-              pathname: "/profileEdit",
+              pathname: "/profile/edit",
               params: { showBackButton: true },
             });
           }}
