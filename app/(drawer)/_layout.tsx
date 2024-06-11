@@ -52,11 +52,6 @@ export default function DrawerLayout() {
     );
   };
 
-  // just using here to seed the react-query library cache
-  useLibraryTracks();
-  useLibraryArtists();
-  useLibraryAlbums();
-
   return (
     <Drawer
       screenOptions={{
