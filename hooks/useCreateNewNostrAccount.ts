@@ -1,4 +1,10 @@
-import { generatePrivateKey, getPublicKey, NostrUserProfile } from "@/utils";
+import {
+  decodeNsec,
+  encodeNsec,
+  generatePrivateKey,
+  getPublicKey,
+  NostrUserProfile,
+} from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { useSaveNostrProfile } from "@/hooks/nostrProfile";
@@ -13,7 +19,19 @@ export const useCreateNewNostrAccount = () => {
   return async (profile: NostrUserProfile, nsec?: string) => {
     const seckey = nsec ?? generatePrivateKey();
     const success = await login(seckey);
-    const pubkey = getPublicKey(seckey);
+    const secretKey = seckey.startsWith("nsec")
+      ? decodeNsec(seckey)
+      : decodeNsec(encodeNsec(seckey) ?? "");
+
+    if (!secretKey) {
+      toast.show("Something went wrong. Please try again later.");
+      return {
+        nsec: undefined,
+        pubkey: undefined,
+      };
+    }
+
+    const pubkey = getPublicKey(secretKey);
     const bootstrapRelays = [
       "wss://purplepag.es",
       "wss://relay.nostr.band",

@@ -109,7 +109,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         });
       }
       const { data: catalogUser } = await refetchUser();
-
+      console.log("catalogUser", catalogUser?.nostrProfileData);
       const hasExistingNostrProfile =
         catalogUser?.nostrProfileData.length !== 0;
 
@@ -200,7 +200,8 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw "catalog user not found";
       }
 
-      const hasExistingNostrProfile = catalogUser.nostrProfileData.length !== 0;
+      const hasExistingNostrProfile =
+        catalogUser?.nostrProfileData.length !== 0;
       if (!pubkey) {
         if (!hasExistingNostrProfile) {
           // New login (may or may not have an npub yet, so we give them a brand new one)
@@ -219,7 +220,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         }
       } else {
         // mobile user thats already logged in with an nsec, associate the pubkey to the firebase userID
-        !catalogUser.nostrProfileData
+        !catalogUser?.nostrProfileData
           .map((data) => data.publicHex)
           .includes(pubkey) && (await addPubkeyToAccount());
       }

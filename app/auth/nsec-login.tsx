@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks";
+import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import { useRouter } from "expo-router";
 import {
   decodeNsec,
@@ -38,6 +38,7 @@ const getNpubFromNsec = (nsec: string) => {
 export default function Login() {
   const [nsec, setNsec] = useState("");
   const [isGeneratedNsec, setIsGeneratedNsec] = useState(false);
+  const createNewNostrAccount = useCreateNewNostrAccount();
 
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
@@ -81,10 +82,15 @@ export default function Login() {
     }
 
     if (isGeneratedNsec) {
-      // log in with the nsec on the form
-      const success = await login(nsec);
-      if (!success) {
-        setErrorMessage("Invalid nostr nsec");
+      const res = await createNewNostrAccount(
+        {
+          name: catalogUser?.name,
+          // picture: user.user.photoURL ?? "",
+        },
+        nsec,
+      );
+      if (!res?.pubkey) {
+        setErrorMessage("Failed to create account");
         setIsLoggingIn(false);
         return;
       }
