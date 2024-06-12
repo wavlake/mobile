@@ -57,3 +57,4 @@ export * from "./PulseGlobalActivityFeed";
 export * from "./ProfileActivityPage";
 export * from "./ProfileEditPage";
 export * from "./ProfilePlaylistsPage";
+export * from "./PlaylistEditPage";

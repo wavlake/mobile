@@ -17,6 +17,7 @@ import {
 import { useUser } from "../UserContextProvider";
 import { Track } from "@/utils";
 import { LikeButton } from "../LikeButton";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 interface EditPlaylistDialogProps {
   playlistId: string;
@@ -35,6 +36,7 @@ export const EditPlaylistDialog = ({
   playlistData,
   playlistId,
 }: EditPlaylistDialogProps) => {
+  const basePath = useGetBasePathname();
   const isPlaylistInLibrary = useIsPlaylistInLibrary(playlistId);
   const addPlaylistToLibraryMutation = useAddPlaylistToLibrary();
   const deletePlaylistFromLibraryMutation = useDeletePlaylistFromLibrary();
@@ -68,7 +70,7 @@ export const EditPlaylistDialog = ({
 
   const handleEdit = () => {
     router.push({
-      pathname: `/library/music/playlists/${playlistId}/edit`,
+      pathname: `${basePath}/playlist/${playlistId}/edit`,
       params: {
         headerTitle: "Songs",
         includeBackButton: true,

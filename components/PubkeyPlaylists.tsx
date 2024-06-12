@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Center } from "@/components";
 import { usePubkeyPlaylists } from "@/hooks/playlist/usePubkeyPlaylists";
 import { PlaylistRow } from "@/components/PlaylistRow";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const PubkeyPlaylists = ({
   pubkey,
@@ -12,13 +13,15 @@ export const PubkeyPlaylists = ({
   pubkey: string;
   maxRows?: number;
 }) => {
+  const basePath = useGetBasePathname();
+
   const router = useRouter();
   const { data: playlists = [], isLoading } = usePubkeyPlaylists(
     pubkey as string,
   );
   const handlePlaylistPress = (playlist: { id: string; title: string }) => {
     router.push({
-      pathname: `/pulse/playlist/${playlist.id}`,
+      pathname: `${basePath}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
         playlistTitle: playlist.title,
@@ -33,7 +36,7 @@ export const PubkeyPlaylists = ({
         title="Playlists"
         rightNavText="View All"
         rightNavHref={{
-          pathname: `/pulse/profile/${pubkey}/playlists`,
+          pathname: `${basePath}/profile/${pubkey}/playlists`,
           params: {
             includeBackButton: true,
           },

@@ -21,8 +21,10 @@ import DraggableFlatList, {
 import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useReorderPlaylist } from "@/hooks/playlist/useReorderPlaylist";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
-export default function PlaylistsPage() {
+export const PlaylistEditPage = () => {
+  const basePath = useGetBasePathname();
   const router = useRouter();
   const { playlistId } = useLocalSearchParams();
   const { data: playlistData, isLoading } = useQuery({
@@ -53,7 +55,7 @@ export default function PlaylistsPage() {
 
     if (success) {
       router.push({
-        pathname: `/library/music/playlists/${playlistId}`,
+        pathname: `${basePath}/playlist/${playlistId}`,
         params: {
           headerTitle: playlistData?.title ?? "Playlist",
           includeBackButton: true,
@@ -178,4 +180,4 @@ export default function PlaylistsPage() {
       />
     </View>
   );
-}
+};

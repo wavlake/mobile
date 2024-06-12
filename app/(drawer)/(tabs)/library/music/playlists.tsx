@@ -1,6 +1,7 @@
 import { Center, Text, useMiniMusicPlayer } from "@/components";
 import { PlaylistRow } from "@/components/PlaylistRow";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -10,12 +11,13 @@ import {
 } from "react-native";
 
 export default function PlaylistsPage() {
+  const basePath = useGetBasePathname();
   const { height } = useMiniMusicPlayer();
   const { data: playlists = [], isLoading, refetch } = usePlaylists();
   const router = useRouter();
   const handleRowPress = (playlist: { id: string; title: string }) => {
     router.push({
-      pathname: `/library/music/playlists/${playlist.id}`,
+      pathname: `${basePath}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
         includeBackButton: true,
