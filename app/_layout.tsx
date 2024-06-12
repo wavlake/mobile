@@ -146,6 +146,10 @@ export default function Layout() {
                       headerTitle: () => <Text>Nostr Wallet Connect</Text>,
                     }}
                   />
+                  <Stack.Screen
+                    name="profile"
+                    options={{ headerTitle: () => <Text>Profile</Text> }}
+                  />
                   <Stack.Screen name="notification.click" />
                   <Stack.Screen
                     name="nwcAdd"
