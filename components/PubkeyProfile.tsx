@@ -90,7 +90,7 @@ export const PubkeyProfile = ({
         <View
           style={{
             width: "100%",
-            aspectRatio: 10,
+            aspectRatio: 3,
             backgroundColor: "black",
           }}
         />
