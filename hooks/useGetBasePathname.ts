@@ -1,6 +1,6 @@
 import { usePathname } from "expo-router";
 
-export const useGetArtistOrAlbumBasePathname = () => {
+export const useGetBasePathname = () => {
   const pathname = usePathname();
 
   if (pathname.startsWith("/search")) {
@@ -9,6 +9,14 @@ export const useGetArtistOrAlbumBasePathname = () => {
 
   if (pathname.startsWith("/library")) {
     return "/library/music";
+  }
+
+  if (pathname.startsWith("/pulse")) {
+    return "/pulse";
+  }
+
+  if (pathname.startsWith("/profile")) {
+    return "/profile";
   }
 
   return "";

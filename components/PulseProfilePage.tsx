@@ -11,6 +11,7 @@ import {
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
 import { useAuth } from "@/hooks";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const PulseProfilePage = () => {
   const { pubkey } = useLocalSearchParams();
@@ -37,6 +38,7 @@ export const PulseProfilePage = () => {
 
 const NUM_ACTIVITY_ROWS = 3;
 const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
+  const basePath = useGetBasePathname();
   const {
     data: profileData,
     isLoading: metadataLoading,
@@ -71,7 +73,7 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
           title="Recent Activity"
           rightNavText="View All"
           rightNavHref={{
-            pathname: `/pulse/profile/${pubkey}/activity`,
+            pathname: `${basePath}/profile/${pubkey}/activity`,
             params: {
               includeBackButton: true,
             },

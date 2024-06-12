@@ -9,7 +9,7 @@ import { TrackRow } from "@/components/TrackRow";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { CommentRow } from "./CommentRow";
-import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 interface AlbumPageFooterProps {
   album: Album;
@@ -17,7 +17,7 @@ interface AlbumPageFooterProps {
 
 const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
   const { description, topMessages = [], title, id: albumId } = album;
-  const basePathname = useGetArtistOrAlbumBasePathname();
+  const basePathname = useGetBasePathname();
   const router = useRouter();
 
   if (!description && topMessages.length === 0) {

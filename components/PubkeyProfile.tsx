@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 const AVATAR_SIZE = 80;
 export const PubkeyProfile = ({
@@ -16,6 +17,7 @@ export const PubkeyProfile = ({
 }: {
   profileData: NostrProfileData;
 }) => {
+  const basePath = useGetBasePathname();
   const { colors } = useTheme();
   const { pubkey } = useAuth();
   const userOwnsProfile = pubkey === profileData.publicHex;
@@ -55,8 +57,8 @@ export const PubkeyProfile = ({
         <TouchableOpacity
           onPress={() => {
             router.push({
-              pathname: "/profile/edit",
-              params: { showBackButton: true },
+              pathname: `${basePath}/profile/${pubkey}/edit`,
+              params: { includeBackButton: true },
             });
           }}
           style={{

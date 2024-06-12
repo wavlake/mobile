@@ -54,3 +54,6 @@ export * from "./UserContextProvider";
 export * from "./PulseProfilePage";
 export * from "./PulseUserActivityFeed";
 export * from "./PulseGlobalActivityFeed";
+export * from "./ProfileActivityPage";
+export * from "./ProfileEditPage";
+export * from "./ProfilePlaylistsPage";
