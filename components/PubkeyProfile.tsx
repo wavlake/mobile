@@ -24,7 +24,6 @@ export const PubkeyProfile = ({
   const { catalogUser } = useUser();
   const { picture, name, banner, about, website, nip05 } =
     profileData?.metadata ?? {};
-  const { followerCount, follows } = profileData || {};
   const { mutateAsync: addFollower } = useAddFollower();
   const { mutateAsync: removeFollower } = useRemoveFollower();
   const userIsFollowing = catalogUser?.nostrProfileData[0]?.follows.some(
@@ -139,23 +138,7 @@ export const PubkeyProfile = ({
             >
               {name}
             </Text>
-            {profileData && (
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <Text style={{ fontSize: 12 }} bold>
-                  {followerCount ?? 0}
-                </Text>
-                <Text style={{ fontSize: 12 }}>{` followers • `}</Text>
-                <Text style={{ fontSize: 12 }} bold>
-                  {follows?.length ?? 0}
-                </Text>
-                <Text style={{ fontSize: 12 }}>{` following`}</Text>
-              </View>
-            )}
+            <FollowerInfo profileData={profileData} />
           </View>
           {/* <SlimButton
             width={100}
@@ -194,6 +177,36 @@ export const PubkeyProfile = ({
           </Text>
         )}
       </View>
+    </View>
+  );
+};
+
+const FollowerInfo = ({ profileData }: { profileData: NostrProfileData }) => {
+  const { followerCount, follows } = profileData;
+
+  return (
+    <View
+      style={{
+        display: "flex",
+        flexDirection: "row",
+      }}
+    >
+      {followerCount > 0 && (
+        <>
+          <Text style={{ fontSize: 12 }} bold>
+            {followerCount}
+          </Text>
+          <Text style={{ fontSize: 12 }}>{` followers • `}</Text>
+        </>
+      )}
+      {follows.length > 0 && (
+        <>
+          <Text style={{ fontSize: 12 }} bold>
+            {follows.length}
+          </Text>
+          <Text style={{ fontSize: 12 }}>{` following`}</Text>
+        </>
+      )}
     </View>
   );
 };
