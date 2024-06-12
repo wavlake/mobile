@@ -67,29 +67,34 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
         }}
       >
         <PubkeyPlaylists pubkey={pubkey} maxRows={3} />
-        {!!activity.length ? (
-          <SectionHeader
-            title="Recent Activity"
-            rightNavText="View All"
-            rightNavHref={{
-              pathname: `/pulse/profile/${pubkey}/activity`,
-              params: {
-                includeBackButton: true,
-              },
-            }}
-          />
-        ) : (
+        <SectionHeader
+          title="Recent Activity"
+          rightNavText="View All"
+          rightNavHref={{
+            pathname: `/pulse/profile/${pubkey}/activity`,
+            params: {
+              includeBackButton: true,
+            },
+          }}
+        />
+        {!activity.length ? (
           <Center
             style={{
-              paddingTop: 40,
+              paddingTop: 20,
             }}
           >
             <Text>This user has no activity</Text>
           </Center>
+        ) : (
+          <>
+            {activity.slice(0, NUM_ACTIVITY_ROWS).map((item) => (
+              <ActivityItemRow
+                item={item}
+                key={item.contentId + item.timestamp}
+              />
+            ))}
+          </>
         )}
-        {activity.slice(0, NUM_ACTIVITY_ROWS).map((item) => (
-          <ActivityItemRow item={item} key={item.contentId + item.timestamp} />
-        ))}
       </View>
     </ScrollView>
   );
