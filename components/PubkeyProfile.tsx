@@ -29,15 +29,15 @@ export const PubkeyProfile = ({
   const userIsFollowing = catalogUser?.nostrProfileData[0]?.follows.some(
     (follow) => follow.pubkey === profileData.publicHex,
   );
+
   const router = useRouter();
   const onFollowPress = () => {
     if (userIsFollowing) {
       removeFollower(profileData.publicHex);
     } else {
-      addFollower(profileData.publicHex);
+      addFollower({ pubkey: profileData.publicHex });
     }
   };
-
   const [isNip05Verified, setIsNip05Verified] = useState(false);
   useEffect(() => {
     if (!nip05) return;
@@ -140,14 +140,16 @@ export const PubkeyProfile = ({
             </Text>
             <FollowerInfo profileData={profileData} />
           </View>
-          {/* <SlimButton
-            width={100}
-            color="white"
-            titleStyle={{ fontSize: 14 }}
-            onPress={onFollowPress}
-          >
-            {userIsFollowing ? "Unfollow" : "Follow"}
-          </SlimButton> */}
+          {!userOwnsProfile && (
+            <SlimButton
+              width={100}
+              color="white"
+              titleStyle={{ fontSize: 14 }}
+              onPress={onFollowPress}
+            >
+              {userIsFollowing ? "Unfollow" : "Follow"}
+            </SlimButton>
+          )}
         </View>
       </View>
       <View

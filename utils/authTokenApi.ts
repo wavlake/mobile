@@ -65,7 +65,7 @@ export interface NostrProfileData {
     username?: string;
   } & NostrUserProfile;
   followerCount: number;
-  follows: { pubkey: string }[];
+  follows: { pubkey: string; relay?: string; petname?: string }[];
 }
 export interface PrivateUserData {
   id: string;
