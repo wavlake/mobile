@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 import { TouchableOpacity, View } from "react-native";
 import MosaicImage from "./Mosaic";
 import { Text } from "@/components/Text";
@@ -7,12 +6,12 @@ import { BasicAvatar } from "./BasicAvatar";
 import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";
 import { useRouter } from "expo-router";
 import { satsFormatter } from "./WalletBalance";
+import { encodeNpub } from "@/utils";
 
 export interface ActivityItem {
   picture: string;
   name: string;
   userId: string;
-  pubkey: string;
   description: string;
   type: ActivityType;
   message?: string;
@@ -45,7 +44,9 @@ type ActivityType =
 const generateTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: `@${item.name} updated a playlist`,
-    zap: `@${item.name} sent ${satsFormatter(item?.zapAmount ?? 0)} sats`,
+    zap: `@${
+      item.name ?? encodeNpub(item.userId)?.slice(0, 10) ?? "anon"
+    } sent ${satsFormatter(item?.zapAmount ?? 0)} sats`,
     playlistCreate: `@${item.name} created a playlist`,
     trackPublish: `@${item.name} published a track`,
     trending: `${item.contentTitle} is trending`,

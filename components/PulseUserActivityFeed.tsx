@@ -38,7 +38,6 @@ export const PulseUserActivityFeed = () => {
       }
       renderItem={({ item, index }) => {
         const isLastComment = index === flattenedData.length - 1;
-
         return (
           <>
             <ActivityItemRow isExpanded={true} item={item} />
@@ -51,7 +50,9 @@ export const PulseUserActivityFeed = () => {
           </>
         );
       }}
-      keyExtractor={(item) => item.contentId + item.timestamp}
+      keyExtractor={(item) =>
+        item.contentId + item.timestamp + item.userId + item.zapAmount
+      }
       scrollEnabled
       ListEmptyComponent={
         !isLoading ? (

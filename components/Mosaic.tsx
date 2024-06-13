@@ -7,11 +7,11 @@ const MosaicImage = ({
   imageUrls,
   size = 60,
 }: {
-  imageUrls: string[];
+  imageUrls?: string[];
   size?: number;
 }) => {
   // filter out undefined imageUrls to be safe
-  const definedImageUrls = imageUrls.filter((url) => url);
+  const definedImageUrls = imageUrls?.filter((url) => url) ?? [];
 
   if (definedImageUrls.length === 0) {
     return <LogoIcon fill="white" width={size} height={size} />;

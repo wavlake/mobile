@@ -47,7 +47,9 @@ export const PulseGlobalActivityFeed = () => {
           </>
         );
       }}
-      keyExtractor={(item) => item.contentId + item.timestamp}
+      keyExtractor={(item) =>
+        item.contentId + item.timestamp + item.userId + item.zapAmount
+      }
       scrollEnabled
       ListEmptyComponent={
         !isLoading ? (
