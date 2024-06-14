@@ -21,29 +21,26 @@ export const PubkeyProfile = ({
   const { colors } = useTheme();
   const { pubkey } = useAuth();
   const userOwnsProfile = pubkey === profileData.publicHex;
-  const { catalogUser } = useUser();
+  const { nostrMetadata } = useUser();
   const { picture, name, banner, about, website, nip05 } =
     profileData?.metadata ?? {};
-  const { mutateAsync: addFollower } = useAddFollower();
-  const { mutateAsync: removeFollower } = useRemoveFollower();
-  const userIsFollowing = catalogUser?.nostrProfileData[0]?.follows.some(
+  const { mutateAsync: addFollower, isLoading: addLoading } = useAddFollower();
+  const { mutateAsync: removeFollower, isLoading: removeLoading } =
+    useRemoveFollower();
+  const userIsFollowing = nostrMetadata?.follows.some(
     (follow) => follow.pubkey === profileData.publicHex,
   );
-
+  const [isFollowing, setIsFollowing] = useState(userIsFollowing);
   const router = useRouter();
+
   const onFollowPress = () => {
-    if (userIsFollowing) {
+    setIsFollowing(!isFollowing);
+    if (isFollowing) {
       removeFollower(profileData.publicHex);
     } else {
       addFollower({ pubkey: profileData.publicHex });
     }
   };
-  const [isNip05Verified, setIsNip05Verified] = useState(false);
-  useEffect(() => {
-    if (!nip05) return;
-    // TODO - update nostr-tools to include a queryProfile function
-    // queryProfile(nip05).then(() => {});
-  }, [nip05]);
 
   return (
     <View
@@ -146,8 +143,9 @@ export const PubkeyProfile = ({
               color="white"
               titleStyle={{ fontSize: 14 }}
               onPress={onFollowPress}
+              disabled={addLoading || removeLoading}
             >
-              {userIsFollowing ? "Unfollow" : "Follow"}
+              {isFollowing ? "Unfollow" : "Follow"}
             </SlimButton>
           )}
         </View>
@@ -201,10 +199,10 @@ const FollowerInfo = ({ profileData }: { profileData: NostrProfileData }) => {
           <Text style={{ fontSize: 12 }}>{` followers • `}</Text>
         </>
       )}
-      {follows.length > 0 && (
+      {follows?.length > 0 && (
         <>
           <Text style={{ fontSize: 12 }} bold>
-            {follows.length}
+            {follows?.length}
           </Text>
           <Text style={{ fontSize: 12 }}>{` following`}</Text>
         </>

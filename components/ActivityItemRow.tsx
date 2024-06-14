@@ -44,9 +44,9 @@ type ActivityType =
 const generateTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: `@${item.name} updated a playlist`,
-    zap: `@${
-      item.name ?? encodeNpub(item.userId)?.slice(0, 10) ?? "anon"
-    } sent ${satsFormatter(item?.zapAmount ?? 0)} sats`,
+    zap: `@${item.name ?? "anon"} sent ${satsFormatter(
+      item?.zapAmount ?? 0,
+    )} sats`,
     playlistCreate: `@${item.name} created a playlist`,
     trackPublish: `@${item.name} published a track`,
     trending: `${item.contentTitle} is trending`,

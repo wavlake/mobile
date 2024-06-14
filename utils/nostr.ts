@@ -572,14 +572,9 @@ const FOLLOW_EVENT_KIND = 3;
 const followerTag = "p";
 
 export const useAddFollower = () => {
-  const queryClient = useQueryClient();
-  const { catalogUser } = useUser();
+  const { nostrMetadata, refetchUser } = useUser();
   const { pubkey: loggedInPubkey } = useAuth();
-  const queryKey = useCatalogPubkeyQueryKey(loggedInPubkey);
-  const followsList =
-    catalogUser?.nostrProfileData.find(
-      (metadata) => metadata.publicHex === loggedInPubkey,
-    )?.follows ?? [];
+  const followsList = nostrMetadata?.follows ?? [];
 
   return useMutation({
     mutationFn: async ({
@@ -599,42 +594,33 @@ export const useAddFollower = () => {
         ...(petname ? [petname] : []),
       ]);
 
-      event.tags = [
-        ...oldFollowsList,
-        [
-          followerTag,
-          pubkey,
-          ...(relay ? [relay] : []),
-          ...(petname ? [petname] : []),
-        ],
-      ];
+      event.tags = Array.from(
+        new Set([
+          ...oldFollowsList,
+          [
+            followerTag,
+            pubkey,
+            ...(relay ? [relay] : []),
+            ...(petname ? [petname] : []),
+          ],
+        ]),
+      );
 
-      console.log("event.tags", event.tags);
-      console.log("oldFollowsList", oldFollowsList);
       event.created_at = Math.round(new Date().getTime() / 1000);
 
       const signed = await signEvent(event);
       // TODO use user's relay list event
       await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
-      const newMetadata = await updatePubkeyMetadata(loggedInPubkey);
-      if (newMetadata) {
-        queryClient.setQueryData(queryKey, newMetadata);
-      }
+      await updatePubkeyMetadata(loggedInPubkey);
+      refetchUser();
     },
   });
 };
 
 export const useRemoveFollower = () => {
-  const queryClient = useQueryClient();
-
-  const { catalogUser } = useUser();
+  const { nostrMetadata, refetchUser } = useUser();
   const { pubkey: loggedInPubkey } = useAuth();
-  const queryKey = useCatalogPubkeyQueryKey(loggedInPubkey);
-
-  const followsList =
-    catalogUser?.nostrProfileData.find(
-      (metadata) => metadata.publicHex === loggedInPubkey,
-    )?.follows ?? [];
+  const followsList = nostrMetadata?.follows ?? [];
 
   return useMutation({
     mutationFn: async (removedFollowPubkey: string) => {
@@ -645,18 +631,20 @@ export const useRemoveFollower = () => {
         ...(relay ? [relay] : []),
         ...(petname ? [petname] : []),
       ]);
-      event.tags = oldFollowsList.filter(
-        (follow) => follow[1] !== removedFollowPubkey,
+
+      event.tags = Array.from(
+        new Set(
+          oldFollowsList.filter((follow) => follow[1] !== removedFollowPubkey),
+        ),
       );
+
       event.created_at = Math.round(new Date().getTime() / 1000);
       const signed = await signEvent(event);
 
       // TODO use user's relay list event
       await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
-      const newMetadata = await updatePubkeyMetadata(loggedInPubkey);
-      if (newMetadata) {
-        queryClient.setQueryData(queryKey, newMetadata);
-      }
+      await updatePubkeyMetadata(loggedInPubkey);
+      refetchUser();
     },
   });
 };
