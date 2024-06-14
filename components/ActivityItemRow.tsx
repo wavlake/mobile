@@ -10,6 +10,8 @@ import { Octicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Foundation } from "@expo/vector-icons";
+import { ZapIcon } from "./ZapIcon";
+import { brandColors } from "@/constants";
 export interface ActivityItem {
   picture: string;
   name: string;
@@ -50,7 +52,8 @@ const ICON_MAP: Record<ActivityType, ReactElement> = {
   playlistUpdate: (
     <MaterialCommunityIcons name="playlist-music" size={24} color="white" />
   ),
-  zap: <Octicons name="zap" size={24} color="white" />,
+  zap: <ZapIcon fill={brandColors.pink.DEFAULT} width={24} height={24} />,
+  // zap: <Octicons name="zap" size={24} color="white" />,
   trackPublish: <Foundation name="music" size={24} color="white" />,
   trending: (
     <MaterialCommunityIcons name="trending-up" size={24} color="white" />
