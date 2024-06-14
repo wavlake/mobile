@@ -3,6 +3,8 @@ import { Text } from "@/components/Text";
 import { FlatList, RefreshControl } from "react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getGlobalActivityFeed } from "@/utils";
+import { Divider } from "@rneui/base";
+import { brandColors } from "@/constants";
 
 const PAGE_SIZE = 10;
 export const PulseGlobalActivityFeed = () => {
@@ -34,10 +36,12 @@ export const PulseGlobalActivityFeed = () => {
       }
       renderItem={({ item, index }) => {
         const isLastComment = index === flattenedData.length - 1;
+        const willShowDivider = index < flattenedData.length - 1;
 
         return (
           <>
             <ActivityItemRow isExpanded={true} item={item} />
+            {willShowDivider && <Divider color={brandColors.black.light} />}
             {isFetchingNextPage && isLastComment && (
               <Text style={{ textAlign: "center" }}>Loading more...</Text>
             )}
