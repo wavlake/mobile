@@ -572,9 +572,8 @@ const FOLLOW_EVENT_KIND = 3;
 const followerTag = "p";
 
 export const useAddFollower = () => {
-  const { nostrMetadata, refetchUser } = useUser();
+  const { refetchUser } = useUser();
   const { pubkey: loggedInPubkey } = useAuth();
-  const followsList = nostrMetadata?.follows ?? [];
 
   return useMutation({
     mutationFn: async ({
@@ -586,17 +585,17 @@ export const useAddFollower = () => {
       petname?: string;
       relay?: string;
     }) => {
+      console.log("adding follower");
+      const currentKind3Event = await getEventFromPool({
+        kinds: [FOLLOW_EVENT_KIND],
+        authors: [loggedInPubkey ?? ""],
+      });
+      console.log("currentKind3Event", currentKind3Event);
       const event = getBlankEvent(FOLLOW_EVENT_KIND);
-      const oldFollowsList = followsList.map(({ pubkey, relay, petname }) => [
-        followerTag,
-        pubkey,
-        ...(relay ? [relay] : []),
-        ...(petname ? [petname] : []),
-      ]);
-
+      event.content = currentKind3Event?.content ?? "";
       event.tags = Array.from(
         new Set([
-          ...oldFollowsList,
+          ...(currentKind3Event?.tags ?? []),
           [
             followerTag,
             pubkey,
@@ -618,23 +617,26 @@ export const useAddFollower = () => {
 };
 
 export const useRemoveFollower = () => {
-  const { nostrMetadata, refetchUser } = useUser();
+  const { refetchUser } = useUser();
   const { pubkey: loggedInPubkey } = useAuth();
-  const followsList = nostrMetadata?.follows ?? [];
 
   return useMutation({
     mutationFn: async (removedFollowPubkey: string) => {
-      const event = getBlankEvent(FOLLOW_EVENT_KIND);
-      const oldFollowsList = followsList.map(({ pubkey, relay, petname }) => [
-        followerTag,
-        pubkey,
-        ...(relay ? [relay] : []),
-        ...(petname ? [petname] : []),
-      ]);
+      console.log("rming follower");
 
+      const currentKind3Event = await getEventFromPool({
+        kinds: [FOLLOW_EVENT_KIND],
+        authors: [loggedInPubkey ?? ""],
+      });
+      console.log("currentKind3Event", currentKind3Event);
+
+      const event = getBlankEvent(FOLLOW_EVENT_KIND);
+      event.content = currentKind3Event?.content ?? "";
       event.tags = Array.from(
         new Set(
-          oldFollowsList.filter((follow) => follow[1] !== removedFollowPubkey),
+          currentKind3Event?.tags?.filter(
+            (follow) => follow[1] !== removedFollowPubkey,
+          ),
         ),
       );
 

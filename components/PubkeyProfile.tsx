@@ -137,7 +137,7 @@ export const PubkeyProfile = ({
             </Text>
             <FollowerInfo profileData={profileData} />
           </View>
-          {!userOwnsProfile && (
+          {/* {!userOwnsProfile && (
             <SlimButton
               width={100}
               color="white"
@@ -147,7 +147,7 @@ export const PubkeyProfile = ({
             >
               {isFollowing ? "Unfollow" : "Follow"}
             </SlimButton>
-          )}
+          )} */}
         </View>
       </View>
       <View
