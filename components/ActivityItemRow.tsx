@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import MosaicImage from "./Mosaic";
 import { Text } from "@/components/Text";
@@ -6,8 +6,10 @@ import { BasicAvatar } from "./BasicAvatar";
 import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";
 import { useRouter } from "expo-router";
 import { satsFormatter } from "./WalletBalance";
-import { encodeNpub } from "@/utils";
-
+import { Octicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { Foundation } from "@expo/vector-icons";
 export interface ActivityItem {
   picture: string;
   name: string;
@@ -40,6 +42,22 @@ type ActivityType =
   | "trackPublish"
   | "trending"
   | "hot";
+
+const ICON_MAP: Record<ActivityType, ReactElement> = {
+  playlistCreate: (
+    <MaterialCommunityIcons name="playlist-music" size={24} color="white" />
+  ),
+  playlistUpdate: (
+    <MaterialCommunityIcons name="playlist-music" size={24} color="white" />
+  ),
+  zap: <Octicons name="zap" size={24} color="white" />,
+  trackPublish: <Foundation name="music" size={24} color="white" />,
+  trending: (
+    <MaterialCommunityIcons name="trending-up" size={24} color="white" />
+  ),
+  hot: <FontAwesome6 name="fire" size={24} color="white" />,
+  // live: <Feather name="radio" size={24} color="black" />,
+};
 
 const generateTitle = (item: ActivityItem) => {
   const actionMap: Record<ActivityType, string> = {
@@ -132,7 +150,9 @@ export const ActivityItemRow = ({
     zapAmount,
     name,
     description,
+    type,
   } = item;
+
   const [overflowDialogIsOpen, setOverflowDialogIsOpen] = useState(false);
 
   const handlePress = () => {
@@ -178,6 +198,7 @@ export const ActivityItemRow = ({
   if (!contentId || !contentTitle) return null;
   const firstLine = isExpanded ? contentTitle : generateTitle(item);
   const secondLine = isExpanded ? parentContentTitle : generateSubTitle(item);
+  const icon = ICON_MAP[type];
 
   return (
     <View
@@ -237,6 +258,7 @@ export const ActivityItemRow = ({
           )}
           {secondLine && <Text numberOfLines={1}>{secondLine}</Text>}
         </View>
+        {icon}
         <OverflowMenuDialog
           {...generateOverflowMenuProps(item)}
           setIsOpen={setOverflowDialogIsOpen}
