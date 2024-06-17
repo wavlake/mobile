@@ -12,6 +12,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Foundation } from "@expo/vector-icons";
 import { ZapIcon } from "./ZapIcon";
 import { brandColors } from "@/constants";
+import { LightningIcon } from "./LightningIcon";
 export interface ActivityItem {
   picture: string;
   name: string;
@@ -47,18 +48,36 @@ type ActivityType =
 
 const ICON_MAP: Record<ActivityType, ReactElement> = {
   playlistCreate: (
-    <MaterialCommunityIcons name="playlist-music" size={24} color="white" />
+    <MaterialCommunityIcons
+      name="playlist-music"
+      size={24}
+      color={brandColors.purple.DEFAULT}
+    />
   ),
   playlistUpdate: (
-    <MaterialCommunityIcons name="playlist-music" size={24} color="white" />
+    <MaterialCommunityIcons
+      name="playlist-music"
+      size={24}
+      color={brandColors.purple.DEFAULT}
+    />
   ),
-  zap: <ZapIcon fill={brandColors.pink.DEFAULT} width={24} height={24} />,
-  // zap: <Octicons name="zap" size={24} color="white" />,
-  trackPublish: <Foundation name="music" size={24} color="white" />,
+  // zap: <ZapIcon fill={brandColors.pink.DEFAULT} width={24} height={24} />,
+  zap: (
+    <LightningIcon width={24} height={24} fill={brandColors.orange.DEFAULT} />
+  ),
+  trackPublish: (
+    <Foundation name="music" size={24} color={brandColors.pink.DEFAULT} />
+  ),
   trending: (
-    <MaterialCommunityIcons name="trending-up" size={24} color="white" />
+    <MaterialCommunityIcons
+      name="trending-up"
+      size={24}
+      color={brandColors.mint.DEFAULT}
+    />
   ),
-  hot: <FontAwesome6 name="fire" size={24} color="white" />,
+  hot: (
+    <FontAwesome6 name="fire" size={24} color={brandColors.orange.DEFAULT} />
+  ),
   // live: <Feather name="radio" size={24} color="black" />,
 };
 
