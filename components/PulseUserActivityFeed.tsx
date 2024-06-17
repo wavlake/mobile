@@ -4,8 +4,6 @@ import { FlatList, RefreshControl } from "react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks";
 import { getActivityFeed } from "@/utils";
-import { brandColors } from "@/constants";
-import { Divider } from "@rneui/base";
 
 const PAGE_SIZE = 10;
 export const PulseUserActivityFeed = () => {
@@ -45,7 +43,6 @@ export const PulseUserActivityFeed = () => {
         return (
           <>
             <ActivityItemRow isExpanded={true} item={item} />
-            {willShowDivider && <Divider color={brandColors.black.light} />}
             {isFetchingNextPage && isLastComment && (
               <Text style={{ textAlign: "center" }}>Loading more...</Text>
             )}
