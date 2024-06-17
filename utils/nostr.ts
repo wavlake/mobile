@@ -571,42 +571,54 @@ export const subscribeToTicket = async (pubkey: string) => {
 const FOLLOW_EVENT_KIND = 3;
 const followerTag = "p";
 
+const getKind3Event = (pubkey?: string) => {
+  if (!pubkey) {
+    return null;
+  }
+
+  const filter = {
+    kinds: [3],
+    authors: [pubkey],
+  };
+
+  try {
+    return Promise.any(
+      DEFAULT_READ_RELAY_URIS.map((relayUri) =>
+        getEventFromRelay(relayUri, filter),
+      ),
+    );
+  } catch {
+    return null;
+  }
+};
+
 export const useAddFollower = () => {
   const { refetchUser } = useUser();
   const { pubkey: loggedInPubkey } = useAuth();
 
   return useMutation({
-    mutationFn: async ({
-      pubkey,
-      petname,
-      relay,
-    }: {
-      pubkey: string;
-      petname?: string;
-      relay?: string;
-    }) => {
-      console.log("adding follower");
-      const currentKind3Event = await getEventFromPool({
-        kinds: [FOLLOW_EVENT_KIND],
-        authors: [loggedInPubkey ?? ""],
-      });
-      console.log("currentKind3Event", currentKind3Event);
+    mutationFn: async ({ pubkey }: { pubkey: string }) => {
+      const currentKind3Event = await getKind3Event(loggedInPubkey);
+      if (!currentKind3Event) {
+        return;
+      }
       const event = getBlankEvent(FOLLOW_EVENT_KIND);
-      event.content = currentKind3Event?.content ?? "";
-      event.tags = Array.from(
-        new Set([
-          ...(currentKind3Event?.tags ?? []),
-          [
-            followerTag,
-            pubkey,
-            ...(relay ? [relay] : []),
-            ...(petname ? [petname] : []),
-          ],
-        ]),
+      event.content = currentKind3Event.content;
+      const existingFollowersPubkeys = currentKind3Event.tags
+        .filter((follow) => follow[0] === followerTag)
+        .map((follow) => follow[1]);
+      const otherTags = currentKind3Event.tags.filter(
+        (tag) => tag[0] !== followerTag,
       );
+      const newFollowers = Array.from(
+        new Set([...existingFollowersPubkeys, pubkey]),
+      );
+      event.tags = [
+        ...newFollowers.map((follower) => [followerTag, follower]),
+        ...otherTags,
+      ];
 
       event.created_at = Math.round(new Date().getTime() / 1000);
-
       const signed = await signEvent(event);
       // TODO use user's relay list event
       await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
@@ -622,27 +634,17 @@ export const useRemoveFollower = () => {
 
   return useMutation({
     mutationFn: async (removedFollowPubkey: string) => {
-      console.log("rming follower");
-
-      const currentKind3Event = await getEventFromPool({
-        kinds: [FOLLOW_EVENT_KIND],
-        authors: [loggedInPubkey ?? ""],
-      });
-      console.log("currentKind3Event", currentKind3Event);
-
+      const currentKind3Event = await getKind3Event(loggedInPubkey);
+      if (!currentKind3Event) {
+        return;
+      }
       const event = getBlankEvent(FOLLOW_EVENT_KIND);
       event.content = currentKind3Event?.content ?? "";
-      event.tags = Array.from(
-        new Set(
-          currentKind3Event?.tags?.filter(
-            (follow) => follow[1] !== removedFollowPubkey,
-          ),
-        ),
+      event.tags = currentKind3Event.tags.filter(
+        (follow) => follow[1] !== removedFollowPubkey,
       );
-
       event.created_at = Math.round(new Date().getTime() / 1000);
       const signed = await signEvent(event);
-
       // TODO use user's relay list event
       await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
       await updatePubkeyMetadata(loggedInPubkey);

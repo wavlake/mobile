@@ -163,6 +163,7 @@ apiClient.interceptors.response.use(
       const apiErrorMessage = error.response.data.error;
       return Promise.reject(apiErrorMessage);
     } else {
+      console.error(error);
       return Promise.reject("An error occurred");
     }
   },
@@ -507,8 +508,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
