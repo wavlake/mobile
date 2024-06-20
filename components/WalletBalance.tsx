@@ -1,7 +1,7 @@
 import { Text } from "@/components/Text";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 
-const satsFormatter = (mSats: number) => {
+export const satsFormatter = (mSats: number) => {
   const sats = Math.floor(mSats / 1000).toFixed(0);
   // add commas
   return sats.replace(/\B(?=(\d{3})+(?!\d))/g, ",");

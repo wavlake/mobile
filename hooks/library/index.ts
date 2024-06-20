@@ -12,3 +12,8 @@ export * from "./useLibraryAlbums";
 export * from "./useIsAlbumInLibrary";
 export * from "./useAddAlbumToLibrary";
 export * from "./useDeleteAlbumFromLibrary";
+
+export * from "./useLibraryPlaylists";
+export * from "./useIsPlaylistInLibrary";
+export * from "./useAddPlaylistToLibrary";
+export * from "./useDeletePlaylistFromLibrary";

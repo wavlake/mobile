@@ -5,3 +5,7 @@ export const usePlaylistsQueryKey = () => {
 
   return ["playlists", pubkey];
 };
+
+export const useUserPlaylistsQueryKey = (pubkey?: string) => {
+  return ["playlists", pubkey];
+};

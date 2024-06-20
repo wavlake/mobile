@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { ResponseObject } from "./api";
+import { NostrUserProfile } from "./nostr";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 
@@ -46,6 +47,26 @@ const requestInterceptor = catalogApiClient.interceptors.request.use(
   },
 );
 
+export interface NostrProfileData {
+  publicHex: string;
+  metadata: {
+    name: string;
+    npub: string;
+    about?: string;
+    lud16?: string;
+    nip05?: string;
+    banner?: string;
+    pubkey: string;
+    picture?: string;
+    created_at: number;
+    nip05valid?: boolean;
+    display_name?: string;
+    displayName?: string;
+    username?: string;
+  } & NostrUserProfile;
+  followerCount: number;
+  follows: { pubkey: string; relay?: string; petname?: string }[];
+}
 export interface PrivateUserData {
   id: string;
   name: string;
@@ -60,7 +81,7 @@ export interface PrivateUserData {
   isRegionVerified: boolean;
   providerId: string;
   lightningAddress?: string;
-  pubkeys: string[];
+  nostrProfileData: NostrProfileData[];
 }
 
 export const usePrivateUserData = () => {

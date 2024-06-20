@@ -2,6 +2,8 @@ import axios from "axios";
 import { getAuthToken, signEvent } from "@/utils/nostr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
+import { NostrProfileData } from "./authTokenApi";
+import { ActivityItem } from "@/components";
 
 // response.data should have this shape
 export interface ResponseObject<T = any> {
@@ -74,7 +76,7 @@ export interface ContentComment {
   id: number;
   contentId: string;
   title: string;
-  content: string;
+  content?: string;
   createdAt: string;
   msatAmount: number;
   userId: string;
@@ -140,16 +142,8 @@ export interface Playlist {
   isFavorites: boolean;
   createdAt: string;
   updatedAt: string;
+  tracks: Pick<Track, "artworkUrl" | "id" | "duration" | "title" | "artist">[];
 }
-
-export type UserPlaylists = Array<
-  Pick<Playlist, "id" | "title"> & {
-    tracks: Pick<
-      Track,
-      "artworkUrl" | "id" | "duration" | "title" | "artist"
-    >[];
-  }
->;
 
 interface Genre {
   id: number;
@@ -169,6 +163,7 @@ apiClient.interceptors.response.use(
       const apiErrorMessage = error.response.data.error;
       return Promise.reject(apiErrorMessage);
     } else {
+      console.error(error);
       return Promise.reject("An error occurred");
     }
   },
@@ -378,6 +373,16 @@ export const getLibraryTracks = async (): Promise<Track[]> => {
   return normalizeTrackResponse(data.data.tracks);
 };
 
+export const getLibraryPlaylists = async (): Promise<Playlist[]> => {
+  const url = "/library/playlists";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+  return data.data.playlists;
+};
+
 export const addToLibrary = async (contentId: string) => {
   const url = "/library";
   const payload = { contentId };
@@ -434,13 +439,20 @@ export const addToPlaylist = async ({
   return data;
 };
 
-export const getPlaylists = async (): Promise<UserPlaylists> => {
+export const getPlaylists = async (): Promise<Playlist[]> => {
   const url = "/playlists";
   const { data } = await apiClient.get(url, {
     headers: {
       Authorization: await createAuthHeader(url),
     },
   });
+  return data.data;
+};
+
+export const getUserPlaylists = async (uid: string): Promise<Playlist[]> => {
+  const url = `/playlists/user/${uid}`;
+  const { data } = await apiClient.get(url);
+
   return data.data;
 };
 
@@ -452,11 +464,7 @@ export const getPlaylist = async (
   tracks: Track[];
 }> => {
   const url = `/playlists/${playlistId}`;
-  const { data } = await apiClient.get(url, {
-    headers: {
-      Authorization: await createAuthHeader(url),
-    },
-  });
+  const { data } = await apiClient.get(url);
   return data.data;
 };
 
@@ -500,8 +508,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -557,4 +565,62 @@ export const useAddPubkeyToUser = ({
       onError?.(response.error ?? "Error adding pubkey to user");
     },
   });
+};
+
+export const getPubkeyMetadata = async (pubkey?: string | null) => {
+  if (!pubkey) return null;
+  const { data } = await apiClient.get<ResponseObject<NostrProfileData>>(
+    `/accounts/pubkey/${pubkey}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const updatePubkeyMetadata = async (pubkey?: string | null) => {
+  if (!pubkey) return null;
+  const { data } = await apiClient.put<ResponseObject<NostrProfileData>>(
+    `/accounts/pubkey/${pubkey}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const getActivityFeed = async (
+  pubkey: string | null,
+  page: number,
+  pageSize: number,
+) => {
+  if (!pubkey) return [];
+
+  const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
+    `/social/feed/${pubkey}/${page}/${pageSize}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const getGlobalActivityFeed = async (page: number, pageSize: number) => {
+  const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
+    `/social/feed/global/${page}/${pageSize}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const getPubkeyActivity = async (
+  pubkey: string | null,
+  page: number,
+  pageSize: number,
+) => {
+  if (!pubkey) return [];
+  const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
+    `/social/feed/user/${pubkey}/${page}/${pageSize}`,
+    {},
+  );
+
+  return data?.data;
 };

@@ -4,7 +4,7 @@ import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { MarqueeText } from "@/components/MarqueeText";
-import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import {
   State,
   usePlaybackState,
@@ -38,7 +38,7 @@ const PlayerButton = ({ onPress, iconName }: PlayerButtonProps) => {
 };
 
 export const MiniMusicPlayer = () => {
-  const artistOrAlbumBasePathname = useGetArtistOrAlbumBasePathname();
+  const basePathname = useGetBasePathname();
   const router = useRouter();
   const { colors } = useTheme();
   const { position, duration } = useProgress();
@@ -57,7 +57,7 @@ export const MiniMusicPlayer = () => {
       onPress={() =>
         router.push({
           pathname: "/player",
-          params: { artistOrAlbumBasePathname },
+          params: { basePathname },
         })
       }
     >

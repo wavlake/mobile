@@ -11,7 +11,7 @@ import { encodeNsec, encodeNpub, getSeckey } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useTheme } from "@react-navigation/native";
 
-export default function ProfilePage() {
+export const ProfileEditPage = () => {
   const { colors } = useTheme();
   const toast = useToast();
   const { pubkey = "" } = useAuth();
@@ -142,4 +142,4 @@ export default function ProfilePage() {
       )}
     </ScrollView>
   );
-}
+};

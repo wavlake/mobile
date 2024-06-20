@@ -8,10 +8,24 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import { ShareButtonWide } from "../ShareButtonWide";
 import { DialogWrapper } from "../DialogWrapper";
+import {
+  useAddPlaylistToLibrary,
+  useAuth,
+  useDeletePlaylistFromLibrary,
+  useIsPlaylistInLibrary,
+} from "@/hooks";
+import { useUser } from "../UserContextProvider";
+import { Track } from "@/utils";
+import { LikeButton } from "../LikeButton";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 interface EditPlaylistDialogProps {
   playlistId: string;
-  playlistTitle: string;
+  playlistData: {
+    userId: string;
+    tracks: Track[];
+    title: string;
+  };
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }
@@ -19,9 +33,29 @@ interface EditPlaylistDialogProps {
 export const EditPlaylistDialog = ({
   isOpen,
   setIsOpen,
-  playlistTitle,
+  playlistData,
   playlistId,
 }: EditPlaylistDialogProps) => {
+  const basePath = useGetBasePathname();
+  const isPlaylistInLibrary = useIsPlaylistInLibrary(playlistId);
+  const addPlaylistToLibraryMutation = useAddPlaylistToLibrary();
+  const deletePlaylistFromLibraryMutation = useDeletePlaylistFromLibrary();
+  const handlePlaylistLikePress = () => {
+    if (isPlaylistInLibrary) {
+      deletePlaylistFromLibraryMutation.mutate(playlistId);
+    } else {
+      // need at least the id and name for optimistic update on artist library page
+      addPlaylistToLibraryMutation.mutate({
+        id: playlistId,
+        name: playlistData.title,
+      });
+    }
+  };
+  const { pubkey } = useAuth();
+  const { user } = useUser();
+  const isOwner =
+    pubkey === playlistData.userId || user?.uid === playlistData.userId;
+
   const { colors } = useTheme();
   const { mutateAsync: deletePlaylist, isLoading } = useDeletePlaylist();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -36,7 +70,7 @@ export const EditPlaylistDialog = ({
 
   const handleEdit = () => {
     router.push({
-      pathname: `/library/music/playlists/${playlistId}/edit`,
+      pathname: `${basePath}/playlist/${playlistId}/edit`,
       params: {
         headerTitle: "Songs",
         includeBackButton: true,
@@ -47,14 +81,7 @@ export const EditPlaylistDialog = ({
 
   return (
     <DialogWrapper isOpen={isOpen} setIsOpen={setIsOpen}>
-      <View
-        style={{
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 10,
-        }}
-      >
+      <View style={{ gap: 24 }}>
         {showDeleteConfirm ? (
           <>
             <Text
@@ -63,7 +90,7 @@ export const EditPlaylistDialog = ({
               }}
               bold
             >
-              Are you sure you want to delete {playlistTitle}?
+              Are you sure you want to delete {playlistData.title}?
             </Text>
             <Button
               color="red"
@@ -92,69 +119,101 @@ export const EditPlaylistDialog = ({
             <ShareButtonWide
               url={`https://wavlake.com/playlist/${playlistId}`}
             />
-            <Pressable
-              onPress={() => handleEdit()}
-              style={({ pressed }) => ({
-                width: "100%",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                height: 50,
-                paddingHorizontal: 8,
-                borderRadius: 8,
-                backgroundColor: pressed ? colors.card : colors.background,
-              })}
-            >
-              <Text
+            {isOwner ? (
+              <>
+                <Pressable
+                  onPress={() => handleEdit()}
+                  style={({ pressed }) => ({
+                    width: "100%",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    height: 50,
+                    paddingHorizontal: 8,
+                    borderRadius: 8,
+                    backgroundColor: pressed ? colors.card : colors.background,
+                  })}
+                >
+                  <Text
+                    style={{
+                      fontSize: 20,
+                    }}
+                    numberOfLines={1}
+                    bold
+                  >
+                    Edit
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="pencil"
+                    size={24}
+                    color={colors.text}
+                  />
+                </Pressable>
+                <Pressable
+                  onPress={() => setShowDeleteConfirm(true)}
+                  style={({ pressed }) => ({
+                    width: "100%",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    height: 50,
+                    paddingHorizontal: 8,
+                    borderRadius: 8,
+                    backgroundColor: pressed ? colors.card : colors.background,
+                  })}
+                >
+                  <Text
+                    style={{
+                      fontSize: 20,
+                    }}
+                    numberOfLines={1}
+                    bold
+                  >
+                    Delete
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="trash-can-outline"
+                    size={24}
+                    color={colors.text}
+                  />
+                </Pressable>
+              </>
+            ) : (
+              <View
                 style={{
-                  fontSize: 20,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
-                numberOfLines={1}
-                bold
               >
-                Edit
-              </Text>
-              <MaterialCommunityIcons
-                name="pencil"
-                size={24}
-                color={colors.text}
-              />
-            </Pressable>
-            <Pressable
-              onPress={() => setShowDeleteConfirm(true)}
-              style={({ pressed }) => ({
-                width: "100%",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                height: 50,
-                paddingHorizontal: 8,
-                borderRadius: 8,
-                backgroundColor: pressed ? colors.card : colors.background,
-              })}
-            >
-              <Text
-                style={{
-                  fontSize: 20,
-                }}
-                numberOfLines={1}
-                bold
-              >
-                Delete
-              </Text>
-              <MaterialCommunityIcons
-                name="trash-can-outline"
-                size={24}
-                color={colors.text}
-              />
-            </Pressable>
+                <View style={{ flex: 1 }}>
+                  <Text>Playlist</Text>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                    }}
+                    numberOfLines={1}
+                    bold
+                  >
+                    {playlistData.title}
+                  </Text>
+                </View>
+                <LikeButton
+                  onPress={handlePlaylistLikePress}
+                  size={32}
+                  isLiked={isPlaylistInLibrary}
+                  isLoading={
+                    addPlaylistToLibraryMutation.isLoading ||
+                    deletePlaylistFromLibraryMutation.isLoading
+                  }
+                />
+              </View>
+            )}
             <Button
               color={colors.border}
-              titleStyle={{
-                color: colors.text,
-                marginHorizontal: "auto",
-              }}
+              titleStyle={{ color: colors.text }}
               onPress={() => setIsOpen(false)}
+              width="100%"
             >
               Close
             </Button>

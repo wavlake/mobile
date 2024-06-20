@@ -1,25 +1,25 @@
 import { Center, Text, useMiniMusicPlayer } from "@/components";
-import MosaicImage from "@/components/Mosaic";
+import { PlaylistRow } from "@/components/PlaylistRow";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
-  TouchableOpacity,
   View,
 } from "react-native";
 
 export default function PlaylistsPage() {
+  const basePath = useGetBasePathname();
   const { height } = useMiniMusicPlayer();
   const { data: playlists = [], isLoading, refetch } = usePlaylists();
   const router = useRouter();
   const handleRowPress = (playlist: { id: string; title: string }) => {
     router.push({
-      pathname: `/library/music/playlists/${playlist.id}`,
+      pathname: `${basePath}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
-        playlistTitle: playlist.title,
         includeBackButton: true,
       },
     });
@@ -42,35 +42,15 @@ export default function PlaylistsPage() {
           <RefreshControl refreshing={isLoading} onRefresh={refetch} />
         }
         renderItem={({ item, index }) => {
-          const { tracks = [], title } = item;
           const isLastRow = index === playlists.length - 1;
-          const marginBottom = isLastRow ? height + 16 : 16;
+          const onPress = () => handleRowPress(item);
           return (
-            <TouchableOpacity onPress={() => handleRowPress(item)}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginBottom,
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <MosaicImage
-                  imageUrls={tracks.map((track) => track.artworkUrl)}
-                />
-                <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                    }}
-                    numberOfLines={3}
-                    bold
-                  >
-                    {title}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+            <PlaylistRow
+              playlist={item}
+              onPress={onPress}
+              isLastRow={isLastRow}
+              height={height}
+            />
           );
         }}
         keyExtractor={(item) => item.id}

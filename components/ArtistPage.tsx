@@ -24,7 +24,7 @@ import { TwitterIcon } from "@/components/TwitterIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
 import { useGoToAlbumPage } from "@/hooks";
-import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { ArtistBanner } from "@/components/ArtistBanner";
 import { CommentRow } from "./CommentRow";
 
@@ -53,7 +53,7 @@ export const ArtistPage = () => {
   const topAlbums = artist?.topAlbums ?? [];
   const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
   const topMessages = artist?.topMessages ?? [];
-  const basePathname = useGetArtistOrAlbumBasePathname();
+  const basePathname = useGetBasePathname();
   const goToAlbumPage = useGoToAlbumPage();
   const router = useRouter();
   const isVerified = artist?.verified ?? false;

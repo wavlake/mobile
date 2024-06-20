@@ -2,12 +2,7 @@ import { Drawer } from "expo-router/drawer";
 import { HeaderBackButton, HeaderTitleLogo, Avatar, Text } from "@/components";
 import { useTheme } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
-import {
-  useAuth,
-  useLibraryTracks,
-  useLibraryArtists,
-  useLibraryAlbums,
-} from "@/hooks";
+import { useAuth } from "@/hooks";
 import { View, Pressable } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
 import { VerificationIcon } from "@/components/VerificationIcon";
@@ -45,17 +40,20 @@ export default function DrawerLayout() {
 
     return (
       <View style={{ marginRight: 16 }}>
-        <Pressable onPress={() => router.push("/profile")}>
+        <Pressable
+          hitSlop={20}
+          onPress={() => {
+            router.push({
+              pathname: `/profile/profile/${pubkey}`,
+              params: { includeBackButton: true },
+            });
+          }}
+        >
           <Avatar size={24} />
         </Pressable>
       </View>
     );
   };
-
-  // just using here to seed the react-query library cache
-  useLibraryTracks();
-  useLibraryArtists();
-  useLibraryAlbums();
 
   return (
     <Drawer

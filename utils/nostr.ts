@@ -39,6 +39,12 @@ import {
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
 import { ShowEvents } from "@/constants/events";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@/components";
+import { useAuth } from "@/hooks";
+import { updatePubkeyMetadata } from "./api";
+import { useCatalogPubkeyQueryKey } from "@/hooks/nostrProfile/useCatalogPubkeyQueryKey";
+import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
@@ -251,18 +257,19 @@ export const publishEvent = async (relayUris: string[], event: Event) => {
 };
 
 export interface NostrUserProfile {
-  [key: string]: string | undefined; // allows custom fields
   name?: string;
-  displayName?: string;
-  picture?: string;
   banner?: string;
-  bio?: string;
-  nip05?: string;
-  lud06?: string;
-  lud16?: string;
   about?: string;
-  zapService?: string;
   website?: string;
+  lud16?: string;
+  nip05?: string;
+  picture?: string;
+  // non standard fields below
+  [key: string]: string | undefined; // allows custom fields
+  displayName?: string;
+  bio?: string;
+  lud06?: string;
+  zapService?: string;
 }
 
 export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
@@ -558,5 +565,90 @@ export const subscribeToTicket = async (pubkey: string) => {
 
   return getEventFromRelay("wss://relay.wavlake.com", filter).catch((e) => {
     return null;
+  });
+};
+
+const FOLLOW_EVENT_KIND = 3;
+const followerTag = "p";
+
+const getKind3Event = (pubkey?: string) => {
+  if (!pubkey) {
+    return null;
+  }
+
+  const filter = {
+    kinds: [3],
+    authors: [pubkey],
+  };
+
+  try {
+    return Promise.any(
+      DEFAULT_READ_RELAY_URIS.map((relayUri) =>
+        getEventFromRelay(relayUri, filter),
+      ),
+    );
+  } catch {
+    return null;
+  }
+};
+
+export const useAddFollower = () => {
+  const { refetchUser } = useUser();
+  const { pubkey: loggedInPubkey } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ pubkey }: { pubkey: string }) => {
+      const currentKind3Event = await getKind3Event(loggedInPubkey);
+      if (!currentKind3Event) {
+        return;
+      }
+      const event = getBlankEvent(FOLLOW_EVENT_KIND);
+      event.content = currentKind3Event.content;
+      const existingFollowersPubkeys = currentKind3Event.tags
+        .filter((follow) => follow[0] === followerTag)
+        .map((follow) => follow[1]);
+      const otherTags = currentKind3Event.tags.filter(
+        (tag) => tag[0] !== followerTag,
+      );
+      const newFollowers = Array.from(
+        new Set([...existingFollowersPubkeys, pubkey]),
+      );
+      event.tags = [
+        ...newFollowers.map((follower) => [followerTag, follower]),
+        ...otherTags,
+      ];
+
+      event.created_at = Math.round(new Date().getTime() / 1000);
+      const signed = await signEvent(event);
+      // TODO use user's relay list event
+      await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
+      await updatePubkeyMetadata(loggedInPubkey);
+      refetchUser();
+    },
+  });
+};
+
+export const useRemoveFollower = () => {
+  const { refetchUser } = useUser();
+  const { pubkey: loggedInPubkey } = useAuth();
+
+  return useMutation({
+    mutationFn: async (removedFollowPubkey: string) => {
+      const currentKind3Event = await getKind3Event(loggedInPubkey);
+      if (!currentKind3Event) {
+        return;
+      }
+      const event = getBlankEvent(FOLLOW_EVENT_KIND);
+      event.content = currentKind3Event?.content ?? "";
+      event.tags = currentKind3Event.tags.filter(
+        (follow) => follow[1] !== removedFollowPubkey,
+      );
+      event.created_at = Math.round(new Date().getTime() / 1000);
+      const signed = await signEvent(event);
+      // TODO use user's relay list event
+      await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
+      await updatePubkeyMetadata(loggedInPubkey);
+      refetchUser();
+    },
   });
 };

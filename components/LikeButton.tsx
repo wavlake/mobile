@@ -1,13 +1,14 @@
-import { Pressable, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { ReactNode } from "react";
+import { PressableIcon } from "./PressableIcon";
 
 interface LikeButtonProps {
   size: number;
   onPress: () => void;
+  fullWidth?: boolean;
   label?: ReactNode;
   isLiked?: boolean;
   isLoading?: boolean;
@@ -18,12 +19,11 @@ export const LikeButton = ({
   size,
   onPress,
   label,
+  fullWidth = false,
   isLiked = false,
   isLoading = false,
   isMusic = true,
 }: LikeButtonProps) => {
-  if (!isMusic) return null;
-
   const { pubkey } = useAuth();
   const { colors } = useTheme();
   const handlePress = () => {
@@ -32,29 +32,15 @@ export const LikeButton = ({
     }
   };
 
-  return pubkey ? (
-    <Pressable
-      onPress={handlePress}
-      style={({ pressed }) => {
-        if (!label) return;
-        return {
-          width: "100%",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 50,
-          paddingHorizontal: 8,
-          borderRadius: 8,
-          backgroundColor: pressed ? colors.card : colors.background,
-        };
-      }}
-    >
-      {label}
+  if (!isMusic || !pubkey) return null;
+
+  return (
+    <PressableIcon onPress={handlePress} label={label} fullWidth={fullWidth}>
       <MaterialCommunityIcons
         name={isLiked ? "cards-heart" : "cards-heart-outline"}
         size={size}
         color={isLiked ? brandColors.pink.DEFAULT : colors.text}
       />
-    </Pressable>
-  ) : null;
+    </PressableIcon>
+  );
 };

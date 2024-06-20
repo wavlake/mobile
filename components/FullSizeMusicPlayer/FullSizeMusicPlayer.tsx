@@ -23,7 +23,7 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
-import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
+import { OverflowMenu } from "@/components/FullSizeMusicPlayer/OverflowMenu";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
@@ -32,8 +32,8 @@ import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
     useState(false);
-  const { artistOrAlbumBasePathname = "" } = useLocalSearchParams<{
-    artistOrAlbumBasePathname: string;
+  const { basePathname = "" } = useLocalSearchParams<{
+    basePathname: string;
   }>();
   const router = useRouter();
   const { position } = useProgress();
@@ -71,8 +71,8 @@ export const FullSizeMusicPlayer = () => {
   const handleTitlePress = () => {
     router.push({
       pathname: isPodcast
-        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
-        : `${artistOrAlbumBasePathname}/album/[albumId]`,
+        ? `${basePathname}/podcast/[albumId]`
+        : `${basePathname}/album/[albumId]`,
       params: {
         albumId,
         headerTitle: isPodcast ? artist : albumTitle,
@@ -83,8 +83,8 @@ export const FullSizeMusicPlayer = () => {
   const handleArtistPress = () => {
     router.push({
       pathname: isPodcast
-        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
-        : `${artistOrAlbumBasePathname}/artist/[artistId]`,
+        ? `${basePathname}/podcast/[albumId]`
+        : `${basePathname}/artist/[artistId]`,
       params: {
         albumId,
         artistId,
@@ -262,7 +262,7 @@ export const FullSizeMusicPlayer = () => {
             >
               <ShareButton url={shareUrl} />
               {isMusic && (
-                <MoreOptions
+                <OverflowMenu
                   artist={artist}
                   artistId={artistId}
                   albumTitle={albumTitle}

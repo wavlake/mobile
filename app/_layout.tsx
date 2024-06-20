@@ -137,10 +137,6 @@ export default function Layout() {
                     }}
                   />
                   <Stack.Screen
-                    name="profile"
-                    options={{ headerTitle: () => <Text>Profile</Text> }}
-                  />
-                  <Stack.Screen
                     name="settings"
                     options={{ headerTitle: () => <Text>Settings</Text> }}
                   />

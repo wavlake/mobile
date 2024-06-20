@@ -1,5 +1,6 @@
 import {
   Center,
+  ShareIcon,
   SquareArtwork,
   Text,
   useMiniMusicPlayer,
@@ -23,8 +24,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { EditPlaylistDialog } from "@/components/Playlist/EditPlaylistDialog";
 import { useTheme } from "@react-navigation/native";
+import { useAuth } from "@/hooks";
+import { ShareButton } from "./ShareButton";
 
-export default function PlaylistsPage() {
+export const PlaylistPage = () => {
   const { colors } = useTheme();
   const { playlistId } = useLocalSearchParams();
   const { loadTrackList, currentTrackListId } = useMusicPlayer();
@@ -33,7 +36,6 @@ export default function PlaylistsPage() {
   const isThisTrackListLoaded = playlistId === currentTrackListId;
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;
-
   const {
     data: playlistData,
     isLoading,
@@ -66,13 +68,11 @@ export default function PlaylistsPage() {
       playerTitle: title,
     });
   };
-
   const handleMorePress = () => {
     setMoreIsOpen(true);
   };
-
   return tracks ? (
-    <View style={{ height: "100%", paddingTop: 8, gap: 8 }}>
+    <View style={{ height: "100%", padding: 16, gap: 8 }}>
       <View
         style={{
           flexDirection: "row",
@@ -154,10 +154,10 @@ export default function PlaylistsPage() {
           </Center>
         }
       />
-      {moreIsOpen && (
+      {moreIsOpen && playlistData && (
         <EditPlaylistDialog
           playlistId={playlistId as string}
-          playlistTitle={title as string}
+          playlistData={playlistData}
           isOpen={moreIsOpen}
           setIsOpen={setMoreIsOpen}
         />
@@ -168,4 +168,4 @@ export default function PlaylistsPage() {
       <ActivityIndicator />
     </Center>
   );
-}
+};
