@@ -13,6 +13,9 @@ import { Foundation } from "@expo/vector-icons";
 import { ZapIcon } from "./ZapIcon";
 import { brandColors } from "@/constants";
 import { LightningIcon } from "./LightningIcon";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { Track, getAlbumTracks } from "@/utils";
+
 export interface ActivityItem {
   picture: string;
   name: string;
@@ -176,8 +179,9 @@ export const ActivityItemRow = ({
   } = item;
 
   const [overflowDialogIsOpen, setOverflowDialogIsOpen] = useState(false);
+  const { loadTrackList } = useMusicPlayer();
 
-  const handlePress = () => {
+  const handlePress = async () => {
     if (contentType === "playlist") {
       router.push({
         pathname: `/pulse/playlist/${contentId}`,
@@ -189,12 +193,26 @@ export const ActivityItemRow = ({
     }
 
     if (contentType === "track") {
-      router.push({
-        pathname: `/pulse/album/${parentContentId}`,
-        params: {
-          headerTitle: parentContentTitle,
-          includeBackButton: true,
-        },
+      const tracks = await getAlbumTracks(parentContentId);
+      const targetTrack = tracks.find((t) => t.id === contentId);
+      const track: Track = {
+        id: contentId,
+        liveUrl: targetTrack?.liveUrl ?? "",
+        duration: targetTrack?.duration ?? 0,
+        title: contentTitle,
+        artist: targetTrack?.artist ?? "",
+        albumId: parentContentId,
+        albumTitle: parentContentTitle,
+        artworkUrl: targetTrack?.artworkUrl ?? "",
+        artistId: targetTrack?.artistId ?? "",
+        avatarUrl: targetTrack?.avatarUrl ?? "",
+      };
+
+      loadTrackList({
+        trackList: [track],
+        trackListId: contentId,
+        startIndex: 0,
+        playerTitle: contentTitle,
       });
     }
     if (contentType === "album") {
