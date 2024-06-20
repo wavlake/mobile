@@ -1,6 +1,6 @@
 import { Center, Text, useMiniMusicPlayer } from "@/components";
 import { PlaylistRow } from "@/components/PlaylistRow";
-import { usePlaylists } from "@/hooks/playlist/usePlaylists";
+import { useLibraryPlaylists } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useRouter } from "expo-router";
 import {
@@ -13,7 +13,7 @@ import {
 export default function PlaylistsPage() {
   const basePath = useGetBasePathname();
   const { height } = useMiniMusicPlayer();
-  const { data: playlists = [], isLoading, refetch } = usePlaylists();
+  const { data: playlists = [], isLoading, refetch } = useLibraryPlaylists();
   const router = useRouter();
   const handleRowPress = (playlist: { id: string; title: string }) => {
     router.push({
