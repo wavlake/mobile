@@ -7,6 +7,9 @@ import {
 } from "react";
 import TrackPlayer, {
   Event,
+  State,
+  usePlaybackState,
+  useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import {
@@ -48,6 +51,8 @@ interface MusicPlayerContextProps {
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
+  const { position } = useProgress();
+  const { state: playbackState } = usePlaybackState();
   const [playerTitle, setPlayerTitle] = useState<string>();
   const [currentTrackListId, setCurrentTrackListId] = useState<string>();
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>();
@@ -168,32 +173,75 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     return [array[0], ...shuffledArray]; // Include the first element back at the start
   };
 
-  const toggleShuffle = () => {
+  const toggleShuffle = async () => {
     if (!trackQueue) {
-      setIsShuffleEnabled(!isShuffleEnabled);
-      setShuffleToggledOnEmpty(!isShuffleEnabled); // Toggle shuffle on empty queue
+      setIsShuffleEnabled((prev) => !prev);
+      setShuffleToggledOnEmpty((prev) => !prev);
       return;
     }
 
+    const isPlaying = playbackState === State.Playing;
+    const currentTrackProgress = position;
+    let newQueue: Track[];
+
     if (isShuffleEnabled) {
       // Restore original track queue
-      setTrackQueue(originalTrackQueue);
+      newQueue = originalTrackQueue || [];
+      const normalizedTrackList = newQueue.map((t) => ({
+        id: t.id,
+        url: t.liveUrl,
+        duration: t.duration,
+        title: t.title,
+        artist: t.artist,
+        album: t.albumTitle,
+        artwork: t.artworkUrl,
+      }));
+
+      const newActiveTrackIndex = newQueue.findIndex(
+        (t) => t.id === currentTrack?.id,
+      );
+
+      // Player is paused so we can can reset the queue and add the shuffled tracks without any playback hiccups
+      await TrackPlayer.reset();
+      await TrackPlayer.add(normalizedTrackList);
+      await TrackPlayer.skip(newActiveTrackIndex, currentTrackProgress);
+      setTrackQueue(newQueue);
     } else {
       // Save original queue before shuffling
       setOriginalTrackQueue(trackQueue);
-      // Shuffle the queue leaving the active track unmoved
-      const activeTrack = trackQueue[currentTrackIndex ?? 0];
-      const restOfQueue = trackQueue.filter(
-        (_, index) => index !== (currentTrackIndex ?? 0),
-      );
-      const shuffledQueue = shuffleArrayExceptFirst([
-        activeTrack,
-        ...restOfQueue,
-      ]);
-      setTrackQueue(shuffledQueue);
-    }
 
-    setIsShuffleEnabled(!isShuffleEnabled);
+      // Shuffle the queue leaving the active track unmoved
+      const [firstTrack, ...restOfQueue] = trackQueue;
+      const shuffledQueue = shuffleArrayExceptFirst(restOfQueue);
+      newQueue = [firstTrack, ...shuffledQueue];
+
+      setIsSwitchingTrackList(true);
+
+      const normalizedTrackList = newQueue.map((t) => ({
+        id: t.id,
+        url: t.liveUrl,
+        duration: t.duration,
+        title: t.title,
+        artist: t.artist,
+        album: t.albumTitle,
+        artwork: t.artworkUrl,
+      }));
+
+      // Player is paused so we can can reset the queue and add the shuffled tracks without any playback hiccups
+      await TrackPlayer.reset();
+      await TrackPlayer.add(normalizedTrackList);
+
+      // Skip to the first track
+      await TrackPlayer.skip(0, currentTrackProgress);
+
+      setIsSwitchingTrackList(false);
+    }
+    setTrackQueue(newQueue);
+    setIsShuffleEnabled((prev) => !prev);
+
+    if (isPlaying) {
+      await TrackPlayer.play();
+    }
   };
 
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
