@@ -28,6 +28,7 @@ import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
+import { ShuffleButton } from "./ShuffleButton";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
@@ -256,6 +257,7 @@ export const FullSizeMusicPlayer = () => {
                 contentTitle={currentTrack.title}
                 isMusic={isMusic}
               />
+              <ShuffleButton />
             </View>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}

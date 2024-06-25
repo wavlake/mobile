@@ -39,6 +39,8 @@ interface MusicPlayerContextProps {
   isSwitchingTrackList: boolean;
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
+  toggleShuffle: () => void;
+  isShuffleEnabled: boolean;
 }
 
 // Actions from lock screen/notification bar trigger events here via musicService
@@ -51,6 +53,12 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>();
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [trackQueue, setTrackQueue] = useState<Track[] | null>(null);
+  const [originalTrackQueue, setOriginalTrackQueue] = useState<Track[] | null>(
+    null,
+  );
+  const [isShuffleEnabled, setIsShuffleEnabled] = useState<boolean>(false);
+  const [shuffleToggledOnEmpty, setShuffleToggledOnEmpty] =
+    useState<boolean>(false);
   const isLoadingTrackList = useRef(false);
   const [isSwitchingTrackList, setIsSwitchingTrackList] = useState(false);
 
@@ -79,9 +87,22 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setCurrentTrackIndex(currentTrackIndex);
     setTrackQueue(trackList);
 
+    if (!isShuffleEnabled || shuffleToggledOnEmpty) {
+      setOriginalTrackQueue(trackList); // Save original queue
+    }
+
     if (trackQueue) {
       setIsSwitchingTrackList(true);
       await TrackPlayer.reset();
+    }
+
+    if (isShuffleEnabled || shuffleToggledOnEmpty) {
+      const shuffledQueue = shuffleArrayExceptFirst([
+        currentTrack,
+        ...trackList.slice(1),
+      ]);
+      setTrackQueue(shuffledQueue);
+      setShuffleToggledOnEmpty(false); // Reset the flag after shuffling
     }
 
     await TrackPlayer.add(normalizedTrackList);
@@ -96,12 +117,16 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setIsSwitchingTrackList(false);
     publishTrackToNostr(currentTrack).catch(console.error);
   };
+
   const reset = async () => {
     setPlayerTitle(undefined);
     setCurrentTrack(null);
     setCurrentTrackListId(undefined);
     setCurrentTrackIndex(undefined);
     setTrackQueue(null);
+    setOriginalTrackQueue(null);
+    setIsShuffleEnabled(false);
+    setShuffleToggledOnEmpty(false);
     await TrackPlayer.reset();
   };
 
@@ -129,6 +154,46 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       duration: Math.ceil(track.duration ?? 600),
       relayUris: writeRelayList,
     });
+  };
+
+  const shuffleArrayExceptFirst = (array: Track[]) => {
+    const shuffledArray = array.slice(1); // Exclude the first element
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledArray[i], shuffledArray[j]] = [
+        shuffledArray[j],
+        shuffledArray[i],
+      ];
+    }
+    return [array[0], ...shuffledArray]; // Include the first element back at the start
+  };
+
+  const toggleShuffle = () => {
+    if (!trackQueue) {
+      setIsShuffleEnabled(!isShuffleEnabled);
+      setShuffleToggledOnEmpty(!isShuffleEnabled); // Toggle shuffle on empty queue
+      return;
+    }
+
+    if (isShuffleEnabled) {
+      // Restore original track queue
+      setTrackQueue(originalTrackQueue);
+    } else {
+      // Save original queue before shuffling
+      setOriginalTrackQueue(trackQueue);
+      // Shuffle the queue leaving the active track unmoved
+      const activeTrack = trackQueue[currentTrackIndex ?? 0];
+      const restOfQueue = trackQueue.filter(
+        (_, index) => index !== (currentTrackIndex ?? 0),
+      );
+      const shuffledQueue = shuffleArrayExceptFirst([
+        activeTrack,
+        ...restOfQueue,
+      ]);
+      setTrackQueue(shuffledQueue);
+    }
+
+    setIsShuffleEnabled(!isShuffleEnabled);
   };
 
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
@@ -161,6 +226,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         isSwitchingTrackList,
         loadTrackList,
         reset,
+        toggleShuffle,
+        isShuffleEnabled,
       }}
     >
       {children}
