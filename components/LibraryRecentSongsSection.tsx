@@ -27,7 +27,7 @@ export const LibraryRecentSongsSection = () => {
         tracks={tracks}
         rightNavHref={{
           pathname: "/library/music/recent-songs",
-          params: { headerTitle: playerTitle, includeBackButton: true },
+          params: { headerTitle: playerTitle, includeBackButton: "true" },
         }}
       />
       <HorizontalArtworkRow

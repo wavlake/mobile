@@ -58,7 +58,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
           onPress={async () => {
             router.push({
               pathname: "/events",
-              params: { includeBackButton: true },
+              params: { includeBackButton: "true" },
             });
             props.navigation.closeDrawer();
           }}

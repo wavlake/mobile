@@ -29,7 +29,7 @@ const EventRow = ({
     router.push({
       pathname: `/events/${id}`,
       params: {
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };

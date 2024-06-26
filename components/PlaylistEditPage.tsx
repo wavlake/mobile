@@ -58,7 +58,7 @@ export const PlaylistEditPage = () => {
         pathname: `${basePath}/playlist/${playlistId}`,
         params: {
           headerTitle: playlistData?.title ?? "Playlist",
-          includeBackButton: true,
+          includeBackButton: "true",
         },
       });
     }

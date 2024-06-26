@@ -73,7 +73,7 @@ export const EditPlaylistDialog = ({
       pathname: `${basePath}/playlist/${playlistId}/edit`,
       params: {
         headerTitle: "Songs",
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
     setIsOpen(false);

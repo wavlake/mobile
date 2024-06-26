@@ -187,7 +187,7 @@ export const ActivityItemRow = ({
         pathname: `/pulse/playlist/${contentId}`,
         params: {
           headerTitle: contentTitle,
-          includeBackButton: true,
+          includeBackButton: "true",
         },
       });
     }
@@ -220,7 +220,7 @@ export const ActivityItemRow = ({
         pathname: `/pulse/album/${contentId}`,
         params: {
           headerTitle: contentTitle,
-          includeBackButton: true,
+          includeBackButton: "true",
         },
       });
     }
@@ -229,7 +229,7 @@ export const ActivityItemRow = ({
         pathname: `/pulse/artist/${contentId}`,
         params: {
           headerTitle: contentTitle,
-          includeBackButton: true,
+          includeBackButton: "true",
         },
       });
     }

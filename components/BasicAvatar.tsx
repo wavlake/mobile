@@ -20,7 +20,7 @@ export const BasicAvatar = ({ uri, size = 32, pubkey }: BasicAvatarProps) => {
           ? () =>
               router.push({
                 pathname: `/pulse/profile/${pubkey}`,
-                params: { includeBackButton: true },
+                params: { includeBackButton: "true" },
               })
           : undefined
       }

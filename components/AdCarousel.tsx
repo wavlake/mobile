@@ -46,7 +46,7 @@ export const AdCarousel = () => {
         pathname: "/events/[eventId]",
         params: {
           eventId: advertisement.eventId,
-          includeBackButton: true,
+          includeBackButton: "true",
         },
       });
     } else if (advertisement.href) {

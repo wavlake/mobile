@@ -32,7 +32,7 @@ export const NewMusicSection = () => {
         rightNavText="Discover"
         rightNavHref={{
           pathname: "/music/discover",
-          params: { headerTitle: "New music", includeBackButton: true },
+          params: { headerTitle: "New music", includeBackButton: "true" },
         }}
       />
       <HorizontalArtworkRow items={data} onPress={handleRowPress} />

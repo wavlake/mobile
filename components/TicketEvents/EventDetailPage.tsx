@@ -153,7 +153,7 @@ export const EventDetailPage = () => {
             router.push({
               pathname: `/events/${eventId}/rsvp`,
               params: {
-                includeBackButton: true,
+                includeBackButton: "true",
               },
             })
           }
@@ -173,7 +173,7 @@ const ArtistRow: React.FC<{ metadata: ArtistMetadata }> = ({ metadata }) => {
         router.push({
           pathname: `events/artist/${metadata.artistId}`,
           params: {
-            includeBackButton: true,
+            includeBackButton: "true",
           },
         });
       }}

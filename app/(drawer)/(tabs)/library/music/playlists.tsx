@@ -22,7 +22,7 @@ const UserPlaylists = () => {
       pathname: `${basePath}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -77,7 +77,7 @@ const NonUserPlaylists = () => {
       pathname: `${basePath}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };

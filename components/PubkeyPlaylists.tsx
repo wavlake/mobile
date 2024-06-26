@@ -25,7 +25,7 @@ export const PubkeyPlaylists = ({
       params: {
         headerTitle: playlist.title,
         playlistTitle: playlist.title,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -38,7 +38,7 @@ export const PubkeyPlaylists = ({
         rightNavHref={{
           pathname: `${basePath}/profile/${pubkey}/playlists`,
           params: {
-            includeBackButton: true,
+            includeBackButton: "true",
           },
         }}
       />

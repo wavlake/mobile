@@ -8,7 +8,7 @@ export const useGoToAlbumPage = () => {
   return (albumId: string, albumName: string) => {
     return router.push({
       pathname: `${basePathname}/album/[albumId]`,
-      params: { albumId, headerTitle: albumName, includeBackButton: true },
+      params: { albumId, headerTitle: albumName, includeBackButton: "true" },
     });
   };
 };

@@ -54,7 +54,7 @@ export const PubkeyProfile = ({
           onPress={() => {
             router.push({
               pathname: `${basePath}/profile/${pubkey}/edit`,
-              params: { includeBackButton: true },
+              params: { includeBackButton: "true" },
             });
           }}
           style={{

@@ -30,7 +30,7 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
       params: {
         albumId,
         headerTitle: `Comments for ${title}`,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };

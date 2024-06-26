@@ -18,7 +18,7 @@ export const GenresSection = () => {
   const handleRowPress = async (genreId: number, name: string) => {
     return router.push({
       pathname: `/search/genre/[genreId]`,
-      params: { genreId, name, headerTitle: name, includeBackButton: true },
+      params: { genreId, name, headerTitle: name, includeBackButton: "true" },
     });
   };
 

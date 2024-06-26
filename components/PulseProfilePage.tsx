@@ -75,7 +75,7 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
           rightNavHref={{
             pathname: `${basePath}/profile/${pubkey}/activity`,
             params: {
-              includeBackButton: true,
+              includeBackButton: "true",
             },
           }}
         />

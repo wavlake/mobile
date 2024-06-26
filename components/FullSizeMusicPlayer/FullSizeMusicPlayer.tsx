@@ -77,7 +77,7 @@ export const FullSizeMusicPlayer = () => {
       params: {
         albumId,
         headerTitle: isPodcast ? artist : albumTitle,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -90,7 +90,7 @@ export const FullSizeMusicPlayer = () => {
         albumId,
         artistId,
         headerTitle: artist,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -133,6 +133,7 @@ export const FullSizeMusicPlayer = () => {
       setIsWalletChooserModalVisible(true);
       return;
     }
+
     router.push({
       pathname: "/zap",
       params: {

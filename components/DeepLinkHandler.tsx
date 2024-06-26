@@ -6,24 +6,24 @@ const ROUTE_MAPPING: Record<
   string,
   {
     getPath: (id: string) => string;
-    includeBackButton: boolean;
+    includeBackButton: "true" | "false";
     history: string[];
   }
 > = {
   "playlist/": {
     getPath: (id: string) => `/library/music/playlists/${id}`,
-    includeBackButton: true,
+    includeBackButton: "true",
     history: ["/library"],
   },
   "album/": {
     getPath: (id: string) => `/album/${id}`,
-    includeBackButton: true,
+    includeBackButton: "true",
     history: ["/library"],
   },
   // used for artists
   "": {
     getPath: (name: string) => `/artist/${name}`,
-    includeBackButton: true,
+    includeBackButton: "true",
     history: ["/library"],
   },
   // TODO - build out mobile track page
@@ -64,7 +64,7 @@ const DeepLinkHandler = () => {
           router.push({
             pathname: mobilePath,
             params: {
-              includeBackButton,
+              includeBackButton: "true",
             },
           });
           return;

@@ -30,9 +30,10 @@ export default function DrawerLayout() {
           </View>
         )
       : HeaderTitleLogo;
-  const headerLeft = globalSearchParams.includeBackButton
-    ? () => <HeaderBackButton />
-    : undefined;
+  const headerLeft =
+    globalSearchParams.includeBackButton === "true"
+      ? () => <HeaderBackButton />
+      : undefined;
   const headerRight = () => {
     if (!pubkey) {
       return null;
@@ -45,7 +46,7 @@ export default function DrawerLayout() {
           onPress={() => {
             router.push({
               pathname: `/profile/profile/${pubkey}`,
-              params: { includeBackButton: true },
+              params: { includeBackButton: "true" },
             });
           }}
         >

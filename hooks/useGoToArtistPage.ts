@@ -11,7 +11,7 @@ export const useGoToArtistPage = () => {
       params: {
         artistId,
         headerTitle: artistName,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };

@@ -94,7 +94,7 @@ export const ArtistPage = () => {
       params: {
         artistId,
         headerTitle: `Comments for ${artist?.name}`,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -137,7 +137,7 @@ export const ArtistPage = () => {
           params: {
             artistId,
             headerTitle: artist.name,
-            includeBackButton: true,
+            includeBackButton: "true",
           },
         }}
       />

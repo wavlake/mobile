@@ -32,7 +32,7 @@ const LibraryMenuItem = ({
       onPress={() => {
         router.push({
           pathname: href,
-          params: { headerTitle: title, includeBackButton: true },
+          params: { headerTitle: title, includeBackButton: "true" },
         });
       }}
     >

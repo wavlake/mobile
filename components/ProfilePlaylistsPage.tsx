@@ -20,7 +20,7 @@ export const ProfilePlaylistsPage = () => {
       pathname: `${basePath}/playlist/${playlist.id}`,
       params: {
         headerTitle: playlist.title,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
