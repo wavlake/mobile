@@ -136,7 +136,7 @@ export const FullSizeMusicPlayer = () => {
     router.push({
       pathname: "/zap",
       params: {
-        defaultZapAmount: settings?.defaultZapAmount,
+        defaultZapAmount,
         title,
         artist,
         artworkUrl,

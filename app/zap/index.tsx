@@ -22,7 +22,7 @@ export default function ZapPage() {
       timestamp: string;
     }>();
 
-  const [zapAmount, setZapAmount] = useState(defaultZapAmount as string);
+  const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [comment, setComment] = useState("");
   const { sendZap, isLoading: isZapping } = useZap({
     trackId,
