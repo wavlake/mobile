@@ -43,13 +43,13 @@ export const MiniMusicPlayer = () => {
   const { colors } = useTheme();
   const { position, duration } = useProgress();
   const { state: playbackState } = usePlaybackState();
-  const { currentTrack, reset, isSwitchingTrackList } = useMusicPlayer();
-  const willShowPlayer = currentTrack !== null;
+  const { activeTrack, reset, isSwitchingTrackList } = useMusicPlayer();
+  const willShowPlayer = !!activeTrack;
   const willDisplayPauseButton =
     playbackState !== State.Paused || isSwitchingTrackList;
   const willDisplayPlayButton =
     playbackState === State.Paused && !isSwitchingTrackList;
-  const { artworkUrl, title, artist } = currentTrack || {};
+  const { title, artist, artworkUrl } = activeTrack || {};
   const progressBarWidth = duration ? (position / duration) * 100 : 0;
 
   return willShowPlayer ? (

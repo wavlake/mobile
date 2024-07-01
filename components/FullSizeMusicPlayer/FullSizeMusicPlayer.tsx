@@ -38,26 +38,28 @@ export const FullSizeMusicPlayer = () => {
   }>();
   const router = useRouter();
   const { position } = useProgress();
-  const { currentTrack } = useMusicPlayer();
+  const { activeTrack } = useMusicPlayer();
   const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
+
   const {
     id: trackId,
-    title,
-    artist,
     artistId,
     albumId,
     albumTitle,
+    artist,
+    title,
     artworkUrl,
-  } = currentTrack ?? {
+  } = activeTrack || {
     id: "",
-    title: "",
-    artist: "",
     artistId: "",
     albumId: "",
     albumTitle: "",
+    artist: "",
+    title: "",
     artworkUrl: "",
   };
+
   const isTrackInLibrary = useIsTrackInLibrary(trackId);
   const addTrackToLibraryMutation = useAddTrackToLibrary();
   const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
@@ -95,14 +97,14 @@ export const FullSizeMusicPlayer = () => {
     });
   };
   const handleLikePress = async () => {
-    if (!currentTrack) {
+    if (!activeTrack) {
       return;
     }
 
     if (isTrackInLibrary) {
       deleteTrackFromLibraryMutation.mutate(trackId);
     } else {
-      addTrackToLibraryMutation.mutate(currentTrack);
+      addTrackToLibraryMutation.mutate(activeTrack);
     }
   };
 
@@ -147,7 +149,7 @@ export const FullSizeMusicPlayer = () => {
     });
   };
 
-  if (!currentTrack) {
+  if (!activeTrack) {
     return (
       <Center>
         <ActivityIndicator />
@@ -155,7 +157,7 @@ export const FullSizeMusicPlayer = () => {
     );
   }
 
-  const isMusic = currentTrack.albumTitle != "podcast";
+  const isMusic = albumTitle != "podcast";
 
   return (
     <>
@@ -254,8 +256,8 @@ export const FullSizeMusicPlayer = () => {
               />
               <PlaylistButton
                 size={30}
-                contentId={currentTrack.id}
-                contentTitle={currentTrack.title}
+                contentId={activeTrack.id}
+                contentTitle={title}
                 isMusic={isMusic}
               />
               {/* <ShuffleButton /> */}

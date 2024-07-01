@@ -39,12 +39,10 @@ import {
 } from "@/utils/cache";
 import { getSeckey } from "@/utils/secureStorage";
 import { ShowEvents } from "@/constants/events";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/components";
 import { useAuth } from "@/hooks";
 import { updatePubkeyMetadata } from "./api";
-import { useCatalogPubkeyQueryKey } from "@/hooks/nostrProfile/useCatalogPubkeyQueryKey";
-import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 
 export { getPublicKey, generatePrivateKey } from "nostr-tools";
 
