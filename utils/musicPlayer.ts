@@ -12,10 +12,10 @@ export const formatTime = (totalSeconds: number) => {
 };
 
 export const canSkipToPrevious = async () => {
-  const position = await TrackPlayer.getPosition();
-  const currentTrack = (await TrackPlayer.getCurrentTrack()) ?? 0;
+  const { position } = await TrackPlayer.getProgress();
+  const currentTrackIndex = (await TrackPlayer.getActiveTrackIndex()) ?? 0;
 
-  return position < 5 && currentTrack > 0;
+  return position < 5 && currentTrackIndex > 0;
 };
 
 export const skipToPrevious = async () => {
@@ -33,8 +33,7 @@ export const skipToNext = async () => {
 };
 
 export const togglePlayPause = async () => {
-  const state = await TrackPlayer.getState();
-
+  const { state } = await TrackPlayer.getPlaybackState();
   if (state !== State.Paused) {
     await TrackPlayer.pause();
   } else if (state === State.Paused) {

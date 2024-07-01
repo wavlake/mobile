@@ -7,6 +7,7 @@ import {
 } from "react";
 import TrackPlayer, {
   Event,
+  useActiveTrack,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import {
@@ -31,9 +32,7 @@ export type LoadTrackList = ({
 }) => Promise<void>;
 
 interface MusicPlayerContextProps {
-  trackQueue: Track[] | null;
-  currentTrack: Track | null;
-  currentTrackIndex?: number;
+  activeTrack: Track | undefined;
   currentTrackListId?: string;
   playerTitle?: string;
   isSwitchingTrackList: boolean;
@@ -47,10 +46,10 @@ const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [playerTitle, setPlayerTitle] = useState<string>();
+  const [trackMetadataMap, setTrackMetadataMap] = useState<
+    Record<string, Track>
+  >({});
   const [currentTrackListId, setCurrentTrackListId] = useState<string>();
-  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>();
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [trackQueue, setTrackQueue] = useState<Track[] | null>(null);
   const isLoadingTrackList = useRef(false);
   const [isSwitchingTrackList, setIsSwitchingTrackList] = useState(false);
 
@@ -71,20 +70,27 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       artwork: t.artworkUrl,
     }));
 
+    const trackMetadata = trackList.reduce(
+      (acc, track) => {
+        acc[track.id] = track;
+        return acc;
+      },
+      {} as Record<string, Track>,
+    );
+
+    setTrackMetadataMap(trackMetadata);
+
     const currentTrackIndex = startIndex ?? 0;
     const currentTrack = trackList[currentTrackIndex];
 
     setPlayerTitle(playerTitle ?? currentTrack.title);
-    setCurrentTrack(currentTrack);
-    setCurrentTrackIndex(currentTrackIndex);
-    setTrackQueue(trackList);
 
+    const trackQueue = await TrackPlayer.getQueue();
     if (trackQueue) {
       setIsSwitchingTrackList(true);
-      await TrackPlayer.reset();
     }
 
-    await TrackPlayer.add(normalizedTrackList);
+    await TrackPlayer.setQueue(normalizedTrackList);
 
     if (startIndex && startIndex > 0) {
       await TrackPlayer.skip(startIndex, 0);
@@ -96,12 +102,10 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setIsSwitchingTrackList(false);
     publishTrackToNostr(currentTrack).catch(console.error);
   };
+
   const reset = async () => {
     setPlayerTitle(undefined);
-    setCurrentTrack(null);
     setCurrentTrackListId(undefined);
-    setCurrentTrackIndex(undefined);
-    setTrackQueue(null);
     await TrackPlayer.reset();
   };
 
@@ -131,31 +135,34 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     });
   };
 
-  useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
-    if (event.nextTrack === undefined || isLoadingTrackList.current) {
+  useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
+    const trackQueue = await TrackPlayer.getQueue();
+
+    if (event.index === undefined || isLoadingTrackList.current) {
       return;
     }
 
-    const currentTrack = trackQueue ? trackQueue[event.nextTrack] : null;
+    const activeTrack = trackQueue ? trackQueue[event.index] : null;
+    const currentTrack = trackMetadataMap[activeTrack?.id ?? ""];
 
     switch (event.type) {
-      case Event.PlaybackTrackChanged:
-        setCurrentTrackIndex(event.nextTrack);
-
+      case Event.PlaybackActiveTrackChanged:
         if (currentTrack) {
-          setCurrentTrack(currentTrack);
           publishTrackToNostr(currentTrack).catch(console.error);
         }
         break;
     }
   });
 
+  const activeRNTPTrack = useActiveTrack();
+  const activeTrack = activeRNTPTrack
+    ? trackMetadataMap[activeRNTPTrack.id]
+    : undefined;
+
   return (
     <MusicPlayerContext.Provider
       value={{
-        trackQueue,
-        currentTrack,
-        currentTrackIndex,
+        activeTrack,
         currentTrackListId,
         playerTitle,
         isSwitchingTrackList,
