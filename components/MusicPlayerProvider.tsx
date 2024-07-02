@@ -142,13 +142,13 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       return;
     }
 
-    const activeTrack = trackQueue ? trackQueue[event.index] : null;
-    const currentTrack = trackMetadataMap[activeTrack?.id ?? ""];
+    const activeRNTPTrack = trackQueue ? trackQueue[event.index] : null;
+    const activeTrack = trackMetadataMap[activeRNTPTrack?.id ?? ""];
 
     switch (event.type) {
       case Event.PlaybackActiveTrackChanged:
-        if (currentTrack) {
-          publishTrackToNostr(currentTrack).catch(console.error);
+        if (activeTrack) {
+          publishTrackToNostr(activeTrack).catch(console.error);
         }
         break;
     }
