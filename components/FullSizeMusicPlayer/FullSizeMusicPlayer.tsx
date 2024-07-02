@@ -260,7 +260,7 @@ export const FullSizeMusicPlayer = () => {
                 contentTitle={title}
                 isMusic={isMusic}
               />
-              {/* <ShuffleButton /> */}
+              <ShuffleButton />
             </View>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
