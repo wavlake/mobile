@@ -78,7 +78,7 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
           <Ionicons name="play-skip-back-sharp" size={36} color={colors.text} />
         </Pressable>
         <PlayPauseTrackButton
-          size={80}
+          size={60}
           type={playbackState === State.Paused ? "play" : "pause"}
           onPress={togglePlayPause}
         />
