@@ -161,17 +161,26 @@ export const FullSizeMusicPlayer = () => {
 
   return (
     <>
-      <ScrollView style={{ paddingTop: 8 }}>
+      <View
+        style={{
+          paddingTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+        }}
+      >
         <ArtworkCarousel />
         <View
           style={{
             paddingHorizontal,
             paddingVertical: isSmallScreen ? 16 : 24,
+            flexGrow: 1,
           }}
         >
           <View
             style={{
               display: "flex",
+              flexGrow: 1,
               flexDirection: "row",
               maxWidth: screenWidth - paddingHorizontal * 2,
             }}
@@ -238,7 +247,9 @@ export const FullSizeMusicPlayer = () => {
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "flex-end",
+              paddingBottom: 20,
+              flexGrow: 1,
             }}
           >
             <View
@@ -277,7 +288,7 @@ export const FullSizeMusicPlayer = () => {
             </View>
           </View>
         </View>
-      </ScrollView>
+      </View>
       <WalletChooserModal
         onContinue={async () => {
           await refetchSettings();
