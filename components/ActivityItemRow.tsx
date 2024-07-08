@@ -32,6 +32,7 @@ export interface ActivityItem {
   parentContentId: string;
   parentContentTitle: string;
   parentContentType: string;
+  grandParentTitle?: string;
 }
 type ContentType =
   | "track"
@@ -84,7 +85,11 @@ const ICON_MAP: Record<ActivityType, ReactElement> = {
   // live: <Feather name="radio" size={24} color="black" />,
 };
 
-const generateTitle = (item: ActivityItem) => {
+const generateTitle = (item: ActivityItem, isExpanded: boolean) => {
+  if (isExpanded) {
+    return item.contentTitle;
+  }
+
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: `@${item.name} updated a playlist`,
     zap: `@${item.name ?? "anon"} sent ${satsFormatter(
@@ -98,7 +103,13 @@ const generateTitle = (item: ActivityItem) => {
 
   return actionMap?.[item.type];
 };
-const generateSubTitle = (item: ActivityItem) => {
+const generateSubTitle = (item: ActivityItem, isExpanded: boolean) => {
+  if (isExpanded) {
+    const isTrack = item.contentType === "track";
+    // if track, show artist name
+    return isTrack ? item.grandParentTitle : item.parentContentTitle;
+  }
+
   const actionMap: Record<ActivityType, string> = {
     playlistUpdate: item.parentContentTitle,
     zap: item.message ? `"${item.message}"` : "",
@@ -141,6 +152,7 @@ const generateOverflowMenuProps = (item: ActivityItem) => {
     },
     track: {
       albumTitle: item.parentContentTitle,
+      artist: item.grandParentTitle,
       albumId: item.parentContentId,
       trackTitle: item.contentTitle,
       trackId: item.contentId,
@@ -170,6 +182,7 @@ export const ActivityItemRow = ({
     contentId,
     parentContentId,
     parentContentTitle,
+    grandParentTitle,
     message,
     picture,
     zapAmount,
@@ -236,8 +249,8 @@ export const ActivityItemRow = ({
   };
 
   if (!contentId || !contentTitle) return null;
-  const firstLine = isExpanded ? contentTitle : generateTitle(item);
-  const secondLine = isExpanded ? parentContentTitle : generateSubTitle(item);
+  const firstLine = generateTitle(item, isExpanded);
+  const secondLine = generateSubTitle(item, isExpanded);
   const icon = ICON_MAP[type];
 
   return (
@@ -262,10 +275,10 @@ export const ActivityItemRow = ({
           <BasicAvatar uri={picture} pubkey={userId} />
           <View style={{ marginLeft: 10, flex: 1 }}>
             <Text ellipsizeMode="tail" numberOfLines={1} bold>
-              {generateTitle(item)}
+              {generateTitle(item, false)}
             </Text>
             <Text ellipsizeMode="tail" numberOfLines={1}>
-              {contentType === "playlist" ? "" : generateSubTitle(item)}
+              {contentType === "playlist" ? "" : generateSubTitle(item, false)}
             </Text>
           </View>
         </View>
