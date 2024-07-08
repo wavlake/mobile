@@ -13,6 +13,7 @@ import { VerificationIcon } from "@/components/VerificationIcon";
 import { Ionicons } from "@expo/vector-icons";
 
 const MenuButton = () => {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const onPress = () => {
     navigation.dispatch(DrawerActions.openDrawer());
@@ -24,7 +25,7 @@ const MenuButton = () => {
         paddingLeft: 15,
       }}
     >
-      <Ionicons name="menu-sharp" size={24} color="red" />
+      <Ionicons name="menu-sharp" size={24} color={colors.text} />
     </Pressable>
   );
 };
