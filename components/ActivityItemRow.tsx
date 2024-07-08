@@ -32,7 +32,7 @@ export interface ActivityItem {
   parentContentId: string;
   parentContentTitle: string;
   parentContentType: string;
-  grandParentTitle?: string;
+  artist?: string;
 }
 type ContentType =
   | "track"
@@ -107,7 +107,7 @@ const generateSubTitle = (item: ActivityItem, isExpanded: boolean) => {
   if (isExpanded) {
     const isTrack = item.contentType === "track";
     // if track, show artist name
-    return isTrack ? item.grandParentTitle : item.parentContentTitle;
+    return isTrack ? item.artist : item.parentContentTitle;
   }
 
   const actionMap: Record<ActivityType, string> = {
@@ -152,7 +152,7 @@ const generateOverflowMenuProps = (item: ActivityItem) => {
     },
     track: {
       albumTitle: item.parentContentTitle,
-      artist: item.grandParentTitle,
+      artist: item.artist,
       albumId: item.parentContentId,
       trackTitle: item.contentTitle,
       trackId: item.contentId,
@@ -182,7 +182,7 @@ export const ActivityItemRow = ({
     contentId,
     parentContentId,
     parentContentTitle,
-    grandParentTitle,
+    artist,
     message,
     picture,
     zapAmount,
