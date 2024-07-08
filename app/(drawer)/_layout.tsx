@@ -95,12 +95,6 @@ export default function DrawerLayout() {
         drawerLabelStyle: { color: colors.text },
         drawerStatusBarAnimation: "none",
         swipeEdgeWidth: 0,
-        drawerIcon: () => {
-          const onPress = () => {
-            console.log("open drawer");
-          };
-          return <MenuButton onPress={onPress} />;
-        },
       }}
       drawerContent={DrawerContent}
     >
