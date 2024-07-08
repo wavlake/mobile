@@ -11,7 +11,7 @@ const ROUTE_MAPPING: Record<
   }
 > = {
   "playlist/": {
-    getPath: (id: string) => `/library/music/playlists/${id}`,
+    getPath: (id: string) => `/library/music/playlist/${id}`,
     includeBackButton: "true",
     history: ["/library"],
   },

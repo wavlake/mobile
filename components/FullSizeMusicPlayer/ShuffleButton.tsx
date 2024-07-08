@@ -10,16 +10,17 @@ interface ShuffleButtonProps {
 
 export const ShuffleButton = ({ size = 24 }: ShuffleButtonProps) => {
   const { colors } = useTheme();
-  // const { toggleShuffle, isShuffleEnabled } = useMusicPlayer();
+  const { toggleShuffle, isShuffled } = useMusicPlayer();
   const onPress = () => {
-    console.log("Shuffle button pressed");
+    toggleShuffle();
   };
+
   return (
     <PressableIcon onPress={onPress}>
       <Entypo
         name="shuffle"
         size={size}
-        color={false ? brandColors.pink.DEFAULT : colors.text}
+        color={isShuffled ? brandColors.pink.DEFAULT : colors.text}
       />
     </PressableIcon>
   );

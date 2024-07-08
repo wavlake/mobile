@@ -38,26 +38,28 @@ export const FullSizeMusicPlayer = () => {
   }>();
   const router = useRouter();
   const { position } = useProgress();
-  const { currentTrack } = useMusicPlayer();
+  const { activeTrack } = useMusicPlayer();
   const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
+
   const {
     id: trackId,
-    title,
-    artist,
     artistId,
     albumId,
     albumTitle,
+    artist,
+    title,
     artworkUrl,
-  } = currentTrack ?? {
+  } = activeTrack || {
     id: "",
-    title: "",
-    artist: "",
     artistId: "",
     albumId: "",
     albumTitle: "",
+    artist: "",
+    title: "",
     artworkUrl: "",
   };
+
   const isTrackInLibrary = useIsTrackInLibrary(trackId);
   const addTrackToLibraryMutation = useAddTrackToLibrary();
   const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
@@ -95,14 +97,14 @@ export const FullSizeMusicPlayer = () => {
     });
   };
   const handleLikePress = async () => {
-    if (!currentTrack) {
+    if (!activeTrack) {
       return;
     }
 
     if (isTrackInLibrary) {
       deleteTrackFromLibraryMutation.mutate(trackId);
     } else {
-      addTrackToLibraryMutation.mutate(currentTrack);
+      addTrackToLibraryMutation.mutate(activeTrack);
     }
   };
 
@@ -147,7 +149,7 @@ export const FullSizeMusicPlayer = () => {
     });
   };
 
-  if (!currentTrack) {
+  if (!activeTrack) {
     return (
       <Center>
         <ActivityIndicator />
@@ -155,21 +157,30 @@ export const FullSizeMusicPlayer = () => {
     );
   }
 
-  const isMusic = currentTrack.albumTitle != "podcast";
+  const isMusic = albumTitle != "podcast";
 
   return (
     <>
-      <ScrollView style={{ paddingTop: 8 }}>
+      <View
+        style={{
+          paddingTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+        }}
+      >
         <ArtworkCarousel />
         <View
           style={{
             paddingHorizontal,
             paddingVertical: isSmallScreen ? 16 : 24,
+            flexGrow: 1,
           }}
         >
           <View
             style={{
               display: "flex",
+              flexGrow: 1,
               flexDirection: "row",
               maxWidth: screenWidth - paddingHorizontal * 2,
             }}
@@ -236,7 +247,9 @@ export const FullSizeMusicPlayer = () => {
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "flex-end",
+              paddingBottom: 20,
+              flexGrow: 1,
             }}
           >
             <View
@@ -254,11 +267,11 @@ export const FullSizeMusicPlayer = () => {
               />
               <PlaylistButton
                 size={30}
-                contentId={currentTrack.id}
-                contentTitle={currentTrack.title}
+                contentId={activeTrack.id}
+                contentTitle={title}
                 isMusic={isMusic}
               />
-              {/* <ShuffleButton /> */}
+              <ShuffleButton />
             </View>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
@@ -275,7 +288,7 @@ export const FullSizeMusicPlayer = () => {
             </View>
           </View>
         </View>
-      </ScrollView>
+      </View>
       <WalletChooserModal
         onContinue={async () => {
           await refetchSettings();
