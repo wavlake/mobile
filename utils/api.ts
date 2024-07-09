@@ -86,7 +86,7 @@ export interface ContentComment {
   replies: CommentReply[];
 }
 
-interface CommentReply {
+export interface CommentReply {
   id: number;
   name: string | null;
   userId: string;
@@ -95,7 +95,8 @@ interface CommentReply {
   parentId: number;
   content: string;
   createdAt: string;
-  msatAmount: number;
+  msatAmount?: number;
+  isContentOwner: boolean;
 }
 
 export interface Artist {
@@ -508,8 +509,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;

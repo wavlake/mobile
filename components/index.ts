@@ -58,3 +58,5 @@ export * from "./ProfileActivityPage";
 export * from "./ProfileEditPage";
 export * from "./ProfilePlaylistsPage";
 export * from "./PlaylistEditPage";
+export * from "./CommentRepliesPage";
+export * from "./CommentReplyRow";
