@@ -1,6 +1,6 @@
 import { CommentReply } from "@/utils";
 import { View, ViewProps } from "react-native";
-import { BasicAvatar } from "./BasicAvatar";
+import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
 
 interface CommentReplyRow extends ViewProps {

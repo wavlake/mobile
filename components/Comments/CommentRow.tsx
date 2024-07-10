@@ -1,13 +1,16 @@
 import { ContentComment, encodeNpub } from "@/utils";
-import { View, ViewProps } from "react-native";
-import { BasicAvatar } from "./BasicAvatar";
-import { SatsEarned } from "./SatsEarned";
+import { TouchableOpacity, View, ViewProps } from "react-native";
+import { BasicAvatar } from "../BasicAvatar";
+import { SatsEarned } from "../SatsEarned";
 import { Text } from "@/components/Text";
 import { CommentRepliesLink } from "./CommentRepliesLink";
+import { ReplyDialog } from "./ReplyDialog";
+import { useState } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface CommentRowProps extends ViewProps {
   comment: ContentComment;
-  showReplyLink?: boolean;
+  showReplyLinks?: boolean;
 }
 const randomBoolean = () => Math.random() < 0.5;
 
@@ -51,8 +54,13 @@ const genReplies = () => [
 
 export const CommentRow = ({
   comment,
-  showReplyLink = true,
+  showReplyLinks = true,
 }: CommentRowProps) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const onLongPress = () => {
+    setDialogOpen(true);
+  };
+
   const {
     id,
     commenterArtworkUrl,
@@ -72,10 +80,10 @@ export const CommentRow = ({
     }
 
     // keysend names may start with @
-    return name?.replace("@", "");
+    return name ? name.replace("@", "") : "anonymous";
   };
 
-  const extraText = `from @${getDisplayName() ?? "anon"} for "${title}"`;
+  const extraText = ` for "${title}"`;
 
   return (
     <View
@@ -85,22 +93,50 @@ export const CommentRow = ({
         paddingHorizontal: 16,
       }}
     >
+      <ReplyDialog
+        setIsOpen={setDialogOpen}
+        comment={comment}
+        isOpen={dialogOpen}
+      />
       <BasicAvatar
         uri={commenterArtworkUrl}
         pubkey={isNostr ? userId : undefined}
       />
       <View style={{ marginLeft: 10, flex: 1 }}>
-        {content && <Text bold>{content}</Text>}
-        {msatAmount && (
-          <SatsEarned
-            msats={msatAmount}
-            extraText={extraText}
-            defaultTextColor
-          />
-        )}
-        {showReplyLink && (
-          <CommentRepliesLink replies={replies} parentcommentId={id} />
-        )}
+        <TouchableOpacity onLongPress={onLongPress}>
+          <Text bold>{getDisplayName()}</Text>
+          {content && <Text>{content}</Text>}
+          {msatAmount && (
+            <SatsEarned
+              msats={msatAmount}
+              extraText={extraText}
+              defaultTextColor
+            />
+          )}
+        </TouchableOpacity>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingTop: 20,
+            paddingBottom: 10,
+            gap: 8,
+          }}
+        >
+          {showReplyLinks && (
+            <CommentRepliesLink replies={replies} parentcommentId={id} />
+          )}
+          {showReplyLinks && (
+            <TouchableOpacity onPress={onLongPress}>
+              <MaterialCommunityIcons
+                name="comment-plus-outline"
+                size={24}
+                color="white"
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   );

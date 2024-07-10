@@ -2,7 +2,10 @@ import { FlatList } from "react-native";
 import { CommentRow } from "./CommentRow";
 import { ContentComment } from "@/utils";
 import { CommentReplyRow } from "./CommentReplyRow";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native";
 
+const LEFT_INDENTATION = 40;
 export const CommentRepliesPage = () => {
   const comment: ContentComment = {
     id: 123,
@@ -53,22 +56,30 @@ export const CommentRepliesPage = () => {
       },
     ],
   };
+  const onPress = () => {
+    console.log("pressed");
+  };
 
   return (
     <FlatList
       ListHeaderComponent={
-        <CommentRow comment={comment} showReplyLink={false} />
+        <CommentRow comment={comment} showReplyLinks={false} />
       }
       ListHeaderComponentStyle={{
-        transform: [
-          {
-            translateX: -40,
-          },
-        ],
+        transform: [{ translateX: -LEFT_INDENTATION }],
       }}
-      contentContainerStyle={{ paddingLeft: 40, paddingTop: 16 }}
+      contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
       data={comment.replies}
       renderItem={({ item }) => <CommentReplyRow reply={item} />}
+      ListFooterComponent={
+        <TouchableOpacity onPress={onPress}>
+          <MaterialCommunityIcons
+            name="comment-plus-outline"
+            size={24}
+            color="white"
+          />
+        </TouchableOpacity>
+      }
     />
   );
 };

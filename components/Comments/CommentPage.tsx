@@ -1,9 +1,9 @@
 import { ContentComment } from "@/utils";
 import { UseInfiniteQueryResult } from "@tanstack/react-query";
 import { FlatList, View } from "react-native";
-import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
-import { SectionHeader } from "./SectionHeader";
-import { Text } from "./Text";
+import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
+import { SectionHeader } from "../SectionHeader";
+import { Text } from "../Text";
 import { CommentRow } from "./CommentRow";
 
 interface CommentPageProps {
