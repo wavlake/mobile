@@ -96,11 +96,10 @@ const ReplyDialogContents = ({
           label="reply"
           autoFocus
           multiline
-          numberOfLines={3}
           maxLength={312}
           onChangeText={setComment}
           value={comment}
-          inputHeight={96}
+          inputHeight={70}
         />
         <View
           style={{

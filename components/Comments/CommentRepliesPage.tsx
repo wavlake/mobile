@@ -1,9 +1,12 @@
-import { FlatList } from "react-native";
+import { FlatList, View } from "react-native";
 import { CommentRow } from "./CommentRow";
 import { ContentComment } from "@/utils";
 import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
+import { useState } from "react";
+import { ReplyDialog } from "./ReplyDialog";
+import { Text } from "@/components/Text";
 
 const LEFT_INDENTATION = 40;
 export const CommentRepliesPage = () => {
@@ -56,14 +59,22 @@ export const CommentRepliesPage = () => {
       },
     ],
   };
-  const onPress = () => {
-    console.log("pressed");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const onReplyPress = () => {
+    setDialogOpen(true);
   };
 
   return (
     <FlatList
       ListHeaderComponent={
-        <CommentRow comment={comment} showReplyLinks={false} />
+        <>
+          <ReplyDialog
+            setIsOpen={setDialogOpen}
+            comment={comment}
+            isOpen={dialogOpen}
+          />
+          <CommentRow comment={comment} showReplyLinks={false} />
+        </>
       }
       ListHeaderComponentStyle={{
         transform: [{ translateX: -LEFT_INDENTATION }],
@@ -72,12 +83,24 @@ export const CommentRepliesPage = () => {
       data={comment.replies}
       renderItem={({ item }) => <CommentReplyRow reply={item} />}
       ListFooterComponent={
-        <TouchableOpacity onPress={onPress}>
-          <MaterialCommunityIcons
-            name="comment-plus-outline"
-            size={24}
-            color="white"
-          />
+        <TouchableOpacity onPress={onReplyPress}>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              paddingHorizontal: 20,
+              gap: 10,
+            }}
+          >
+            <Text>reply</Text>
+            <MaterialCommunityIcons
+              name="comment-plus-outline"
+              size={24}
+              color="white"
+            />
+          </View>
         </TouchableOpacity>
       }
     />

@@ -57,7 +57,7 @@ export const CommentRow = ({
   showReplyLinks = true,
 }: CommentRowProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const onLongPress = () => {
+  const onReplyPress = () => {
     setDialogOpen(true);
   };
 
@@ -103,40 +103,36 @@ export const CommentRow = ({
         pubkey={isNostr ? userId : undefined}
       />
       <View style={{ marginLeft: 10, flex: 1 }}>
-        <TouchableOpacity onLongPress={onLongPress}>
-          <Text bold>{getDisplayName()}</Text>
-          {content && <Text>{content}</Text>}
-          {msatAmount && (
-            <SatsEarned
-              msats={msatAmount}
-              extraText={extraText}
-              defaultTextColor
-            />
-          )}
-        </TouchableOpacity>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingTop: 20,
-            paddingBottom: 10,
-            gap: 8,
-          }}
-        >
-          {showReplyLinks && (
+        <Text bold>{getDisplayName()}</Text>
+        {content && <Text>{content}</Text>}
+        {msatAmount && (
+          <SatsEarned
+            msats={msatAmount}
+            extraText={extraText}
+            defaultTextColor
+          />
+        )}
+        {showReplyLinks && (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingTop: 20,
+              paddingBottom: 10,
+              gap: 8,
+            }}
+          >
             <CommentRepliesLink replies={replies} parentcommentId={id} />
-          )}
-          {showReplyLinks && (
-            <TouchableOpacity onPress={onLongPress}>
+            <TouchableOpacity onPress={onReplyPress}>
               <MaterialCommunityIcons
                 name="comment-plus-outline"
                 size={24}
                 color="white"
               />
             </TouchableOpacity>
-          )}
-        </View>
+          </View>
+        )}
       </View>
     </View>
   );
