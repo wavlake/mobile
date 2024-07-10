@@ -37,7 +37,7 @@ export const SatsEarned = ({
           color: defaultTextColor ? colors.text : brandColors.black.light,
         }}
       >
-        {sats.toLocaleString()} sats {extraText}
+        {sats.toLocaleString()} sats{extraText}
       </Text>
     </View>
   );

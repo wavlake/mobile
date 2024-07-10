@@ -26,7 +26,7 @@ import { InstagramIcon } from "@/components/InstagramIcon";
 import { useGoToAlbumPage } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { ArtistBanner } from "@/components/ArtistBanner";
-import { CommentRow } from "./CommentRow";
+import { CommentRow } from "./Comments/CommentRow";
 
 interface SocialIconLinkProps {
   url: string;
