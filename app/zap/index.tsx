@@ -12,15 +12,23 @@ import { useLocalSearchParams } from "expo-router";
 import { useZap } from "@/hooks";
 
 export default function ZapPage() {
-  const { defaultZapAmount, title, artist, artworkUrl, trackId, timestamp } =
-    useLocalSearchParams<{
-      defaultZapAmount: string;
-      title: string;
-      artist: string;
-      artworkUrl: string;
-      trackId: string;
-      timestamp: string;
-    }>();
+  const {
+    defaultZapAmount,
+    title,
+    artist,
+    artworkUrl,
+    trackId,
+    timestamp,
+    isPodcast,
+  } = useLocalSearchParams<{
+    defaultZapAmount: string;
+    title: string;
+    artist: string;
+    artworkUrl: string;
+    trackId: string;
+    timestamp: string;
+    isPodcast: string;
+  }>();
 
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [comment, setComment] = useState("");
@@ -30,6 +38,7 @@ export default function ZapPage() {
     artist,
     artworkUrl,
     timestamp: timestamp ? parseInt(timestamp) : 0,
+    isPodcast: isPodcast === "true",
   });
   const isZapDisabled =
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;

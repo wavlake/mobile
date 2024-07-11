@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
+import { getPodcastFeedGuid } from "@/utils/rss";
 
 const fetchInvoiceForZap = async ({
   writeRelayList,
@@ -20,11 +21,13 @@ const fetchInvoiceForZap = async ({
   comment,
   contentId,
   timestamp,
+  parentContentType,
 }: {
   writeRelayList: string[];
   amountInSats: number;
   comment: string;
   contentId: string;
+  parentContentType: "podcast" | "album" | "artist";
   timestamp?: number;
 }) => {
   const wavlakeTrackKind = 32123;
@@ -38,6 +41,10 @@ const fetchInvoiceForZap = async ({
     addressPointer: nostrEventAddressPointer,
     zappedPubkey: wavlakePubkey,
     timestamp,
+    customTags: [
+      ["i", `podcast:item:guid:${contentId}`],
+      ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
+    ],
   });
 };
 
@@ -50,12 +57,14 @@ type SendZap = (
 ) => Promise<void>;
 
 export const useZap = ({
+  isPodcast,
   trackId,
   title,
   artist,
   artworkUrl,
   timestamp,
 }: {
+  isPodcast: boolean;
   trackId?: string;
   title?: string;
   artist?: string;
@@ -96,6 +105,7 @@ export const useZap = ({
       comment,
       contentId: trackId,
       timestamp,
+      parentContentType: isPodcast ? "podcast" : "album",
     });
 
     if ("reason" in response) {

@@ -62,20 +62,11 @@ const ReplyDialogContents = ({
       timestamp: string;
     }>();
 
-  const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [comment, setComment] = useState("");
-  const { sendZap, isLoading: isZapping } = useZap({
-    trackId,
-    title,
-    artist,
-    artworkUrl,
-    timestamp: timestamp ? parseInt(timestamp) : 0,
-  });
-  const isZapDisabled =
-    zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
-  const handleZap = async () => {
-    sendZap({ comment, amount: parseInt(zapAmount), useNavReplace: true });
+  const handleReply = async () => {
+    setIsOpen(false);
   };
+
   return (
     <KeyboardAvoidingView behavior="position">
       <ScrollView
@@ -110,12 +101,7 @@ const ReplyDialogContents = ({
             width: "100%",
           }}
         >
-          <Button
-            width={100}
-            onPress={handleZap}
-            disabled={isZapDisabled}
-            loading={isZapping}
-          >
+          <Button width={100} onPress={handleReply}>
             Reply
           </Button>
           <Button
