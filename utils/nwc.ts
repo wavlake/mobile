@@ -1,3 +1,4 @@
+import { hexToBytes } from "@noble/hashes/utils";
 import { getPublicKey, nip04 } from "nostr-tools";
 import { getEventFromRelay, getNWCInfoEvent, sendNWCRequest } from "./nostr";
 import { getNwcSecret, saveNwcSecret } from "./secureStorage";
@@ -219,7 +220,7 @@ async function getNwcConnection(userPubkey: string): Promise<{
   }
   return {
     connectionSecret,
-    connectionPubkey: getPublicKey(connectionSecret),
+    connectionPubkey: getPublicKey(hexToBytes(connectionSecret)),
   };
 }
 
