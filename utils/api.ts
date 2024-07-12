@@ -638,11 +638,11 @@ export const getCommentById = async (commentId: number | null) => {
 };
 
 export const saveCommentEventId = async (
-  eventId: string,
+  kind1EventId: string,
   zapRequestEventId: string,
 ) => {
   const { data } = await apiClient.put<ResponseObject<ContentComment>>(
-    `/comments/id/${zapRequestEventId}/${eventId}`,
+    `/comments/event-id/${zapRequestEventId}/${kind1EventId}`,
     {},
   );
 

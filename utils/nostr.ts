@@ -652,3 +652,12 @@ export const useRemoveFollower = () => {
     },
   });
 };
+
+export const fetchReplies = async (kind1EventId: string) => {
+  const filter = {
+    kinds: [1],
+    ["#e"]: [kind1EventId],
+  };
+
+  return getEventFromPool(filter);
+};

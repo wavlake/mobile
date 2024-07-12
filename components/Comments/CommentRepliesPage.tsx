@@ -9,6 +9,7 @@ import { Text } from "@/components/Text";
 import { useCommentId } from "@/hooks/useCommentId";
 import { useLocalSearchParams } from "expo-router";
 import { Center } from "../Center";
+import { useReplies } from "@/hooks/useReplies";
 
 const LEFT_INDENTATION = 40;
 
@@ -29,11 +30,13 @@ export const CommentRepliesPage = () => {
 };
 
 const CommentRepliesPageContents = ({ id }: { id: number }) => {
-  const { data: comment, isLoading } = useCommentId(id);
+  const { data: comment, isLoading: commentLoading } = useCommentId(id);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
   };
+  const { data, isLoading: repliesLoading } = useReplies(comment?.eventId);
+  const isLoading = commentLoading || repliesLoading;
 
   if (isLoading) return;
   if (!comment) {
