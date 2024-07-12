@@ -23,6 +23,8 @@ export const CommentPage = ({
 }: CommentPageProps) => {
   const { height } = useMiniMusicPlayer();
 
+  // fetch replies from nostr
+
   return (
     <View
       style={{ height: "100%", paddingTop: 16, paddingBottom: height + 16 }}

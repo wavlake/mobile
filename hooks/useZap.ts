@@ -14,6 +14,8 @@ import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 import { getPodcastFeedGuid } from "@/utils/rss";
+import { usePublishComment } from "./usePublishComment";
+import { Event } from "nostr-tools";
 
 const fetchInvoiceForZap = async ({
   writeRelayList,
@@ -34,6 +36,11 @@ const fetchInvoiceForZap = async ({
   const wavlakePubkey =
     "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
   const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
+  const iTags = [
+    ["i", `podcast:item:guid:${contentId}`],
+    ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
+  ];
+
   return fetchInvoice({
     relayUris: writeRelayList,
     amountInSats: amountInSats,
@@ -41,10 +48,7 @@ const fetchInvoiceForZap = async ({
     addressPointer: nostrEventAddressPointer,
     zappedPubkey: wavlakePubkey,
     timestamp,
-    customTags: [
-      ["i", `podcast:item:guid:${contentId}`],
-      ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
-    ],
+    customTags: iTags,
   });
 };
 
@@ -74,6 +78,8 @@ export const useZap = ({
   isLoading: boolean;
   sendZap: SendZap;
 } => {
+  const { save: publishComment, isSaving: isPublishingComment } =
+    usePublishComment();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
@@ -117,7 +123,14 @@ export const useZap = ({
     const invoice = response.pr;
     // start listening for payment ASAP
     try {
-      getZapReceipt(invoice).then(() => {
+      getZapReceipt(invoice).then((zapReceipt) => {
+        if (zapReceipt && zapReceipt.content) {
+          const { content } = zapReceipt;
+          const zapRequest: Event = JSON.parse(content);
+          const { id } = zapRequest;
+          const iTags = zapRequest.tags.filter((tag) => tag[0] === "i");
+          publishComment(comment, id, iTags);
+        }
         const navEvent = {
           pathname: "/zap/success",
           params: {

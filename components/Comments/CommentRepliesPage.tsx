@@ -1,68 +1,48 @@
 import { FlatList, View } from "react-native";
 import { CommentRow } from "./CommentRow";
-import { ContentComment } from "@/utils";
 import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { ReplyDialog } from "./ReplyDialog";
 import { Text } from "@/components/Text";
+import { useCommentId } from "@/hooks/useCommentId";
+import { useLocalSearchParams } from "expo-router";
+import { Center } from "../Center";
 
 const LEFT_INDENTATION = 40;
+
 export const CommentRepliesPage = () => {
-  const comment: ContentComment = {
-    id: 123,
-    contentId: "test",
-    title: "test",
-    content: "test",
-    createdAt: "test",
-    msatAmount: 123,
-    userId: "test",
-    name: "testname",
-    commenterArtworkUrl: "https://picsum.photos/200",
-    isNostr: true,
-    replies: [
-      {
-        artworkUrl: "https://picsum.photos/200",
-        content: "I love this!12",
-        msatAmount: 1000,
-        name: "Satoshi111",
-        userId: "abc",
-        id: 1233,
-        createdAt: "test",
-        parentId: 1234,
-        profileUrl: "https://picsum.photos/200",
-        isContentOwner: true,
-      },
-      {
-        artworkUrl: "https://picsum.photos/200",
-        content: "I love this!124d",
-        msatAmount: 1000,
-        name: "Satoshi222",
-        userId: "abc",
-        id: 1234,
-        createdAt: "test",
-        parentId: 1234,
-        profileUrl: "https://picsum.photos/200",
-        isContentOwner: true,
-      },
-      {
-        artworkUrl: "https://picsum.photos/200",
-        content: "I love this!24",
-        name: "Satoshi333",
-        userId: "abc",
-        id: 1235,
-        createdAt: "test",
-        parentId: 1234,
-        profileUrl: "https://picsum.photos/200",
-        isContentOwner: false,
-      },
-    ],
-  };
+  // nostr event id for the kind 1 comment
+  const { id } = useLocalSearchParams();
+  const parsedInt = parseInt(id as string);
+  if (isNaN(parsedInt)) {
+    return (
+      <Center>
+        <Text>Invalid comment id</Text>
+        <Text>{id}</Text>
+      </Center>
+    );
+  }
+
+  return <CommentRepliesPageContents id={parsedInt} />;
+};
+
+const CommentRepliesPageContents = ({ id }: { id: number }) => {
+  const { data: comment, isLoading } = useCommentId(id);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
   };
+
+  if (isLoading) return;
+  if (!comment) {
+    return (
+      <Center>
+        <Text>Error fetching comment</Text>
+      </Center>
+    );
+  }
 
   return (
     <FlatList

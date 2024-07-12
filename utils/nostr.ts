@@ -195,6 +195,8 @@ export const getProfileMetadata = async (
   });
 };
 
+export const getKind1Replies = async (kind1EventIds: string[]) => {};
+
 export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
   const filter = {
     kinds: [13194],
@@ -468,7 +470,7 @@ export const fetchInvoice = async ({
   }
 };
 
-export const getZapReceipt = async (invoice: string) => {
+export const getZapReceipt = async (invoice: string): Promise<Event | void> => {
   const relay = relayInit("wss://relay.wavlake.com/", { getTimeout: 60000 }); // set timeout to 60 seconds
   const offsetTime = 10;
   const since = Math.round(Date.now() / 1000) - offsetTime;

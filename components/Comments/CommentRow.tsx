@@ -10,50 +10,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface CommentRowProps extends ViewProps {
   comment: ContentComment;
+  replies?: any[];
   showReplyLinks?: boolean;
 }
-const randomBoolean = () => Math.random() < 0.5;
-
-const genReplies = () => [
-  {
-    artworkUrl: "https://picsum.photos/200",
-    content: "I love this!12",
-    msatAmount: 1000,
-    name: "Satoshi111",
-    userId: "abc",
-    id: 1233,
-    createdAt: "test",
-    parentId: 1234,
-    profileUrl: "https://picsum.photos/200",
-    isContentOwner: randomBoolean(),
-  },
-  {
-    artworkUrl: "https://picsum.photos/200",
-    content: "I love this!124d",
-    msatAmount: 1000,
-    name: "Satoshi222",
-    userId: "abc",
-    id: 1234,
-    createdAt: "test",
-    parentId: 1234,
-    profileUrl: "https://picsum.photos/200",
-    isContentOwner: false,
-  },
-  {
-    artworkUrl: "https://picsum.photos/200",
-    content: "I love this!24",
-    name: "Satoshi333",
-    userId: "abc",
-    id: 1235,
-    createdAt: "test",
-    parentId: 1234,
-    profileUrl: "https://picsum.photos/200",
-    isContentOwner: false,
-  },
-];
 
 export const CommentRow = ({
   comment,
+  replies = [],
   showReplyLinks = true,
 }: CommentRowProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -70,8 +33,8 @@ export const CommentRow = ({
     title,
     userId,
     isNostr,
+    eventId,
   } = comment;
-  const replies = genReplies();
 
   const getDisplayName = () => {
     if (isNostr) {
@@ -112,7 +75,7 @@ export const CommentRow = ({
             defaultTextColor
           />
         )}
-        {showReplyLinks && (
+        {showReplyLinks && eventId && (
           <View
             style={{
               flexDirection: "row",

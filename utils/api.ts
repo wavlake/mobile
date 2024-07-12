@@ -84,6 +84,7 @@ export interface ContentComment {
   commenterArtworkUrl: string | null;
   isNostr: boolean;
   replies: CommentReply[];
+  eventId?: string;
 }
 
 export interface CommentReply {
@@ -620,6 +621,28 @@ export const getPubkeyActivity = async (
   if (!pubkey) return [];
   const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
     `/social/feed/user/${pubkey}/${page}/${pageSize}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const getCommentById = async (commentId: number | null) => {
+  if (!commentId) return;
+  const { data } = await apiClient.get<ResponseObject<ContentComment>>(
+    `/comments/id/${commentId}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const saveCommentEventId = async (
+  eventId: string,
+  zapRequestEventId: string,
+) => {
+  const { data } = await apiClient.put<ResponseObject<ContentComment>>(
+    `/comments/id/${zapRequestEventId}/${eventId}`,
     {},
   );
 
