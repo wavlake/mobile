@@ -18,8 +18,8 @@ import {
   generateSecretKey,
   utils,
   nip04,
+  SimplePool,
 } from "nostr-tools";
-import { Contacts, HTTPAuth } from "nostr-tools/lib/types/kinds";
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
 import { base64 } from "@scure/base";
@@ -41,10 +41,11 @@ import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/components";
 import { useAuth } from "@/hooks";
 import { updatePubkeyMetadata } from "./api";
-import { tags } from "react-native-svg/lib/typescript/xml";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
+const Contacts = 3;
+const HTTPAuth = 27235;
 export const DEFAULT_READ_RELAY_URIS = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
@@ -234,9 +235,8 @@ const publishEventToRelay = (relayUri: string, event: Event): Promise<void> => {
 };
 
 export const publishEvent = async (relayUris: string[], event: Event) => {
-  return Promise.any(
-    relayUris.map((relayUri) => publishEventToRelay(relayUri, event)),
-  );
+  const pool = new SimplePool();
+  return Promise.any(pool.publish(relayUris, event));
 };
 
 export interface NostrUserProfile {
@@ -255,10 +255,9 @@ export interface NostrUserProfile {
   zapService?: string;
 }
 
-export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
+export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
   return {
     kind: 0,
-    pubkey,
     created_at: Math.floor(Date.now() / 1000),
     tags: [],
     content: JSON.stringify(profile),
@@ -322,10 +321,9 @@ export const signEvent = async (eventTemplate: EventTemplate) => {
   );
 };
 
-export const makeRelayListEvent = (pubkey: string, relayUris: string[]) => {
+export const makeRelayListEvent = (relayUris: string[]): EventTemplate => {
   return {
     kind: 10002,
-    pubkey,
     created_at: Math.floor(Date.now() / 1000),
     tags: relayUris.map((relay) => ["r", relay]),
     content: "",
@@ -464,7 +462,7 @@ export const getZapReceipt = async (invoice: string) => {
   return new Promise(async (resolve, reject) => {
     try {
       const relay = await Relay.connect("wss://relay.wavlake.com/");
-      const offsetTime = 10;
+      const offsetTime = 200;
       const since = Math.round(Date.now() / 1000) - offsetTime;
 
       const sub = relay.subscribe(
