@@ -462,7 +462,7 @@ export const fetchInvoice = async ({
     });
     return data;
   } catch (error) {
-    console.log(error);
+    console.log("fetch invoice", error);
     return { status: "error", reason: "Failed to fetch invoice" };
   }
 };
