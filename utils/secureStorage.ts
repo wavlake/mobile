@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { getPublicKey } from "nostr-tools";
+import { hexToBytes } from "@noble/hashes/utils";
 
 const seckey = "seckey";
 
@@ -19,7 +20,7 @@ export const getPubkeyFromCachedSeckey = async () => {
   try {
     const seckey = await getSeckey();
 
-    return seckey ? getPublicKey(seckey) : "";
+    return seckey ? getPublicKey(hexToBytes(seckey)) : "";
   } catch {
     return "";
   }

@@ -15,7 +15,7 @@ const responseInterceptor = catalogApiClient.interceptors.response.use(
   // on response fulfilled (200 response)
   (response) => {
     if (!!response.data.error) {
-      console.log("error", response.data.error);
+      console.log("catalogApiClient error", response.data.error);
     }
 
     return response;
@@ -91,7 +91,7 @@ export const usePrivateUserData = () => {
       const { data } = await catalogApiClient
         .get<ResponseObject<PrivateUserData>>(`/accounts`)
         .catch((error) => {
-          console.log("error", error);
+          console.log("usePrivateUserData error", error);
           throw error;
         });
 

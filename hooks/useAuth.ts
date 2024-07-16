@@ -1,3 +1,4 @@
+import { bytesToHex } from "@noble/hashes/utils";
 import {
   decodeNsec,
   saveSeckey,
@@ -21,11 +22,16 @@ export const useAuth = () => {
       ? decodeNsec(privkey)
       : decodeNsec(encodeNsec(privkey) ?? ""); // encode and then decode hex privkey to make sure it is valid
 
-    if (!seckey || seckey.length !== 64) {
+    if (!seckey) {
       return false;
     }
 
-    await saveSeckey(seckey);
+    const hexPrivateKey = bytesToHex(seckey);
+    if (hexPrivateKey.length !== 64) {
+      return false;
+    }
+
+    await saveSeckey(hexPrivateKey);
     await refetch();
 
     return true;

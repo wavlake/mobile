@@ -8,13 +8,13 @@ import {
   ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useAuth, useLookupNostrProfile } from "@/hooks";
+import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import {
   decodeNsec,
   encodeNpub,
   encodeNsec,
-  generatePrivateKey,
+  generateSecretKey,
   getPublicKey,
   getSeckey,
   useAddPubkeyToUser,
@@ -25,6 +25,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { DialogWrapper } from "@/components/DialogWrapper";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
+import { bytesToHex } from "@noble/hashes/utils";
 
 const getNpubFromNsec = (nsec: string) => {
   const seckey = decodeNsec(nsec);
@@ -53,7 +54,7 @@ export default function Login() {
   const { npub, pubkey } = getNpubFromNsec(nsec);
 
   const createRandomNsec = () => {
-    const privateKey = generatePrivateKey();
+    const privateKey = bytesToHex(generateSecretKey());
     setNsec(encodeNsec(privateKey) ?? "");
     setIsGeneratedNsec(true);
   };

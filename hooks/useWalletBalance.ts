@@ -21,7 +21,7 @@ export const useWalletBalance = () => {
       return response.result.balance;
     },
     enabled: false,
-    retry: (failureCount, error) => failureCount < 4,
+    retry: (failureCount, error) => failureCount < 2,
   });
 
   useEffect(() => {

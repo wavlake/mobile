@@ -19,15 +19,13 @@ export const useSaveNostrProfile = () => {
   const nostrProfileMutation = useMutation({
     mutationFn: async (newNostrProfileEvent: Event) => {
       await publishEvent(writeRelayList, newNostrProfileEvent);
-
       return newNostrProfileEvent;
     },
   });
-  const save = async (pubkey: string, newProfile: NostrUserProfile) => {
+  const save = async (newProfile: NostrUserProfile) => {
     const event = await signEvent(
-      makeProfileEvent(pubkey, { ...profile, ...newProfile }),
+      makeProfileEvent({ ...profile, ...newProfile }),
     );
-
     return new Promise<void>((resolve, reject) => {
       if (event) {
         nostrProfileMutation.mutate(event, {
