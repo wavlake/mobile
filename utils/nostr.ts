@@ -71,6 +71,8 @@ export const DEFAULT_WRITE_RELAY_URIS = [
   "wss://nostr.mutinywallet.com",
 ];
 
+const pool = new SimplePool();
+
 export const encodeNpub = (pubkey: string) => {
   try {
     return nip19.npubEncode(pubkey);
@@ -159,7 +161,7 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   filter,
   cachedEvent,
   cache,
-  relayUris,
+  relayUris = DEFAULT_READ_RELAY_URIS,
 }: {
   pubkey: string;
   filter: Filter;
@@ -168,7 +170,7 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   relayUris?: string[];
 }) => {
   try {
-    const event = await getEventFromPool(filter, relayUris);
+    const event = await pool.get(relayUris, filter);
 
     if (event === null) {
       return null;
@@ -243,7 +245,6 @@ const publishEventToRelay = (relayUri: string, event: Event): Promise<void> => {
 };
 
 export const publishEvent = async (relayUris: string[], event: Event) => {
-  const pool = new SimplePool();
   return Promise.any(pool.publish(relayUris, event));
 };
 
@@ -473,27 +474,21 @@ export const getZapReceipt = async (invoice: string) => {
       // seeing an API publish time that is 5 minutes behind the current time
       const offsetTime = 800;
       const since = Math.round(Date.now() / 1000) - offsetTime;
-      const sub = relay.subscribe(
-        // DEFAULT_READ_RELAY_URIS,
-        [
-          {
-            kinds: [9735],
-            authors: [wavlakePubkey],
-            since,
-          },
-        ],
-        {
-          onevent(event) {
-            const [bolt11Tag, receiptInvoice] =
-              event.tags.find((tag) => tag[0] === "bolt11") || [];
+      const filter = {
+        kinds: [9735],
+        since,
+      };
+      const sub = relay.subscribe([filter], {
+        onevent(event) {
+          const [bolt11Tag, receiptInvoice] =
+            event.tags.find((tag) => tag[0] === "bolt11") || [];
 
-            if (receiptInvoice === invoice) {
-              resolve(event);
-              sub.close();
-            }
-          },
+          if (receiptInvoice === invoice) {
+            resolve(event);
+            sub.close();
+          }
         },
-      );
+      });
     } catch (e) {
       reject();
     }
@@ -574,11 +569,7 @@ const getKind3Event = (pubkey?: string) => {
   };
 
   try {
-    return Promise.any(
-      DEFAULT_READ_RELAY_URIS.map((relayUri) =>
-        getEventFromRelay(relayUri, filter),
-      ),
-    );
+    return pool.get(DEFAULT_READ_RELAY_URIS, filter);
   } catch {
     return null;
   }
@@ -590,9 +581,17 @@ export const useAddFollower = () => {
 
   return useMutation({
     mutationFn: async ({ pubkey }: { pubkey: string }) => {
-      const currentKind3Event = await getKind3Event(loggedInPubkey);
+      let currentKind3Event: Event | EventTemplate | null =
+        await getKind3Event(loggedInPubkey);
+
       if (!currentKind3Event) {
-        return;
+        // need to take care here, if we cant find the user's event, we need to create one, but we might not now which relays to use
+        currentKind3Event = {
+          kind: Contacts,
+          created_at: Math.round(new Date().getTime() / 1000),
+          content: "",
+          tags: [],
+        };
       }
       const existingFollowersPubkeys = currentKind3Event.tags
         .filter((follow) => follow[0] === followerTag)
