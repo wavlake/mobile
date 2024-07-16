@@ -114,11 +114,11 @@ export const getEventFromRelay = (
       const sub = relay.subscribe([filter], {
         onevent(event) {
           resolve(event);
-          relay.close();
+          sub.close();
         },
         oneose() {
           reject();
-          relay.close();
+          sub.close();
         },
         eoseTimeout: 60000,
       });
@@ -126,34 +126,6 @@ export const getEventFromRelay = (
       reject();
     }
   });
-};
-
-/**
- * This function is more complicated than it needs to be because SimplePool would not work for some reason.
- * TODO: make an endpoint to fetch nostr profile metadata and remove this function.
- */
-const getEventFromPool = async (
-  filter: Filter,
-  relayUris: string[] = DEFAULT_READ_RELAY_URIS,
-) => {
-  const promises = relayUris.map((relayUri) =>
-    getEventFromRelay(relayUri, filter),
-  );
-  const events = (await Promise.allSettled(promises))
-    .map((result) => {
-      if (result.status === "fulfilled") {
-        return result.value;
-      }
-    })
-    .filter((result) => {
-      return result !== undefined && result !== null;
-    }) as Event[];
-
-  if (events.length === 0) {
-    return null;
-  }
-
-  return getMostRecentEvent(events);
 };
 
 const getEventFromPoolAndCacheItIfNecessary = async ({
@@ -234,16 +206,6 @@ export const getRelayListMetadata = async (pubkey: string) => {
   });
 };
 
-const publishEventToRelay = (relayUri: string, event: Event): Promise<void> => {
-  return new Promise(async (resolve, reject) => {
-    const relay = await Relay.connect(relayUri);
-
-    await relay.publish(event);
-    relay.close();
-    resolve();
-  });
-};
-
 export const publishEvent = async (relayUris: string[], event: Event) => {
   return Promise.any(pool.publish(relayUris, event));
 };
@@ -312,8 +274,7 @@ export const sendNWCRequest = async ({
       hexToBytes(connectionSecret),
     );
 
-    publishEvent([relay], signedEvent);
-
+    await publishEvent([relay], signedEvent);
     return signedEvent;
   } catch (error) {
     console.error(error);

@@ -246,7 +246,7 @@ export async function getNwcBalance({
   const requestEvent = await sendNWCRequest({
     walletPubkey,
     relay: nwcRelay,
-    method: "get_balance",
+    method: getBalanceCommand,
     connectionSecret,
   });
   if (!requestEvent) {
@@ -326,7 +326,10 @@ async function handleNwcResponse({
     authors: [walletPubkey],
   };
 
-  const responseEvent = await getEventFromRelay(relay, filter);
+  const responseEvent = await getEventFromRelay(relay, filter).catch((e) =>
+    console.log("getNWCResponse error", e),
+  );
+
   if (!responseEvent) {
     throw new Error("Failed to get NWC response");
   }
@@ -367,6 +370,7 @@ export const payWithNWC = async ({
       nwcRelay,
     });
   } catch (error) {
+    console.log("payWithNWC error", error);
     return {
       error: {
         message: (error as Error).message || "Unknown error occurred",

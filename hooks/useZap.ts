@@ -136,6 +136,10 @@ export const useZap = ({
           invoice,
           walletPubkey: settings?.nwcPubkey,
           nwcRelay: settings?.nwcRelay,
+        }).catch((e) => {
+          // TODO - investigate why this is failing
+          console.log("useZap payWithNWC error", e);
+          return { error: undefined, result: undefined };
         });
 
         if (error?.message) {
@@ -150,7 +154,8 @@ export const useZap = ({
         // if no NWC, open invoice in default wallet
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
       }
-    } catch {
+    } catch (e) {
+      console.log("useZap error", e);
       toast.show("Something went wrong. Please try again later.");
     }
 
