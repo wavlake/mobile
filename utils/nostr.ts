@@ -7,6 +7,11 @@ import "react-native-get-random-values";
 // this is needed to polyfill crypto.subtle which nostr-tools uses
 import "react-native-webview-crypto";
 
+// fix for MessageChannel in nostr-tools
+// https://github.com/nbd-wtf/nostr-tools/issues/374
+import "message-port-polyfill";
+
+// import "./nostr-tools-fix";
 import {
   nip19,
   Relay,
@@ -43,6 +48,9 @@ import { useAuth } from "@/hooks";
 import { updatePubkeyMetadata } from "./api";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
+
+const wavlakePubkey =
+  "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
 
 const Contacts = 3;
 const HTTPAuth = 27235;
@@ -461,25 +469,29 @@ export const fetchInvoice = async ({
 export const getZapReceipt = async (invoice: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const relay = await Relay.connect("wss://relay.wavlake.com/");
-      const offsetTime = 200;
+      const relay = await Relay.connect("wss://relay.wavlake.com");
+      // seeing an API publish time that is 5 minutes behind the current time
+      const offsetTime = 800;
       const since = Math.round(Date.now() / 1000) - offsetTime;
-
       const sub = relay.subscribe(
+        // DEFAULT_READ_RELAY_URIS,
         [
           {
             kinds: [9735],
+            authors: [wavlakePubkey],
             since,
           },
         ],
         {
           onevent(event) {
-            if (event.tags.find((t) => t[0] === "bolt11" && t[1] === invoice)) {
+            const [bolt11Tag, receiptInvoice] =
+              event.tags.find((tag) => tag[0] === "bolt11") || [];
+
+            if (receiptInvoice === invoice) {
               resolve(event);
-              relay.close();
+              sub.close();
             }
           },
-          eoseTimeout: 60000,
         },
       );
     } catch (e) {
