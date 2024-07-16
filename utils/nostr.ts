@@ -7,26 +7,29 @@ import "react-native-get-random-values";
 // this is needed to polyfill crypto.subtle which nostr-tools uses
 import "react-native-webview-crypto";
 
+// fix for MessageChannel in nostr-tools
+// https://github.com/nbd-wtf/nostr-tools/issues/374
+import "message-port-polyfill";
+
+// import "./nostr-tools-fix";
 import {
   nip19,
-  relayInit,
+  Relay,
   Filter,
   Event,
-  finishEvent,
+  finalizeEvent,
   EventTemplate,
   nip57,
-  generatePrivateKey,
+  generateSecretKey,
   utils,
-  getBlankEvent,
   nip04,
-  Kind,
+  SimplePool,
 } from "nostr-tools";
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
 import { base64 } from "@scure/base";
 import { sha256 } from "@noble/hashes/sha256";
-import { bytesToHex } from "@noble/hashes/utils";
-
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import axios from "axios";
 import {
   cacheNWCInfoEvent,
@@ -44,8 +47,13 @@ import { useUser } from "@/components";
 import { useAuth } from "@/hooks";
 import { updatePubkeyMetadata } from "./api";
 
-export { getPublicKey, generatePrivateKey } from "nostr-tools";
+export { getPublicKey, generateSecretKey } from "nostr-tools";
 
+const wavlakePubkey =
+  "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
+
+const Contacts = 3;
+const HTTPAuth = 27235;
 export const DEFAULT_READ_RELAY_URIS = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
@@ -63,6 +71,8 @@ export const DEFAULT_WRITE_RELAY_URIS = [
   "wss://nostr.mutinywallet.com",
 ];
 
+const pool = new SimplePool();
+
 export const encodeNpub = (pubkey: string) => {
   try {
     return nip19.npubEncode(pubkey);
@@ -73,7 +83,7 @@ export const encodeNpub = (pubkey: string) => {
 
 export const encodeNsec = (seckey: string) => {
   try {
-    return nip19.nsecEncode(seckey);
+    return nip19.nsecEncode(hexToBytes(seckey));
   } catch {
     return null;
   }
@@ -97,55 +107,25 @@ export const getEventFromRelay = (
   relayUri: string,
   filter: Filter,
 ): Promise<Event | null> => {
-  return new Promise((resolve, reject) => {
-    const relay = relayInit(relayUri, { getTimeout: 60000 }); // set timeout to 60 seconds
+  return new Promise(async (resolve, reject) => {
+    try {
+      const relay = await Relay.connect(relayUri);
 
-    relay.on("connect", async () => {
-      const event = await relay.get(filter);
-
-      relay.close();
-      resolve(event);
-    });
-    relay.on("error", () => {
-      relay.close();
-      reject(new Error(`failed to connect to ${relay.url}`));
-    });
-
-    relay.connect().catch((e) => {
-      console.log(e);
-      console.log(`error connecting to relay ${relay.url}`);
-      relay.close();
-      reject(e);
-    });
+      const sub = relay.subscribe([filter], {
+        onevent(event) {
+          resolve(event);
+          sub.close();
+        },
+        oneose() {
+          reject();
+          sub.close();
+        },
+        eoseTimeout: 60000,
+      });
+    } catch (e) {
+      reject();
+    }
   });
-};
-
-/**
- * This function is more complicated than it needs to be because SimplePool would not work for some reason.
- * TODO: make an endpoint to fetch nostr profile metadata and remove this function.
- */
-const getEventFromPool = async (
-  filter: Filter,
-  relayUris: string[] = DEFAULT_READ_RELAY_URIS,
-) => {
-  const promises = relayUris.map((relayUri) =>
-    getEventFromRelay(relayUri, filter),
-  );
-  const events = (await Promise.allSettled(promises))
-    .map((result) => {
-      if (result.status === "fulfilled") {
-        return result.value;
-      }
-    })
-    .filter((result) => {
-      return result !== undefined && result !== null;
-    }) as Event[];
-
-  if (events.length === 0) {
-    return null;
-  }
-
-  return getMostRecentEvent(events);
 };
 
 const getEventFromPoolAndCacheItIfNecessary = async ({
@@ -153,7 +133,7 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   filter,
   cachedEvent,
   cache,
-  relayUris,
+  relayUris = DEFAULT_READ_RELAY_URIS,
 }: {
   pubkey: string;
   filter: Filter;
@@ -162,7 +142,7 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   relayUris?: string[];
 }) => {
   try {
-    const event = await getEventFromPool(filter, relayUris);
+    const event = await pool.get(relayUris, filter);
 
     if (event === null) {
       return null;
@@ -226,32 +206,8 @@ export const getRelayListMetadata = async (pubkey: string) => {
   });
 };
 
-const publishEventToRelay = (relayUri: string, event: Event): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const relay = relayInit(relayUri);
-
-    relay.on("connect", async () => {
-      await relay.publish(event);
-      relay.close();
-      resolve();
-    });
-    relay.on("error", () => {
-      relay.close();
-      reject(new Error(`failed to connect to ${relay.url}`));
-    });
-
-    relay.connect().catch((e) => {
-      console.log(`error connecting to relay ${relay.url}`);
-      relay.close();
-      reject(e);
-    });
-  });
-};
-
 export const publishEvent = async (relayUris: string[], event: Event) => {
-  return Promise.any(
-    relayUris.map((relayUri) => publishEventToRelay(relayUri, event)),
-  );
+  return Promise.any(pool.publish(relayUris, event));
 };
 
 export interface NostrUserProfile {
@@ -270,10 +226,9 @@ export interface NostrUserProfile {
   zapService?: string;
 }
 
-export const makeProfileEvent = (pubkey: string, profile: NostrUserProfile) => {
+export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
   return {
     kind: 0,
-    pubkey,
     created_at: Math.floor(Date.now() / 1000),
     tags: [],
     content: JSON.stringify(profile),
@@ -313,10 +268,13 @@ export const sendNWCRequest = async ({
       tags: [["p", walletPubkey]],
       content: encryptedCommand,
     };
-    const signedEvent = await finishEvent(event, connectionSecret);
 
-    publishEvent([relay], signedEvent);
+    const signedEvent = await finalizeEvent(
+      event,
+      hexToBytes(connectionSecret),
+    );
 
+    await publishEvent([relay], signedEvent);
     return signedEvent;
   } catch (error) {
     console.error(error);
@@ -325,15 +283,17 @@ export const sendNWCRequest = async ({
 
 export const signEvent = async (eventTemplate: EventTemplate) => {
   const loggedInUserSeckey = await getSeckey();
-  const anonSeckey = generatePrivateKey();
+  const anonSeckey = generateSecretKey();
 
-  return finishEvent(eventTemplate, loggedInUserSeckey ?? anonSeckey);
+  return finalizeEvent(
+    eventTemplate,
+    loggedInUserSeckey ? hexToBytes(loggedInUserSeckey) : anonSeckey,
+  );
 };
 
-export const makeRelayListEvent = (pubkey: string, relayUris: string[]) => {
+export const makeRelayListEvent = (relayUris: string[]): EventTemplate => {
   return {
     kind: 10002,
-    pubkey,
     created_at: Math.floor(Date.now() / 1000),
     tags: relayUris.map((relay) => ["r", relay]),
     content: "",
@@ -463,46 +423,36 @@ export const fetchInvoice = async ({
     });
     return data;
   } catch (error) {
-    console.log(error);
+    console.log("fetch invoice", error);
     return { status: "error", reason: "Failed to fetch invoice" };
   }
 };
 
 export const getZapReceipt = async (invoice: string) => {
-  const relay = relayInit("wss://relay.wavlake.com/", { getTimeout: 60000 }); // set timeout to 60 seconds
-  const offsetTime = 10;
-  const since = Math.round(Date.now() / 1000) - offsetTime;
-
-  relay.on("error", () => {
-    throw new Error(`failed to connect to ${relay.url}`);
-  });
-
-  const isConnected = await relay
-    .connect()
-    .then(() => true)
-    .catch((e) => {
-      console.log(`error connecting to relay ${relay.url}`);
-      relay.close();
-      return false;
-    });
-
-  if (!isConnected) {
-    return;
-  }
-
-  return new Promise((resolve) => {
-    const sub = relay.sub([
-      {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const relay = await Relay.connect("wss://relay.wavlake.com");
+      // seeing an API publish time that is 5 minutes behind the current time
+      const offsetTime = 800;
+      const since = Math.round(Date.now() / 1000) - offsetTime;
+      const filter = {
         kinds: [9735],
         since,
-      },
-    ]);
+      };
+      const sub = relay.subscribe([filter], {
+        onevent(event) {
+          const [bolt11Tag, receiptInvoice] =
+            event.tags.find((tag) => tag[0] === "bolt11") || [];
 
-    sub.on("event", (event) => {
-      if (event.tags.find((t) => t[0] === "bolt11" && t[1] === invoice)) {
-        resolve(event);
-      }
-    });
+          if (receiptInvoice === invoice) {
+            resolve(event);
+            sub.close();
+          }
+        },
+      });
+    } catch (e) {
+      reject();
+    }
   });
 };
 
@@ -517,7 +467,7 @@ export const getZapReceipt = async (invoice: string) => {
 export async function getAuthToken(
   loginUrl: string,
   httpMethod: string,
-  sign: (e: EventTemplate) => Promise<Event<number>>,
+  sign: (e: EventTemplate) => Promise<Event>,
   includeAuthorizationScheme: boolean = false,
   payload?: Record<string, any>,
 ): Promise<string> {
@@ -526,12 +476,15 @@ export async function getAuthToken(
   if (!loginUrl || !httpMethod)
     throw new Error("Missing loginUrl or httpMethod");
 
-  const event = getBlankEvent(Kind.HttpAuth);
-
-  event.tags = [
-    ["u", loginUrl],
-    ["method", httpMethod],
-  ];
+  const event = {
+    kind: HTTPAuth,
+    created_at: Math.round(new Date().getTime() / 1000),
+    tags: [
+      ["u", loginUrl],
+      ["method", httpMethod],
+    ],
+    content: "",
+  };
 
   if (payload) {
     const utf8Encoder = new TextEncoder();
@@ -540,8 +493,6 @@ export async function getAuthToken(
       bytesToHex(sha256(utf8Encoder.encode(JSON.stringify(payload)))),
     ]);
   }
-
-  event.created_at = Math.round(new Date().getTime() / 1000);
 
   const signedEvent = await sign(event);
   const authorizationScheme = includeAuthorizationScheme
@@ -566,7 +517,6 @@ export const subscribeToTicket = async (pubkey: string) => {
   });
 };
 
-const FOLLOW_EVENT_KIND = 3;
 const followerTag = "p";
 
 const getKind3Event = (pubkey?: string) => {
@@ -575,16 +525,12 @@ const getKind3Event = (pubkey?: string) => {
   }
 
   const filter = {
-    kinds: [3],
+    kinds: [Contacts],
     authors: [pubkey],
   };
 
   try {
-    return Promise.any(
-      DEFAULT_READ_RELAY_URIS.map((relayUri) =>
-        getEventFromRelay(relayUri, filter),
-      ),
-    );
+    return pool.get(DEFAULT_READ_RELAY_URIS, filter);
   } catch {
     return null;
   }
@@ -596,12 +542,18 @@ export const useAddFollower = () => {
 
   return useMutation({
     mutationFn: async ({ pubkey }: { pubkey: string }) => {
-      const currentKind3Event = await getKind3Event(loggedInPubkey);
+      let currentKind3Event: Event | EventTemplate | null =
+        await getKind3Event(loggedInPubkey);
+
       if (!currentKind3Event) {
-        return;
+        // need to take care here, if we cant find the user's event, we need to create one, but we might not now which relays to use
+        currentKind3Event = {
+          kind: Contacts,
+          created_at: Math.round(new Date().getTime() / 1000),
+          content: "",
+          tags: [],
+        };
       }
-      const event = getBlankEvent(FOLLOW_EVENT_KIND);
-      event.content = currentKind3Event.content;
       const existingFollowersPubkeys = currentKind3Event.tags
         .filter((follow) => follow[0] === followerTag)
         .map((follow) => follow[1]);
@@ -611,12 +563,17 @@ export const useAddFollower = () => {
       const newFollowers = Array.from(
         new Set([...existingFollowersPubkeys, pubkey]),
       );
-      event.tags = [
-        ...newFollowers.map((follower) => [followerTag, follower]),
-        ...otherTags,
-      ];
 
-      event.created_at = Math.round(new Date().getTime() / 1000);
+      const event = {
+        kind: Contacts,
+        created_at: Math.round(new Date().getTime() / 1000),
+        content: currentKind3Event.content,
+        tags: [
+          ...newFollowers.map((follower) => [followerTag, follower]),
+          ...otherTags,
+        ],
+      };
+
       const signed = await signEvent(event);
       // TODO use user's relay list event
       await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
@@ -636,12 +593,15 @@ export const useRemoveFollower = () => {
       if (!currentKind3Event) {
         return;
       }
-      const event = getBlankEvent(FOLLOW_EVENT_KIND);
-      event.content = currentKind3Event?.content ?? "";
-      event.tags = currentKind3Event.tags.filter(
-        (follow) => follow[1] !== removedFollowPubkey,
-      );
-      event.created_at = Math.round(new Date().getTime() / 1000);
+
+      const event = {
+        kind: Contacts,
+        created_at: Math.round(new Date().getTime() / 1000),
+        content: currentKind3Event?.content ?? "",
+        tags: currentKind3Event.tags.filter(
+          (follow) => follow[1] !== removedFollowPubkey,
+        ),
+      };
       const signed = await signEvent(event);
       // TODO use user's relay list event
       await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);

@@ -14,6 +14,9 @@ import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 
+const wavlakeTrackKind = 32123;
+const wavlakePubkey =
+  "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
 const fetchInvoiceForZap = async ({
   writeRelayList,
   amountInSats,
@@ -27,9 +30,6 @@ const fetchInvoiceForZap = async ({
   contentId: string;
   timestamp?: number;
 }) => {
-  const wavlakeTrackKind = 32123;
-  const wavlakePubkey =
-    "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
   const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
   return fetchInvoice({
     relayUris: writeRelayList,
@@ -136,6 +136,10 @@ export const useZap = ({
           invoice,
           walletPubkey: settings?.nwcPubkey,
           nwcRelay: settings?.nwcRelay,
+        }).catch((e) => {
+          // TODO - investigate why this is failing
+          console.log("useZap payWithNWC error", e);
+          return { error: undefined, result: undefined };
         });
 
         if (error?.message) {
@@ -150,7 +154,8 @@ export const useZap = ({
         // if no NWC, open invoice in default wallet
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
       }
-    } catch {
+    } catch (e) {
+      console.log("useZap error", e);
       toast.show("Something went wrong. Please try again later.");
     }
 

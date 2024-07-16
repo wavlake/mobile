@@ -19,8 +19,8 @@ export const useSaveNostrRelayList = () => {
       return newNostrRelayListEvent;
     },
   });
-  const save = async (pubkey: string, relayUris: string[]) => {
-    const event = await signEvent(makeRelayListEvent(pubkey, relayUris));
+  const save = async (relayUris: string[]) => {
+    const event = await signEvent(makeRelayListEvent(relayUris));
 
     return new Promise<void>((resolve, reject) => {
       if (event) {
