@@ -1,23 +1,17 @@
-import { CommentReply } from "@/utils";
 import { View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
+import { Event } from "nostr-tools";
+import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 
 interface CommentReplyRow extends ViewProps {
-  reply: CommentReply;
+  reply: Event;
 }
 
 export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
-  const {
-    name,
-    content,
-    userId,
-    createdAt,
-    parentId,
-    profileUrl,
-    isContentOwner,
-    artworkUrl,
-  } = reply;
+  const { content, pubkey } = reply;
+  const { data: metadata } = useCatalogPubkey(pubkey);
+  const { name, picture } = metadata?.metadata || {};
 
   return (
     <View
@@ -29,7 +23,7 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
         alignItems: "center",
       }}
     >
-      <BasicAvatar uri={artworkUrl} pubkey={userId} />
+      <BasicAvatar uri={picture} pubkey={pubkey} />
       <View style={{ marginLeft: 10, flex: 1 }}>
         {content && <Text bold>{content}</Text>}
       </View>

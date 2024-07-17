@@ -26,7 +26,7 @@ import { InstagramIcon } from "@/components/InstagramIcon";
 import { useGoToAlbumPage } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { ArtistBanner } from "@/components/ArtistBanner";
-import { CommentRow } from "./Comments/CommentRow";
+import { CommentList } from "./Comments/CommentList";
 
 interface SocialIconLinkProps {
   url: string;
@@ -145,9 +145,7 @@ export const ArtistPage = () => {
       {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          {topMessages.map((comment) => (
-            <CommentRow comment={comment} key={comment.id} />
-          ))}
+          <CommentList comments={topMessages} />
           <TouchableOpacity onPress={handleLoadMore}>
             <Text style={{ textAlign: "center" }}>View more</Text>
           </TouchableOpacity>

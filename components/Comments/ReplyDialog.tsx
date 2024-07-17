@@ -9,12 +9,13 @@ import {
   Center,
   CommentRow,
 } from "@/components";
-import { BottomSheet, ListItem } from "@rneui/themed";
+import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { useZap } from "@/hooks";
+import { useAuth, useToast } from "@/hooks";
 import { ContentComment } from "@/utils";
+import { usePublishReply } from "@/hooks/usePublishReply";
 
 interface ReplyDialogProps {
   comment: ContentComment;
@@ -50,20 +51,22 @@ const ReplyDialogContents = ({
   setIsOpen: (value: boolean) => void;
   parentComment: ContentComment;
 }) => {
+  const toast = useToast();
+  const { save: publishReply } = usePublishReply();
   const { colors } = useTheme();
-
-  const { defaultZapAmount, title, artist, artworkUrl, trackId, timestamp } =
-    useLocalSearchParams<{
-      defaultZapAmount: string;
-      title: string;
-      artist: string;
-      artworkUrl: string;
-      trackId: string;
-      timestamp: string;
-    }>();
 
   const [comment, setComment] = useState("");
   const handleReply = async () => {
+    if (!parentComment.eventId) {
+      toast.show("Error: missing eventId");
+      setIsOpen(false);
+      return;
+    }
+
+    await publishReply(comment, [
+      ["e", parentComment.eventId, "wss://relay.wavlake.com"],
+      ["p", parentComment.userId],
+    ]);
     setIsOpen(false);
   };
 

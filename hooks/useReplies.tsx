@@ -1,27 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import { useNostrRelayList } from "./nostrRelayList";
+import { fetchReplies } from "@/utils";
 
 export const useRepliesQueryKey = (kind1EventId?: string | null) => {
   return ["replies", kind1EventId];
 };
 
 export const useReplies = (kind1EventId?: string | null) => {
-  const { readRelayList } = useNostrRelayList();
   const queryKey = useRepliesQueryKey(kind1EventId);
 
   return useQuery({
     queryKey,
     queryFn: async () => {
-      if (!kind1EventId) return null;
+      if (!kind1EventId) return [];
 
-      // const event = await getProfileMetadata(pubkey, readRelayList);
-      // if (!event) return null;
-
-      // try {
-      //   return JSON.parse(event?.content) as NostrUserProfile;
-      // } catch {
-      //   return null;
-      // }
+      const replies = await fetchReplies([kind1EventId]);
+      return replies;
     },
     enabled: Boolean(kind1EventId),
     staleTime: Infinity,

@@ -35,9 +35,8 @@ const CommentRepliesPageContents = ({ id }: { id: number }) => {
   const onReplyPress = () => {
     setDialogOpen(true);
   };
-  const { data, isLoading: repliesLoading } = useReplies(comment?.eventId);
+  const { data = [], isLoading: repliesLoading } = useReplies(comment?.eventId);
   const isLoading = commentLoading || repliesLoading;
-
   if (isLoading) return;
   if (!comment) {
     return (
@@ -63,7 +62,7 @@ const CommentRepliesPageContents = ({ id }: { id: number }) => {
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={comment.replies}
+      data={data}
       renderItem={({ item }) => <CommentReplyRow reply={item} />}
       ListFooterComponent={
         <TouchableOpacity onPress={onReplyPress}>

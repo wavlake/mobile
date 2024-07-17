@@ -124,11 +124,13 @@ export const useZap = ({
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then((zapReceipt) => {
-        if (zapReceipt && zapReceipt.content) {
-          const { content } = zapReceipt;
-          const zapRequest: Event = JSON.parse(content);
-          const { id } = zapRequest;
-          const iTags = zapRequest.tags.filter((tag) => tag[0] === "i");
+        const [descTag, zapRequest] =
+          zapReceipt?.tags.find(([tag]) => tag === "description") || [];
+
+        if (zapReceipt && zapRequest) {
+          const parsedZapRequest: Event = JSON.parse(zapRequest);
+          const { id } = parsedZapRequest;
+          const iTags = parsedZapRequest.tags.filter((tag) => tag[0] === "i");
           publishComment(comment, id, iTags);
         }
         const navEvent = {

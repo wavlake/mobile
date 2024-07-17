@@ -23,7 +23,6 @@ export const CommentRow = ({
   const onReplyPress = () => {
     setDialogOpen(true);
   };
-
   const {
     id,
     commenterArtworkUrl,

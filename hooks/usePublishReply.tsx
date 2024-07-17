@@ -18,7 +18,7 @@ const makeKind1Event = (
   };
 };
 
-export const usePublishComment = () => {
+export const usePublishReply = () => {
   const { pubkey = "" } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const nostrCommentMutation = useMutation({
@@ -28,11 +28,7 @@ export const usePublishComment = () => {
     },
   });
 
-  const save = async (
-    content: string,
-    zapRequestEventId: string,
-    customTags?: string[][],
-  ) => {
+  const save = async (content: string, customTags?: string[][]) => {
     const event = await signEvent(makeKind1Event(pubkey, content, customTags));
     return new Promise<void>(async (resolve, reject) => {
       if (event) {
@@ -40,7 +36,6 @@ export const usePublishComment = () => {
           .mutateAsync(event)
           .then(async () => {
             // save event id to catalog db
-            await saveCommentEventId(event.id, zapRequestEventId);
             resolve();
           })
           .catch((error: any) => {

@@ -334,7 +334,7 @@ export const getRandomGenreTracks = async (
 
 const createAuthHeader = (
   relativeUrl: string,
-  htttpMethod: "get" | "post" | "delete" = "get",
+  htttpMethod: "get" | "post" | "delete" | "put" = "get",
   payload?: Record<string, any>,
 ) => {
   const url = `${baseURL}${relativeUrl}`;
@@ -510,8 +510,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;
@@ -641,9 +641,15 @@ export const saveCommentEventId = async (
   kind1EventId: string,
   zapRequestEventId: string,
 ) => {
+  const url = `/comments/event-id/${zapRequestEventId}/${kind1EventId}`;
   const { data } = await apiClient.put<ResponseObject<ContentComment>>(
-    `/comments/event-id/${zapRequestEventId}/${kind1EventId}`,
-    {},
+    url,
+    null,
+    {
+      headers: {
+        Authorization: await createAuthHeader(url, "put"),
+      },
+    },
   );
 
   return data?.data;
