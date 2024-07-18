@@ -15,7 +15,7 @@ import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 import { getPodcastFeedGuid } from "@/utils/rss";
 import { usePublishComment } from "./usePublishComment";
-import { Event } from "nostr-tools";
+import { Event, nip19 } from "nostr-tools";
 
 const wavlakeTrackKind = 32123;
 const wavlakePubkey =
@@ -138,7 +138,14 @@ export const useZap = ({
           const parsedZapRequest: Event = JSON.parse(zapRequest);
           const { id } = parsedZapRequest;
           const iTags = parsedZapRequest.tags.filter((tag) => tag[0] === "i");
-          publishComment(comment, id, iTags);
+          const shareUrl = isPodcast
+            ? `https://wavlake.com/episode/${trackId}`
+            : `https://wavlake.com/track/${trackId}`;
+          const eventUrl = nip19.neventEncode(zapReceipt);
+          const commentWithLinks =
+            comment + "\n\n" + shareUrl + "\n\n" + eventUrl;
+
+          publishComment(commentWithLinks, id, iTags);
         }
         const navEvent = {
           pathname: "/zap/success",
