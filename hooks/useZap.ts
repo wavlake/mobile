@@ -39,6 +39,13 @@ const fetchInvoiceForZap = async ({
   const iTags = [
     ["i", `podcast:item:guid:${contentId}`],
     ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
+    [
+      "i",
+      `podcast:publisher:guid:${getPodcastFeedGuid(
+        parentContentType,
+        contentId,
+      )}`,
+    ],
   ];
 
   return fetchInvoice({
@@ -193,4 +200,17 @@ export const useZap = ({
     isLoading,
     sendZap,
   };
+};
+const t = {
+  id: "86c000547b2b864106f6c88c41983c27be62e5175436110b705813a4330070f7",
+  pubkey: "bd1e19980e2c91e6dc657e92c25762ca882eb9272d2579e221f037f93788de91",
+  created_at: 1721249167,
+  kind: 1,
+  tags: [
+    ["p", "140b0eceefcaa723f11c781b0a341e6c6d9d5e87e5406376d1da196c75abe39e"],
+    ["p", "140b0eceefcaa723f11c781b0a341e6c6d9d5e87e5406376d1da196c75abe39e"],
+  ],
+  content:
+    "🤣 nostr:note1lrmtx2wdfrvuek494vqv6kzg9mrduufu356e08c09udg8q0p360qe0uw8y",
+  sig: "f9da65e170939d45357b026c993f7fc59c2268b8800f72ffbece23c5cbd68afc575c6c3143a1761ec439a1f5bfbbb386be3246d17992f8da4ba181351092aaf0",
 };
