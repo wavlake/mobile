@@ -44,6 +44,9 @@ export default function SettingsPage() {
   );
   const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
   const [oneTapZap, setOneTapZap] = useState(settings?.oneTapZap ?? false);
+  const [publishKind1, setPublishKind1] = useState(
+    settings?.publishKind1 ?? false,
+  );
 
   const queryClient = useQueryClient();
   const settingsKey = useSettingsQueryKey();
@@ -57,6 +60,7 @@ export default function SettingsPage() {
         allowListeningActivity,
         enableNWC,
         oneTapZap,
+        publishKind1,
       },
       pubkey,
     );
@@ -152,6 +156,31 @@ export default function SettingsPage() {
             <Switch
               value={oneTapZap}
               onValueChange={setOneTapZap}
+              color={brandColors.pink.DEFAULT}
+              trackColor={{
+                false: colors.border,
+                true: brandColors.pink.DEFAULT,
+              }}
+              thumbColor={colors.text}
+            />
+          </View>
+          <View
+            style={{
+              marginTop: 24,
+              marginBottom: 4,
+              flexDirection: "row",
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Text bold>Publish comments to nostr</Text>
+              <Text>
+                Publish comments to your nostr feed. These comments will show up
+                in other nostr clients as kind 1 events.
+              </Text>
+            </View>
+            <Switch
+              value={publishKind1}
+              onValueChange={setPublishKind1}
               color={brandColors.pink.DEFAULT}
               trackColor={{
                 false: colors.border,

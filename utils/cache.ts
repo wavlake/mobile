@@ -89,6 +89,7 @@ export interface Settings {
   enableNWC: boolean;
   nwcCommands: string[];
   oneTapZap: boolean;
+  publishKind1: boolean;
 }
 
 // TODO expose this call thru the settings hook
