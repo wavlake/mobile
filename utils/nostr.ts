@@ -615,7 +615,7 @@ export const useRemoveFollower = () => {
 
 export const fetchReplies = async (kind1EventIds: string[]) => {
   const filter = {
-    kinds: [1],
+    kinds: [1, 9735],
     ["#e"]: kind1EventIds,
   };
 

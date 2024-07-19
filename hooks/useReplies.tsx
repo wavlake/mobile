@@ -1,22 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchReplies } from "@/utils";
 
-export const useRepliesQueryKey = (kind1EventId?: string | null) => {
-  return ["replies", kind1EventId];
+export const useRepliesQueryKey = (nostrEventId?: string | null) => {
+  return ["replies", nostrEventId];
 };
 
-export const useReplies = (kind1EventId?: string | null) => {
-  const queryKey = useRepliesQueryKey(kind1EventId);
+export const useReplies = (nostrEventId?: string | null) => {
+  const queryKey = useRepliesQueryKey(nostrEventId);
 
   return useQuery({
     queryKey,
     queryFn: async () => {
-      if (!kind1EventId) return [];
+      if (!nostrEventId) return [];
 
-      const replies = await fetchReplies([kind1EventId]);
+      const replies = await fetchReplies([nostrEventId]);
       return replies;
     },
-    enabled: Boolean(kind1EventId),
-    staleTime: Infinity,
+    enabled: Boolean(nostrEventId),
+    // 10 minutes
+    staleTime: 600000,
   });
 };

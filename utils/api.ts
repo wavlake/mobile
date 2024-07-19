@@ -83,8 +83,13 @@ export interface ContentComment {
   name: string | null;
   commenterArtworkUrl: string | null;
   isNostr: boolean;
+  // this houses legacy comment replies that have no nostr event ids
   replies: CommentReply[];
+  // kind 1 event id
+  // may not exist, depends on user's preference
   eventId?: string;
+  // zap receipt event id
+  zapEventId?: string;
 }
 
 export interface CommentReply {
@@ -510,8 +515,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;

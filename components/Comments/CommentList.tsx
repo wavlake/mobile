@@ -2,16 +2,21 @@ import { ContentComment, fetchReplies } from "@/utils";
 import { CommentRow } from "./CommentRow";
 import { useQuery } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRepliesQueryKey } from "@/hooks/useReplies";
 
 export const CommentList = ({ comments }: { comments: ContentComment[] }) => {
   const definedEventIds = comments.reduce<string[]>((acc, comment) => {
+    // prefer kind 1 events over zap receipts
     if (comment.eventId) {
       acc.push(comment.eventId);
+    } else if (comment.zapEventId) {
+      acc.push(comment.zapEventId);
     }
     return acc;
   }, []);
 
-  const { data = {} } = useQuery(
+  const { data: nostrRepliesMap = {} } = useQuery(
     definedEventIds,
     async () => {
       const replies = await fetchReplies(definedEventIds);
@@ -33,13 +38,29 @@ export const CommentList = ({ comments }: { comments: ContentComment[] }) => {
       enabled: definedEventIds.length > 0,
     },
   );
+
+  const queryClient = useQueryClient();
+  // cache the replies under the parent comment event id
+  // the /comment/id page will fetch these replies from the cache
+  Object.keys(nostrRepliesMap).forEach((eventId) => {
+    const replies = nostrRepliesMap[eventId];
+    const queryKey = useRepliesQueryKey(eventId);
+    queryClient.setQueryData<Event[]>(queryKey, () => replies);
+  });
+
   return (
     <>
       {comments.map((comment) => {
-        const replies = comment.eventId ? data[comment.eventId] ?? [] : [];
+        const nostrReplies = comment.eventId
+          ? nostrRepliesMap[comment.eventId] ?? []
+          : [];
 
         return (
-          <CommentRow replies={replies} comment={comment} key={comment.id} />
+          <CommentRow
+            nostrReplies={nostrReplies}
+            comment={comment}
+            key={comment.id}
+          />
         );
       })}
     </>
