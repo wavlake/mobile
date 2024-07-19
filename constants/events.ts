@@ -5,7 +5,7 @@ export const ShowEvents: Event[] = [
     kind: 31923,
     content: `Wavlake and Tunestr present a special evening at The Vinyl Lounge in Nashville with Joe Martin, Ainsley Costello, Just Loud, and more. Stick around after hours for live karaoke by the Satoshi Rockamoto all-stars playing their favorite songs where you can join in, too!
 
-All RSVPs booked through the Wavlake app come with a special gift at the door. 1 sat minimum to RSVP but we encourage everyone to give more as all proceeds will go to the featured performers.
+RSVPs booked through the Wavlake app come with a special gift at the door, while supplies last. 1 sat minimum to RSVP but we encourage everyone to give more as all proceeds will go to the featured performers.
       
 Doors open at 7pm, show starts at 7:30pm. This show is 21+.`,
     created_at: 1713814392,
