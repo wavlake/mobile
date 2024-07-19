@@ -1,21 +1,12 @@
-import { DialogWrapper } from "../DialogWrapper";
 import { useTheme } from "@react-navigation/native";
-import {
-  MarqueeText,
-  SquareArtwork,
-  CancelButton,
-  Button,
-  TextInput,
-  Center,
-  CommentRow,
-} from "@/components";
+import { Button, TextInput, CommentRow } from "@/components";
 import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
-import { useLocalSearchParams } from "expo-router";
-import { useAuth, useToast } from "@/hooks";
+import { useToast } from "@/hooks";
 import { ContentComment } from "@/utils";
 import { usePublishReply } from "@/hooks/usePublishReply";
+import { useSaveLegacyReply } from "@/hooks/useSaveLegacyReply";
 
 interface ReplyDialogProps {
   comment: ContentComment;
@@ -53,6 +44,7 @@ const ReplyDialogContents = ({
 }) => {
   const toast = useToast();
   const { save: publishReply } = usePublishReply();
+  const { mutateAsync: saveLegacyReply } = useSaveLegacyReply();
   const { colors } = useTheme();
 
   const [comment, setComment] = useState("");
@@ -62,11 +54,16 @@ const ReplyDialogContents = ({
       setIsOpen(false);
       return;
     }
-
-    await publishReply(comment, [
-      ["e", parentComment.eventId, "wss://relay.wavlake.com"],
-      ["p", parentComment.userId],
-    ]);
+    const parentCommentEventId =
+      parentComment.eventId ?? parentComment.zapEventId;
+    if (parentCommentEventId) {
+      await publishReply(comment, [
+        ["e", parentCommentEventId, "wss://relay.wavlake.com"],
+        ["p", parentComment.userId],
+      ]);
+    } else {
+      await saveLegacyReply({ content: comment, commentId: parentComment.id });
+    }
     setIsOpen(false);
   };
 

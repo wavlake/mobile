@@ -659,3 +659,23 @@ export const saveCommentEventId = async (
 
   return data?.data;
 };
+
+export const saveLegacyReply = async (content: string, commentId: number) => {
+  const url = `/comments/reply`;
+  const payload = {
+    content,
+    commentId,
+  };
+
+  const { data } = await apiClient.post<ResponseObject<ContentComment>>(
+    url,
+    payload,
+    {
+      headers: {
+        Authorization: await createAuthHeader(url, "post", payload),
+      },
+    },
+  );
+
+  return data?.data;
+};
