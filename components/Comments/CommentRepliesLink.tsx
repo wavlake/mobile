@@ -4,19 +4,25 @@ import { Text } from "@/components/Text";
 import { CommentReply } from "@/utils";
 import { Link } from "expo-router";
 import { View } from "react-native";
+import { Event } from "nostr-tools";
 
 export const CommentRepliesLink = ({
-  replies,
+  legacyReplies,
+  nostrReplies,
   parentcommentId,
 }: {
-  replies: CommentReply[];
+  legacyReplies: CommentReply[];
+  nostrReplies: Event[];
   parentcommentId: number;
 }) => {
-  if (replies.length === 0) {
+  if (legacyReplies.length === 0 && nostrReplies.length === 0) {
     return undefined;
   }
 
-  const hasContentOwnerReply = replies.some((reply) => reply.isContentOwner);
+  // TODO - add this flag so we can show the artist profile pic
+  // const hasContentOwnerReply = legacyReplies.some(
+  //   (reply) => reply.isContentOwner,
+  // );
 
   return (
     <Link href={`/comment/${parentcommentId}`}>
@@ -28,17 +34,20 @@ export const CommentRepliesLink = ({
           gap: 8,
         }}
       >
-        {hasContentOwnerReply && (
+        {/* {hasContentOwnerReply && (
           <BasicAvatar
-            uri={replies.find((reply) => reply.isContentOwner)?.artworkUrl}
+            uri={
+              legacyReplies.find((reply) => reply.isContentOwner)?.artworkUrl
+            }
           />
-        )}
+        )} */}
         <Text
           style={{
             color: brandColors.orange.DEFAULT,
           }}
         >
-          {replies.length} {replies.length > 1 ? "replies" : "reply"}
+          {legacyReplies.length}{" "}
+          {legacyReplies.length > 1 ? "replies" : "reply"}
         </Text>
       </View>
     </Link>

@@ -7,16 +7,17 @@ import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Event } from "nostr-tools";
 
 interface CommentRowProps extends ViewProps {
   comment: ContentComment;
-  replies?: any[];
+  nostrReplies?: Event[];
   showReplyLinks?: boolean;
 }
 
 export const CommentRow = ({
   comment,
-  replies = [],
+  nostrReplies = [],
   showReplyLinks = true,
 }: CommentRowProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -33,6 +34,8 @@ export const CommentRow = ({
     userId,
     isNostr,
     eventId,
+    zapEventId,
+    replies: legacyReplies,
   } = comment;
 
   const getDisplayName = () => {
@@ -85,7 +88,11 @@ export const CommentRow = ({
               gap: 8,
             }}
           >
-            <CommentRepliesLink replies={replies} parentcommentId={id} />
+            <CommentRepliesLink
+              legacyReplies={legacyReplies}
+              nostrReplies={nostrReplies}
+              parentcommentId={id}
+            />
             <TouchableOpacity onPress={onReplyPress}>
               <MaterialCommunityIcons
                 name="comment-plus-outline"
