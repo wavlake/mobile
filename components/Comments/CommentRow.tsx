@@ -77,11 +77,11 @@ export const CommentRow = ({
             defaultTextColor
           />
         )}
-        {showReplyLinks && eventId && (
+        {showReplyLinks && (
           <View
             style={{
               flexDirection: "row",
-              justifyContent: "space-between",
+              justifyContent: "flex-end",
               alignItems: "center",
               paddingTop: 20,
               paddingBottom: 10,
@@ -93,7 +93,7 @@ export const CommentRow = ({
               nostrReplies={nostrReplies}
               parentcommentId={id}
             />
-            <TouchableOpacity onPress={onReplyPress}>
+            <TouchableOpacity onPress={onReplyPress} style={{}}>
               <MaterialCommunityIcons
                 name="comment-plus-outline"
                 size={24}

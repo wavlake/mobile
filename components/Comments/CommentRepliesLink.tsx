@@ -25,7 +25,7 @@ export const CommentRepliesLink = ({
   // );
 
   return (
-    <Link href={`/comment/${parentcommentId}`}>
+    <Link href={`/comment/${parentcommentId}`} style={{ flexGrow: 1 }}>
       <View
         style={{
           display: "flex",

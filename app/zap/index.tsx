@@ -116,19 +116,10 @@ export default function ZapPage() {
           value={comment}
           inputHeight={96}
         />
-        <View
-          style={{
-            marginTop: 24,
-            marginBottom: 4,
-            flexDirection: "row",
-          }}
-        >
-          <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ flex: 1, marginRight: 8 }}>
             <Text bold>Publish comments to nostr</Text>
-            <Text>
-              Publish comments to your nostr feed. These comments will show up
-              in other nostr clients as kind 1 events.
-            </Text>
+            <Text>Comments will show up in other clients.</Text>
           </View>
           <Switch
             value={settings?.publishKind1 ?? false}
