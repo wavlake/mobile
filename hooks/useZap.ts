@@ -141,7 +141,7 @@ export const useZap = ({
           const shareUrl = isPodcast
             ? `https://wavlake.com/episode/${trackId}`
             : `https://wavlake.com/track/${trackId}`;
-          const eventUrl = nip19.neventEncode(zapReceipt);
+          const eventUrl = `nostr:${nip19.neventEncode(zapReceipt)}`;
           const commentWithLinks =
             comment + "\n\n" + shareUrl + "\n\n" + eventUrl;
 

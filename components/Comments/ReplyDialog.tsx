@@ -49,11 +49,6 @@ const ReplyDialogContents = ({
 
   const [comment, setComment] = useState("");
   const handleReply = async () => {
-    if (!parentComment.eventId) {
-      toast.show("Error: missing eventId");
-      setIsOpen(false);
-      return;
-    }
     const parentCommentEventId =
       parentComment.eventId ?? parentComment.zapEventId;
     if (parentCommentEventId) {
