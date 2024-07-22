@@ -23,7 +23,7 @@ export const CommentRepliesLink = ({
   // const hasContentOwnerReply = legacyReplies.some(
   //   (reply) => reply.isContentOwner,
   // );
-
+  const numReplies = legacyReplies.length + nostrReplies.length;
   return (
     <Link href={`/comment/${parentcommentId}`} style={{ flexGrow: 1 }}>
       <View
@@ -46,8 +46,7 @@ export const CommentRepliesLink = ({
             color: brandColors.orange.DEFAULT,
           }}
         >
-          {legacyReplies.length}{" "}
-          {legacyReplies.length > 1 ? "replies" : "reply"}
+          {numReplies} {numReplies > 1 ? "replies" : "reply"}
         </Text>
       </View>
     </Link>
