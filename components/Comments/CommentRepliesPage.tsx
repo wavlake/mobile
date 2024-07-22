@@ -41,7 +41,15 @@ const CommentRepliesPageContents = ({ id }: { id: number }) => {
     comment?.eventId ?? comment?.zapEventId,
   );
   const isLoading = commentLoading || repliesLoading;
-  if (isLoading) return;
+
+  if (isLoading) {
+    return (
+      <Center>
+        <Text>Loading comments</Text>
+      </Center>
+    );
+  }
+
   if (!comment) {
     return (
       <Center>

@@ -1,7 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { saveLegacyReply } from "@/utils";
+import { useGetCommentQueryKey } from "./useGetCommentQueryKey";
 
 export const useSaveLegacyReply = () => {
+  const queryClient = useQueryClient();
+  const getQueryKey = useGetCommentQueryKey();
   return useMutation({
     mutationFn: async ({
       content,
@@ -11,6 +14,9 @@ export const useSaveLegacyReply = () => {
       commentId: number;
     }) => {
       return saveLegacyReply(content, commentId);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries(getQueryKey(variables.commentId));
     },
   });
 };
