@@ -53,7 +53,7 @@ const ReplyDialogContents = ({
       parentComment.eventId ?? parentComment.zapEventId;
     if (parentCommentEventId) {
       await publishReply(comment, [
-        ["e", parentCommentEventId, "wss://relay.wavlake.com"],
+        ["e", parentCommentEventId, "wss://relay.wavlake.com", "root"],
         ["p", parentComment.userId],
       ]);
     } else {
