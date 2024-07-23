@@ -3,7 +3,6 @@ import { Button, TextInput, CommentRow } from "@/components";
 import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
-import { useToast } from "@/hooks";
 import { ContentComment } from "@/utils";
 import { usePublishReply } from "@/hooks/usePublishReply";
 import { useSaveLegacyReply } from "@/hooks/useSaveLegacyReply";
@@ -49,7 +48,6 @@ const ReplyDialogContents = ({
 }: Pick<ReplyDialogProps, "setIsOpen" | "setCachedReplies"> & {
   parentComment: ContentComment;
 }) => {
-  const toast = useToast();
   const { save: publishReply } = usePublishReply();
   const { mutateAsync: saveLegacyReply } = useSaveLegacyReply();
   const { colors } = useTheme();
