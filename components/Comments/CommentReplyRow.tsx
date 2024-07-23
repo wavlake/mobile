@@ -3,7 +3,7 @@ import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
 import { Event } from "nostr-tools";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
-import { CommentReply, encodeNpub } from "@/utils";
+import { ContentComment, encodeNpub } from "@/utils";
 
 interface CommentReplyRow extends ViewProps {
   reply: Event;
@@ -30,7 +30,7 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
         flexDirection: "row",
         paddingHorizontal: 16,
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
       }}
     >
       <BasicAvatar uri={picture} pubkey={pubkey} />
@@ -42,18 +42,21 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   );
 };
 
-export const LegacyCommentReplyRow = ({ reply }: { reply: CommentReply }) => {
+export const LegacyCommentReplyRow = ({ reply }: { reply: ContentComment }) => {
   return (
     <View
       style={{
-        marginBottom: 26,
+        paddingBottom: 26,
         flexDirection: "row",
         paddingHorizontal: 16,
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
       }}
     >
-      <BasicAvatar uri={reply.artworkUrl} />
+      <BasicAvatar
+        uri={reply.artworkUrl}
+        pubkey={reply.isNostr ? reply.userId : undefined}
+      />
       <View style={{ marginLeft: 10, flex: 1 }}>
         <Text bold>
           {reply.name ? reply.name.replace("@", "") : "anonymous"}
