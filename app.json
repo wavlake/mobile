@@ -20,7 +20,7 @@
         "UIBackgroundModes": ["audio"],
         "NSLocationWhenInUseUsageDescription": "This app does not use or store your location data. Location is not required."
       },
-      "buildNumber": "20",
+      "buildNumber": "21",
       "bundleIdentifier": "com.wavlake.mobile",
       "config": {
         "usesNonExemptEncryption": false
@@ -29,7 +29,7 @@
     },
     "android": {
       "package": "com.wavlake.mobile",
-      "versionCode": 20,
+      "versionCode": 21,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "monochromeImage": "./assets/adaptive-icon.png",
