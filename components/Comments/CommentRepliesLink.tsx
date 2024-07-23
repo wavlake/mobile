@@ -1,7 +1,7 @@
 import { brandColors } from "@/constants";
 import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
-import { CommentReply } from "@/utils";
+import { ContentComment } from "@/utils";
 import { useRouter } from "expo-router";
 import { TouchableOpacity, View } from "react-native";
 import { Event } from "nostr-tools";
@@ -12,7 +12,7 @@ export const CommentRepliesLink = ({
   nostrReplies,
   parentcommentId,
 }: {
-  legacyReplies: CommentReply[];
+  legacyReplies: ContentComment[];
   nostrReplies: Event[];
   parentcommentId: number;
 }) => {
