@@ -26,7 +26,7 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   return (
     <View
       style={{
-        marginBottom: 16,
+        marginBottom: 36,
         flexDirection: "row",
         paddingHorizontal: 16,
         display: "flex",
@@ -46,7 +46,7 @@ export const LegacyCommentReplyRow = ({ reply }: { reply: CommentReply }) => {
   return (
     <View
       style={{
-        marginBottom: 16,
+        marginBottom: 36,
         flexDirection: "row",
         paddingHorizontal: 16,
         display: "flex",
