@@ -134,7 +134,12 @@ export const useZap = ({
         const [descTag, zapRequest] =
           zapReceipt?.tags.find(([tag]) => tag === "description") || [];
 
-        if (settings?.publishKind1 && zapReceipt && zapRequest) {
+        if (
+          comment.length > 0 &&
+          settings?.publishKind1 &&
+          zapReceipt &&
+          zapRequest
+        ) {
           const parsedZapRequest: Event = JSON.parse(zapRequest);
           const { id } = parsedZapRequest;
           const iTags = parsedZapRequest.tags.filter((tag) => tag[0] === "i");
