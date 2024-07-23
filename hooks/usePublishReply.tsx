@@ -1,8 +1,9 @@
-import { signEvent, publishEvent, saveCommentEventId } from "@/utils";
+import { signEvent, publishEvent } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useAuth } from "./useAuth";
+import { useToast } from "./useToast";
 
 const makeKind1Event = (
   pubkey: string,
@@ -19,6 +20,7 @@ const makeKind1Event = (
 };
 
 export const usePublishReply = () => {
+  const toast = useToast();
   const { pubkey = "" } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const nostrCommentMutation = useMutation({
@@ -35,11 +37,12 @@ export const usePublishReply = () => {
         nostrCommentMutation
           .mutateAsync(event)
           .then(async () => {
-            // save event id to catalog db
+            toast.show("Reply published");
             resolve();
           })
           .catch((error: any) => {
             console.error(error);
+            toast.show("Failed to publish reply");
             reject(error);
           });
       }
