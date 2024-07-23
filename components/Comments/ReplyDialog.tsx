@@ -7,15 +7,18 @@ import { useToast } from "@/hooks";
 import { ContentComment } from "@/utils";
 import { usePublishReply } from "@/hooks/usePublishReply";
 import { useSaveLegacyReply } from "@/hooks/useSaveLegacyReply";
+import { EventTemplate } from "nostr-tools";
 
 interface ReplyDialogProps {
   comment: ContentComment;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
+  setCachedReplies?: React.Dispatch<React.SetStateAction<EventTemplate[]>>;
 }
 
 export const ReplyDialog = ({
   setIsOpen,
+  setCachedReplies,
   comment,
   isOpen,
 }: ReplyDialogProps) => {
@@ -30,16 +33,20 @@ export const ReplyDialog = ({
       backdropStyle={{ opacity: 0.6, backgroundColor: "black" }}
       isVisible={isOpen}
     >
-      <ReplyDialogContents setIsOpen={setIsOpen} parentComment={comment} />
+      <ReplyDialogContents
+        setCachedReplies={setCachedReplies}
+        setIsOpen={setIsOpen}
+        parentComment={comment}
+      />
     </BottomSheet>
   );
 };
 
 const ReplyDialogContents = ({
   setIsOpen,
+  setCachedReplies,
   parentComment,
-}: {
-  setIsOpen: (value: boolean) => void;
+}: Pick<ReplyDialogProps, "setIsOpen" | "setCachedReplies"> & {
   parentComment: ContentComment;
 }) => {
   const toast = useToast();
@@ -52,10 +59,24 @@ const ReplyDialogContents = ({
     const parentCommentEventId =
       parentComment.eventId ?? parentComment.zapEventId;
     if (parentCommentEventId) {
-      await publishReply(comment, [
+      const tags = [
         ["e", parentCommentEventId, "wss://relay.wavlake.com", "root"],
         ["p", parentComment.userId],
-      ]);
+      ];
+      await publishReply(comment, tags);
+      // update the app cache with the new reply
+      setCachedReplies?.((prev) => {
+        return [
+          ...prev,
+          {
+            kind: 1,
+            pubkey: parentComment.userId,
+            created_at: Math.floor(Date.now() / 1000),
+            tags,
+            content: comment,
+          },
+        ];
+      });
     } else {
       await saveLegacyReply({ content: comment, commentId: parentComment.id });
     }

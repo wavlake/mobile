@@ -7,7 +7,7 @@ import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Event } from "nostr-tools";
+import { Event, EventTemplate } from "nostr-tools";
 
 interface CommentRowProps extends ViewProps {
   comment: ContentComment;
@@ -21,6 +21,7 @@ export const CommentRow = ({
   showReplyLinks = true,
 }: CommentRowProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [cachedReplies, setCachedReplies] = useState<EventTemplate[]>([]);
   const onReplyPress = () => {
     setDialogOpen(true);
   };
@@ -62,6 +63,7 @@ export const CommentRow = ({
         setIsOpen={setDialogOpen}
         comment={comment}
         isOpen={dialogOpen}
+        setCachedReplies={setCachedReplies}
       />
       <BasicAvatar
         uri={commenterArtworkUrl}
@@ -90,7 +92,7 @@ export const CommentRow = ({
           >
             <CommentRepliesLink
               legacyReplies={legacyReplies}
-              nostrReplies={nostrReplies}
+              nostrReplies={nostrReplies.concat(cachedReplies as any)}
               parentcommentId={id}
             />
             <TouchableOpacity onPress={onReplyPress} style={{}}>
