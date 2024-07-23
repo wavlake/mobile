@@ -2,9 +2,10 @@ import { brandColors } from "@/constants";
 import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
 import { CommentReply } from "@/utils";
-import { Link } from "expo-router";
-import { View } from "react-native";
+import { useRouter } from "expo-router";
+import { TouchableOpacity, View } from "react-native";
 import { Event } from "nostr-tools";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const CommentRepliesLink = ({
   legacyReplies,
@@ -15,6 +16,9 @@ export const CommentRepliesLink = ({
   nostrReplies: Event[];
   parentcommentId: number;
 }) => {
+  const basePathname = useGetBasePathname();
+  const router = useRouter();
+
   if (legacyReplies.length === 0 && nostrReplies.length === 0) {
     return undefined;
   }
@@ -25,7 +29,15 @@ export const CommentRepliesLink = ({
   // );
   const numReplies = legacyReplies.length + nostrReplies.length;
   return (
-    <Link href={`/comment/${parentcommentId}`} style={{ flexGrow: 1 }}>
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: `${basePathname}/comment/${parentcommentId}`,
+          params: { includeBackButton: "true" },
+        })
+      }
+      style={{ flexGrow: 1 }}
+    >
       <View
         style={{
           display: "flex",
@@ -49,6 +61,6 @@ export const CommentRepliesLink = ({
           {numReplies} {numReplies > 1 ? "replies" : "reply"}
         </Text>
       </View>
-    </Link>
+    </TouchableOpacity>
   );
 };
