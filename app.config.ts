@@ -1,7 +1,9 @@
 // these are references to firebase config files (that contain secrets) that live in the EAS build environment
 
 import { ExpoConfig, ConfigContext } from "expo/config";
-import { BUILD_NUM, VERSION } from "./constants";
+
+export const BUILD_NUM = 22;
+export const VERSION = "1.1.0";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   return {

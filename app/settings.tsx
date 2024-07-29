@@ -16,7 +16,7 @@ import {
 } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
-import { BUILD_NUM, VERSION, brandColors } from "@/constants";
+import { brandColors } from "@/constants";
 import {
   CheckCircleIcon,
   PlusCircleIcon,
@@ -25,6 +25,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { BUILD_NUM, VERSION } from "@/app.config";
 
 export default function SettingsPage() {
   const toast = useToast();
