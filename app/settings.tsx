@@ -16,7 +16,7 @@ import {
 } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
-import { brandColors } from "@/constants";
+import { BUILD_NUM, VERSION, brandColors } from "@/constants";
 import {
   CheckCircleIcon,
   PlusCircleIcon,
@@ -93,7 +93,10 @@ export default function SettingsPage() {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
-        contentContainerStyle={{ padding: 24, gap: 24, alignItems: "center" }}
+        contentContainerStyle={{
+          padding: 24,
+          alignItems: "center",
+        }}
       >
         <View style={{ marginBottom: 24, width: "100%" }}>
           <TextInput
@@ -190,7 +193,15 @@ export default function SettingsPage() {
             />
           </View>
         </View>
-        <Button onPress={handleSave}>Save</Button>
+        <View style={{ flex: 1, alignSelf: "flex-start", marginBottom: 4 }}>
+          <Text bold>Version information</Text>
+          <Text>
+            {VERSION} ({BUILD_NUM})
+          </Text>
+        </View>
+        <View style={{ marginTop: 24 }}>
+          <Button onPress={handleSave}>Save</Button>
+        </View>
       </ScrollView>
     </TouchableWithoutFeedback>
   );
