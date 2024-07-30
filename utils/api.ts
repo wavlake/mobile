@@ -239,6 +239,12 @@ export const getFeaturedPodcasts = async (): Promise<Track[]> => {
   return normalilzeEpisodeResponse(data.data);
 };
 
+export const getNewPodcasts = async (): Promise<Track[]> => {
+  const { data } = await apiClient.get("/episodes/new");
+
+  return normalilzeEpisodeResponse(data.data);
+};
+
 export const search = async (query: string): Promise<SearchResult[]> => {
   const { data } = await apiClient.get("/search", {
     params: {
@@ -503,8 +509,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;

@@ -1,6 +1,6 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { getFeaturedPodcasts, Track } from "@/utils";
+import { getNewPodcasts, Track } from "@/utils";
 import { BadgeIcon } from "@/components/BadgeIcon";
 import { brandColors } from "@/constants";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -57,7 +57,7 @@ const FeaturedShowRow = ({
 export const HomePagePodcasts = () => {
   const { data = [] } = useQuery({
     queryKey: ["featuredPodcasts"],
-    queryFn: getFeaturedPodcasts,
+    queryFn: getNewPodcasts,
   });
 
   return (
