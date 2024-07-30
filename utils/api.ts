@@ -82,20 +82,15 @@ export interface ContentComment {
   userId: string;
   name: string | null;
   commenterArtworkUrl: string | null;
-  isNostr: boolean;
-  replies: CommentReply[];
-}
-
-interface CommentReply {
-  id: number;
-  name: string | null;
-  userId: string;
   artworkUrl: string | null;
-  profileUrl: string | null;
-  parentId: number;
-  content: string;
-  createdAt: string;
-  msatAmount: number;
+  isNostr: boolean;
+  // this houses legacy comment replies that have no nostr event ids
+  replies: ContentComment[];
+  // kind 1 event id
+  // may not exist, depends on user's preference
+  eventId?: string;
+  // zap receipt event id
+  zapEventId?: string;
 }
 
 export interface Artist {
@@ -332,7 +327,7 @@ export const getRandomGenreTracks = async (
 
 const createAuthHeader = (
   relativeUrl: string,
-  htttpMethod: "get" | "post" | "delete" = "get",
+  htttpMethod: "get" | "post" | "delete" | "put" = "get",
   payload?: Record<string, any>,
 ) => {
   const url = `${baseURL}${relativeUrl}`;
@@ -620,6 +615,54 @@ export const getPubkeyActivity = async (
   const { data } = await apiClient.get<ResponseObject<ActivityItem[]>>(
     `/social/feed/user/${pubkey}/${page}/${pageSize}`,
     {},
+  );
+
+  return data?.data;
+};
+
+export const getCommentById = async (commentId: number | null) => {
+  if (!commentId) return;
+  const { data } = await apiClient.get<ResponseObject<ContentComment>>(
+    `/comments/id/${commentId}`,
+    {},
+  );
+
+  return data?.data;
+};
+
+export const saveCommentEventId = async (
+  kind1EventId: string,
+  zapRequestEventId: string,
+) => {
+  const url = `/comments/event-id/${zapRequestEventId}/${kind1EventId}`;
+  const { data } = await apiClient.put<ResponseObject<ContentComment>>(
+    url,
+    null,
+    {
+      headers: {
+        Authorization: await createAuthHeader(url, "put"),
+      },
+    },
+  );
+
+  return data?.data;
+};
+
+export const saveLegacyReply = async (content: string, commentId: number) => {
+  const url = `/comments/reply`;
+  const payload = {
+    content,
+    commentId,
+  };
+
+  const { data } = await apiClient.post<ResponseObject<ContentComment>>(
+    url,
+    payload,
+    {
+      headers: {
+        Authorization: await createAuthHeader(url, "post", payload),
+      },
+    },
   );
 
   return data?.data;

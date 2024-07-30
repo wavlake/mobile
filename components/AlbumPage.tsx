@@ -8,8 +8,8 @@ import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons"
 import { TrackRow } from "@/components/TrackRow";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SquareArtwork } from "@/components/SquareArtwork";
-import { CommentRow } from "./CommentRow";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { CommentList } from "./Comments/CommentList";
 
 interface AlbumPageFooterProps {
   album: Album;
@@ -45,9 +45,7 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
       {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          {topMessages.map((comment) => (
-            <CommentRow comment={comment} key={comment.id} />
-          ))}
+          <CommentList comments={topMessages} />
           <TouchableOpacity onPress={handleLoadMore}>
             <Text style={{ textAlign: "center" }}>View more</Text>
           </TouchableOpacity>

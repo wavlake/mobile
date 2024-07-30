@@ -84,36 +84,38 @@ export const AdCarousel = () => {
           );
         }}
       />
-      <View
-        style={{
-          flex: 1,
-          marginTop: 4,
-        }}
-      >
+      {advertisements.length > 1 && (
         <View
           style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            gap: 4,
+            flex: 1,
+            marginTop: 4,
           }}
         >
-          {advertisements.map((_, index) => (
-            <View
-              key={index}
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                backgroundColor:
-                  index === scrollIndex
-                    ? brandColors.beige.DEFAULT
-                    : brandColors.black.light,
-              }}
-            />
-          ))}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: 4,
+            }}
+          >
+            {advertisements.map((_, index) => (
+              <View
+                key={index}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor:
+                    index === scrollIndex
+                      ? brandColors.beige.DEFAULT
+                      : brandColors.black.light,
+                }}
+              />
+            ))}
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 };

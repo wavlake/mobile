@@ -1,7 +1,7 @@
 import { getAlbumComments } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { CommentPage } from "./CommentPage";
+import { CommentPage } from "./Comments/CommentPage";
 
 const PAGE_SIZE = 10;
 export const AlbumCommentPage = () => {

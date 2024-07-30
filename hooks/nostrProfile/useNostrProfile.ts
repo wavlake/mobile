@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
-const useNostrProfileEvent = (pubkey: string) => {
+export const useNostrProfileEvent = (pubkey: string) => {
   const { readRelayList } = useNostrRelayList();
   const queryKey = useNostrProfileQueryKey();
   const { data } = useQuery({

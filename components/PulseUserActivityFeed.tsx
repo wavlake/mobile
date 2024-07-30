@@ -59,7 +59,7 @@ export const PulseUserActivityFeed = () => {
       ListEmptyComponent={
         !isLoading ? (
           <Center>
-            <Text>No follower activity yet.</Text>
+            <Text>No follower activity yet</Text>
           </Center>
         ) : null
       }

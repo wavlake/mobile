@@ -109,6 +109,7 @@ export const FullSizeMusicPlayer = () => {
   };
 
   const { sendZap, isLoading } = useZap({
+    isPodcast,
     trackId,
     title,
     artist,
@@ -145,6 +146,7 @@ export const FullSizeMusicPlayer = () => {
         artworkUrl,
         trackId,
         timestamp: position,
+        isPodcast: isPodcast ? "true" : "false",
       },
     });
   };

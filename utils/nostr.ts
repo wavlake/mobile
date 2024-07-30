@@ -175,6 +175,8 @@ export const getProfileMetadata = async (
   });
 };
 
+export const getKind1Replies = async (kind1EventIds: string[]) => {};
+
 export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
   const filter = {
     kinds: [13194],
@@ -428,7 +430,7 @@ export const fetchInvoice = async ({
   }
 };
 
-export const getZapReceipt = async (invoice: string) => {
+export const getZapReceipt = async (invoice: string): Promise<Event | null> => {
   return new Promise(async (resolve, reject) => {
     try {
       const relay = await Relay.connect("wss://relay.wavlake.com");
@@ -609,4 +611,13 @@ export const useRemoveFollower = () => {
       refetchUser();
     },
   });
+};
+
+export const fetchReplies = async (kind1EventIds: string[]) => {
+  const filter = {
+    kinds: [1, 9735],
+    ["#e"]: kind1EventIds,
+  };
+
+  return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
 };
