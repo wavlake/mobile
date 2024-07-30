@@ -6,7 +6,7 @@ import {
   View,
   ScrollView,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import {
   WalletKey,
@@ -37,6 +37,7 @@ export default function SettingsPage() {
   const [defaultZapAmount, setDefaultZapAmount] = useState(
     settings?.defaultZapAmount ?? "",
   );
+  const [isFocusedOnZapAmount, setIsFocusedOnZapAmount] = useState(false);
   const [defaultZapWallet, setDefaultZapWallet] = useState<WalletKey>(
     settings?.defaultZapWallet ?? "default",
   );
@@ -53,6 +54,7 @@ export default function SettingsPage() {
   const settingsKey = useSettingsQueryKey();
 
   const handleSave = async () => {
+    toast.clearAll();
     Keyboard.dismiss();
     await cacheSettings(
       {
@@ -89,6 +91,28 @@ export default function SettingsPage() {
     queryClient.invalidateQueries(settingsKey);
   };
 
+  // autosave settings on change
+  useEffect(() => {
+    if (!settings || isFocusedOnZapAmount) return;
+    if (
+      defaultZapAmount !== settings.defaultZapAmount ||
+      defaultZapWallet !== settings.defaultZapWallet ||
+      allowListeningActivity !== settings.allowListeningActivity ||
+      enableNWC !== settings.enableNWC ||
+      oneTapZap !== settings.oneTapZap ||
+      publishKind1 !== settings.publishKind1
+    ) {
+      handleSave();
+    }
+  }, [
+    isFocusedOnZapAmount,
+    defaultZapWallet,
+    allowListeningActivity,
+    enableNWC,
+    oneTapZap,
+    publishKind1,
+  ]);
+
   if (!settings) return;
 
   return (
@@ -101,6 +125,8 @@ export default function SettingsPage() {
       >
         <View style={{ marginBottom: 24, width: "100%" }}>
           <TextInput
+            onFocus={() => setIsFocusedOnZapAmount(true)}
+            onBlur={() => setIsFocusedOnZapAmount(false)}
             label="Default zap amount"
             value={defaultZapAmount}
             keyboardType="numeric"
@@ -199,9 +225,6 @@ export default function SettingsPage() {
           <Text>
             {VERSION} ({BUILD_NUM})
           </Text>
-        </View>
-        <View style={{ marginTop: 24 }}>
-          <Button onPress={handleSave}>Save</Button>
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>
