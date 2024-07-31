@@ -40,6 +40,7 @@ export * from "./MiniMusicPlayerProvider";
 export * from "./LibrarySongsPage";
 export * from "./LibraryArtistsPage";
 export * from "./LibraryAlbumsPage";
+export * from "./LibraryPodcastsPage";
 export * from "./Comments/";
 export * from "./ArtistCommentPage";
 export * from "./AlbumCommentPage";
