@@ -86,12 +86,16 @@ export const useZap = ({
   isLoading: boolean;
   sendZap: SendZap;
 } => {
-  const { mutateAsync: wavlakeWalletZap } = useWavlakeWalletZap({});
+  const toast = useToast();
+  const { mutateAsync: wavlakeWalletZap } = useWavlakeWalletZap({
+    onError: (error) => {
+      toast.show(error);
+    },
+  });
   const { save: publishComment, isSaving: isPublishingComment } =
     usePublishComment();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();

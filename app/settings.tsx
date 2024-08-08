@@ -31,7 +31,7 @@ import { BUILD_NUM, VERSION } from "@/app.config";
 export default function SettingsPage() {
   const toast = useToast();
   const router = useRouter();
-  const { pubkey } = useAuth();
+  const { pubkey, userIsLoggedIn } = useAuth();
   const { catalogUser } = useUser();
   const { colors } = useTheme();
 
@@ -118,8 +118,6 @@ export default function SettingsPage() {
     publishKind1,
   ]);
 
-  if (!settings) return;
-
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
@@ -169,39 +167,43 @@ export default function SettingsPage() {
             onSelectedWalletChange={setDefaultZapWallet}
             enabled={!enableWavlakeWallet}
           />
-          <NWCSettings
-            nwcRelay={settings.nwcRelay}
-            enableNWC={enableNWC}
-            setEnableNWC={setEnableNWC}
-            onDeleteNWC={onDeleteNWC}
-            onAddNWC={onAddNWC}
-            nwcCommands={settings.nwcCommands}
-          />
-          <View
-            style={{
-              marginTop: 24,
-              marginBottom: 4,
-              flexDirection: "row",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text bold>Listening activity</Text>
-              <Text>
-                Broadcast tracks you are listening to as a live status event to
-                Nostr relays.
-              </Text>
-            </View>
-            <Switch
-              value={allowListeningActivity}
-              onValueChange={setAllowListeningActivity}
-              color={brandColors.pink.DEFAULT}
-              trackColor={{
-                false: colors.border,
-                true: brandColors.pink.DEFAULT,
-              }}
-              thumbColor={colors.text}
+          {userIsLoggedIn && (
+            <NWCSettings
+              nwcRelay={settings.nwcRelay}
+              enableNWC={enableNWC}
+              setEnableNWC={setEnableNWC}
+              onDeleteNWC={onDeleteNWC}
+              onAddNWC={onAddNWC}
+              nwcCommands={settings.nwcCommands}
             />
-          </View>
+          )}
+          {userIsLoggedIn && (
+            <View
+              style={{
+                marginTop: 24,
+                marginBottom: 4,
+                flexDirection: "row",
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text bold>Listening activity</Text>
+                <Text>
+                  Broadcast tracks you are listening to as a live status event
+                  to Nostr relays.
+                </Text>
+              </View>
+              <Switch
+                value={allowListeningActivity}
+                onValueChange={setAllowListeningActivity}
+                color={brandColors.pink.DEFAULT}
+                trackColor={{
+                  false: colors.border,
+                  true: brandColors.pink.DEFAULT,
+                }}
+                thumbColor={colors.text}
+              />
+            </View>
+          )}
           <View
             style={{
               marginTop: 24,
@@ -227,31 +229,33 @@ export default function SettingsPage() {
               thumbColor={colors.text}
             />
           </View>
-          <View
-            style={{
-              marginTop: 24,
-              marginBottom: 4,
-              flexDirection: "row",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text bold>Publish comments to nostr</Text>
-              <Text>
-                Publish comments to your nostr feed. These comments will show up
-                in other nostr clients as kind 1 events.
-              </Text>
-            </View>
-            <Switch
-              value={publishKind1}
-              onValueChange={setPublishKind1}
-              color={brandColors.pink.DEFAULT}
-              trackColor={{
-                false: colors.border,
-                true: brandColors.pink.DEFAULT,
+          {userIsLoggedIn && (
+            <View
+              style={{
+                marginTop: 24,
+                marginBottom: 4,
+                flexDirection: "row",
               }}
-              thumbColor={colors.text}
-            />
-          </View>
+            >
+              <View style={{ flex: 1 }}>
+                <Text bold>Publish comments to nostr</Text>
+                <Text>
+                  Publish comments to your nostr feed. These comments will show
+                  up in other nostr clients as kind 1 events.
+                </Text>
+              </View>
+              <Switch
+                value={publishKind1}
+                onValueChange={setPublishKind1}
+                color={brandColors.pink.DEFAULT}
+                trackColor={{
+                  false: colors.border,
+                  true: brandColors.pink.DEFAULT,
+                }}
+                thumbColor={colors.text}
+              />
+            </View>
+          )}
         </View>
         <View style={{ flex: 1, alignSelf: "flex-start", marginBottom: 4 }}>
           <Text bold>Version information</Text>
