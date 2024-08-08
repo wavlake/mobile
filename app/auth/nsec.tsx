@@ -107,7 +107,7 @@ export default function Login() {
       setIsLoggingIn(false);
     }, 1000);
   };
-  const npubAvatarSize = 40;
+  const NPUB_AVATAR_SIZE = 40;
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
@@ -200,14 +200,14 @@ export default function Login() {
               >
                 {loading ? (
                   <>
-                    <ActivityIndicator animating={true} size={npubAvatarSize} />
+                    <ActivityIndicator animating={true} size={NPUB_AVATAR_SIZE} />
                     <Text>Searching for profile...</Text>
                   </>
                 ) : (
                   <>
                     {profileEvent?.picture && (
                       <Avatar
-                        size={npubAvatarSize}
+                        size={NPUB_AVATAR_SIZE}
                         imageUrl={profileEvent.picture}
                       />
                     )}
@@ -218,8 +218,7 @@ export default function Login() {
                           color: colors.text,
                         }}
                       >
-                        {"Some fake name placeholder that is super long" ||
-                          profileEvent.name}
+                        {profileEvent.name}
                       </Text>
                     )}
                   </>
