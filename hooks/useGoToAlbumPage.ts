@@ -1,14 +1,14 @@
-import { useGetArtistOrAlbumBasePathname } from "./useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "./useGetBasePathname";
 import { useRouter } from "expo-router";
 
 export const useGoToAlbumPage = () => {
   const router = useRouter();
-  const basePathname = useGetArtistOrAlbumBasePathname();
+  const basePathname = useGetBasePathname();
 
   return (albumId: string, albumName: string) => {
     return router.push({
       pathname: `${basePathname}/album/[albumId]`,
-      params: { albumId, headerTitle: albumName, includeBackButton: true },
+      params: { albumId, headerTitle: albumName, includeBackButton: "true" },
     });
   };
 };

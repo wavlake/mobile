@@ -24,9 +24,9 @@ import { TwitterIcon } from "@/components/TwitterIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { InstagramIcon } from "@/components/InstagramIcon";
 import { useGoToAlbumPage } from "@/hooks";
-import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { ArtistBanner } from "@/components/ArtistBanner";
-import { CommentRow } from "./CommentRow";
+import { CommentList } from "./Comments/CommentList";
 
 interface SocialIconLinkProps {
   url: string;
@@ -53,7 +53,7 @@ export const ArtistPage = () => {
   const topAlbums = artist?.topAlbums ?? [];
   const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
   const topMessages = artist?.topMessages ?? [];
-  const basePathname = useGetArtistOrAlbumBasePathname();
+  const basePathname = useGetBasePathname();
   const goToAlbumPage = useGoToAlbumPage();
   const router = useRouter();
   const isVerified = artist?.verified ?? false;
@@ -94,7 +94,7 @@ export const ArtistPage = () => {
       params: {
         artistId,
         headerTitle: `Comments for ${artist?.name}`,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -137,7 +137,7 @@ export const ArtistPage = () => {
           params: {
             artistId,
             headerTitle: artist.name,
-            includeBackButton: true,
+            includeBackButton: "true",
           },
         }}
       />
@@ -145,9 +145,7 @@ export const ArtistPage = () => {
       {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          {topMessages.map((comment) => (
-            <CommentRow comment={comment} key={comment.id} />
-          ))}
+          <CommentList comments={topMessages} />
           <TouchableOpacity onPress={handleLoadMore}>
             <Text style={{ textAlign: "center" }}>View more</Text>
           </TouchableOpacity>

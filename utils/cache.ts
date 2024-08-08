@@ -90,6 +90,7 @@ export interface Settings {
   enableWavlakeWallet: boolean;
   nwcCommands: string[];
   oneTapZap: boolean;
+  publishKind1: boolean;
 }
 
 // TODO expose this call thru the settings hook

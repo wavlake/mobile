@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
+  NostrUserProfile,
   getCachedNostrProfileEvent,
   getMostRecentEvent,
   getProfileMetadata,
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
-import { Event } from "nostr-tools";
+import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
-const useNostrProfileEvent = (pubkey: string) => {
+export const useNostrProfileEvent = (pubkey: string) => {
   const { readRelayList } = useNostrRelayList();
   const queryKey = useNostrProfileQueryKey();
   const { data } = useQuery({
@@ -54,43 +53,30 @@ export const useNostrProfile = () => {
   }
 
   try {
-    return JSON.parse(mostRecentProfileEvent.content);
+    return JSON.parse(mostRecentProfileEvent.content) as NostrUserProfile;
   } catch {
     return null;
   }
 };
 
-// TODO - swap to using the npub cloud run service
-// need to update the cloud run service to return the profile metadata
 export const useLookupNostrProfile = (pubkey?: string | null) => {
-  const [profileEvent, setProfileEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(false);
   const { readRelayList } = useNostrRelayList();
 
-  useEffect(() => {
-    if (pubkey) {
-      setLoading(true);
-      getProfileMetadata(pubkey, readRelayList)
-        .then((event) => {
-          setProfileEvent(event);
-          setLoading(false);
-        })
-        .catch(() => {
-          setProfileEvent(null);
-          setLoading(false);
-        });
-    } else {
-      setProfileEvent(null);
-      setLoading(false);
-    }
-  }, [pubkey]);
+  return useQuery({
+    queryKey: ["nostrProfileMetadata", pubkey],
+    queryFn: async () => {
+      if (!pubkey) return null;
 
-  if (!profileEvent?.content) {
-    return { profileEvent: null, loading };
-  }
-  try {
-    return { profileEvent: JSON.parse(profileEvent.content), loading };
-  } catch {
-    return { profileEvent: null, loading };
-  }
+      const event = await getProfileMetadata(pubkey, readRelayList);
+      if (!event) return null;
+
+      try {
+        return JSON.parse(event?.content) as NostrUserProfile;
+      } catch {
+        return null;
+      }
+    },
+    enabled: Boolean(pubkey),
+    staleTime: Infinity,
+  });
 };

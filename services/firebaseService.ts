@@ -1,10 +1,7 @@
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { NativeModules } from "react-native";
 
 export type FirebaseUser = FirebaseAuthTypes.User | null;
-
-const { RNTwitterSignIn } = NativeModules;
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_FIREBASE_OAUTH_CLIENT_ID,
@@ -58,23 +55,23 @@ const signInWithGoogle = async () => {
 // RNTwitterSignIn.init("TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET").then(
 //   () => console.log("Twitter SDK initialized"),
 // );
-const signInWithTwitter = async () => {
-  // Perform the login request
-  const { authToken, authTokenSecret } = await RNTwitterSignIn.logIn();
+// const signInWithTwitter = async () => {
+//   // Perform the login request
+//   const { authToken, authTokenSecret } = await RNTwitterSignIn.logIn();
 
-  // Create a Twitter credential with the tokens
-  const twitterCredential = auth.TwitterAuthProvider.credential(
-    authToken,
-    authTokenSecret,
-  );
+//   // Create a Twitter credential with the tokens
+//   const twitterCredential = auth.TwitterAuthProvider.credential(
+//     authToken,
+//     authTokenSecret,
+//   );
 
-  // Sign-in the user with the credential
-  return auth()
-    .signInWithCredential(twitterCredential)
-    .catch((error) => {
-      return { error: error.code };
-    });
-};
+//   // Sign-in the user with the credential
+//   return auth()
+//     .signInWithCredential(twitterCredential)
+//     .catch((error) => {
+//       return { error: error.code };
+//     });
+// };
 
 const onAuthStateChange = (callback: FirebaseAuthTypes.AuthListenerCallback) =>
   auth().onAuthStateChanged(callback);
@@ -85,6 +82,6 @@ export const firebaseService = {
   signInAnonymously,
   signOut,
   signInWithGoogle,
-  signInWithTwitter,
+  // signInWithTwitter,
   onAuthStateChange,
 };

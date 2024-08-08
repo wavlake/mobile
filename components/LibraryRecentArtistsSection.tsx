@@ -19,7 +19,7 @@ export const LibraryRecentArtistsSection = () => {
         rightNavText="More"
         rightNavHref={{
           pathname: "/library/music/recent-artists",
-          params: { headerTitle: "Recent Artists", includeBackButton: true },
+          params: { headerTitle: "Recent Artists", includeBackButton: "true" },
         }}
       />
       <FlatList

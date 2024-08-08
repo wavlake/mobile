@@ -7,7 +7,9 @@ import {
 } from "react";
 import TrackPlayer, {
   Event,
+  useActiveTrack,
   useTrackPlayerEvents,
+  Track as RNTPTrack,
 } from "react-native-track-player";
 import {
   getCachedNostrRelayListEvent,
@@ -17,6 +19,7 @@ import {
   Track,
   Episode,
 } from "@/utils";
+import { getActiveTrackIndex } from "react-native-track-player/lib/trackPlayer";
 
 export type LoadTrackList = ({
   trackList,
@@ -31,12 +34,12 @@ export type LoadTrackList = ({
 }) => Promise<void>;
 
 interface MusicPlayerContextProps {
-  trackQueue: Track[] | null;
-  currentTrack: Track | null;
-  currentTrackIndex?: number;
+  activeTrack: Track | undefined;
   currentTrackListId?: string;
   playerTitle?: string;
   isSwitchingTrackList: boolean;
+  isShuffled: boolean;
+  toggleShuffle: () => Promise<void>;
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
 }
@@ -45,14 +48,30 @@ interface MusicPlayerContextProps {
 
 const MusicPlayerContext = createContext<MusicPlayerContextProps | null>(null);
 
+const shuffleArrayWithIndexAtStart = (array: any[], index: number) => {
+  const shuffledArray = [...array];
+  const [removedItem] = shuffledArray.splice(index, 1);
+  shuffledArray.sort(() => Math.random() - 0.5);
+  shuffledArray.unshift(removedItem);
+  return shuffledArray;
+};
+
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [playerTitle, setPlayerTitle] = useState<string>();
+  const [trackMetadataMap, setTrackMetadataMap] = useState<
+    Record<string, Track>
+  >({});
   const [currentTrackListId, setCurrentTrackListId] = useState<string>();
-  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>();
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [trackQueue, setTrackQueue] = useState<Track[] | null>(null);
   const isLoadingTrackList = useRef(false);
   const [isSwitchingTrackList, setIsSwitchingTrackList] = useState(false);
+  const [isShuffled, setIsShuffled] = useState(false);
+  const [unshuffledTrackList, setUnshuffledTrackList] = useState<RNTPTrack[]>(
+    [],
+  );
+  const activeRNTPTrack = useActiveTrack();
+  const activeTrack = activeRNTPTrack
+    ? trackMetadataMap[activeRNTPTrack.id]
+    : undefined;
 
   const loadTrackList: LoadTrackList = async ({
     trackList,
@@ -61,7 +80,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     startIndex,
   }) => {
     isLoadingTrackList.current = true;
-    const normalizedTrackList = trackList.map((t) => ({
+    let normalizedTrackList = trackList.map((t) => ({
       id: t.id,
       url: t.liveUrl,
       duration: t.duration,
@@ -71,20 +90,34 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       artwork: t.artworkUrl,
     }));
 
+    const trackMetadata = trackList.reduce(
+      (acc, track) => {
+        acc[track.id] = track;
+        return acc;
+      },
+      {} as Record<string, Track>,
+    );
+
+    setTrackMetadataMap(trackMetadata);
+    setUnshuffledTrackList(normalizedTrackList);
     const currentTrackIndex = startIndex ?? 0;
     const currentTrack = trackList[currentTrackIndex];
 
     setPlayerTitle(playerTitle ?? currentTrack.title);
-    setCurrentTrack(currentTrack);
-    setCurrentTrackIndex(currentTrackIndex);
-    setTrackQueue(trackList);
 
+    const trackQueue = await TrackPlayer.getQueue();
     if (trackQueue) {
       setIsSwitchingTrackList(true);
-      await TrackPlayer.reset();
     }
 
-    await TrackPlayer.add(normalizedTrackList);
+    if (isShuffled) {
+      normalizedTrackList = shuffleArrayWithIndexAtStart(
+        normalizedTrackList,
+        currentTrackIndex,
+      );
+    }
+
+    await TrackPlayer.setQueue(normalizedTrackList);
 
     if (startIndex && startIndex > 0) {
       await TrackPlayer.skip(startIndex, 0);
@@ -96,12 +129,10 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setIsSwitchingTrackList(false);
     publishTrackToNostr(currentTrack).catch(console.error);
   };
+
   const reset = async () => {
     setPlayerTitle(undefined);
-    setCurrentTrack(null);
     setCurrentTrackListId(undefined);
-    setCurrentTrackIndex(undefined);
-    setTrackQueue(null);
     await TrackPlayer.reset();
   };
 
@@ -131,20 +162,62 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     });
   };
 
-  useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
-    if (event.nextTrack === undefined || isLoadingTrackList.current) {
+  const generateListOfIndicies = (length: number) => {
+    return [...Array.from({ length }, (_, i) => i)];
+  };
+
+  const toggleShuffle = async () => {
+    const currentQueue = await TrackPlayer.getQueue();
+    const activeIndex = await getActiveTrackIndex();
+    if (activeIndex === undefined) {
+      return;
+    }
+    const activeTrackId = currentQueue?.[activeIndex]?.id;
+    const activeTrackUnshuffIndex = unshuffledTrackList.findIndex(
+      (t) => activeTrackId === t.id,
+    );
+
+    // remove all tracks except the current one
+    await TrackPlayer.removeUpcomingTracks();
+    // remove previous track indicies
+    const previousIndicies = generateListOfIndicies(activeIndex);
+    await TrackPlayer.remove(previousIndicies);
+
+    if (isShuffled) {
+      const unshuffledQueueWithoutCurrent = unshuffledTrackList.filter(
+        (t) => t.id !== activeTrackId,
+      );
+      // add the unshuffled queue, skipping the first track
+      await TrackPlayer.add(unshuffledQueueWithoutCurrent);
+      // move the active track to its proper index
+      await TrackPlayer.move(0, activeTrackUnshuffIndex);
+    } else {
+      // shuffle the queue
+      const shuffledQueue = shuffleArrayWithIndexAtStart(
+        unshuffledTrackList,
+        activeTrackUnshuffIndex,
+      );
+
+      // add the shuffled queue, skip the first track
+      await TrackPlayer.add(shuffledQueue.slice(1));
+    }
+    setIsShuffled(!isShuffled);
+  };
+
+  useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
+    const trackQueue = await TrackPlayer.getQueue();
+
+    if (event.index === undefined || isLoadingTrackList.current) {
       return;
     }
 
-    const currentTrack = trackQueue ? trackQueue[event.nextTrack] : null;
+    const activeRNTPTrack = trackQueue ? trackQueue[event.index] : null;
+    const activeTrack = trackMetadataMap[activeRNTPTrack?.id ?? ""];
 
     switch (event.type) {
-      case Event.PlaybackTrackChanged:
-        setCurrentTrackIndex(event.nextTrack);
-
-        if (currentTrack) {
-          setCurrentTrack(currentTrack);
-          publishTrackToNostr(currentTrack).catch(console.error);
+      case Event.PlaybackActiveTrackChanged:
+        if (activeTrack) {
+          publishTrackToNostr(activeTrack).catch(console.error);
         }
         break;
     }
@@ -153,12 +226,12 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   return (
     <MusicPlayerContext.Provider
       value={{
-        trackQueue,
-        currentTrack,
-        currentTrackIndex,
+        activeTrack,
         currentTrackListId,
         playerTitle,
         isSwitchingTrackList,
+        isShuffled,
+        toggleShuffle,
         loadTrackList,
         reset,
       }}

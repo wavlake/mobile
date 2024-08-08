@@ -5,24 +5,40 @@ import {
   Button,
   TextInput,
   Center,
+  Text,
 } from "@/components";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { useZap } from "@/hooks";
+import { useAuth, useZap } from "@/hooks";
+import { Switch } from "@rneui/themed";
+import { brandColors } from "@/constants";
+import { useTheme } from "@react-navigation/native";
+import { useSettings } from "@/hooks/useSettings";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { cacheSettings } from "@/utils";
 
 export default function ZapPage() {
-  const { defaultZapAmount, title, artist, artworkUrl, trackId, timestamp } =
-    useLocalSearchParams<{
-      defaultZapAmount: string;
-      title: string;
-      artist: string;
-      artworkUrl: string;
-      trackId: string;
-      timestamp: string;
-    }>();
+  const {
+    defaultZapAmount,
+    title,
+    artist,
+    artworkUrl,
+    trackId,
+    timestamp,
+    isPodcast,
+  } = useLocalSearchParams<{
+    defaultZapAmount: string;
+    title: string;
+    artist: string;
+    artworkUrl: string;
+    trackId: string;
+    timestamp: string;
+    isPodcast: string;
+  }>();
 
-  const [zapAmount, setZapAmount] = useState(defaultZapAmount as string);
+  const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [comment, setComment] = useState("");
   const { sendZap, isLoading: isZapping } = useZap({
     trackId,
@@ -30,6 +46,7 @@ export default function ZapPage() {
     artist,
     artworkUrl,
     timestamp: timestamp ? parseInt(timestamp) : 0,
+    isPodcast: isPodcast === "true",
   });
   const isZapDisabled =
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
@@ -37,6 +54,22 @@ export default function ZapPage() {
     sendZap({ comment, amount: parseInt(zapAmount), useNavReplace: true });
   };
 
+  const { data: settings } = useSettings();
+  const { colors } = useTheme();
+  const { pubkey } = useAuth();
+  const queryClient = useQueryClient();
+  const settingsKey = useSettingsQueryKey();
+  // this new setting will start as undefined for users
+  const currentPublishKind1Setting = settings?.publishKind1 ?? false;
+  const togglePublishKind1 = async (value: boolean) => {
+    await cacheSettings(
+      {
+        publishKind1: !currentPublishKind1Setting,
+      },
+      pubkey,
+    );
+    queryClient.invalidateQueries(settingsKey);
+  };
   return (
     <KeyboardAvoidingView behavior="position">
       <ScrollView
@@ -83,6 +116,22 @@ export default function ZapPage() {
           value={comment}
           inputHeight={96}
         />
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ flex: 1, marginRight: 8 }}>
+            <Text bold>Publish comments to nostr</Text>
+            <Text>Comments will show up in other clients.</Text>
+          </View>
+          <Switch
+            value={settings?.publishKind1 ?? false}
+            onValueChange={togglePublishKind1}
+            color={brandColors.pink.DEFAULT}
+            trackColor={{
+              false: colors.border,
+              true: brandColors.pink.DEFAULT,
+            }}
+            thumbColor={colors.text}
+          />
+        </View>
         <Button
           onPress={handleZap}
           disabled={isZapDisabled}

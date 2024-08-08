@@ -1,5 +1,6 @@
 import { SearchBar as BaseSearchBar, Icon } from "@rneui/themed";
-import { Platform } from "react-native";
+import { Platform, Pressable } from "react-native";
+import Feather from "@expo/vector-icons/Feather";
 
 interface SearchBarProps {
   query: string;
@@ -15,6 +16,8 @@ export const SearchBar = ({ query, onChange }: SearchBarProps) => {
         backgroundColor: "transparent",
       }}
       searchIcon={<Icon name="search" />}
+      // this is the default prop in the next release of @rneui/themed, throws an ios error for v4.0.0-rc.8
+      clearIcon={{ name: "close-circle" }}
       inputContainerStyle={{
         borderRadius: 16,
         backgroundColor: "white",

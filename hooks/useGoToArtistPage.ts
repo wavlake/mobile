@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
-import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const useGoToArtistPage = () => {
   const router = useRouter();
-  const basePathname = useGetArtistOrAlbumBasePathname();
+  const basePathname = useGetBasePathname();
 
   return (artistId: string, artistName: string) => {
     return router.push({
@@ -11,7 +11,7 @@ export const useGoToArtistPage = () => {
       params: {
         artistId,
         headerTitle: artistName,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };

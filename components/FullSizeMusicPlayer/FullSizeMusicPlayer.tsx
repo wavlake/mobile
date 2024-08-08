@@ -23,40 +23,43 @@ import {
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
-import { MoreOptions } from "@/components/FullSizeMusicPlayer/MoreOptions";
+import { OverflowMenu } from "@/components/FullSizeMusicPlayer/OverflowMenu";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
+import { ShuffleButton } from "./ShuffleButton";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
     useState(false);
-  const { artistOrAlbumBasePathname = "" } = useLocalSearchParams<{
-    artistOrAlbumBasePathname: string;
+  const { basePathname = "" } = useLocalSearchParams<{
+    basePathname: string;
   }>();
   const router = useRouter();
   const { position } = useProgress();
-  const { currentTrack } = useMusicPlayer();
+  const { activeTrack } = useMusicPlayer();
   const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
+
   const {
     id: trackId,
-    title,
-    artist,
     artistId,
     albumId,
     albumTitle,
+    artist,
+    title,
     artworkUrl,
-  } = currentTrack ?? {
+  } = activeTrack || {
     id: "",
-    title: "",
-    artist: "",
     artistId: "",
     albumId: "",
     albumTitle: "",
+    artist: "",
+    title: "",
     artworkUrl: "",
   };
+
   const isTrackInLibrary = useIsTrackInLibrary(trackId);
   const addTrackToLibraryMutation = useAddTrackToLibrary();
   const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
@@ -71,41 +74,42 @@ export const FullSizeMusicPlayer = () => {
   const handleTitlePress = () => {
     router.push({
       pathname: isPodcast
-        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
-        : `${artistOrAlbumBasePathname}/album/[albumId]`,
+        ? `${basePathname}/podcast/[albumId]`
+        : `${basePathname}/album/[albumId]`,
       params: {
         albumId,
         headerTitle: isPodcast ? artist : albumTitle,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
   const handleArtistPress = () => {
     router.push({
       pathname: isPodcast
-        ? `${artistOrAlbumBasePathname}/podcast/[albumId]`
-        : `${artistOrAlbumBasePathname}/artist/[artistId]`,
+        ? `${basePathname}/podcast/[albumId]`
+        : `${basePathname}/artist/[artistId]`,
       params: {
         albumId,
         artistId,
         headerTitle: artist,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
   const handleLikePress = async () => {
-    if (!currentTrack) {
+    if (!activeTrack) {
       return;
     }
 
     if (isTrackInLibrary) {
       deleteTrackFromLibraryMutation.mutate(trackId);
     } else {
-      addTrackToLibraryMutation.mutate(currentTrack);
+      addTrackToLibraryMutation.mutate(activeTrack);
     }
   };
 
   const { sendZap, isLoading } = useZap({
+    isPodcast,
     trackId,
     title,
     artist,
@@ -138,20 +142,22 @@ export const FullSizeMusicPlayer = () => {
       setIsWalletChooserModalVisible(true);
       return;
     }
+
     router.push({
       pathname: "/zap",
       params: {
-        defaultZapAmount: settings?.defaultZapAmount,
+        defaultZapAmount,
         title,
         artist,
         artworkUrl,
         trackId,
         timestamp: position,
+        isPodcast: isPodcast ? "true" : "false",
       },
     });
   };
 
-  if (!currentTrack) {
+  if (!activeTrack) {
     return (
       <Center>
         <ActivityIndicator />
@@ -159,21 +165,30 @@ export const FullSizeMusicPlayer = () => {
     );
   }
 
-  const isMusic = currentTrack.albumTitle != "podcast";
+  const isMusic = albumTitle != "podcast";
 
   return (
     <>
-      <ScrollView style={{ paddingTop: 8 }}>
+      <View
+        style={{
+          paddingTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+        }}
+      >
         <ArtworkCarousel />
         <View
           style={{
             paddingHorizontal,
             paddingVertical: isSmallScreen ? 16 : 24,
+            flexGrow: 1,
           }}
         >
           <View
             style={{
               display: "flex",
+              flexGrow: 1,
               flexDirection: "row",
               maxWidth: screenWidth - paddingHorizontal * 2,
             }}
@@ -240,7 +255,9 @@ export const FullSizeMusicPlayer = () => {
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "flex-end",
+              paddingBottom: 20,
+              flexGrow: 1,
             }}
           >
             <View
@@ -258,17 +275,18 @@ export const FullSizeMusicPlayer = () => {
               />
               <PlaylistButton
                 size={30}
-                contentId={currentTrack.id}
-                contentTitle={currentTrack.title}
+                contentId={activeTrack.id}
+                contentTitle={title}
                 isMusic={isMusic}
               />
+              <ShuffleButton />
             </View>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
             >
               <ShareButton url={shareUrl} />
               {isMusic && (
-                <MoreOptions
+                <OverflowMenu
                   artist={artist}
                   artistId={artistId}
                   albumTitle={albumTitle}
@@ -278,7 +296,7 @@ export const FullSizeMusicPlayer = () => {
             </View>
           </View>
         </View>
-      </ScrollView>
+      </View>
       <WalletChooserModal
         onContinue={async () => {
           await refetchSettings();

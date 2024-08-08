@@ -2,7 +2,7 @@ import { getArtist, getArtistComments } from "@/utils";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { CommentPage } from "./CommentPage";
+import { CommentPage } from "./Comments/CommentPage";
 
 const PAGE_SIZE = 10;
 export const ArtistCommentPage = () => {

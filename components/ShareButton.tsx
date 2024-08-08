@@ -1,6 +1,7 @@
 import { Pressable, Share } from "react-native";
 import { ShareIcon } from "@/components/ShareIcon";
 import { useTheme } from "@react-navigation/native";
+import { PressableIcon } from "./PressableIcon";
 
 interface ShareButtonProps {
   url: string;
@@ -14,18 +15,8 @@ export const ShareButton = ({ url, size = 40 }: ShareButtonProps) => {
   };
 
   return (
-    <Pressable
-      onPress={handleShare}
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: colors.background,
-        borderRadius: size / 2,
-        width: size,
-        height: size,
-      }}
-    >
+    <PressableIcon onPress={handleShare}>
       <ShareIcon width={size} height={size} fill={colors.text} />
-    </Pressable>
+    </PressableIcon>
   );
 };

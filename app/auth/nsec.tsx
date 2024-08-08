@@ -8,13 +8,13 @@ import {
   ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useAuth, useLookupNostrProfile } from "@/hooks";
+import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import {
   decodeNsec,
   encodeNpub,
   encodeNsec,
-  generatePrivateKey,
+  generateSecretKey,
   getPublicKey,
   getSeckey,
   useAddPubkeyToUser,
@@ -24,6 +24,8 @@ import { useUser } from "@/components/UserContextProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { DialogWrapper } from "@/components/DialogWrapper";
+import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
+import { bytesToHex } from "@noble/hashes/utils";
 
 const getNpubFromNsec = (nsec: string) => {
   const seckey = decodeNsec(nsec);
@@ -52,16 +54,16 @@ export default function Login() {
   const { npub, pubkey } = getNpubFromNsec(nsec);
 
   const createRandomNsec = () => {
-    const privateKey = generatePrivateKey();
+    const privateKey = bytesToHex(generateSecretKey());
     setNsec(encodeNsec(privateKey) ?? "");
     setIsGeneratedNsec(true);
   };
 
   // If we generated a new random nsec, dont bother fetching the profile since it's not created yet
-  const { profileEvent, loading } = useLookupNostrProfile(
+  const { data: profileEvent, isLoading } = useCatalogPubkey(
     isGeneratedNsec ? null : pubkey,
   );
-
+  const profileMetadata = profileEvent?.metadata;
   // initialize the nsec input
   useEffect(() => {
     (async () => {
@@ -198,27 +200,30 @@ export default function Login() {
                   gap: 6,
                 }}
               >
-                {loading ? (
+                {pubkey && isLoading ? (
                   <>
-                    <ActivityIndicator animating={true} size={NPUB_AVATAR_SIZE} />
+                    <ActivityIndicator
+                      animating={true}
+                      size={NPUB_AVATAR_SIZE}
+                    />
                     <Text>Searching for profile...</Text>
                   </>
                 ) : (
                   <>
-                    {profileEvent?.picture && (
+                    {profileMetadata?.picture && (
                       <Avatar
                         size={NPUB_AVATAR_SIZE}
-                        imageUrl={profileEvent.picture}
+                        imageUrl={profileMetadata.picture}
                       />
                     )}
-                    {profileEvent?.name && (
+                    {profileMetadata?.name && (
                       <Text
                         style={{
                           fontSize: 14,
                           color: colors.text,
                         }}
                       >
-                        {profileEvent.name}
+                        {profileMetadata.name}
                       </Text>
                     )}
                   </>
@@ -315,6 +320,3 @@ export const InfoDialog = ({
     </DialogWrapper>
   );
 };
-function useNostrProfileEvent(npub: string | null | undefined) {
-  throw new Error("Function not implemented.");
-}

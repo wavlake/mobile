@@ -1,8 +1,9 @@
-import { generatePrivateKey, getPublicKey, NostrUserProfile } from "@/utils";
+import { generateSecretKey, getPublicKey, NostrUserProfile } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { useSaveNostrProfile } from "@/hooks/nostrProfile";
 import { useSaveNostrRelayList } from "@/hooks/nostrRelayList/useSaveNostrRelayList";
+import { nip19 } from "nostr-tools";
 
 export const useCreateNewNostrAccount = () => {
   const toast = useToast();
@@ -10,10 +11,20 @@ export const useCreateNewNostrAccount = () => {
   const { save: saveProfile } = useSaveNostrProfile();
   const { save: saveRelayList } = useSaveNostrRelayList();
 
-  return async (profile: NostrUserProfile, nsec?: string) => {
-    const seckey = nsec ?? generatePrivateKey();
-    const success = await login(seckey);
-    const pubkey = getPublicKey(seckey);
+  return async (profile: NostrUserProfile, customNsec?: string) => {
+    const nsec = customNsec ?? nip19.nsecEncode(generateSecretKey());
+    const success = await login(nsec);
+
+    if (!nsec) {
+      toast.show("Something went wrong. Please try again later.");
+      return {
+        nsec: undefined,
+        pubkey: undefined,
+      };
+    }
+
+    let { data } = nip19.decode(nsec);
+    const pubkey = getPublicKey(data as Uint8Array);
     const bootstrapRelays = [
       "wss://purplepag.es",
       "wss://relay.nostr.band",
@@ -30,10 +41,10 @@ export const useCreateNewNostrAccount = () => {
     }
 
     await Promise.allSettled([
-      saveRelayList(pubkey, bootstrapRelays),
-      saveProfile(pubkey, profile),
+      saveRelayList(bootstrapRelays),
+      saveProfile(profile),
     ]);
 
-    return { nsec: seckey, pubkey };
+    return { nsec, pubkey };
   };
 };

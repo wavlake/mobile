@@ -3,6 +3,7 @@ import { brandColors } from "@/constants";
 import { Dimensions } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { PropsWithChildren } from "react";
+import { DialogProps } from "@rneui/base";
 
 interface DialogWrapperProps {
   isOpen: boolean;
@@ -13,12 +14,14 @@ export const DialogWrapper = ({
   isOpen,
   setIsOpen,
   children,
-}: PropsWithChildren<DialogWrapperProps>) => {
+  ...rest
+}: PropsWithChildren<DialogWrapperProps & DialogProps>) => {
   const { colors } = useTheme();
   const screenWidth = Dimensions.get("window").width;
 
   return (
     <Dialog
+      {...rest}
       isVisible={isOpen}
       onBackdropPress={() => setIsOpen(false)}
       overlayStyle={{

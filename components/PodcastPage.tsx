@@ -8,7 +8,7 @@ import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons"
 import { TrackRow } from "@/components/TrackRow";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SquareArtwork } from "@/components/SquareArtwork";
-import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 interface PodcastPageFooterProps {
   podcast: Podcast;

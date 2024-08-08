@@ -1,15 +1,15 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Dimensions, FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Album, ContentComment, getAlbum, getAlbumTracks } from "@/utils";
+import { Album, getAlbum, getAlbumTracks } from "@/utils";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
 import { TrackRow } from "@/components/TrackRow";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SquareArtwork } from "@/components/SquareArtwork";
-import { CommentRow } from "./CommentRow";
-import { useGetArtistOrAlbumBasePathname } from "@/hooks/useGetArtistOrAlbumBasePathname";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { CommentList } from "./Comments/CommentList";
 
 interface AlbumPageFooterProps {
   album: Album;
@@ -17,7 +17,7 @@ interface AlbumPageFooterProps {
 
 const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
   const { description, topMessages = [], title, id: albumId } = album;
-  const basePathname = useGetArtistOrAlbumBasePathname();
+  const basePathname = useGetBasePathname();
   const router = useRouter();
 
   if (!description && topMessages.length === 0) {
@@ -30,7 +30,7 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
       params: {
         albumId,
         headerTitle: `Comments for ${title}`,
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -45,9 +45,7 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
       {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          {topMessages.map((comment) => (
-            <CommentRow comment={comment} key={comment.id} />
-          ))}
+          <CommentList comments={topMessages} />
           <TouchableOpacity onPress={handleLoadMore}>
             <Text style={{ textAlign: "center" }}>View more</Text>
           </TouchableOpacity>

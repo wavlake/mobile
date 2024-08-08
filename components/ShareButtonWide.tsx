@@ -22,7 +22,6 @@ export const ShareButtonWide = ({ url, size = 40 }: ShareButtonWideProps) => {
         alignItems: "center",
         justifyContent: "space-between",
         height: 50,
-        paddingLeft: 8,
         borderRadius: 8,
         backgroundColor: pressed ? colors.card : colors.background,
       })}

@@ -6,6 +6,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useRouter } from "expo-router";
 import { ItemRow } from "./common";
+import { Center } from "../Center";
 
 const EventRow = ({
   event,
@@ -29,7 +30,7 @@ const EventRow = ({
     router.push({
       pathname: `/events/${id}`,
       params: {
-        includeBackButton: true,
+        includeBackButton: "true",
       },
     });
   };
@@ -91,6 +92,11 @@ export const EventListPage = () => {
           />
         );
       }}
+      ListEmptyComponent={
+        <Center>
+          <Text style={{ marginVertical: 20 }}>No upcoming events</Text>
+        </Center>
+      }
       keyExtractor={(item) => item.id}
       scrollEnabled
       showsHorizontalScrollIndicator={true}
