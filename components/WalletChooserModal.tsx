@@ -15,6 +15,9 @@ import { cacheSettings, WalletKey } from "@/utils";
 import { useAuth } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
 import { TextInput } from "./TextInput";
+import { useUser } from "./UserContextProvider";
+import { Switch } from "@rneui/themed";
+import { brandColors } from "@/constants";
 
 const DismissKeyboard = ({ children }: any) => (
   <TouchableWithoutFeedback
@@ -37,6 +40,7 @@ export const WalletChooserModal = ({
 }: WalletChooserModalProps) => {
   const { colors } = useTheme();
   const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
   const [defaultZapWallet, setDefaultZapWallet] =
     useState<WalletKey>("default");
   const [defaultZapAmount, setDefaultZapAmount] = useState("");
@@ -44,6 +48,9 @@ export const WalletChooserModal = ({
     await cacheSettings({ defaultZapWallet, defaultZapAmount }, pubkey);
     onContinue();
   };
+  const [enableWavlakeWallet, setEnableWavlakeWallet] = useState(
+    catalogUser?.isRegionVerified ?? false,
+  );
 
   return (
     <Modal animationType="slide" {...rest}>
@@ -70,9 +77,37 @@ export const WalletChooserModal = ({
                 keyboardType="numeric"
                 onChangeText={setDefaultZapAmount}
               />
+              {catalogUser?.isRegionVerified && (
+                <View
+                  style={{
+                    marginBottom: 24,
+                    flexDirection: "row",
+                  }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text bold>Use Wavlake Wallet</Text>
+                    <Text>
+                      {enableWavlakeWallet
+                        ? "Disable to use a different wallet."
+                        : "Enable to use your wavlake wallet."}
+                    </Text>
+                  </View>
+                  <Switch
+                    value={enableWavlakeWallet}
+                    onValueChange={setEnableWavlakeWallet}
+                    color={brandColors.pink.DEFAULT}
+                    trackColor={{
+                      false: colors.border,
+                      true: brandColors.pink.DEFAULT,
+                    }}
+                    thumbColor={colors.text}
+                  />
+                </View>
+              )}
               <WalletChooser
                 selectedWallet={defaultZapWallet}
                 onSelectedWalletChange={setDefaultZapWallet}
+                enabled={!enableWavlakeWallet}
               />
             </View>
             <Button onPress={handleContinueClick}>Continue</Button>

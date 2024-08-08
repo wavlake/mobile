@@ -44,5 +44,11 @@ export const useAuth = () => {
     navigation.getParent()?.goBack();
   };
 
-  return { login, logout, pubkey, goToRoot };
+  return {
+    login,
+    logout,
+    pubkey: pubkey ?? "",
+    goToRoot,
+    userIsLoggedIn: !!pubkey && pubkey !== "",
+  };
 };

@@ -1,4 +1,4 @@
-import { Button, Text, TextInput, WalletChooser } from "@/components";
+import { Text, TextInput, WalletChooser } from "@/components";
 import { useRouter } from "expo-router";
 import {
   Keyboard,
@@ -25,12 +25,14 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { useUser } from "@/components/UserContextProvider";
 import { BUILD_NUM, VERSION } from "@/app.config";
 
 export default function SettingsPage() {
   const toast = useToast();
   const router = useRouter();
-  const { pubkey } = useAuth();
+  const { pubkey, userIsLoggedIn } = useAuth();
+  const { catalogUser } = useUser();
   const { colors } = useTheme();
 
   const { data: settings } = useSettings();
@@ -45,6 +47,9 @@ export default function SettingsPage() {
     settings?.allowListeningActivity ?? false,
   );
   const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
+  const [enableWavlakeWallet, setEnableWavlakeWallet] = useState(
+    settings?.enableWavlakeWallet ?? false,
+  );
   const [oneTapZap, setOneTapZap] = useState(settings?.oneTapZap ?? false);
   const [publishKind1, setPublishKind1] = useState(
     settings?.publishKind1 ?? false,
@@ -64,6 +69,7 @@ export default function SettingsPage() {
         enableNWC,
         oneTapZap,
         publishKind1,
+        enableWavlakeWallet,
       },
       pubkey,
     );
@@ -100,7 +106,8 @@ export default function SettingsPage() {
       allowListeningActivity !== settings.allowListeningActivity ||
       enableNWC !== settings.enableNWC ||
       oneTapZap !== settings.oneTapZap ||
-      publishKind1 !== settings.publishKind1
+      publishKind1 !== settings.publishKind1 ||
+      enableWavlakeWallet !== settings.enableWavlakeWallet
     ) {
       handleSave();
     }
@@ -111,9 +118,8 @@ export default function SettingsPage() {
     enableNWC,
     oneTapZap,
     publishKind1,
+    enableWavlakeWallet,
   ]);
-
-  if (!settings) return;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -132,43 +138,72 @@ export default function SettingsPage() {
             keyboardType="numeric"
             onChangeText={setDefaultZapAmount}
           />
+          {catalogUser?.isRegionVerified && (
+            <View
+              style={{
+                marginBottom: 24,
+                flexDirection: "row",
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text bold>Use Wavlake Wallet</Text>
+                <Text>
+                  {enableWavlakeWallet
+                    ? "Disable to use a different wallet."
+                    : "Enable to use your wavlake wallet."}
+                </Text>
+              </View>
+              <Switch
+                value={enableWavlakeWallet}
+                onValueChange={setEnableWavlakeWallet}
+                color={brandColors.pink.DEFAULT}
+                trackColor={{
+                  false: colors.border,
+                  true: brandColors.pink.DEFAULT,
+                }}
+                thumbColor={colors.text}
+              />
+            </View>
+          )}
           <WalletChooser
             selectedWallet={defaultZapWallet}
             onSelectedWalletChange={setDefaultZapWallet}
+            enabled={!enableWavlakeWallet}
           />
-          <NWCSettings
-            nwcRelay={settings.nwcRelay}
-            enableNWC={enableNWC}
-            setEnableNWC={setEnableNWC}
-            onDeleteNWC={onDeleteNWC}
-            onAddNWC={onAddNWC}
-            nwcCommands={settings.nwcCommands}
-          />
-          <View
-            style={{
-              marginTop: 24,
-              marginBottom: 4,
-              flexDirection: "row",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text bold>Listening activity</Text>
-              <Text>
-                Broadcast tracks you are listening to as a live status event to
-                Nostr relays.
-              </Text>
-            </View>
-            <Switch
-              value={allowListeningActivity}
-              onValueChange={setAllowListeningActivity}
-              color={brandColors.pink.DEFAULT}
-              trackColor={{
-                false: colors.border,
-                true: brandColors.pink.DEFAULT,
-              }}
-              thumbColor={colors.text}
+          {userIsLoggedIn && (
+            <NWCSettings
+              setEnableNWC={setEnableNWC}
+              onDeleteNWC={onDeleteNWC}
+              onAddNWC={onAddNWC}
             />
-          </View>
+          )}
+          {userIsLoggedIn && (
+            <View
+              style={{
+                marginTop: 24,
+                marginBottom: 4,
+                flexDirection: "row",
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text bold>Listening activity</Text>
+                <Text>
+                  Broadcast tracks you are listening to as a live status event
+                  to Nostr relays.
+                </Text>
+              </View>
+              <Switch
+                value={allowListeningActivity}
+                onValueChange={setAllowListeningActivity}
+                color={brandColors.pink.DEFAULT}
+                trackColor={{
+                  false: colors.border,
+                  true: brandColors.pink.DEFAULT,
+                }}
+                thumbColor={colors.text}
+              />
+            </View>
+          )}
           <View
             style={{
               marginTop: 24,
@@ -194,31 +229,33 @@ export default function SettingsPage() {
               thumbColor={colors.text}
             />
           </View>
-          <View
-            style={{
-              marginTop: 24,
-              marginBottom: 4,
-              flexDirection: "row",
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <Text bold>Publish comments to nostr</Text>
-              <Text>
-                Publish comments to your nostr feed. These comments will show up
-                in other nostr clients as kind 1 events.
-              </Text>
-            </View>
-            <Switch
-              value={publishKind1}
-              onValueChange={setPublishKind1}
-              color={brandColors.pink.DEFAULT}
-              trackColor={{
-                false: colors.border,
-                true: brandColors.pink.DEFAULT,
+          {userIsLoggedIn && (
+            <View
+              style={{
+                marginTop: 24,
+                marginBottom: 4,
+                flexDirection: "row",
               }}
-              thumbColor={colors.text}
-            />
-          </View>
+            >
+              <View style={{ flex: 1 }}>
+                <Text bold>Publish comments to nostr</Text>
+                <Text>
+                  Publish comments to your nostr feed. These comments will show
+                  up in other nostr clients as kind 1 events.
+                </Text>
+              </View>
+              <Switch
+                value={publishKind1}
+                onValueChange={setPublishKind1}
+                color={brandColors.pink.DEFAULT}
+                trackColor={{
+                  false: colors.border,
+                  true: brandColors.pink.DEFAULT,
+                }}
+                thumbColor={colors.text}
+              />
+            </View>
+          )}
         </View>
         <View style={{ flex: 1, alignSelf: "flex-start", marginBottom: 4 }}>
           <Text bold>Version information</Text>
@@ -232,23 +269,19 @@ export default function SettingsPage() {
 }
 
 const NWCSettings = ({
-  nwcRelay,
-  enableNWC,
   setEnableNWC,
   onDeleteNWC,
   onAddNWC,
-  nwcCommands,
 }: {
-  nwcRelay: string;
-  enableNWC: boolean;
   setEnableNWC: (enable: boolean) => void;
   onDeleteNWC: () => void;
   onAddNWC: () => void;
-  nwcCommands: string[];
 }) => {
+  const { data: settings } = useSettings();
+
   const { colors } = useTheme();
   const nwcCantPayInvoices =
-    !!nwcRelay && !nwcCommands.includes(payInvoiceCommand);
+    !!settings?.nwcRelay && !settings?.nwcCommands.includes(payInvoiceCommand);
 
   return (
     <View>
@@ -268,11 +301,13 @@ const NWCSettings = ({
               gap: 4,
             }}
           >
-            {nwcRelay && <CheckCircleIcon color={brandColors.mint.DEFAULT} />}
-            <Text>{nwcRelay || "Add a NWC compatible wallet."}</Text>
+            {settings?.nwcRelay && (
+              <CheckCircleIcon color={brandColors.mint.DEFAULT} />
+            )}
+            <Text>{settings?.nwcRelay || "Add a NWC compatible wallet."}</Text>
           </View>
         </View>
-        {nwcRelay ? (
+        {settings?.nwcRelay ? (
           <TrashIcon
             onPress={onDeleteNWC}
             color={brandColors.orange.DEFAULT}
@@ -296,7 +331,7 @@ const NWCSettings = ({
           wallet connection.
         </Text>
       )}
-      {nwcRelay && (
+      {settings?.nwcRelay && (
         <View
           style={{
             marginTop: 24,
@@ -307,13 +342,13 @@ const NWCSettings = ({
           <View style={{ flex: 1 }}>
             <Text bold>Enable NWC Wallet</Text>
             <Text>
-              {enableNWC
-                ? "Disable to use a different wallet for zaps."
-                : "Enable to use NWC wallet for zaps."}
+              {settings?.enableNWC
+                ? "Disable to use a different wallet."
+                : "Enable to use NWC wallet."}
             </Text>
           </View>
           <Switch
-            value={enableNWC}
+            value={settings?.enableNWC}
             onValueChange={setEnableNWC}
             disabled={nwcCantPayInvoices}
             color={brandColors.pink.DEFAULT}
