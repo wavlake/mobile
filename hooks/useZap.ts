@@ -9,56 +9,16 @@ import {
   openInvoiceInWallet,
   payInvoiceCommand,
   payWithNWC,
+  useWavlakeWalletZap,
+  makeZapRequest,
+  signEvent,
 } from "@/utils";
 import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
-import { useWavlakeWalletZap } from "@/utils/authTokenApi";
-import { getPodcastFeedGuid } from "@/utils/rss";
 import { usePublishComment } from "./usePublishComment";
 import { Event, nip19 } from "nostr-tools";
-
-const wavlakeTrackKind = 32123;
-const wavlakePubkey =
-  "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
-const fetchInvoiceForZap = async ({
-  writeRelayList,
-  amountInSats,
-  comment,
-  contentId,
-  timestamp,
-  parentContentType,
-}: {
-  writeRelayList: string[];
-  amountInSats: number;
-  comment: string;
-  contentId: string;
-  parentContentType: "podcast" | "album" | "artist";
-  timestamp?: number;
-}) => {
-  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
-  const iTags = [
-    ["i", `podcast:item:guid:${contentId}`],
-    ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
-    [
-      "i",
-      `podcast:publisher:guid:${getPodcastFeedGuid(
-        parentContentType,
-        contentId,
-      )}`,
-    ],
-  ];
-
-  return fetchInvoice({
-    relayUris: writeRelayList,
-    amountInSats: amountInSats,
-    comment,
-    addressPointer: nostrEventAddressPointer,
-    zappedPubkey: wavlakePubkey,
-    timestamp,
-    customTags: iTags,
-  });
-};
+import { useUser } from "@/components";
 
 type SendZap = (
   props: Partial<{
@@ -96,7 +56,8 @@ export const useZap = ({
     usePublishComment();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { pubkey } = useAuth();
+  const { pubkey, userIsLoggedIn } = useAuth();
+  const { catalogUser } = useUser();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
   const { setBalance } = useWalletBalance();
@@ -105,8 +66,16 @@ export const useZap = ({
     if (!trackId) {
       return;
     }
-
     const { comment = "", amount, useNavReplace = false } = props || {};
+    const zapRequest = await makeZapRequest({
+      amountInSats: amount ?? 0,
+      relays: writeRelayList,
+      comment,
+      contentId: trackId,
+      timestamp,
+      parentContentType: isPodcast ? "podcast" : "album",
+    });
+    const signedZapRequestEvent = await signEvent(zapRequest);
 
     setIsLoading(true);
     const {
@@ -119,13 +88,9 @@ export const useZap = ({
       defaultZapAmount,
     } = settings || {};
     const amountInSats = Number(amount || defaultZapAmount);
-    const response = await fetchInvoiceForZap({
-      writeRelayList,
+    const response = await fetchInvoice({
       amountInSats,
-      comment,
-      contentId: trackId,
-      timestamp,
-      parentContentType: isPodcast ? "podcast" : "album",
+      zapRequest: signedZapRequestEvent,
     });
 
     if ("reason" in response) {
@@ -174,20 +139,29 @@ export const useZap = ({
     } catch {
       // Fail silently if unable to connect to wavlake relay to get zap receipt.
     }
-
     try {
-      if (pubkey && enableWavlakeWallet) {
+      if (
+        enableWavlakeWallet &&
+        userIsLoggedIn &&
+        catalogUser?.isRegionVerified
+      ) {
+        console.log("useZap wavlakeWalletZap");
         await wavlakeWalletZap({
-          contentId: trackId,
-          msatAmount: amountInSats * 1000,
-          comment,
-          contentTime: timestamp,
+          zapPayload: {
+            contentId: trackId,
+            msatAmount: amountInSats * 1000,
+            comment,
+            contentTime: timestamp,
+          },
+          zapRequest: signedZapRequestEvent,
         });
       } else if (
+        userIsLoggedIn &&
         pubkey &&
         enableNWC &&
         settings?.nwcCommands.includes(payInvoiceCommand)
       ) {
+        console.log("useZap payWithNWC");
         // use NWC, responds with preimage if successful
         const { error, result } = await payWithNWC({
           userPubkey: pubkey,
@@ -209,6 +183,7 @@ export const useZap = ({
           setBalance(result.balance);
         }
       } else {
+        console.log("useZap openInvoiceInWallet");
         // if no NWC, open invoice in default wallet
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
       }

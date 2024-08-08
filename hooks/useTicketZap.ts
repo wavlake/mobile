@@ -6,45 +6,16 @@ import { useNostrRelayList } from "./nostrRelayList";
 import {
   fetchInvoice,
   getZapReceipt,
+  makeTicketZapRequest,
   openInvoiceInWallet,
   payInvoiceCommand,
   payWithNWC,
+  signEvent,
 } from "@/utils";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
-import { useWavlakeWalletZap } from "@/utils/authTokenApi";
-
-const ticketEventKind = 31923;
-const ticketBotPublicKey =
-  "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397";
-
-const fetchInvoiceForTicketZap = async ({
-  writeRelayList,
-  amountInSats,
-  comment,
-  contentId,
-  timestamp,
-  quantity,
-}: {
-  writeRelayList: string[];
-  amountInSats: number;
-  comment: string;
-  contentId: string;
-  timestamp?: number;
-  quantity: number;
-}) => {
-  const nostrEventAddressPointer = `${ticketEventKind}:${ticketBotPublicKey}:${contentId}`;
-  return fetchInvoice({
-    customTags: [["quantity", quantity.toString()]],
-    relayUris: writeRelayList,
-    amountInSats: amountInSats,
-    comment,
-    addressPointer: nostrEventAddressPointer,
-    zappedPubkey: ticketBotPublicKey,
-    timestamp,
-    zapEndpoint: "https://tickets.wavlake.com/v1/zap",
-  });
-};
+import { useWavlakeWalletZap } from "@/utils";
+import { useUser } from "@/components";
 
 type SendZap = (props: {
   comment: string;
@@ -57,7 +28,8 @@ export const useTicketZap = (showEventDTag: string) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
   const toast = useToast();
-  const { pubkey } = useAuth();
+  const { pubkey, userIsLoggedIn } = useAuth();
+  const { catalogUser } = useUser();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
   const { setBalance } = useWalletBalance();
@@ -66,12 +38,19 @@ export const useTicketZap = (showEventDTag: string) => {
     setIsLoading(true);
     const { enableWavlakeWallet, enableNWC } = settings || {};
     const amountInSats = Number(amount);
-    const response = await fetchInvoiceForTicketZap({
-      writeRelayList,
+    const zapRequest = await makeTicketZapRequest({
+      contentId: showEventDTag,
       amountInSats,
       comment,
-      contentId: showEventDTag,
-      quantity,
+      relays: writeRelayList,
+      customTags: [["quantity", quantity.toString()]],
+    });
+
+    const signedZapRequestEvent = await signEvent(zapRequest);
+
+    const response = await fetchInvoice({
+      amountInSats: amountInSats,
+      zapRequest: signedZapRequestEvent,
     });
 
     if ("reason" in response) {
@@ -92,12 +71,19 @@ export const useTicketZap = (showEventDTag: string) => {
       // Fail silently if unable to connect to wavlake relay to get zap receipt.
     }
     try {
-      if (pubkey && enableWavlakeWallet) {
-        // await wavlakeWalletZap({
-        //   contentId: trackId,
-        //   msatAmount: amountInSats * 1000,
-        //   comment,
-        // });
+      if (
+        enableWavlakeWallet &&
+        userIsLoggedIn &&
+        catalogUser?.isRegionVerified
+      ) {
+        await wavlakeWalletZap({
+          zapPayload: {
+            contentId: showEventDTag,
+            msatAmount: amountInSats * 1000,
+            comment,
+          },
+          zapRequest: signedZapRequestEvent,
+        });
       } else if (
         pubkey &&
         enableNWC &&
