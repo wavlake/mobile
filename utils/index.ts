@@ -8,3 +8,4 @@ export * from "./nwc";
 export * from "./authTokenApi";
 export * from "./authTokenAccountingApi";
 export * from "./rss";
+export * from "./general";

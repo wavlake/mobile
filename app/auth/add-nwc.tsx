@@ -1,4 +1,4 @@
-import { Text, Button, TextInput } from "@/components";
+import { Text, Button, TextInput, useUser } from "@/components";
 import { useToast } from "@/hooks";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import {
@@ -6,6 +6,7 @@ import {
   getPublicKey,
   intakeNwcURI,
   useCreateConnection,
+  buildUri,
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import { CheckBox } from "@rneui/base";
@@ -27,6 +28,7 @@ const msatBudgetOptions = [
 ];
 
 export default function AddNWC() {
+  const { catalogUser } = useUser();
   const toast = useToast();
   const router = useRouter();
   const { mutate: createConnection } = useCreateConnection();
@@ -53,10 +55,16 @@ export default function AddNWC() {
     // add the connection to the mobile app
     const walletServicePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY;
     const relay = "wss://relay.wavlake.com";
+    const nwcUri = buildUri(`nostr+walletconnect://${walletServicePubkey}`, {
+      relay: relay,
+      secret: bytesToHex(pk),
+      lud16: catalogUser?.profileUrl
+        ? `${catalogUser.profileUrl}@wavlake.com`
+        : undefined,
+    });
+
     const { isSuccess, error, fetchInfo } = await intakeNwcURI({
-      uri: `nostr+walletconnect://${walletServicePubkey}?relay=${encodeURIComponent(
-        relay,
-      )}&secret=${bytesToHex(pk)}`,
+      uri: nwcUri,
       pubkey: walletServicePubkey,
     });
     if (isSuccess) {
