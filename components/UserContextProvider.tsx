@@ -27,10 +27,15 @@ type UserContextProps = {
   signInWithEmail: (
     email: string,
     password: string,
-  ) => Promise<{ error?: any; hasExistingNostrProfile?: boolean }>;
+  ) => Promise<{
+    error?: any;
+    hasExistingNostrProfile?: boolean;
+    isRegionVerified?: boolean;
+  }>;
   signInWithGoogle: () => Promise<{
     error?: any;
     hasExistingNostrProfile?: boolean;
+    isRegionVerified?: boolean;
   }>;
 } & typeof firebaseService;
 
@@ -120,7 +125,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
       const hasExistingNostrProfile =
         catalogUser?.nostrProfileData.length !== 0;
-
       if (!pubkey) {
         if (!hasExistingNostrProfile) {
           // new mobile user, so create a new nostr account
@@ -140,8 +144,8 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           .map((data) => data.publicHex)
           .includes(pubkey) && (await addPubkeyToAccount());
       }
-
-      return { ...user, hasExistingNostrProfile };
+      const isRegionVerified = catalogUser?.isRegionVerified;
+      return { ...user, hasExistingNostrProfile, isRegionVerified };
     } catch (error) {
       console.error("error signing in with google", error);
       return {
@@ -232,8 +236,9 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           .map((data) => data.publicHex)
           .includes(pubkey) && (await addPubkeyToAccount());
       }
+      const isRegionVerified = catalogUser?.isRegionVerified;
 
-      return { ...user, hasExistingNostrProfile };
+      return { ...user, hasExistingNostrProfile, isRegionVerified };
     } catch (error) {
       console.error("error signing in with email");
       return { error };

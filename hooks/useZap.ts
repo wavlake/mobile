@@ -145,7 +145,6 @@ export const useZap = ({
         userIsLoggedIn &&
         catalogUser?.isRegionVerified
       ) {
-        console.log("useZap wavlakeWalletZap");
         await wavlakeWalletZap({
           zapPayload: {
             contentId: trackId,
@@ -161,7 +160,6 @@ export const useZap = ({
         enableNWC &&
         settings?.nwcCommands.includes(payInvoiceCommand)
       ) {
-        console.log("useZap payWithNWC");
         // use NWC, responds with preimage if successful
         const { error, result } = await payWithNWC({
           userPubkey: pubkey,
@@ -169,7 +167,6 @@ export const useZap = ({
           walletPubkey: settings?.nwcPubkey,
           nwcRelay: settings?.nwcRelay,
         }).catch((e) => {
-          // TODO - investigate why this is failing
           console.log("useZap payWithNWC error", e);
           return { error: undefined, result: undefined };
         });
@@ -183,8 +180,7 @@ export const useZap = ({
           setBalance(result.balance);
         }
       } else {
-        console.log("useZap openInvoiceInWallet");
-        // if no NWC, open invoice in default wallet
+        // fallback to opening the invoice in the default wallet
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
       }
     } catch (e) {

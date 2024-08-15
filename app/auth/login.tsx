@@ -20,8 +20,9 @@ export default function Login() {
       });
     } else {
       // they didnt have an existing nostr profile, so we auto created one and logged them in
+      // if they are verified, send them to the add nwc page, otherwise send them to the welcome page
       router.replace({
-        pathname: "/auth/welcome",
+        pathname: result.isRegionVerified ? "/auth/add-nwc" : "/auth/welcome",
       });
     }
   };

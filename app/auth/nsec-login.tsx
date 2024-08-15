@@ -101,7 +101,11 @@ export default function Login() {
       // if the nsec was generated, we need to add the pubkey to the user's account
       await addPubkeyToAccount();
       setTimeout(async () => {
-        router.replace("/");
+        router.replace({
+          pathname: catalogUser?.isRegionVerified
+            ? "/auth/add-nwc"
+            : "/auth/welcome",
+        });
         setIsLoggingIn(false);
       }, 1000);
     } else if (mostRecentUserNpub !== npub) {
@@ -218,14 +222,30 @@ export default function Login() {
               }}
             >
               {mostRecentUserNpub && (
-                <Text
+                <View
                   style={{
-                    fontSize: 14,
-                    color: colors.text,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
                   }}
                 >
-                  {mostRecentUserNpub}
-                </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: colors.text,
+                    }}
+                  >
+                    Most recent associated npub:
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: colors.text,
+                    }}
+                  >
+                    {mostRecentUserNpub}
+                  </Text>
+                </View>
               )}
               <View
                 style={{
