@@ -156,7 +156,11 @@ export default function Login() {
         return;
       }
       setTimeout(async () => {
-        router.replace("/");
+        router.replace({
+          pathname: catalogUser?.isRegionVerified
+            ? "/auth/auto-nwc"
+            : "/auth/welcome",
+        });
         setIsLoggingIn(false);
       }, 1000);
     }
