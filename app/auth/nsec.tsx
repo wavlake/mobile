@@ -200,7 +200,7 @@ export default function Login() {
                   gap: 6,
                 }}
               >
-                {pubkey && isLoading ? (
+                {pubkey && isLoading && !isGeneratedNsec ? (
                   <>
                     <ActivityIndicator
                       animating={true}

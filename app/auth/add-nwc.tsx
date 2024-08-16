@@ -38,8 +38,10 @@ export default function AddNWC() {
   const settingsKey = useSettingsQueryKey();
   const [selectedBudget, setBudget] = useState(0);
   const [maxZapAmount, setMaxZapAmount] = useState("21");
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async () => {
+    setIsLoading(true);
     const pk = generateSecretKey();
     const connectionPubkey = getPublicKey(pk);
 
@@ -138,7 +140,9 @@ export default function AddNWC() {
           onChangeText={setMaxZapAmount}
           value={maxZapAmount}
         />
-        <Button onPress={onSubmit}>Submit</Button>
+        <Button loading={isLoading} onPress={onSubmit}>
+          Submit
+        </Button>
       </ScrollView>
     </TouchableWithoutFeedback>
   );

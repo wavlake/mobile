@@ -256,20 +256,20 @@ export default function Login() {
                   gap: 6,
                 }}
               >
-                {mostRecentUserData.metadata.picture && (
+                {mostRecentUserData.metadata?.picture && (
                   <Avatar
                     size={NPUB_AVATAR_SIZE}
-                    imageUrl={mostRecentUserData.metadata.picture}
+                    imageUrl={mostRecentUserData.metadata?.picture}
                   />
                 )}
-                {mostRecentUserData.metadata.name && (
+                {mostRecentUserData.metadata?.name && (
                   <Text
                     style={{
                       fontSize: 14,
                       color: colors.text,
                     }}
                   >
-                    {mostRecentUserData.metadata.name}
+                    {mostRecentUserData.metadata?.name}
                   </Text>
                 )}
               </View>

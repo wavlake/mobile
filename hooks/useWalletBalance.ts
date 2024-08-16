@@ -18,10 +18,9 @@ export const useWalletBalance = () => {
         walletPubkey: nwcPubkey,
         nwcRelay: nwcRelay,
       });
-      return response.result.balance;
+      return response.result.balance ?? 0;
     },
-    enabled: false,
-    retry: (failureCount, error) => failureCount < 2,
+    enabled: enableNWC,
   });
 
   useEffect(() => {

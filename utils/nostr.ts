@@ -115,18 +115,18 @@ export const getEventFromRelay = (
   return new Promise(async (resolve, reject) => {
     try {
       const relay = await Relay.connect(relayUri);
-
       const sub = relay.subscribe([filter], {
         onevent(event) {
           resolve(event);
           sub.close();
         },
-        oneose() {
-          reject();
-          sub.close();
-        },
-        eoseTimeout: 60000,
       });
+
+      // timeout after 30 seconds
+      setTimeout(() => {
+        sub.close();
+        reject();
+      }, 10000);
     } catch (e) {
       reject();
     }
@@ -242,7 +242,7 @@ export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
   };
 };
 
-export const sendNWCRequest = async ({
+export const makeNWCRequestEvent = async ({
   walletPubkey,
   relay,
   method,
@@ -281,7 +281,6 @@ export const sendNWCRequest = async ({
       hexToBytes(connectionSecret),
     );
 
-    await publishEvent([relay], signedEvent);
     return signedEvent;
   } catch (error) {
     console.error(error);
