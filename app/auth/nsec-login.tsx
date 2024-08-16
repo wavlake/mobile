@@ -89,6 +89,7 @@ export default function Login() {
         {
           name: catalogUser?.name,
           // picture: user.user.photoURL ?? "",
+          lud06: `${catalogUser?.profileUrl}@wavlake.com`,
         },
         nsec,
       );

@@ -161,9 +161,10 @@ const validateNwcURI = (uri?: string): URIResult => {
   }
 
   if (lud16) {
+    const decoded = decodeURIComponent(lud16);
     // lud16 is optional
-    if (/^.+@.+\..+$/.test(lud16)) {
-      result.lud16 = lud16;
+    if (/^.+@.+\..+$/.test(decoded)) {
+      result.lud16 = decoded;
     } else {
       isValid = false;
     }

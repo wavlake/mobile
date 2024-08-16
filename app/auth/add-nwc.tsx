@@ -1,5 +1,6 @@
 import { Text, Button, TextInput, useUser } from "@/components";
-import { useToast } from "@/hooks";
+import { brandColors } from "@/constants";
+import { useAuth, useToast } from "@/hooks";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import {
   generateSecretKey,
@@ -21,14 +22,15 @@ import {
 } from "react-native";
 
 const msatBudgetOptions = [
-  { msat: 10000000, label: "10k sats" },
-  { msat: 20000000, label: "20k sats" },
-  { msat: 50000000, label: "50k sats" },
+  { msat: 10000000, label: "10k sats per week" },
+  { msat: 20000000, label: "20k sats per week" },
+  { msat: 50000000, label: "50k sats per week" },
   { msat: 0, label: "Unlimited" },
 ];
 
 export default function AddNWC() {
   const { catalogUser } = useUser();
+  const { pubkey: userPubkey } = useAuth();
   const toast = useToast();
   const router = useRouter();
   const { mutate: createConnection } = useCreateConnection();
@@ -65,11 +67,9 @@ export default function AddNWC() {
 
     const { isSuccess, error, fetchInfo } = await intakeNwcURI({
       uri: nwcUri,
-      pubkey: walletServicePubkey,
+      pubkey: userPubkey,
     });
     if (isSuccess) {
-      queryClient.invalidateQueries(settingsKey);
-      router.back();
       // fetch the info event and refresh settings after
       await fetchInfo?.();
       queryClient.invalidateQueries(settingsKey);
@@ -86,23 +86,28 @@ export default function AddNWC() {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
         style={{
+          paddingVertical: 24,
+          paddingHorizontal: 24,
+        }}
+        contentContainerStyle={{
           display: "flex",
           flexDirection: "column",
-          paddingHorizontal: 24,
-          paddingBottom: 50,
+          alignItems: "center",
+          gap: 20,
         }}
       >
         <Text style={{ fontSize: 18 }}>
-          Please choose a wallet budget for this mobile app. This can be changed
-          later by reconnecting your wavlake wallet with a different budget.
+          Your mobile app will now be connected to your Wavlake wallet. Please
+          choose a weekly budget and a max zap amount.
         </Text>
         <View
           style={{
             display: "flex",
             flexDirection: "column",
+            gap: 8,
           }}
         >
-          <Text>Select a weekly budget for this app:</Text>
+          <Text>Select a weekly budget for this app</Text>
           {msatBudgetOptions.map((option, index) => (
             <View
               style={{
@@ -118,17 +123,21 @@ export default function AddNWC() {
                 onPress={() => setBudget(index)}
                 checkedIcon="dot-circle-o"
                 uncheckedIcon="circle-o"
+                containerStyle={{
+                  backgroundColor: "transparent",
+                }}
+                checkedColor={brandColors.pink.DEFAULT}
               />
               <Text>{option.label}</Text>
             </View>
           ))}
-          <TextInput
-            label="Max Zap amount"
-            keyboardType="numeric"
-            onChangeText={setMaxZapAmount}
-            value={maxZapAmount}
-          />
         </View>
+        <TextInput
+          label="Max Zap amount"
+          keyboardType="numeric"
+          onChangeText={setMaxZapAmount}
+          value={maxZapAmount}
+        />
         <Button onPress={onSubmit}>Submit</Button>
       </ScrollView>
     </TouchableWithoutFeedback>
