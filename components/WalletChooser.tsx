@@ -4,13 +4,11 @@ import { View } from "react-native";
 import { Text } from "@/components/Text";
 
 interface WalletChooserProps {
-  enabled: boolean;
   selectedWallet: WalletKey;
   onSelectedWalletChange: (key: WalletKey) => void;
 }
 
 export const WalletChooser = ({
-  enabled,
   selectedWallet,
   onSelectedWalletChange,
 }: WalletChooserProps) => {
@@ -22,18 +20,11 @@ export const WalletChooser = ({
       <View style={{ backgroundColor: "white", borderRadius: 8 }}>
         <Picker
           selectedValue={selectedWallet}
-          onValueChange={(itemValue) =>
-            // dont change this value if the picker is disabled
-            itemValue && onSelectedWalletChange(itemValue)
-          }
+          onValueChange={(itemValue) => onSelectedWalletChange(itemValue)}
         >
-          {enabled ? (
-            Object.entries(WALLETS).map(([key, { displayName }]) => (
-              <Picker.Item key={key} label={displayName} value={key} />
-            ))
-          ) : (
-            <Picker.Item label="Wavlake Wallet" value={undefined} />
-          )}
+          {Object.entries(WALLETS).map(([key, { displayName }]) => (
+            <Picker.Item key={key} label={displayName} value={key} />
+          ))}
         </Picker>
       </View>
     </View>

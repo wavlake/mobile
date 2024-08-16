@@ -24,19 +24,17 @@ type SendZap = (props: {
 }) => Promise<void>;
 
 export const useTicketZap = (showEventDTag: string) => {
-  const { mutateAsync: wavlakeWalletZap } = useWavlakeWalletZap({});
   const [isLoading, setIsLoading] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
   const toast = useToast();
-  const { pubkey, userIsLoggedIn } = useAuth();
-  const { catalogUser } = useUser();
+  const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
   const { setBalance } = useWalletBalance();
 
   const sendZap: SendZap = async ({ comment = "", amount, quantity }) => {
     setIsLoading(true);
-    const { enableWavlakeWallet, enableNWC } = settings || {};
+    const { enableNWC } = settings || {};
     const amountInSats = Number(amount);
     const zapRequest = await makeTicketZapRequest({
       contentId: showEventDTag,
@@ -72,19 +70,6 @@ export const useTicketZap = (showEventDTag: string) => {
     }
     try {
       if (
-        enableWavlakeWallet &&
-        userIsLoggedIn &&
-        catalogUser?.isRegionVerified
-      ) {
-        await wavlakeWalletZap({
-          zapPayload: {
-            contentId: showEventDTag,
-            msatAmount: amountInSats * 1000,
-            comment,
-          },
-          zapRequest: signedZapRequestEvent,
-        });
-      } else if (
         pubkey &&
         enableNWC &&
         settings?.nwcCommands.includes(payInvoiceCommand)

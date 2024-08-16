@@ -9,7 +9,6 @@ import {
   openInvoiceInWallet,
   payInvoiceCommand,
   payWithNWC,
-  useWavlakeWalletZap,
   makeZapRequest,
   signEvent,
 } from "@/utils";
@@ -18,7 +17,6 @@ import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 import { usePublishComment } from "./usePublishComment";
 import { Event, nip19 } from "nostr-tools";
-import { useUser } from "@/components";
 
 type SendZap = (
   props: Partial<{
@@ -47,17 +45,11 @@ export const useZap = ({
   sendZap: SendZap;
 } => {
   const toast = useToast();
-  const { mutateAsync: wavlakeWalletZap } = useWavlakeWalletZap({
-    onError: (error) => {
-      toast.show(error);
-    },
-  });
   const { save: publishComment, isSaving: isPublishingComment } =
     usePublishComment();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { pubkey, userIsLoggedIn } = useAuth();
-  const { catalogUser } = useUser();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
   const { setBalance } = useWalletBalance();
@@ -78,15 +70,7 @@ export const useZap = ({
     const signedZapRequestEvent = await signEvent(zapRequest);
 
     setIsLoading(true);
-    const {
-      defaultZapWallet,
-      enableWavlakeWallet,
-      enableNWC,
-      nwcCommands,
-      nwcRelay,
-      nwcPubkey,
-      defaultZapAmount,
-    } = settings || {};
+    const { enableNWC, defaultZapAmount } = settings || {};
     const amountInSats = Number(amount || defaultZapAmount);
     const response = await fetchInvoice({
       amountInSats,
@@ -141,20 +125,6 @@ export const useZap = ({
     }
     try {
       if (
-        enableWavlakeWallet &&
-        userIsLoggedIn &&
-        catalogUser?.isRegionVerified
-      ) {
-        await wavlakeWalletZap({
-          zapPayload: {
-            contentId: trackId,
-            msatAmount: amountInSats * 1000,
-            comment,
-            contentTime: timestamp,
-          },
-          zapRequest: signedZapRequestEvent,
-        });
-      } else if (
         userIsLoggedIn &&
         pubkey &&
         enableNWC &&

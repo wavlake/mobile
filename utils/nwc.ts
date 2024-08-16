@@ -308,14 +308,7 @@ async function sendNwcPaymentRequest({
     throw new Error("Failed to pay using NWC");
   }
 
-  // return response;
-  return new Promise(async (resolve, reject) => {
-    try {
-      resolve(response);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  return response;
 }
 
 async function fetchNWCResponse({

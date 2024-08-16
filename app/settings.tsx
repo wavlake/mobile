@@ -47,9 +47,7 @@ export default function SettingsPage() {
     settings?.allowListeningActivity ?? false,
   );
   const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
-  const [enableWavlakeWallet, setEnableWavlakeWallet] = useState(
-    settings?.enableWavlakeWallet ?? false,
-  );
+
   const [oneTapZap, setOneTapZap] = useState(settings?.oneTapZap ?? false);
   const [publishKind1, setPublishKind1] = useState(
     settings?.publishKind1 ?? false,
@@ -69,7 +67,6 @@ export default function SettingsPage() {
         enableNWC,
         oneTapZap,
         publishKind1,
-        enableWavlakeWallet,
       },
       pubkey,
     );
@@ -106,8 +103,7 @@ export default function SettingsPage() {
       allowListeningActivity !== settings.allowListeningActivity ||
       enableNWC !== settings.enableNWC ||
       oneTapZap !== settings.oneTapZap ||
-      publishKind1 !== settings.publishKind1 ||
-      enableWavlakeWallet !== settings.enableWavlakeWallet
+      publishKind1 !== settings.publishKind1
     ) {
       handleSave();
     }
@@ -118,7 +114,6 @@ export default function SettingsPage() {
     enableNWC,
     oneTapZap,
     publishKind1,
-    enableWavlakeWallet,
   ]);
 
   return (
@@ -138,37 +133,9 @@ export default function SettingsPage() {
             keyboardType="numeric"
             onChangeText={setDefaultZapAmount}
           />
-          {catalogUser?.isRegionVerified && (
-            <View
-              style={{
-                marginBottom: 24,
-                flexDirection: "row",
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <Text bold>Use Wavlake Wallet</Text>
-                <Text>
-                  {enableWavlakeWallet
-                    ? "Disable to use a different wallet."
-                    : "Enable to use your wavlake wallet."}
-                </Text>
-              </View>
-              <Switch
-                value={enableWavlakeWallet}
-                onValueChange={setEnableWavlakeWallet}
-                color={brandColors.pink.DEFAULT}
-                trackColor={{
-                  false: colors.border,
-                  true: brandColors.pink.DEFAULT,
-                }}
-                thumbColor={colors.text}
-              />
-            </View>
-          )}
           <WalletChooser
             selectedWallet={defaultZapWallet}
             onSelectedWalletChange={setDefaultZapWallet}
-            enabled={!enableWavlakeWallet}
           />
           {userIsLoggedIn && (
             <NWCSettings
