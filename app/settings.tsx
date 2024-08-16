@@ -5,6 +5,7 @@ import {
   TouchableWithoutFeedback,
   View,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
@@ -25,14 +26,21 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
-import { useUser } from "@/components/UserContextProvider";
 import { BUILD_NUM, VERSION } from "@/app.config";
+
+function getDomainFromWebSocket(wsAddress?: string) {
+  if (!wsAddress) return "NWC";
+  // Use a regular expression to match the domain
+  const match = wsAddress.match(/^wss?:\/\/([^/:]+)/i);
+
+  // Return the matched domain or null if no match
+  return match ? match[1] : "NWC";
+}
 
 export default function SettingsPage() {
   const toast = useToast();
   const router = useRouter();
   const { pubkey, userIsLoggedIn } = useAuth();
-  const { catalogUser } = useUser();
   const { colors } = useTheme();
 
   const { data: settings } = useSettings();
@@ -80,18 +88,36 @@ export default function SettingsPage() {
   };
 
   const onDeleteNWC = async () => {
-    pubkey && deleteNwcSecret(pubkey);
-    await cacheSettings(
-      {
-        nwcRelay: undefined,
-        nwcCommands: [],
-        nwcPubkey: undefined,
-        nwcLud16: undefined,
-        enableNWC: false,
-      },
-      pubkey,
+    Alert.alert(
+      "Are you sure you want to delete this connection?",
+      `You will no longer be able to send zaps with your ${getDomainFromWebSocket(
+        settings?.nwcRelay,
+      )} wallet. You will need to re-connect to use it again.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete Connection",
+          style: "destructive",
+          onPress: async () => {
+            pubkey && deleteNwcSecret(pubkey);
+            await cacheSettings(
+              {
+                nwcRelay: undefined,
+                nwcCommands: [],
+                nwcPubkey: undefined,
+                nwcLud16: undefined,
+                enableNWC: false,
+              },
+              pubkey,
+            );
+            queryClient.invalidateQueries(settingsKey);
+          },
+        },
+      ],
     );
-    queryClient.invalidateQueries(settingsKey);
   };
 
   // autosave settings on change
