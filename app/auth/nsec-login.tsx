@@ -113,7 +113,7 @@ export default function Login() {
       setTimeout(async () => {
         router.replace({
           pathname: catalogUser?.isRegionVerified
-            ? "/auth/add-nwc"
+            ? "/auth/auto-nwc"
             : "/auth/welcome",
         });
         setIsLoggingIn(false);
