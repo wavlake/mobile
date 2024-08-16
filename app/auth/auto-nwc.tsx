@@ -130,7 +130,7 @@ export default function AddNWC() {
                 }}
                 checkedColor={brandColors.pink.DEFAULT}
               />
-              <Text>{option.label}</Text>
+              <Text style={{ fontSize: 18 }}>{option.label}</Text>
             </View>
           ))}
         </View>
