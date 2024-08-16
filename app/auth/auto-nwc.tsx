@@ -109,7 +109,9 @@ export default function AddNWC() {
             gap: 8,
           }}
         >
-          <Text>Select a weekly budget for this app</Text>
+          <Text style={{ fontSize: 18 }}>
+            Select a weekly budget for this app
+          </Text>
           {msatBudgetOptions.map((option, index) => (
             <View
               style={{
