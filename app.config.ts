@@ -40,6 +40,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               host: "*.wavlake.com",
               pathPrefix: "/playlist/",
             },
+            {
+              scheme: "https",
+              host: "*.wavlake.com",
+              pathPrefix: "/album/",
+            },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
