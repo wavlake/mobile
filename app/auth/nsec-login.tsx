@@ -23,11 +23,19 @@ import { CopyButton } from "@/components/CopyButton";
 import { useUser } from "@/components/UserContextProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { bytesToHex } from "@noble/hashes/utils";
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 
-const getNpubFromNsec = (nsec: string) => {
-  const seckey = decodeNsec(nsec);
+const getNpubFromInput = (input: string) => {
+  let seckey: Uint8Array | null = null;
+
+  if (input.startsWith("nsec")) {
+    seckey = decodeNsec(input);
+  } else if (/^[0-9a-fA-F]{64}$/.test(input)) {
+    seckey = hexToBytes(input);
+  }
+
   if (!seckey) return { npub: null, pubkey: null };
+
   const pubkey = getPublicKey(seckey);
   const npub = encodeNpub(pubkey);
 
@@ -77,7 +85,8 @@ export default function Login() {
 
   const handleNsecSubmit = async () => {
     setIsLoggingIn(true);
-    const { npub, pubkey } = getNpubFromNsec(nsec);
+    const { npub, pubkey } = getNpubFromInput(nsec);
+
     if (!npub) {
       setErrorMessage("Invalid nostr nsec");
       setIsLoggingIn(false);
