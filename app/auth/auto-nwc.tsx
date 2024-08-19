@@ -97,14 +97,16 @@ export default function AddNWC() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 20,
+          gap: 8,
         }}
       >
-        <Text style={{ fontSize: 18 }}>
+        <Text style={{ fontSize: 18, alignSelf: "flex-start" }}>
           Your mobile app will now be connected to your Wavlake wallet. Please
           choose a weekly budget and a max zap amount.
         </Text>
-        <Text style={{ fontSize: 18 }}>
+        <Text
+          style={{ fontSize: 18, alignSelf: "flex-start", paddingBottom: 16 }}
+        >
           Visit wavlake.com to manage connections to your wallet.
         </Text>
         <TextInput
@@ -114,7 +116,7 @@ export default function AddNWC() {
           value={connectionName}
         />
         <TextInput
-          label="Max Zap amount"
+          label="Max Zap amount (sats)"
           keyboardType="numeric"
           onChangeText={setMaxZapAmount}
           value={maxZapAmount}
