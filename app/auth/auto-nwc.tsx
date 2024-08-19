@@ -2,6 +2,7 @@ import { Text, Button, TextInput, useUser } from "@/components";
 import { brandColors } from "@/constants";
 import { useAuth, useToast } from "@/hooks";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import DeviceInfo from "react-native-device-info";
 import {
   generateSecretKey,
   getPublicKey,
@@ -38,6 +39,7 @@ export default function AddNWC() {
   const settingsKey = useSettingsQueryKey();
   const [selectedBudget, setBudget] = useState(0);
   const [maxZapAmount, setMaxZapAmount] = useState("21");
+  const [connectionName, setConnectionName] = useState(DeviceInfo.getModel());
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async () => {
@@ -102,6 +104,21 @@ export default function AddNWC() {
           Your mobile app will now be connected to your Wavlake wallet. Please
           choose a weekly budget and a max zap amount.
         </Text>
+        <Text style={{ fontSize: 18 }}>
+          Visit wavlake.com to manage connections to your wallet.
+        </Text>
+        <TextInput
+          label="Connection Name"
+          keyboardType="default"
+          onChangeText={setConnectionName}
+          value={connectionName}
+        />
+        <TextInput
+          label="Max Zap amount"
+          keyboardType="numeric"
+          onChangeText={setMaxZapAmount}
+          value={maxZapAmount}
+        />
         <View
           style={{
             display: "flex",
@@ -136,12 +153,7 @@ export default function AddNWC() {
             </View>
           ))}
         </View>
-        <TextInput
-          label="Max Zap amount"
-          keyboardType="numeric"
-          onChangeText={setMaxZapAmount}
-          value={maxZapAmount}
-        />
+
         <Button loading={isLoading} onPress={onSubmit}>
           Submit
         </Button>
