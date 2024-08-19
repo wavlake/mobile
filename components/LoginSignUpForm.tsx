@@ -55,6 +55,7 @@ export const LoginSignUpForm = ({
             label="Email"
             autoCorrect={false}
             value={email}
+            keyboardType="email-address"
             onChangeText={(value) => {
               setEmail(value);
               setErrorMessage("");
@@ -65,6 +66,7 @@ export const LoginSignUpForm = ({
             secureTextEntry
             autoCorrect={false}
             value={password}
+            keyboardType="visible-password"
             onChangeText={(value) => {
               setPassword(value);
               setErrorMessage("");
