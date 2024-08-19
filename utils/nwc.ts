@@ -175,6 +175,7 @@ const validateNwcURI = (uri?: string): URIResult => {
     }
   }
 
+  console.log("validateNwcURI", result);
   result.isValid = isValid;
   return result;
 };
