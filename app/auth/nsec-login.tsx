@@ -84,7 +84,6 @@ export default function Login() {
     encodeNpub(catalogUser?.nostrProfileData?.[0]?.publicHex);
 
   const handleNsecSubmit = async () => {
-    console.log("regiion", catalogUser?.isRegionVerified);
     setIsLoggingIn(true);
     const { npub, pubkey } = getNpubFromInput(nsec);
 

@@ -15,9 +15,7 @@ import { cacheSettings, WalletKey } from "@/utils";
 import { useAuth } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
 import { TextInput } from "./TextInput";
-import { useUser } from "./UserContextProvider";
-import { Switch } from "@rneui/themed";
-import { brandColors } from "@/constants";
+import { useSettings } from "@/hooks/useSettings";
 
 const DismissKeyboard = ({ children }: any) => (
   <TouchableWithoutFeedback
@@ -40,7 +38,8 @@ export const WalletChooserModal = ({
 }: WalletChooserModalProps) => {
   const { colors } = useTheme();
   const { pubkey } = useAuth();
-  const { catalogUser } = useUser();
+  const { data: settings } = useSettings();
+  const { enableNWC } = settings || {};
   const [defaultZapWallet, setDefaultZapWallet] =
     useState<WalletKey>("default");
   const [defaultZapAmount, setDefaultZapAmount] = useState("");
@@ -74,10 +73,13 @@ export const WalletChooserModal = ({
                 keyboardType="numeric"
                 onChangeText={setDefaultZapAmount}
               />
-              <WalletChooser
-                selectedWallet={defaultZapWallet}
-                onSelectedWalletChange={setDefaultZapWallet}
-              />
+              {/* if NWC is enabled, we don't need a default wallet to be set */}
+              {!enableNWC && (
+                <WalletChooser
+                  selectedWallet={defaultZapWallet}
+                  onSelectedWalletChange={setDefaultZapWallet}
+                />
+              )}
             </View>
             <Button onPress={handleContinueClick}>Continue</Button>
             <CancelButton onCancel={onCancel} />

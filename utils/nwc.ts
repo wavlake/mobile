@@ -13,6 +13,13 @@ export const MUTINY_RELAY = "wss://relay.mutinywallet.com";
 
 export const payInvoiceCommand = "pay_invoice";
 export const getBalanceCommand = "get_balance";
+const NWC_ERROR_CODES = [
+  "QUOTA_EXCEEDED",
+  "INSUFFICIENT_BALANCE",
+  "PAYMENT_FAILED",
+  "OTHER",
+];
+
 export interface NWCResponsePayInvoice {
   result: {
     preimage: string;
@@ -175,7 +182,6 @@ const validateNwcURI = (uri?: string): URIResult => {
     }
   }
 
-  console.log("validateNwcURI", result);
   result.isValid = isValid;
   return result;
 };
@@ -293,9 +299,11 @@ async function sendNwcPaymentRequest({
     params: { invoice },
     connectionSecret,
   });
+
   if (!requestEvent) {
     throw new Error("Failed to send NWC request");
   }
+
   const relay =
     nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
@@ -304,10 +312,6 @@ async function sendNwcPaymentRequest({
     requestEvent,
     relay,
   })) as NWCResponsePayInvoice;
-
-  if (!response?.result?.preimage) {
-    throw new Error("Failed to pay using NWC");
-  }
 
   return response;
 }
@@ -351,10 +355,6 @@ async function fetchNWCResponse({
         }
 
         const response = JSON.parse(decryptedResponse);
-        if (response.error) {
-          throw new Error(`${response.error.code}: ${response.error.message}`);
-        }
-
         resolve(response);
       });
 
@@ -388,6 +388,7 @@ export const payWithNWC = async ({
     console.log("payWithNWC error", error);
     return {
       error: {
+        code: "Error",
         message: (error as Error).message || "Unknown error occurred",
       },
       result: undefined,

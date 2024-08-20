@@ -53,25 +53,32 @@ export const useZap = ({
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
   const { setBalance } = useWalletBalance();
+  const { enableNWC, defaultZapAmount } = settings || {};
 
   const sendZap: SendZap = async (props) => {
     if (!trackId) {
       return;
     }
-    const { comment = "", amount, useNavReplace = false } = props || {};
+
+    const {
+      comment = "",
+      amount = defaultZapAmount,
+      useNavReplace = false,
+    } = props || {};
+    const amountInSats = Number(amount);
+
     const zapRequest = await makeZapRequest({
-      amountInSats: amount ?? 0,
+      amountInSats,
       relays: writeRelayList,
       comment,
       contentId: trackId,
       timestamp,
       parentContentType: isPodcast ? "podcast" : "album",
     });
+
     const signedZapRequestEvent = await signEvent(zapRequest);
 
     setIsLoading(true);
-    const { enableNWC, defaultZapAmount } = settings || {};
-    const amountInSats = Number(amount || defaultZapAmount);
     const response = await fetchInvoice({
       amountInSats,
       zapRequest: signedZapRequestEvent,
@@ -138,11 +145,18 @@ export const useZap = ({
           nwcRelay: settings?.nwcRelay,
         }).catch((e) => {
           console.log("useZap payWithNWC error", e);
-          return { error: undefined, result: undefined };
+          return {
+            error: {
+              code: "Error",
+              message: "Something went wrong. Please try again later.",
+            },
+            result: undefined,
+          };
         });
 
         if (error?.message) {
-          toast.show(error.message);
+          const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
+          toast.show(errorMsg);
         } else if (result?.preimage) {
           // invoice was paid, we have the preimage
         }
