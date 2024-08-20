@@ -38,11 +38,27 @@ export default function AddNWC() {
   const queryClient = useQueryClient();
   const settingsKey = useSettingsQueryKey();
   const [selectedBudget, setBudget] = useState(0);
-  const [maxZapAmount, setMaxZapAmount] = useState("21");
+  const [maxZapAmount, setMaxZapAmount] = useState<string | undefined>();
+  const [zapAmountErrorMessage, setzapAmountErrorMessage] = useState("");
+  const [connectionNameErrorMessage, setConnectionNameErrorMessage] =
+    useState("");
+
   const [connectionName, setConnectionName] = useState(DeviceInfo.getModel());
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async () => {
+    if (!maxZapAmount) {
+      setzapAmountErrorMessage("Please enter a max zap amount");
+    }
+
+    if (!connectionName) {
+      setConnectionNameErrorMessage("Please enter a connection name");
+    }
+
+    if (!maxZapAmount || !connectionName) {
+      return;
+    }
+
     setIsLoading(true);
     const pk = generateSecretKey();
     const connectionPubkey = getPublicKey(pk);
@@ -112,13 +128,21 @@ export default function AddNWC() {
         <TextInput
           label="Connection Name"
           keyboardType="default"
-          onChangeText={setConnectionName}
+          onChangeText={(value) => {
+            setConnectionNameErrorMessage("");
+            setConnectionName(value);
+          }}
           value={connectionName}
+          errorMessage={connectionNameErrorMessage}
         />
         <TextInput
+          errorMessage={zapAmountErrorMessage}
           label="Max Zap amount (sats)"
           keyboardType="numeric"
-          onChangeText={setMaxZapAmount}
+          onChangeText={(value) => {
+            setzapAmountErrorMessage("");
+            setMaxZapAmount(value);
+          }}
           value={maxZapAmount}
         />
         <View
