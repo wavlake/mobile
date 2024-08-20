@@ -28,6 +28,16 @@ const msatBudgetOptions = [
   { msat: 50000000, label: "50k sats per week" },
   { msat: 0, label: "Unlimited" },
 ];
+const validateMaxZapAmount = (value?: string) => {
+  if (!value || value === "") {
+    return "Please enter a max zap amount";
+  }
+  if (isNaN(parseInt(value)) || parseInt(value) < 0) {
+    return "Please enter a postive integer";
+  }
+
+  return;
+};
 
 export default function AddNWC() {
   const { catalogUser } = useUser();
@@ -47,15 +57,17 @@ export default function AddNWC() {
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async () => {
-    if (!maxZapAmount) {
-      setzapAmountErrorMessage("Please enter a max zap amount");
+    const zapAmountError = validateMaxZapAmount(maxZapAmount);
+
+    if (zapAmountError) {
+      setzapAmountErrorMessage(zapAmountError);
     }
 
     if (!connectionName) {
       setConnectionNameErrorMessage("Please enter a connection name");
     }
 
-    if (!maxZapAmount || !connectionName) {
+    if (zapAmountError || !connectionName || !maxZapAmount) {
       return;
     }
 
