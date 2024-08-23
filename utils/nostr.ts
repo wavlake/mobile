@@ -50,8 +50,7 @@ import { getPodcastFeedGuid } from "./rss";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
-const wavlakePubkey =
-  "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
+const wavlakePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
 const wavlakeRelayUri = "wss://relay.wavlake.com/";
 const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
