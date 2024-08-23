@@ -13,7 +13,7 @@ import {
 import { bytesToHex } from "@noble/hashes/utils";
 import { CheckBox } from "@rneui/base";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   TouchableWithoutFeedback,
@@ -40,6 +40,9 @@ const validateMaxZapAmount = (value?: string) => {
 };
 
 export default function AddNWC() {
+  const { newNpub } = useLocalSearchParams<{
+    newNpub: "true" | "false";
+  }>();
   const { catalogUser } = useUser();
   const { pubkey: userPubkey } = useAuth();
   const toast = useToast();
@@ -111,6 +114,9 @@ export default function AddNWC() {
 
     router.replace({
       pathname: "/auth/welcome",
+      params: {
+        newNpub,
+      },
     });
   };
 

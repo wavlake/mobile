@@ -126,11 +126,18 @@ const LoginProviders = ({
           if (result.hasExistingNostrProfile && !pubkey) {
             router.push({
               pathname: "/auth/nsec-login",
+              params: {
+                newNpub: result.createdNewNpub ? "true" : "false",
+              },
             });
           } else {
-            // we already auto-created them an nsec, or they were already logged in before
             router.replace({
-              pathname: "/auth/welcome",
+              pathname: result.isRegionVerified
+                ? "/auth/auto-nwc"
+                : "/auth/welcome",
+              params: {
+                newNpub: result.createdNewNpub ? "true" : "false",
+              },
             });
           }
         }

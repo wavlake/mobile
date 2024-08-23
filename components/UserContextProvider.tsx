@@ -31,11 +31,13 @@ type UserContextProps = {
     error?: any;
     hasExistingNostrProfile?: boolean;
     isRegionVerified?: boolean;
+    createdNewNpub?: boolean;
   }>;
   signInWithGoogle: () => Promise<{
     error?: any;
     hasExistingNostrProfile?: boolean;
     isRegionVerified?: boolean;
+    createdNewNpub?: boolean;
   }>;
 } & typeof firebaseService;
 
@@ -100,6 +102,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const signInWithGoogle = async () => {
+    let createdNewNpub = false;
     try {
       const user = await firebaseService.signInWithGoogle();
       if ("error" in user) {
@@ -136,6 +139,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
           nsec && (await login(nsec));
           newPubkey && (await addPubkeyToAccount());
+          createdNewNpub = true;
         } else {
           // user has an npub, so we don't need to create a new one
         }
@@ -146,7 +150,12 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           .includes(pubkey) && (await addPubkeyToAccount());
       }
       const isRegionVerified = catalogUser?.isRegionVerified;
-      return { ...user, hasExistingNostrProfile, isRegionVerified };
+      return {
+        ...user,
+        hasExistingNostrProfile,
+        isRegionVerified,
+        createdNewNpub,
+      };
     } catch (error) {
       console.error("error signing in with google", error);
       return {
@@ -202,6 +211,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
+    let createdNewNpub = false;
     try {
       const user = await firebaseService.signInWithEmail(email, password);
       if ("error" in user) {
@@ -228,6 +238,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
           nsec && (await login(nsec));
           newPubkey && (await addPubkeyToAccount());
+          createdNewNpub = true;
         } else {
           // user has an npub, so we don't need to create a new one
         }
@@ -239,7 +250,12 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       }
       const isRegionVerified = catalogUser?.isRegionVerified;
 
-      return { ...user, hasExistingNostrProfile, isRegionVerified };
+      return {
+        ...user,
+        hasExistingNostrProfile,
+        isRegionVerified,
+        createdNewNpub,
+      };
     } catch (error) {
       console.error("error signing in with email");
       return { error };
