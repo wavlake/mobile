@@ -1,9 +1,12 @@
 import { Avatar, Button, Center, Text } from "@/components";
 import { View } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 
 export default function WelcomePage() {
+  const { newNpub } = useLocalSearchParams<{
+    newNpub: "true" | "false";
+  }>();
   const router = useRouter();
   const { catalogUser } = useUser();
 
@@ -11,6 +14,7 @@ export default function WelcomePage() {
     router.replace("/");
   };
 
+  const showNostrLoginLink = newNpub === "true";
   return (
     <Center
       style={{
@@ -53,11 +57,13 @@ export default function WelcomePage() {
           Edit Profile
         </Text>
         <Button onPress={goToHomePage}>Start listening</Button>
-        <Link href="/auth/nsec">
-          <Text style={{ fontSize: 18 }} bold>
-            Nostr user? Click here
-          </Text>
-        </Link>
+        {showNostrLoginLink && (
+          <Link href="/auth/nsec">
+            <Text style={{ fontSize: 18 }} bold>
+              Nostr user? Click here
+            </Text>
+          </Link>
+        )}
       </View>
     </Center>
   );

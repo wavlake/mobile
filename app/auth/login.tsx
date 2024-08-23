@@ -17,12 +17,16 @@ export default function Login() {
     if (result.hasExistingNostrProfile) {
       router.push({
         pathname: "/auth/nsec-login",
+        params: {
+          newNpub: result.createdNewNpub ? "true" : "false",
+        },
       });
     } else {
-      // they didnt have an existing nostr profile, so we auto created one and logged them in
-      // if they are verified, send them to the add nwc page, otherwise send them to the welcome page
       router.replace({
         pathname: result.isRegionVerified ? "/auth/auto-nwc" : "/auth/welcome",
+        params: {
+          newNpub: result.createdNewNpub ? "true" : "false",
+        },
       });
     }
   };

@@ -13,7 +13,7 @@ import { ZBDIcon } from "@/components/ZBDIcon";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { NostrIcon } from "@/components/NostrIcon";
-import { useToast } from "@/hooks";
+import { useAuth, useToast } from "@/hooks";
 import { ScrollView } from "react-native";
 
 export const LoginSignUpForm = ({
@@ -110,6 +110,7 @@ const LoginProviders = ({
   setIsLoading: (loading: boolean) => void;
 }) => {
   const router = useRouter();
+  const { pubkey } = useAuth();
   const { signInWithGoogle } = useUser();
   const { show } = useToast();
   const providers = [
@@ -122,14 +123,21 @@ const LoginProviders = ({
         if ("error" in result) {
           show(result.error);
         } else {
-          if (result.hasExistingNostrProfile) {
+          if (result.hasExistingNostrProfile && !pubkey) {
             router.push({
               pathname: "/auth/nsec-login",
+              params: {
+                newNpub: result.createdNewNpub ? "true" : "false",
+              },
             });
           } else {
-            // they didnt have an existing nostr profile, so we auto created one and logged them in
             router.replace({
-              pathname: "/auth/welcome",
+              pathname: result.isRegionVerified
+                ? "/auth/auto-nwc"
+                : "/auth/welcome",
+              params: {
+                newNpub: result.createdNewNpub ? "true" : "false",
+              },
             });
           }
         }

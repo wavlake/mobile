@@ -14,7 +14,12 @@ export default function Signup() {
     if ("error" in result) {
       setErrorMessage(result.error);
     } else {
-      router.replace("/auth/welcome");
+      router.replace({
+        pathname: "/auth/welcome",
+        params: {
+          newNpub: "true",
+        },
+      });
     }
   };
 
