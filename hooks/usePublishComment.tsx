@@ -19,7 +19,7 @@ const makeKind1Event = (
 };
 
 export const usePublishComment = () => {
-  const { pubkey = "" } = useAuth();
+  const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const nostrCommentMutation = useMutation({
     mutationFn: async (newCommentEvent: Event) => {
@@ -33,6 +33,10 @@ export const usePublishComment = () => {
     zapRequestEventId: string,
     customTags?: string[][],
   ) => {
+    if (!userIsLoggedIn) {
+      return;
+    }
+
     const event = await signEvent(makeKind1Event(pubkey, content, customTags));
     return new Promise<void>(async (resolve, reject) => {
       if (event) {

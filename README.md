@@ -34,6 +34,12 @@ To push a build to Expo using the development profile:
 eas build --profile development --platform ios
 ```
 
+or with
+
+```bash
+eas build -p ios --non-interactive --profile external
+```
+
 [More info](https://docs.expo.dev/develop/development-builds/create-a-build/)
 
 ### TestFlight

@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { ResponseObject } from "./api";
 import { NostrUserProfile } from "./nostr";
+import { useUser } from "@/components";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 
@@ -145,6 +146,35 @@ export const useEditUser = ({
     },
     onError(response: ResponseObject) {
       onError?.(response.error ?? "Error editing user");
+    },
+  });
+};
+
+export interface WalletConnection {
+  name: string;
+  pubkey: string;
+  requestMethods: WalletConnectionMethods[];
+  lastUsed?: string;
+  msatBudget: number;
+  maxMsatPaymentAmount: number;
+}
+
+export type WalletConnectionMethods =
+  | "get_balance"
+  | "pay_invoice"
+  | "make_invoice"
+  | "lookup_invoice";
+
+export const useCreateConnection = (onSuccess?: Function) => {
+  return useMutation({
+    mutationFn: async (connection: WalletConnection) => {
+      const { data } = await catalogApiClient.post<
+        ResponseObject<WalletConnection>
+      >(`/accounts/connections`, connection, {});
+      return data.data;
+    },
+    onSuccess(data) {
+      onSuccess?.(data);
     },
   });
 };

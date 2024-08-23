@@ -23,11 +23,19 @@ import { CopyButton } from "@/components/CopyButton";
 import { useUser } from "@/components/UserContextProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { bytesToHex } from "@noble/hashes/utils";
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 
-const getNpubFromNsec = (nsec: string) => {
-  const seckey = decodeNsec(nsec);
+const getNpubFromInput = (input: string) => {
+  let seckey: Uint8Array | null = null;
+
+  if (input.startsWith("nsec")) {
+    seckey = decodeNsec(input);
+  } else if (/^[0-9a-fA-F]{64}$/.test(input)) {
+    seckey = hexToBytes(input);
+  }
+
   if (!seckey) return { npub: null, pubkey: null };
+
   const pubkey = getPublicKey(seckey);
   const npub = encodeNpub(pubkey);
 
@@ -77,7 +85,8 @@ export default function Login() {
 
   const handleNsecSubmit = async () => {
     setIsLoggingIn(true);
-    const { npub, pubkey } = getNpubFromNsec(nsec);
+    const { npub, pubkey } = getNpubFromInput(nsec);
+
     if (!npub) {
       setErrorMessage("Invalid nostr nsec");
       setIsLoggingIn(false);
@@ -89,6 +98,7 @@ export default function Login() {
         {
           name: catalogUser?.name,
           // picture: user.user.photoURL ?? "",
+          lud06: `${catalogUser?.profileUrl}@wavlake.com`,
         },
         nsec,
       );
@@ -101,7 +111,11 @@ export default function Login() {
       // if the nsec was generated, we need to add the pubkey to the user's account
       await addPubkeyToAccount();
       setTimeout(async () => {
-        router.replace("/");
+        router.replace({
+          pathname: catalogUser?.isRegionVerified
+            ? "/auth/auto-nwc"
+            : "/auth/welcome",
+        });
         setIsLoggingIn(false);
       }, 1000);
     } else if (mostRecentUserNpub !== npub) {
@@ -126,7 +140,11 @@ export default function Login() {
                 return;
               }
               setTimeout(async () => {
-                router.replace("/");
+                router.replace({
+                  pathname: catalogUser?.isRegionVerified
+                    ? "/auth/auto-nwc"
+                    : "/auth/welcome",
+                });
                 setIsLoggingIn(false);
               }, 1000);
             },
@@ -142,7 +160,11 @@ export default function Login() {
         return;
       }
       setTimeout(async () => {
-        router.replace("/");
+        router.replace({
+          pathname: catalogUser?.isRegionVerified
+            ? "/auth/auto-nwc"
+            : "/auth/welcome",
+        });
         setIsLoggingIn(false);
       }, 1000);
     }
@@ -218,14 +240,30 @@ export default function Login() {
               }}
             >
               {mostRecentUserNpub && (
-                <Text
+                <View
                   style={{
-                    fontSize: 14,
-                    color: colors.text,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
                   }}
                 >
-                  {mostRecentUserNpub}
-                </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: colors.text,
+                    }}
+                  >
+                    Most recent associated npub:
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: colors.text,
+                    }}
+                  >
+                    {mostRecentUserNpub}
+                  </Text>
+                </View>
               )}
               <View
                 style={{
@@ -235,20 +273,20 @@ export default function Login() {
                   gap: 6,
                 }}
               >
-                {mostRecentUserData.metadata.picture && (
+                {mostRecentUserData.metadata?.picture && (
                   <Avatar
                     size={NPUB_AVATAR_SIZE}
-                    imageUrl={mostRecentUserData.metadata.picture}
+                    imageUrl={mostRecentUserData.metadata?.picture}
                   />
                 )}
-                {mostRecentUserData.metadata.name && (
+                {mostRecentUserData.metadata?.name && (
                   <Text
                     style={{
                       fontSize: 14,
                       color: colors.text,
                     }}
                   >
-                    {mostRecentUserData.metadata.name}
+                    {mostRecentUserData.metadata?.name}
                   </Text>
                 )}
               </View>

@@ -46,12 +46,16 @@ import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/components";
 import { useAuth } from "@/hooks";
 import { updatePubkeyMetadata } from "./api";
+import { getPodcastFeedGuid } from "./rss";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
-const wavlakePubkey =
-  "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58";
-
+const wavlakePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
+const wavlakeRelayUri = "wss://relay.wavlake.com/";
+const wavlakeTrackKind = 32123;
+const ticketEventKind = 31923;
+const ticketBotPublicKey =
+  "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397";
 const Contacts = 3;
 const HTTPAuth = 27235;
 export const DEFAULT_READ_RELAY_URIS = [
@@ -110,18 +114,18 @@ export const getEventFromRelay = (
   return new Promise(async (resolve, reject) => {
     try {
       const relay = await Relay.connect(relayUri);
-
       const sub = relay.subscribe([filter], {
         onevent(event) {
           resolve(event);
           sub.close();
         },
-        oneose() {
-          reject();
-          sub.close();
-        },
-        eoseTimeout: 60000,
       });
+
+      // timeout after 30 seconds
+      setTimeout(() => {
+        sub.close();
+        reject();
+      }, 10000);
     } catch (e) {
       reject();
     }
@@ -237,7 +241,7 @@ export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
   };
 };
 
-export const sendNWCRequest = async ({
+export const makeNWCRequestEvent = async ({
   walletPubkey,
   relay,
   method,
@@ -276,7 +280,6 @@ export const sendNWCRequest = async ({
       hexToBytes(connectionSecret),
     );
 
-    await publishEvent([relay], signedEvent);
     return signedEvent;
   } catch (error) {
     console.error(error);
@@ -376,46 +379,93 @@ export const getWriteRelayUris = (event: Event) => {
     .map((tag) => tag[1]);
 };
 
-export const fetchInvoice = async ({
-  relayUris,
+export const makeZapRequest = async ({
+  contentId,
+  parentContentType,
   amountInSats,
+  relays = [],
   comment,
-  addressPointer,
-  zappedPubkey,
   timestamp,
-  zapEndpoint = "https://www.wavlake.com/api/zap",
   customTags = [],
 }: {
-  relayUris: string[];
+  contentId: string;
+  parentContentType: "podcast" | "album" | "artist";
   amountInSats: number;
+  relays?: string[];
   comment: string;
-  addressPointer: string;
-  zappedPubkey: string;
   timestamp?: number;
-  zapEndpoint?: string;
   customTags?: EventTemplate["tags"];
-}): Promise<{ pr: string } | { status: string; reason: string }> => {
-  const wavlakeRelayUri = "wss://relay.wavlake.com/";
-  const amountInMillisats = amountInSats * 1000;
+}): Promise<EventTemplate> => {
+  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
+  const iTags = [
+    ["i", `podcast:item:guid:${contentId}`],
+    ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
+    [
+      "i",
+      `podcast:publisher:guid:${getPodcastFeedGuid(
+        parentContentType,
+        contentId,
+      )}`,
+    ],
+  ];
   const zapRequestEvent = await nip57.makeZapRequest({
-    profile: zappedPubkey,
-    amount: amountInMillisats,
-    relays: [...relayUris, wavlakeRelayUri],
+    profile: wavlakePubkey,
+    amount: amountInSats * 1000,
+    relays: [wavlakeRelayUri, ...relays],
     comment,
     event: null,
   });
-
   zapRequestEvent.tags = [
     ...zapRequestEvent.tags,
-    ["a", addressPointer, wavlakeRelayUri],
+    ["a", nostrEventAddressPointer, wavlakeRelayUri],
     ["timestamp", timestamp?.toString() ?? ""],
+    ...iTags,
+  ];
+  return zapRequestEvent;
+};
+
+export const makeTicketZapRequest = async ({
+  contentId,
+  amountInSats,
+  relays = [],
+  comment,
+  customTags = [],
+}: {
+  contentId: string;
+  amountInSats: number;
+  relays: string[];
+  comment: string;
+  customTags?: EventTemplate["tags"];
+}): Promise<EventTemplate> => {
+  const nostrEventAddressPointer = `${ticketEventKind}:${ticketBotPublicKey}:${contentId}`;
+
+  const zapRequestEvent = await nip57.makeZapRequest({
+    profile: ticketBotPublicKey,
+    amount: amountInSats * 1000,
+    relays: [wavlakeRelayUri, ...relays],
+    comment,
+    event: null,
+  });
+  zapRequestEvent.tags = [
+    ...zapRequestEvent.tags,
+    ["a", nostrEventAddressPointer, wavlakeRelayUri],
     ...customTags,
   ];
+  return zapRequestEvent;
+};
 
-  const signedZapRequestEvent = await signEvent(zapRequestEvent);
-  const url = `${zapEndpoint}?amount=${amountInMillisats}&nostr=${encodeURIComponent(
-    JSON.stringify(signedZapRequestEvent),
-  )}`;
+export const fetchInvoice = async ({
+  zapRequest,
+  amountInSats,
+  zapEndpoint = "https://www.wavlake.com/api/zap",
+}: {
+  zapRequest: EventTemplate;
+  amountInSats: number;
+  zapEndpoint?: string;
+}): Promise<{ pr: string } | { status: string; reason: string }> => {
+  const url = `${zapEndpoint}?amount=${
+    amountInSats * 1000
+  }&nostr=${encodeURIComponent(JSON.stringify(zapRequest))}`;
 
   try {
     const { data } = await axios(url, {
