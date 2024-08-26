@@ -10,7 +10,7 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { WalletBalance } from "./WalletBalance";
+import { WalletLabel } from "./WalletLabel";
 import { useUser } from "./UserContextProvider";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
@@ -63,9 +63,18 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             props.navigation.closeDrawer();
           }}
         />
+        <DrawerItem
+          label={() => <WalletLabel />}
+          icon={({ color, size }) => (
+            <Ionicons name="wallet-outline" size={size} color={color} />
+          )}
+          onPress={async () => {
+            router.push({ pathname: "/wallet" });
+            props.navigation.closeDrawer();
+          }}
+        />
       </View>
       <View>
-        <WalletBalance />
         {pubkey && (
           <View>
             <Divider

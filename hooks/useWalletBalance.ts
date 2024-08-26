@@ -10,7 +10,7 @@ export const useWalletBalance = () => {
   const { pubkey: userPubkey } = useAuth();
   const [balance, setBalance] = useState<number | undefined>(undefined);
 
-  const { data, refetch } = useQuery({
+  const { data, refetch, isLoading } = useQuery({
     queryKey: ["balance", userPubkey],
     queryFn: async () => {
       const response = await getNwcBalance({
@@ -38,5 +38,5 @@ export const useWalletBalance = () => {
     })();
   }, [enableNWC, userPubkey, nwcPubkey, nwcRelay]);
 
-  return { balance: enableNWC ? balance : undefined, setBalance };
+  return { balance: enableNWC ? balance : undefined, setBalance, isLoading };
 };
