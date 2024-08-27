@@ -1,6 +1,7 @@
-import { Text, Button } from "@/components";
+import { Button, Text } from "@/components";
 import useBitcoinPrice from "@/hooks/useBitcoinPrice";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
+import { useRouter } from "expo-router";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 
 const satsFormatter = (mSats: number) => {
@@ -17,14 +18,23 @@ const getDollarAmount = (msats?: number, price?: number | null) => {
 };
 
 export default function Wallet({}: {}) {
+  const router = useRouter();
+  const onSend = async () => {
+    router.push("/wallet/scanner");
+  };
+
+  const onReceive = async () => {
+    router.push("/wallet/receive");
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View
         style={{
-          marginVertical: 24,
           flex: 1,
           justifyContent: "space-between",
           alignItems: "center",
+          gap: 60,
         }}
       >
         <BalanceInfo />
@@ -36,10 +46,10 @@ export default function Wallet({}: {}) {
             gap: 20,
           }}
         >
-          <Button width={160} color="white" onPress={async () => {}}>
+          <Button width={160} color="white" onPress={onSend}>
             Send
           </Button>
-          <Button width={160} color="white" onPress={async () => {}}>
+          <Button width={160} color="white" onPress={onReceive}>
             Receive
           </Button>
         </View>
@@ -72,34 +82,45 @@ const BalanceInfo = () => {
       style={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "flex-end",
         alignItems: "center",
-        gap: 20,
         flexGrow: 1,
       }}
     >
-      {balanceLoading ? (
-        <ActivityIndicator animating={true} size="small" />
-      ) : (
-        <Text
-          style={{
-            fontSize: 32,
-          }}
-        >
-          {balance ? `${satsFormatter(balance)} sats` : "error"}
-        </Text>
-      )}
-      {priceLoading ? (
-        <ActivityIndicator animating={true} size="small" />
-      ) : (
-        <Text
-          style={{
-            fontSize: 14,
-          }}
-        >
-          {usdValue ? `~$${getDollarAmount(balance, bitcoinPrice)}` : "error"}
-        </Text>
-      )}
+      <View
+        style={{
+          height: 60,
+        }}
+      >
+        {balanceLoading ? (
+          <ActivityIndicator animating={true} size="small" />
+        ) : (
+          <Text
+            style={{
+              fontSize: 32,
+            }}
+          >
+            {balance ? `${satsFormatter(balance)} sats` : ""}
+          </Text>
+        )}
+      </View>
+      <View
+        style={{
+          height: 40,
+        }}
+      >
+        {priceLoading ? (
+          <ActivityIndicator animating={true} size="small" />
+        ) : (
+          <Text
+            style={{
+              fontSize: 14,
+            }}
+          >
+            {usdValue ? `~$${getDollarAmount(balance, bitcoinPrice)}` : ""}
+          </Text>
+        )}
+      </View>
     </View>
   );
 };

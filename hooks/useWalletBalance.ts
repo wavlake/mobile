@@ -3,12 +3,14 @@ import { useAuth } from "./useAuth";
 import { useSettings } from "./useSettings";
 import { getNwcBalance } from "@/utils";
 import { useEffect, useState } from "react";
+import { useToast } from "./useToast";
 
 export const useWalletBalance = () => {
   const { data: settings } = useSettings();
   const { enableNWC, nwcPubkey, nwcRelay } = settings ?? {};
   const { pubkey: userPubkey } = useAuth();
   const [balance, setBalance] = useState<number | undefined>(undefined);
+  const toast = useToast();
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["balance", userPubkey],
@@ -18,7 +20,12 @@ export const useWalletBalance = () => {
         walletPubkey: nwcPubkey,
         nwcRelay: nwcRelay,
       });
-      return response.result.balance ?? 0;
+      if (response?.result_type !== "get_balance") {
+        toast.show("Something went wrong. Please try again later.");
+        return;
+      }
+
+      return response?.result?.balance ?? 0;
     },
     enabled: enableNWC,
   });

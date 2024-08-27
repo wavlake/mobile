@@ -138,27 +138,22 @@ export const useZap = ({
         settings?.nwcCommands.includes(payInvoiceCommand)
       ) {
         // use NWC, responds with preimage if successful
-        const { error, result } = await payWithNWC({
+        const response = await payWithNWC({
           userPubkey: pubkey,
           invoice,
-          walletPubkey: settings?.nwcPubkey,
-          nwcRelay: settings?.nwcRelay,
-        }).catch((e) => {
-          console.log("useZap payWithNWC error", e);
-          return {
-            error: {
-              code: "Error",
-              message: "Something went wrong. Please try again later.",
-            },
-            result: undefined,
-          };
+          walletPubkey: settings.nwcPubkey,
+          nwcRelay: settings.nwcRelay,
         });
 
+        const { error, result, result_type } = response;
+
+        if (result_type !== "pay_invoice") {
+          toast.show("Something went wrong. Please try again later.");
+          return;
+        }
         if (error?.message) {
           const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
           toast.show(errorMsg);
-        } else if (result?.preimage) {
-          // invoice was paid, we have the preimage
         }
         if (result?.balance) {
           setBalance(result.balance);

@@ -1,9 +1,9 @@
-import { Button, Text, TextInput } from "@/components";
+import { Button, QRScanner, Text, TextInput } from "@/components";
 import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
+import { BarCodeScannedCallback } from "expo-barcode-scanner";
 import { intakeNwcURI } from "@/utils/nwc";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
@@ -72,40 +72,3 @@ export default function SettingsPage() {
     </TouchableWithoutFeedback>
   );
 }
-
-const QRScanner = ({
-  onBarCodeScanned,
-}: {
-  onBarCodeScanned: BarCodeScannedCallback;
-}) => {
-  const [hasPermission, setHasPermission] = useState<boolean | undefined>(
-    undefined,
-  );
-
-  useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === "granted");
-    };
-
-    getBarCodeScannerPermissions();
-  }, []);
-
-  if (hasPermission === undefined) {
-    return <Text>Requesting camera permissions</Text>;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
-  return (
-    <BarCodeScanner
-      onBarCodeScanned={onBarCodeScanned}
-      style={{
-        width: "90%",
-        height: "70%",
-        borderColor: "white",
-        borderWidth: 1,
-      }}
-    />
-  );
-};

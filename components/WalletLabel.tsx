@@ -26,11 +26,11 @@ export const WalletLabel: React.FC = () => {
         gap: 8,
       }}
     >
-      <Text style={{ fontSize: 18 }}>Wallet</Text>
+      <Text style={{ fontSize: 24 }}>Wallet</Text>
       {balance && (
         <>
           <Text style={{ fontSize: 4 }}>{"\u2B24"}</Text>
-          <Text style={{ fontSize: 18 }}>{satsFormatter(balance)} sats</Text>
+          <Text style={{ fontSize: 14 }}>{satsFormatter(balance)} sats</Text>
         </>
       )}
     </View>
