@@ -1,12 +1,7 @@
-import { Button, QRScanner, Text, TextInput } from "@/components";
+import { Button, Text, TextInput, useUser } from "@/components";
 import { CopyButton } from "@/components/CopyButton";
-import LoadingScreen from "@/components/LoadingScreen";
-import { useAuth, useToast } from "@/hooks";
+import { useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
-import { useWalletBalance } from "@/hooks/useWalletBalance";
-import { getNWCInvoice, payWithNWC } from "@/utils";
-import { BarCodeScannedCallback } from "expo-barcode-scanner";
-import { isLoading } from "expo-font";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -17,15 +12,53 @@ import {
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 
+export const buildUri = (
+  baseUri: string,
+  params: Record<string, string | undefined>,
+) => {
+  const url = new URL(baseUri);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, encodeURIComponent(value));
+    }
+  });
+  return url.toString();
+};
+
 export default function Wallet({}: {}) {
   const router = useRouter();
-  const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
   const { data: settings } = useSettings();
   const toast = useToast();
   const [invoice, setInvoice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState<string>("");
   const [isEnteringAmount, setIsEnteringAmount] = useState(true);
+
+  // fetch invoice from lnurl
+  const fetchInvoice = async () => {
+    if (!catalogUser?.profileUrl) {
+      toast.show("Error fetching invoice: missing profile url");
+      return;
+    }
+    const amountMsats = Number(amount) * 1000;
+    const url = buildUri(
+      `https://wavlake.com/api/lnurlp/${catalogUser.profileUrl}`,
+      {
+        amount: amountMsats.toString(),
+      },
+    );
+
+    const rsponse = await fetch(url);
+    const data = await rsponse.json();
+    const invoice = data?.pr as string;
+    if (!invoice) {
+      toast.show("Error fetching invoice");
+      return;
+    }
+
+    return invoice;
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -51,7 +84,7 @@ export default function Wallet({}: {}) {
             <>
               <TextInput
                 keyboardType="numeric"
-                label="Amount (optional)"
+                label="Amount"
                 value={amount}
                 onChangeText={setAmount}
               />
@@ -67,13 +100,8 @@ export default function Wallet({}: {}) {
 
                   if (Number(amount) >= 0) {
                     setIsLoading(true);
-                    const invoice = await getNWCInvoice({
-                      amount: Number(amount),
-                      userPubkey: pubkey,
-                      walletPubkey: settings?.nwcPubkey,
-                      nwcRelay: settings?.nwcRelay,
-                    });
-                    setInvoice("1234567890");
+                    const invoice = await fetchInvoice();
+                    invoice && setInvoice(invoice);
                     setIsEnteringAmount(false);
                     setIsLoading(false);
                   } else {
@@ -119,7 +147,7 @@ export default function Wallet({}: {}) {
                       color: "black",
                     }}
                   >
-                    {invoice.slice(0, 10)}...{invoice.slice(-10)}
+                    {invoice.slice(0, 8)}...{invoice.slice(-8)}
                   </Text>
                 </View>
                 <CopyButton value={invoice} />

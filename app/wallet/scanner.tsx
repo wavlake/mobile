@@ -1,10 +1,10 @@
-import { Button, QRScanner, Text } from "@/components";
+import { Button, QRScanner, msatsToSatsWithCommas, Text } from "@/components";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth, useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { payWithNWC } from "@/utils";
-import { BarCodeScannedCallback } from "expo-barcode-scanner";
+import { BarcodeScanningResult } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -16,18 +16,26 @@ import {
 
 export default function Wallet({}: {}) {
   const router = useRouter();
-  const [scanned, setScanned] = useState(false);
+  // this is used to debounce the scanner so it doesnt scan multiple times
+  const [scanned, setScanned] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { pubkey } = useAuth();
   const { data: settings } = useSettings();
   const toast = useToast();
   const { setBalance } = useWalletBalance();
-  const onBarCodeScanned: BarCodeScannedCallback = async ({ data }) => {
-    if (scanned) return;
-    setScanned(true);
-    console.log(data);
-    await processInvoice(data);
-    setScanned(false);
+  const [invoice, setInvoice] = useState("");
+  const [invoiceAmount, setInvoiceAmount] = useState(0);
+
+  const onBarCodeScanned: (scanningResult: BarcodeScanningResult) => void = ({
+    data,
+  }) => {
+    if (scanned === data) return;
+
+    setScanned(data);
+    processInvoice(data);
+    setTimeout(() => {
+      setScanned("");
+    }, 3000);
   };
 
   const onPaste = async () => {
@@ -37,7 +45,20 @@ export default function Wallet({}: {}) {
     }
   };
 
-  const processInvoice = async (invoice: string) => {
+  const processInvoice = (invoice: string) => {
+    const invoiceAmount = parseInvoice(invoice);
+
+    if (typeof invoiceAmount === "string") {
+      toast.show(invoiceAmount ?? "Invalid invoice");
+      return;
+    }
+
+    setInvoiceAmount(invoiceAmount);
+    setInvoice(invoice);
+    setScanned("");
+  };
+
+  const payInvoice = async () => {
     if (!settings?.nwcPubkey || !settings?.nwcRelay) {
       toast.show("Wallet has not been setup");
       return;
@@ -68,9 +89,13 @@ export default function Wallet({}: {}) {
     }
 
     if (result?.preimage) {
-      // invoice was paid, we have the preimage
-      toast.show("Payment sent");
-      router.back();
+      router.push({
+        pathname: "/wallet/success",
+        params: {
+          amount: "123456",
+          transactionType: "withdraw",
+        },
+      });
     }
     setIsLoading(false);
   };
@@ -87,46 +112,118 @@ export default function Wallet({}: {}) {
             gap: 12,
           }}
         >
-          <LoadingScreen loading={isLoading} />
-          <Text
-            style={{
-              marginVertical: 40,
-              fontSize: 24,
-            }}
-          >
-            Send
-          </Text>
-          <QRScanner
-            onBarCodeScanned={onBarCodeScanned}
-            width={"90%"}
-            height={"40%"}
-          />
-          <Text
-            style={{
-              textAlign: "center",
-              marginHorizontal: 24,
-              fontSize: 14,
-            }}
-          >
-            Scan a Lightning invoice QR code or paste using the button below
-          </Text>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "flex-end",
-              flexGrow: 1,
-              gap: 20,
-            }}
-          >
-            <Button width={160} color="white" onPress={onPaste}>
-              Paste
-            </Button>
-            <Button width={160} color="pink" onPress={() => router.back()}>
-              Cancel
-            </Button>
-          </View>
+          {invoice ? (
+            <View>
+              <Text
+                style={{
+                  marginVertical: 40,
+                  fontSize: 24,
+                }}
+              >
+                Confirm Send
+              </Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 32,
+                }}
+              >
+                {msatsToSatsWithCommas(invoiceAmount)} sats
+              </Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 14,
+                }}
+              >
+                {invoice.slice(0, 8)}...{invoice.slice(-8)}
+              </Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "flex-end",
+                  flexGrow: 1,
+                  gap: 20,
+                }}
+              >
+                <Button width={160} color="white" onPress={payInvoice}>
+                  Pay
+                </Button>
+                <Button width={160} color="pink" onPress={() => router.back()}>
+                  Cancel
+                </Button>
+              </View>
+            </View>
+          ) : (
+            <>
+              <LoadingScreen loading={isLoading} />
+              <Text
+                style={{
+                  marginVertical: 40,
+                  fontSize: 24,
+                }}
+              >
+                Send
+              </Text>
+              <QRScanner
+                onBarCodeScanned={onBarCodeScanned}
+                width={"90%"}
+                height={"40%"}
+              />
+              <Text
+                style={{
+                  textAlign: "center",
+                  marginHorizontal: 24,
+                  fontSize: 14,
+                }}
+              >
+                Scan a Lightning invoice QR code or paste using the button below
+              </Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "flex-end",
+                  flexGrow: 1,
+                  gap: 20,
+                }}
+              >
+                <Button width={160} color="white" onPress={onPaste}>
+                  Paste
+                </Button>
+                <Button width={160} color="pink" onPress={() => router.back()}>
+                  Cancel
+                </Button>
+              </View>
+            </>
+          )}
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );
+}
+
+export function parseInvoice(x: string) {
+  const re = new RegExp(`(lnbc)([1234567890]{1,})(\\w)1\\w+`);
+  const [zero, first, second, third] = x.match(re) || [];
+  const secondInt = Number(second);
+  try {
+    if (!third || !second || !Number.isInteger(secondInt)) {
+      throw "Invalid invoice, please ensure there is an amount specified";
+    }
+    switch (third) {
+      case "m":
+        return secondInt * 100000;
+      case "u":
+        return secondInt * 100;
+      case "n":
+        return secondInt * 0.1;
+      case "p":
+        return secondInt * 0.0001;
+      default:
+        return "Invalid invoice";
+    }
+  } catch (error) {
+    console.log("invoiceAmount error", error);
+    return error as string;
+  }
 }

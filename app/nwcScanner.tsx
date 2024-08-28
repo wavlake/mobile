@@ -3,7 +3,8 @@ import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import { BarCodeScannedCallback } from "expo-barcode-scanner";
+import { BarcodeScanningResult } from "expo-camera";
+
 import { intakeNwcURI } from "@/utils/nwc";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
@@ -19,7 +20,9 @@ export default function SettingsPage() {
   const settingsKey = useSettingsQueryKey();
   const queryClient = useQueryClient();
 
-  const onBarCodeScanned: BarCodeScannedCallback = async ({ data }) => {
+  const onBarCodeScanned: (
+    scanningResult: BarcodeScanningResult,
+  ) => void = async ({ data }) => {
     if (scanned) return;
     setScanned(true);
     await handleSaveNewNwcURI(data);

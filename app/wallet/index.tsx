@@ -1,16 +1,15 @@
-import { Button, Text } from "@/components";
+import { Button, msatsToSatsWithCommas, Text } from "@/components";
 import useBitcoinPrice from "@/hooks/useBitcoinPrice";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { useRouter } from "expo-router";
-import { ActivityIndicator, SafeAreaView, View } from "react-native";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-const satsFormatter = (mSats: number) => {
-  const sats = Math.floor(mSats / 1000).toFixed(0);
-  // add commas
-  return sats.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
-const getDollarAmount = (msats?: number, price?: number | null) => {
+export const getDollarAmount = (msats?: number, price?: number | null) => {
   if (!price || !msats) return;
   const sats = Math.floor(msats / 1000);
   const USD = (sats / 100000000) * price;
@@ -53,11 +52,14 @@ export default function Wallet({}: {}) {
             Receive
           </Button>
         </View>
-        <View
+        {/* <TouchableOpacity
           style={{
             flexGrow: 1,
             display: "flex",
             justifyContent: "flex-end",
+          }}
+          onPress={() => {
+            router.push("/wallet/history");
           }}
         >
           <Text
@@ -67,7 +69,7 @@ export default function Wallet({}: {}) {
           >
             History
           </Text>
-        </View>
+        </TouchableOpacity> */}
       </View>
     </SafeAreaView>
   );
@@ -77,6 +79,7 @@ const BalanceInfo = () => {
   const { balance, isLoading: balanceLoading } = useWalletBalance();
   const { bitcoinPrice, isLoading: priceLoading } = useBitcoinPrice();
   const usdValue = getDollarAmount(balance, bitcoinPrice);
+
   return (
     <View
       style={{
@@ -100,7 +103,7 @@ const BalanceInfo = () => {
               fontSize: 32,
             }}
           >
-            {balance ? `${satsFormatter(balance)} sats` : ""}
+            {balance ? `${msatsToSatsWithCommas(balance)} sats` : ""}
           </Text>
         )}
       </View>

@@ -74,9 +74,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "@react-native-firebase/auth",
       "@react-native-google-signin/google-signin",
       [
-        "expo-barcode-scanner",
+        "expo-camera",
         {
-          cameraPermission: "Allow $(PRODUCT_NAME) to access camera.",
+          cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+          microphonePermission:
+            "Allow $(PRODUCT_NAME) to access your microphone",
+          recordAudioAndroid: true,
         },
       ],
       [

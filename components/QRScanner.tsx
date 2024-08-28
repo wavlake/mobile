@@ -1,54 +1,58 @@
-import { useEffect, useState } from "react";
-import { Center, Text } from "@/components";
-import { BarCodeScannedCallback, BarCodeScanner } from "expo-barcode-scanner";
-import { DimensionValue } from "react-native";
+import React, { useEffect } from "react";
+import { Button, Center, Text } from "@/components";
+import { DimensionValue, View } from "react-native";
+import {
+  BarcodeScanningResult,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera";
 
 export const QRScanner = ({
   onBarCodeScanned,
   width = "90%",
   height = "70%",
 }: {
-  onBarCodeScanned: BarCodeScannedCallback;
+  onBarCodeScanned?: (scanningResult: BarcodeScanningResult) => void;
   width?: DimensionValue;
   height?: DimensionValue;
 }) => {
-  const [hasPermission, setHasPermission] = useState<boolean | undefined>(
-    undefined,
-  );
+  const [permission, requestPermission] = useCameraPermissions();
 
   useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === "granted");
-    };
-
-    getBarCodeScannerPermissions();
+    if (!permission?.granted) {
+      requestPermission();
+      return;
+    }
   }, []);
 
-  if (hasPermission === undefined) {
-    return (
-      <Center>
-        <Text>Requesting camera permissions</Text>
-      </Center>
-    );
+  if (!permission) {
+    // Camera permissions are still loading.
+    return <View />;
   }
-  if (hasPermission === false) {
+
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
     return (
       <Center>
-        <Text>No access to camera</Text>
+        <Text>We need your permission to use the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
       </Center>
     );
   }
 
   return (
-    <BarCodeScanner
-      onBarCodeScanned={onBarCodeScanned}
+    <CameraView
+      facing={"back"}
+      barcodeScannerSettings={{
+        barcodeTypes: ["qr"],
+      }}
       style={{
         width: width,
         height: height,
         borderColor: "white",
         borderWidth: 1,
       }}
+      onBarcodeScanned={onBarCodeScanned}
     />
   );
 };

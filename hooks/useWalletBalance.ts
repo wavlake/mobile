@@ -37,12 +37,10 @@ export const useWalletBalance = () => {
   }, [data]);
 
   useEffect(() => {
-    (async () => {
-      if (!userPubkey || !enableNWC || !nwcPubkey || !nwcRelay) {
-        return;
-      }
-      refetch();
-    })();
+    if (!userPubkey || !enableNWC || !nwcPubkey || !nwcRelay) {
+      return;
+    }
+    refetch();
   }, [enableNWC, userPubkey, nwcPubkey, nwcRelay]);
 
   return { balance: enableNWC ? balance : undefined, setBalance, isLoading };
