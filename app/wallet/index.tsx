@@ -52,7 +52,7 @@ export default function Wallet({}: {}) {
             Receive
           </Button>
         </View>
-        {/* <TouchableOpacity
+        <TouchableOpacity
           style={{
             flexGrow: 1,
             display: "flex",
@@ -69,7 +69,7 @@ export default function Wallet({}: {}) {
           >
             History
           </Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
