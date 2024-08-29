@@ -7,13 +7,16 @@ import { useRef } from "react";
 export default function ZapSuccess() {
   const animation = useRef(null);
   const router = useRouter();
-  const { zapAmount, title, artist, artworkUrl } = useLocalSearchParams<{
-    zapAmount: string;
-    title: string;
-    artist: string;
-    artworkUrl: string;
+  const { transactionType, amount } = useLocalSearchParams<{
+    transactionType: string;
+    amount: string;
   }>();
 
+  const amountInt = amount ? parseInt(amount) : undefined;
+  const amountFormatted = amountInt ? `${amountInt.toLocaleString()} sats` : "";
+  const message = `You ${transactionType} ${
+    amountInt ? amountFormatted : "sats"
+  }  🎉`;
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View
@@ -32,17 +35,10 @@ export default function ZapSuccess() {
             style={{ width: 74, height: 62 }}
             source={require("@/assets/boost.json")}
           />
-          <Text style={{ fontSize: 18, marginTop: 16 }} bold>
-            {`Zapped ${zapAmount} sats 🎉`}
-          </Text>
         </View>
-        <View style={{ alignItems: "center" }}>
-          {artworkUrl && <SquareArtwork size={248} url={artworkUrl} />}
-          <MarqueeText style={{ fontSize: 20, marginTop: 16 }} bold>
-            {title}
-          </MarqueeText>
-          <MarqueeText style={{ fontSize: 18 }}>by {artist}</MarqueeText>
-        </View>
+        <Text style={{ fontSize: 18, marginTop: 16 }} bold>
+          {message}
+        </Text>
         <Button onPress={() => router.back()}>OK</Button>
       </View>
     </SafeAreaView>

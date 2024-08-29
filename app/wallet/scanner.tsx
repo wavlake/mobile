@@ -95,8 +95,8 @@ export default function Wallet({}: {}) {
       router.push({
         pathname: "/wallet/success",
         params: {
-          amount: "123456",
-          transactionType: "withdraw",
+          amount: invoiceAmount.toString(),
+          transactionType: "sent",
         },
       });
     }
@@ -120,7 +120,7 @@ export default function Wallet({}: {}) {
               <Text
                 style={{
                   marginVertical: 40,
-                  fontSize: 24,
+                  fontSize: 18,
                 }}
               >
                 Confirm Send
@@ -136,7 +136,7 @@ export default function Wallet({}: {}) {
               <Text
                 style={{
                   textAlign: "center",
-                  fontSize: 14,
+                  fontSize: 18,
                 }}
               >
                 {invoice.slice(0, 8)}...{invoice.slice(-8)}
@@ -169,7 +169,7 @@ export default function Wallet({}: {}) {
                 style={{
                   textAlign: "center",
                   marginHorizontal: 24,
-                  fontSize: 14,
+                  fontSize: 18,
                 }}
               >
                 Scan a Lightning invoice QR code or paste using the button below

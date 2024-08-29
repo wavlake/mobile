@@ -2,7 +2,7 @@ import { getTransactionHistory } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { FlatList, View } from "react-native";
-import { Text, SectionHeader, useUser, satsFormatter } from "@/components";
+import { Text, useUser, satsFormatter } from "@/components";
 
 const GREEN = "#49DE80";
 type DateTxMap<T> = {
@@ -67,7 +67,7 @@ export default function HistoryPage() {
                 <>
                   <Text
                     style={{
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: "bold",
                       color: "white",
                     }}
@@ -106,7 +106,7 @@ export default function HistoryPage() {
                         >
                           <Text
                             style={{
-                              fontSize: 20,
+                              fontSize: 18,
                               overflow: "hidden",
                               flex: 1,
                             }}
@@ -119,7 +119,7 @@ export default function HistoryPage() {
                             <Text
                               style={{
                                 color: GREEN,
-                                fontSize: 20,
+                                fontSize: 18,
                                 overflow: "hidden",
                               }}
                               bold
@@ -131,7 +131,7 @@ export default function HistoryPage() {
                             <Text
                               style={{
                                 color: "white",
-                                fontSize: 20,
+                                fontSize: 18,
                                 overflow: "hidden",
                               }}
                               bold

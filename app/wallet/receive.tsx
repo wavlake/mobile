@@ -111,7 +111,7 @@ export default function Wallet({}: {}) {
                 style={{
                   textAlign: "center",
                   marginHorizontal: 24,
-                  fontSize: 14,
+                  fontSize: 18,
                 }}
               >
                 Invoice
@@ -135,7 +135,7 @@ export default function Wallet({}: {}) {
                   <Text
                     style={{
                       textAlign: "center",
-                      fontSize: 14,
+                      fontSize: 18,
                       color: "black",
                     }}
                   >

@@ -59,7 +59,9 @@ export default function Wallet({}: {}) {
             justifyContent: "flex-end",
           }}
           onPress={() => {
-            router.push("/wallet/history");
+            router.push({
+              pathname: "/wallet/history",
+            });
           }}
         >
           <Text
@@ -117,7 +119,7 @@ const BalanceInfo = () => {
         ) : (
           <Text
             style={{
-              fontSize: 14,
+              fontSize: 18,
             }}
           >
             {usdValue ? `~$${getDollarAmount(balance, bitcoinPrice)}` : ""}

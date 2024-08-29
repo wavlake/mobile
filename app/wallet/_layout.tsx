@@ -1,10 +1,7 @@
 import { Stack } from "expo-router";
-import { useTheme } from "@react-navigation/native";
 import { HeaderBackButton, Text } from "@/components";
 
 export default function ZapLayout() {
-  const { colors } = useTheme();
-
   return (
     <Stack
       screenOptions={{
@@ -44,6 +41,13 @@ export default function ZapLayout() {
         options={{
           presentation: "card",
           headerTitle: () => <Text>History</Text>,
+        }}
+      />
+      <Stack.Screen
+        name="success"
+        options={{
+          presentation: "card",
+          headerTitle: () => <Text>Success</Text>,
         }}
       />
     </Stack>
