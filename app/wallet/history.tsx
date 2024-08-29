@@ -41,7 +41,6 @@ export default function HistoryPage() {
     });
 
   const { pages = [] } = data ?? {};
-  console.log(pages.length);
   const flattenedData = flattenDateObjects(
     pages.map((page) => page.transactions),
   );
@@ -61,10 +60,11 @@ export default function HistoryPage() {
         <>
           <FlatList
             data={flattenedData}
-            ListHeaderComponent={() => <SectionHeader title="Transactions" />}
+            ListHeaderComponent={() => (
+              <SectionHeader title="Transaction history" />
+            )}
             renderItem={({ item, index }) => {
               const isLastRow = index === flattenedData.length - 1;
-
               return (
                 <>
                   <Text

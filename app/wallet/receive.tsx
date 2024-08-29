@@ -72,14 +72,6 @@ export default function Wallet({}: {}) {
             gap: 12,
           }}
         >
-          <Text
-            style={{
-              fontSize: 24,
-              flexGrow: 1,
-            }}
-          >
-            Receive
-          </Text>
           {isEnteringAmount ? (
             <>
               <TextInput
@@ -154,19 +146,14 @@ export default function Wallet({}: {}) {
               </View>
             </>
           )}
-
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "flex-end",
-              flexGrow: 1,
-              gap: 20,
-            }}
+          <Button
+            style={{ marginTop: 8 }}
+            width={200}
+            color="pink"
+            onPress={() => router.back()}
           >
-            <Button width={160} color="pink" onPress={() => router.back()}>
-              Cancel
-            </Button>
-          </View>
+            Cancel
+          </Button>
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>

@@ -157,14 +157,6 @@ export default function Wallet({}: {}) {
           ) : (
             <>
               <LoadingScreen loading={isLoading} />
-              <Text
-                style={{
-                  marginVertical: 40,
-                  fontSize: 24,
-                }}
-              >
-                Send
-              </Text>
               <QRScanner
                 onBarCodeScanned={onBarCodeScanned}
                 width={"90%"}
@@ -179,21 +171,18 @@ export default function Wallet({}: {}) {
               >
                 Scan a Lightning invoice QR code or paste using the button below
               </Text>
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: "flex-end",
-                  flexGrow: 1,
-                  gap: 20,
-                }}
+
+              <Button width={200} color="white" onPress={onPaste}>
+                Paste
+              </Button>
+              <Button
+                style={{ marginTop: 8 }}
+                width={200}
+                color="pink"
+                onPress={() => router.back()}
               >
-                <Button width={160} color="white" onPress={onPaste}>
-                  Paste
-                </Button>
-                <Button width={160} color="pink" onPress={() => router.back()}>
-                  Cancel
-                </Button>
-              </View>
+                Cancel
+              </Button>
             </>
           )}
         </View>
