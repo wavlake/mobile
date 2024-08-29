@@ -12,7 +12,7 @@ export const useWalletBalance = () => {
   const [balance, setBalance] = useState<number | undefined>(undefined);
   const toast = useToast();
 
-  const { data, refetch, isLoading } = useQuery({
+  const queryData = useQuery({
     queryKey: ["balance", userPubkey],
     queryFn: async () => {
       const response = await getNwcBalance({
@@ -31,17 +31,17 @@ export const useWalletBalance = () => {
   });
 
   useEffect(() => {
-    if (data) {
-      setBalance(data);
+    if (queryData.data) {
+      setBalance(queryData.data);
     }
-  }, [data]);
+  }, [queryData.data]);
 
   useEffect(() => {
     if (!userPubkey || !enableNWC || !nwcPubkey || !nwcRelay) {
       return;
     }
-    refetch();
+    queryData.refetch();
   }, [enableNWC, userPubkey, nwcPubkey, nwcRelay]);
 
-  return { balance: enableNWC ? balance : undefined, setBalance, isLoading };
+  return { ...queryData, balance: enableNWC ? balance : undefined, setBalance };
 };

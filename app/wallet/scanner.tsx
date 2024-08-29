@@ -22,7 +22,7 @@ export default function Wallet({}: {}) {
   const { pubkey } = useAuth();
   const { data: settings } = useSettings();
   const toast = useToast();
-  const { setBalance } = useWalletBalance();
+  const { setBalance, refetch: refetchBalance } = useWalletBalance();
   const [invoice, setInvoice] = useState("");
   const [invoiceAmount, setInvoiceAmount] = useState(0);
 
@@ -86,6 +86,8 @@ export default function Wallet({}: {}) {
 
     if (result?.balance) {
       setBalance(result.balance);
+    } else {
+      refetchBalance();
     }
 
     if (result?.preimage) {

@@ -52,7 +52,7 @@ export const useZap = ({
   const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
-  const { setBalance } = useWalletBalance();
+  const { setBalance, refetch: refetchBalance } = useWalletBalance();
   const { enableNWC, defaultZapAmount } = settings || {};
 
   const sendZap: SendZap = async (props) => {
@@ -157,6 +157,8 @@ export const useZap = ({
         }
         if (result?.balance) {
           setBalance(result.balance);
+        } else {
+          refetchBalance();
         }
       } else {
         // fallback to opening the invoice in the default wallet

@@ -30,7 +30,7 @@ export const useTicketZap = (showEventDTag: string) => {
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
-  const { setBalance } = useWalletBalance();
+  const { setBalance, refetch: refetchBalance } = useWalletBalance();
 
   const sendZap: SendZap = async ({ comment = "", amount, quantity }) => {
     setIsLoading(true);
@@ -93,6 +93,8 @@ export const useTicketZap = (showEventDTag: string) => {
         }
         if (result?.balance) {
           setBalance(result.balance);
+        } else {
+          refetchBalance();
         }
       } else {
         // if no NWC, open invoice in default wallet
