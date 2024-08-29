@@ -31,11 +31,29 @@ export const QRScanner = ({
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
-    return (
+    return permission.canAskAgain ? (
       <Center>
-        <Text>We need your permission to use the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Text
+          style={{
+            textAlign: "center",
+          }}
+        >
+          We need your permission to use the camera
+        </Text>
+        <Button style={{ marginTop: 8 }} onPress={requestPermission}>
+          grant permission
+        </Button>
+      </Center>
+    ) : (
+      <Center>
+        <Text
+          style={{
+            textAlign: "center",
+          }}
+        >
+          Camera permission has been denied, please grant camera permission for
+          the Wavlake app in your device settings.
+        </Text>
       </Center>
     );
   }
