@@ -19,6 +19,11 @@ export const msatsToSatsWithCommas = (mSats: number) => {
   // add commas
   return sats.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
+export const satsWithCommas = (sats: number) => {
+  const satsString = Math.floor(sats / 1000).toFixed(0);
+  // add commas
+  return satsString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
 export const WalletLabel: React.FC = () => {
   const { balance } = useWalletBalance();
