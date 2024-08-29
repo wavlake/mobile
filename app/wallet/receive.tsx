@@ -149,7 +149,6 @@ export default function Wallet({}: {}) {
           <Button
             style={{ marginTop: 8 }}
             width={200}
-            color="pink"
             onPress={() => router.back()}
           >
             Cancel

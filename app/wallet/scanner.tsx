@@ -1,4 +1,4 @@
-import { Button, QRScanner, msatsToSatsWithCommas, Text } from "@/components";
+import { Button, QRScanner, satsWithCommas, Text } from "@/components";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth, useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import * as Clipboard from "expo-clipboard";
 
 export default function Wallet({}: {}) {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function Wallet({}: {}) {
   };
 
   const onPaste = async () => {
-    const clipboard = await Clipboard.toString();
+    const clipboard = await Clipboard.getStringAsync();
     if (clipboard) {
       await processInvoice(clipboard);
     }
@@ -130,7 +131,7 @@ export default function Wallet({}: {}) {
                   fontSize: 32,
                 }}
               >
-                {msatsToSatsWithCommas(invoiceAmount)} sats
+                {satsWithCommas(invoiceAmount)} sats
               </Text>
               <Text
                 style={{
@@ -180,7 +181,6 @@ export default function Wallet({}: {}) {
               <Button
                 style={{ marginTop: 8 }}
                 width={200}
-                color="pink"
                 onPress={() => router.back()}
               >
                 Cancel
@@ -201,6 +201,7 @@ export function parseInvoice(x: string) {
     if (!third || !second || !Number.isInteger(secondInt)) {
       throw "Invalid invoice, please ensure there is an amount specified";
     }
+    console.log("invoiceAmount", secondInt, third);
     switch (third) {
       case "m":
         return secondInt * 100000;
