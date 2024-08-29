@@ -92,7 +92,7 @@ export default function Wallet({}: {}) {
     }
 
     if (result?.preimage) {
-      router.push({
+      router.replace({
         pathname: "/wallet/success",
         params: {
           amount: invoiceAmount.toString(),

@@ -1,7 +1,8 @@
 import { Button, Text, TextInput, useUser } from "@/components";
 import { CopyButton } from "@/components/CopyButton";
-import { useToast } from "@/hooks";
+import { useAuth, useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
+import { listenForIncomingNWCPayment } from "@/utils";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -29,6 +30,7 @@ export default function Wallet({}: {}) {
   const router = useRouter();
   const { catalogUser } = useUser();
   const { data: settings } = useSettings();
+  const { pubkey } = useAuth();
   const toast = useToast();
   const [invoice, setInvoice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +59,28 @@ export default function Wallet({}: {}) {
       return;
     }
 
+    if (!settings?.nwcPubkey || !settings?.nwcRelay) {
+      toast.show("Wallet has not been setup");
+    } else {
+      listenForIncomingNWCPayment({
+        userPubkey: pubkey,
+        invoice,
+        walletPubkey: settings.nwcPubkey,
+        nwcRelay: settings.nwcRelay,
+      })
+        .then(() => {
+          router.replace({
+            pathname: "/wallet/success",
+            params: {
+              amount: amount.toString(),
+              tranasctionType: "received",
+            },
+          });
+        })
+        .catch((error) => {
+          toast.show(error);
+        });
+    }
     return invoice;
   };
 

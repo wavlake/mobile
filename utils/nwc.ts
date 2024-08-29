@@ -33,12 +33,13 @@ type InvoiceResult = {
   invoice?: string;
   description?: string;
   description_hash?: string;
-  preimage: string;
+  preimage?: string; // optional for lookup_invoice
   payment_hash: string;
   amount: number;
   fees_paid: number;
   created_at: string;
   expires_at?: string;
+  settled_at?: string;
   metadata: Record<string, unknown>;
 };
 
@@ -46,11 +47,27 @@ type MakeInvoiceResponse = NWCResponseBase<"make_invoice", InvoiceResult>;
 
 type GetBalanceResponse = NWCResponseBase<"get_balance", { balance: number }>;
 
+type LookupInvoiceRequest = {
+  method: "lookup_invoice";
+  params:
+    | {
+        invoice: string;
+        payment_hash?: string;
+      }
+    | {
+        payment_hash: string;
+        invoice?: string;
+      };
+};
+
+type LookupInvoiceResponse = NWCResponseBase<"lookup_invoice", InvoiceResult>;
+
 // Union of all response types
 export type NWCResponse =
   | PayInvoiceResponse
   | MakeInvoiceResponse
-  | GetBalanceResponse;
+  | GetBalanceResponse
+  | LookupInvoiceResponse;
 
 // Request types
 type PayInvoiceRequest = {
@@ -79,7 +96,8 @@ type GetBalanceRequest = {
 export type NWCRequest =
   | PayInvoiceRequest
   | MakeInvoiceRequest
-  | GetBalanceRequest;
+  | GetBalanceRequest
+  | LookupInvoiceRequest;
 
 export const payInvoiceCommand = "pay_invoice";
 export const getBalanceCommand = "get_balance";
@@ -536,4 +554,65 @@ export const getNWCInvoice = async ({
 
     return errorResponse;
   }
+};
+
+export const listenForIncomingNWCPayment = async ({
+  userPubkey,
+  invoice,
+  walletPubkey,
+  nwcRelay,
+}: {
+  userPubkey: string;
+  invoice: string;
+  walletPubkey: string;
+  nwcRelay: string;
+}): Promise<any> => {
+  const checkPayment = async (
+    attempt: number = 1,
+    maxAttempts: number = 20,
+  ): Promise<any> => {
+    if (attempt > maxAttempts) {
+      throw "Max attempts reached. Invoice not yet paid.";
+    }
+
+    const { connectionSecret } = await getNwcConnection(userPubkey);
+
+    const requestEvent = await makeNWCRequestEvent({
+      walletPubkey,
+      relay: nwcRelay,
+      request: {
+        method: "lookup_invoice",
+        params: {
+          invoice,
+        },
+      },
+      connectionSecret,
+    });
+
+    if (!requestEvent) {
+      throw "Failed to send NWC request";
+    }
+
+    const relay =
+      nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
+
+    const response = (await fetchNWCResponse({
+      userPubkey,
+      requestEvent,
+      relay,
+    })) as LookupInvoiceResponse;
+
+    if (response.result?.settled_at) {
+      return response;
+    }
+
+    // If not settled, wait for 3 seconds and try again
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(checkPayment(attempt + 1, maxAttempts));
+      }, 3000);
+    });
+  };
+
+  return checkPayment();
 };
