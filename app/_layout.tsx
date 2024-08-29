@@ -155,7 +155,11 @@ export default function Layout() {
                   />
                   <Stack.Screen
                     name="wallet"
-                    options={{ headerTitle: () => <Text>Wallet</Text> }}
+                    options={{
+                      headerShown: false,
+
+                      headerTitle: () => <Text>Wallet</Text>,
+                    }}
                   />
                 </Stack>
                 <DeepLinkHandler />

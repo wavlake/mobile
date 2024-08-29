@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { useTheme } from "@react-navigation/native";
-import { Text } from "@/components";
+import { HeaderBackButton } from "@/components";
 
 export default function ZapLayout() {
   const { colors } = useTheme();
@@ -8,20 +8,25 @@ export default function ZapLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
+        headerStyle: {
+          backgroundColor: "black",
+        },
+        headerShadowVisible: false,
+        headerTintColor: "white",
+        headerBackTitleVisible: false,
+        headerTitleAlign: "center",
+        headerLeft: () => <HeaderBackButton />,
       }}
     >
       <Stack.Screen
         name="scanner"
         options={{
-          headerShown: false,
           presentation: "containedModal",
         }}
       />
       <Stack.Screen
         name="receive"
         options={{
-          headerShown: false,
           presentation: "containedModal",
         }}
       />
