@@ -109,16 +109,10 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw user.error;
       }
 
-      // name only used if creating a new db user or nostr profile
-      const name = generateUsername(
-        user.user.email?.split("@")[0] ?? "user",
-        user.user.uid,
-      );
-
       if (user.additionalUserInfo?.isNewUser) {
         // create the wavlake db user using the new firebase userId
+        // catalog handles random username generation
         await createUser({
-          username: name,
           userId: user.user.uid,
           // TODO - add profile image if available
           // artworkUrl: user.user.photoURL ?? "",
@@ -132,7 +126,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         if (!hasExistingNostrProfile) {
           // new mobile user, so create a new nostr account
           const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-            name,
+            name: catalogUser?.name,
             // picture: user.user.photoURL ?? "",
             lud06: `${catalogUser?.profileUrl}@wavlake.com`,
           });
@@ -172,14 +166,9 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw user.error;
       }
 
-      const name = generateUsername(
-        user.user.email?.split("@")[0] ?? "user",
-        user.user.uid,
-      );
-
       // create the wavlake db user using the new firebase userId
+      // catalog handles random username generation
       const newUser = await createUser({
-        username: name,
         userId: user.user.uid,
         // todo - add profile image if available
         // artworkUrl: user.user.photoURL ?? "",
