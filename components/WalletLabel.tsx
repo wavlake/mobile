@@ -6,9 +6,9 @@ export const satsFormatter = (mSats: number) => {
   const sats = Math.floor(mSats / 1000);
 
   if (sats >= 1000000) {
-    return (sats / 1000000).toFixed(2) + "M";
+    return Math.floor(sats / 10000) / 100 + "M";
   } else if (sats >= 1000) {
-    return (sats / 1000).toFixed(1) + "k";
+    return Math.floor(sats / 100) / 10 + "k";
   } else {
     return sats.toString();
   }
