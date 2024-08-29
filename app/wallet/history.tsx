@@ -2,8 +2,9 @@ import { getTransactionHistory } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { FlatList, View } from "react-native";
-import { Text, SectionHeader, useUser } from "@/components";
+import { Text, SectionHeader, useUser, satsFormatter } from "@/components";
 
+const GREEN = "#49DE80";
 type DateTxMap<T> = {
   [date: string]: T[];
 };
@@ -60,34 +61,30 @@ export default function HistoryPage() {
         <>
           <FlatList
             data={flattenedData}
-            ListHeaderComponent={() => (
-              <SectionHeader title="Transaction history" />
-            )}
             renderItem={({ item, index }) => {
               const isLastRow = index === flattenedData.length - 1;
               return (
                 <>
                   <Text
                     style={{
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: "bold",
                       color: "white",
                     }}
+                    bold
                   >
                     {item.date}
                   </Text>
                   <View
                     style={{
-                      padding: 8,
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      borderRadius: 8,
                       marginBottom: 8,
                       display: "flex",
                       flexDirection: "column",
                     }}
                   >
                     {item.transactions.map((tx) => {
-                      const satAmount = parseInt(tx.msatAmount) / 1000;
+                      const msatAmountInt = parseInt(tx.msatAmount);
+                      const satAmount = satsFormatter(msatAmountInt);
                       const isIncoming = [
                         "Zap",
                         "Deposit",
@@ -99,18 +96,34 @@ export default function HistoryPage() {
                             display: "flex",
                             flexDirection: "row",
                             justifyContent: "space-between",
+                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                            borderRadius: 8,
+                            padding: 8,
+                            marginVertical: 2,
+                            gap: 10,
                           }}
                           key={tx.id}
                         >
-                          <Text>
+                          <Text
+                            style={{
+                              fontSize: 20,
+                              overflow: "hidden",
+                              flex: 1,
+                            }}
+                            numberOfLines={1}
+                            bold
+                          >
                             {`${tx.type}${tx.title ? `: ${tx.title}` : ""}`}
                           </Text>
                           {isIncoming ? (
                             <Text
                               style={{
-                                color: "green",
-                                fontWeight: "bold",
+                                color: GREEN,
+                                fontSize: 20,
+                                overflow: "hidden",
                               }}
+                              bold
+                              numberOfLines={1}
                             >
                               +{satAmount} sats
                             </Text>
@@ -118,8 +131,11 @@ export default function HistoryPage() {
                             <Text
                               style={{
                                 color: "white",
-                                fontWeight: "bold",
+                                fontSize: 20,
+                                overflow: "hidden",
                               }}
+                              bold
+                              numberOfLines={1}
                             >
                               {satAmount} sats
                             </Text>

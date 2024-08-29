@@ -174,7 +174,6 @@ export default function Wallet({}: {}) {
               >
                 Scan a Lightning invoice QR code or paste using the button below
               </Text>
-
               <Button width={200} color="white" onPress={onPaste}>
                 Paste
               </Button>
@@ -201,7 +200,6 @@ export function parseInvoice(x: string) {
     if (!third || !second || !Number.isInteger(secondInt)) {
       throw "Invalid invoice, please ensure there is an amount specified";
     }
-    console.log("invoiceAmount", secondInt, third);
     switch (third) {
       case "m":
         return secondInt * 100000;
