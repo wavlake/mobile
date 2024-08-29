@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { useTheme } from "@react-navigation/native";
-import { HeaderBackButton } from "@/components";
+import { HeaderBackButton, Text } from "@/components";
 
 export default function ZapLayout() {
   const { colors } = useTheme();
@@ -19,15 +19,31 @@ export default function ZapLayout() {
       }}
     >
       <Stack.Screen
+        name="index"
+        options={{
+          presentation: "card",
+          headerTitle: () => <Text>Wallet</Text>,
+        }}
+      />
+      <Stack.Screen
         name="scanner"
         options={{
-          presentation: "containedModal",
+          presentation: "card",
+          headerTitle: () => <Text>Send</Text>,
         }}
       />
       <Stack.Screen
         name="receive"
         options={{
-          presentation: "containedModal",
+          presentation: "card",
+          headerTitle: () => <Text>Receive</Text>,
+        }}
+      />
+      <Stack.Screen
+        name="history"
+        options={{
+          presentation: "card",
+          headerTitle: () => <Text>History</Text>,
         }}
       />
     </Stack>
