@@ -425,7 +425,7 @@ async function sendNwcMakeInvoiceRequest({
     },
     connectionSecret,
   });
-
+  console.log("requestEvent", requestEvent);
   if (!requestEvent) {
     throw new Error("Failed to send NWC request");
   }
@@ -556,21 +556,29 @@ export const getNWCInvoice = async ({
   }
 };
 
+const WAIT_TIME_BETWEEN_CHECKS = 5000;
+const DEFAULT_ATTEMPTS = 30;
+// total time spent checking = 2.5 minutes
 export const listenForIncomingNWCPayment = async ({
   userPubkey,
   invoice,
   walletPubkey,
   nwcRelay,
+  signal,
 }: {
   userPubkey: string;
   invoice: string;
   walletPubkey: string;
   nwcRelay: string;
+  signal: AbortSignal;
 }): Promise<any> => {
   const checkPayment = async (
     attempt: number = 1,
-    maxAttempts: number = 20,
+    maxAttempts: number = DEFAULT_ATTEMPTS,
   ): Promise<any> => {
+    if (signal.aborted) {
+      throw "Operation aborted. Invoice not yet paid.";
+    }
     if (attempt > maxAttempts) {
       throw "Max attempts reached. Invoice not yet paid.";
     }
@@ -606,11 +614,20 @@ export const listenForIncomingNWCPayment = async ({
       return response;
     }
 
-    // If not settled, wait for 3 seconds and try again
-    return new Promise((resolve) => {
-      setTimeout(() => {
+    // If not settled, wait and try again
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
         resolve(checkPayment(attempt + 1, maxAttempts));
-      }, 3000);
+      }, WAIT_TIME_BETWEEN_CHECKS);
+      // Set up a listener for the abort signal
+      signal.addEventListener(
+        "abort",
+        () => {
+          clearTimeout(timeoutId);
+          reject("Operation aborted. Invoice not yet paid.");
+        },
+        { once: true },
+      );
     });
   };
 

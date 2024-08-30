@@ -4,7 +4,7 @@ import { useAuth, useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
 import { listenForIncomingNWCPayment } from "@/utils";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Keyboard,
   SafeAreaView,
@@ -36,6 +36,16 @@ export default function Fund({}: {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState<string>("");
   const [isEnteringAmount, setIsEnteringAmount] = useState(true);
+  const isMounted = useRef(true);
+  useEffect(() => {
+    // Set isMounted to true when the component mounts
+    isMounted.current = true;
+
+    // Cleanup function to run when the component unmounts
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // fetch invoice from lnurl
   const fetchInvoice = async () => {
@@ -64,24 +74,34 @@ export default function Fund({}: {}) {
       toast.show("Wallet has not been setup");
       return;
     }
+
+    let abortController = new AbortController();
     listenForIncomingNWCPayment({
       userPubkey: pubkey,
       invoice,
       walletPubkey: settings?.nwcPubkey,
       nwcRelay: settings?.nwcRelay,
+      signal: abortController.signal,
     })
       .then(() => {
-        router.replace({
-          pathname: "/wallet/success",
-          params: {
-            amount: amount.toString(),
-            transactionType: "received",
-          },
-        });
+        if (isMounted.current) {
+          router.replace({
+            pathname: "/wallet/success",
+            params: {
+              amount: amount.toString(),
+              transactionType: "received",
+            },
+          });
+        }
       })
       .catch((error) => {
-        toast.show(error);
+        if (isMounted.current && error.name !== "AbortError") {
+          toast.show(error);
+        }
       });
+    return () => {
+      abortController.abort(); // Abort the ongoing operation when component unmounts
+    };
   }, [invoice]);
 
   return (
