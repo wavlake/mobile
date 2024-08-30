@@ -19,11 +19,11 @@ export const getDollarAmount = (msats?: number, price?: number | null) => {
 export default function Wallet({}: {}) {
   const router = useRouter();
   const onSend = async () => {
-    router.push("/wallet/scanner");
+    router.push("/wallet/withdraw");
   };
 
   const onReceive = async () => {
-    router.push("/wallet/receive");
+    router.push("/wallet/fund");
   };
 
   return (
@@ -46,10 +46,10 @@ export default function Wallet({}: {}) {
           }}
         >
           <Button width={160} color="white" onPress={onSend}>
-            Send
+            Withdraw
           </Button>
           <Button width={160} color="white" onPress={onReceive}>
-            Receive
+            Fund
           </Button>
         </View>
         <TouchableOpacity

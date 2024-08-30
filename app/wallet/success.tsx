@@ -4,7 +4,7 @@ import { SafeAreaView, View } from "react-native";
 import LottieView from "lottie-react-native";
 import { useRef } from "react";
 
-export default function ZapSuccess() {
+export default function Success() {
   const animation = useRef(null);
   const router = useRouter();
   const { transactionType, amount } = useLocalSearchParams<{

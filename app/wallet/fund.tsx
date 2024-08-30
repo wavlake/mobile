@@ -4,7 +4,7 @@ import { useAuth, useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
 import { listenForIncomingNWCPayment } from "@/utils";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Keyboard,
   SafeAreaView,
@@ -26,7 +26,7 @@ export const buildUri = (
   return url.toString();
 };
 
-export default function Wallet({}: {}) {
+export default function Fund({}: {}) {
   const router = useRouter();
   const { catalogUser } = useUser();
   const { data: settings } = useSettings();
@@ -54,35 +54,35 @@ export default function Wallet({}: {}) {
     const rsponse = await fetch(url);
     const data = await rsponse.json();
     const invoice = data?.pr as string;
-    if (!invoice) {
-      toast.show("Error fetching invoice");
-      return;
-    }
 
-    if (!settings?.nwcPubkey || !settings?.nwcRelay) {
-      toast.show("Wallet has not been setup");
-    } else {
-      listenForIncomingNWCPayment({
-        userPubkey: pubkey,
-        invoice,
-        walletPubkey: settings.nwcPubkey,
-        nwcRelay: settings.nwcRelay,
-      })
-        .then(() => {
-          router.replace({
-            pathname: "/wallet/success",
-            params: {
-              amount: amount.toString(),
-              tranasctionType: "received",
-            },
-          });
-        })
-        .catch((error) => {
-          toast.show(error);
-        });
-    }
     return invoice;
   };
+
+  useEffect(() => {
+    if (!invoice) return;
+    if (!settings?.nwcPubkey || !settings?.nwcRelay) {
+      toast.show("Wallet has not been setup");
+      return;
+    }
+    listenForIncomingNWCPayment({
+      userPubkey: pubkey,
+      invoice,
+      walletPubkey: settings?.nwcPubkey,
+      nwcRelay: settings?.nwcRelay,
+    })
+      .then(() => {
+        router.replace({
+          pathname: "/wallet/success",
+          params: {
+            amount: amount.toString(),
+            transactionType: "received",
+          },
+        });
+      })
+      .catch((error) => {
+        toast.show(error);
+      });
+  }, [invoice]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

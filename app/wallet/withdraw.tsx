@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
 
-export default function Wallet({}: {}) {
+export default function Withdraw({}: {}) {
   const router = useRouter();
   // this is used to debounce the scanner so it doesnt scan multiple times
   const [scanned, setScanned] = useState("");

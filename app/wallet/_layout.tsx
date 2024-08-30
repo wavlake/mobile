@@ -23,17 +23,17 @@ export default function ZapLayout() {
         }}
       />
       <Stack.Screen
-        name="scanner"
+        name="withdraw"
         options={{
           presentation: "card",
-          headerTitle: () => <Text>Send</Text>,
+          headerTitle: () => <Text>Withdraw</Text>,
         }}
       />
       <Stack.Screen
-        name="receive"
+        name="fund"
         options={{
           presentation: "card",
-          headerTitle: () => <Text>Receive</Text>,
+          headerTitle: () => <Text>Fund</Text>,
         }}
       />
       <Stack.Screen
