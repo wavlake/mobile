@@ -78,7 +78,7 @@ export default function Wallet({}: {}) {
 }
 
 const BalanceInfo = () => {
-  const { balance, isLoading: balanceLoading } = useWalletBalance();
+  const { data: balance, isLoading: balanceLoading } = useWalletBalance();
   const { bitcoinPrice, isLoading: priceLoading } = useBitcoinPrice();
   const usdValue = getDollarAmount(balance, bitcoinPrice);
 

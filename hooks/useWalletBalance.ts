@@ -1,20 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { useSettings } from "./useSettings";
 import { getNwcBalance } from "@/utils";
-import { useEffect, useState } from "react";
 import { useToast } from "./useToast";
 
 export const useWalletBalance = () => {
   const { data: settings } = useSettings();
   const { enableNWC, nwcPubkey, nwcRelay } = settings ?? {};
   const { pubkey: userPubkey } = useAuth();
-  const [balance, setBalance] = useState<number | undefined>(undefined);
   const toast = useToast();
+  const queryClient = useQueryClient();
 
-  const queryData = useQuery({
-    queryKey: ["balance", userPubkey],
+  const queryKey = ["balance", userPubkey, nwcPubkey, nwcRelay];
+
+  const queryResult = useQuery({
+    queryKey,
     queryFn: async () => {
+      console.log("fetching balance");
       const response = await getNwcBalance({
         userPubkey,
         walletPubkey: nwcPubkey,
@@ -22,26 +24,21 @@ export const useWalletBalance = () => {
       });
       if (response?.result_type !== "get_balance") {
         toast.show("Something went wrong. Please try again later.");
-        return;
+        return undefined;
       }
 
       return response?.result?.balance ?? 0;
     },
-    enabled: enableNWC,
+    enabled: !!enableNWC && !!userPubkey && !!nwcPubkey && !!nwcRelay,
+    staleTime: 30 * 1000,
   });
 
-  useEffect(() => {
-    if (queryData.data) {
-      setBalance(queryData.data);
-    }
-  }, [queryData.data]);
+  const setBalance = (newBalance: number) => {
+    queryClient.setQueryData(queryKey, newBalance);
+  };
 
-  useEffect(() => {
-    if (!userPubkey || !enableNWC || !nwcPubkey || !nwcRelay) {
-      return;
-    }
-    queryData.refetch();
-  }, [enableNWC, userPubkey, nwcPubkey, nwcRelay]);
-
-  return { ...queryData, balance: enableNWC ? balance : undefined, setBalance };
+  return {
+    ...queryResult,
+    setBalance,
+  };
 };

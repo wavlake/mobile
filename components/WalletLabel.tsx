@@ -33,7 +33,7 @@ export const satsWithCommas = (sats: number) => {
 };
 
 export const WalletLabel: React.FC = () => {
-  const { balance } = useWalletBalance();
+  const { data: balance } = useWalletBalance();
 
   return (
     <View
