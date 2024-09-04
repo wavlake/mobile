@@ -59,3 +59,4 @@ export * from "./ProfilePlaylistsPage";
 export * from "./PlaylistEditPage";
 export * from "./WalletLabel";
 export * from "./QRScanner";
+export * from "./OrSeparator";
