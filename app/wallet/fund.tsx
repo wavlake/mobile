@@ -1,4 +1,4 @@
-import { Button, Text, TextInput, useUser } from "@/components";
+import { Button, OrSeparator, Text, TextInput, useUser } from "@/components";
 import { CopyButton } from "@/components/CopyButton";
 import { useAuth, useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
@@ -37,6 +37,10 @@ export default function Fund({}: {}) {
   const [amount, setAmount] = useState<string>("");
   const [isEnteringAmount, setIsEnteringAmount] = useState(true);
   const isMounted = useRef(true);
+  const lightningAddress = catalogUser?.profileUrl
+    ? `${catalogUser?.profileUrl}@wavlake.com`
+    : undefined;
+
   useEffect(() => {
     // Set isMounted to true when the component mounts
     isMounted.current = true;
@@ -118,6 +122,29 @@ export default function Fund({}: {}) {
         >
           {isEnteringAmount ? (
             <>
+              {lightningAddress && (
+                <>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginHorizontal: 24,
+                      fontSize: 18,
+                    }}
+                  >
+                    Send funds to your lightning address:
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginHorizontal: 24,
+                      fontSize: 18,
+                    }}
+                  >
+                    {lightningAddress}
+                  </Text>
+                  <OrSeparator />
+                </>
+              )}
               <TextInput
                 keyboardType="numeric"
                 label="Amount"
