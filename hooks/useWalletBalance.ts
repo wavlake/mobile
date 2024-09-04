@@ -16,7 +16,6 @@ export const useWalletBalance = () => {
   const queryResult = useQuery({
     queryKey,
     queryFn: async () => {
-      console.log("fetching balance");
       const response = await getNwcBalance({
         userPubkey,
         walletPubkey: nwcPubkey,
