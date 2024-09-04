@@ -5,7 +5,7 @@ import { Text } from "@/components/Text";
 import { BasicAvatar } from "./BasicAvatar";
 import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";
 import { useRouter } from "expo-router";
-import { satsFormatter } from "./WalletBalance";
+import { satsFormatter } from "./WalletLabel";
 import { Octicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";

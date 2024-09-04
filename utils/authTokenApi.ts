@@ -178,3 +178,43 @@ export const useCreateConnection = (onSuccess?: Function) => {
     },
   });
 };
+
+interface Transaction {
+  comment: any;
+  createDate: string;
+  failureReason: string;
+  feeMsat: any;
+  feemsat: any;
+  id: number;
+  isPending: false;
+  ispending: false;
+  msatAmount: string;
+  paymentId: string;
+  paymentid: string;
+  success: any;
+  title: string;
+  type: string;
+}
+
+export const getTransactionHistory = async (page: number) => {
+  const { data } = await catalogApiClient.get<
+    ResponseObject<{
+      pagination: {
+        currentPage: number;
+        perPage: number;
+        total: number;
+        totalPages: number;
+      };
+      transactions: Record<string, Transaction[]>;
+    }>
+  >(`/accounts/txs/${page}`, {});
+
+  // const listOfTxsByDate = Object.keys(data.data.transactions).map((date) => {
+  //   return {
+  //     date,
+  //     transactions: data.data.transactions[date],
+  //   };
+  // });
+
+  return data.data;
+};

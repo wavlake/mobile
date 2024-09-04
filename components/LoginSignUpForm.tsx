@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, Button, TextInput, LogoIcon } from "@/components";
+import { Button, TextInput, LogoIcon, OrSeparator } from "@/components";
 import {
   View,
   TouchableWithoutFeedback,
@@ -188,29 +188,3 @@ const LoginProviders = ({
     </View>
   );
 };
-const OrSeparator = () => (
-  <View
-    style={{
-      marginVertical: 20,
-      flexDirection: "row",
-      gap: 15,
-      alignItems: "center",
-    }}
-  >
-    <View
-      style={{
-        borderBottomColor: "white",
-        borderBottomWidth: 1,
-        flexGrow: 1,
-      }}
-    />
-    <Text style={{ fontSize: 18 }}>or</Text>
-    <View
-      style={{
-        borderBottomColor: "white",
-        borderBottomWidth: 1,
-        flexGrow: 1,
-      }}
-    />
-  </View>
-);

@@ -10,13 +10,22 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { WalletBalance } from "./WalletBalance";
+import { WalletLabel } from "./WalletLabel";
 import { useUser } from "./UserContextProvider";
+import { useSettings } from "@/hooks/useSettings";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
-  const { signOut, user } = useUser();
+  const { signOut, user, catalogUser } = useUser();
+  const { data: settings } = useSettings();
+
+  // TODO - support any nwc wallet
+  // implment make_invoice on nwc server (currently using lnurl in mobile client)
+  const showWallet =
+    catalogUser?.isRegionVerified &&
+    !catalogUser?.isLocked &&
+    settings?.enableNWC;
 
   return (
     <DrawerContentScrollView
@@ -63,9 +72,20 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             props.navigation.closeDrawer();
           }}
         />
+        {showWallet && (
+          <DrawerItem
+            label={() => <WalletLabel />}
+            icon={({ color, size }) => (
+              <Ionicons name="wallet-outline" size={size} color={color} />
+            )}
+            onPress={async () => {
+              router.push({ pathname: "/wallet" });
+              props.navigation.closeDrawer();
+            }}
+          />
+        )}
       </View>
       <View>
-        <WalletBalance />
         {pubkey && (
           <View>
             <Divider

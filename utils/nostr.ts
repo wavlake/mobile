@@ -47,6 +47,7 @@ import { useUser } from "@/components";
 import { useAuth } from "@/hooks";
 import { updatePubkeyMetadata } from "./api";
 import { getPodcastFeedGuid } from "./rss";
+import { NWCRequest } from "./nwc";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
@@ -244,24 +245,19 @@ export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
 export const makeNWCRequestEvent = async ({
   walletPubkey,
   relay,
-  method,
-  params,
+  request,
   connectionSecret,
 }: {
   walletPubkey: string;
   relay: string;
-  method: string;
-  params?: Record<string, any>;
+  request: NWCRequest;
   connectionSecret: string;
 }): Promise<Event | void> => {
   try {
     const encryptedCommand = await nip04.encrypt(
       connectionSecret,
       walletPubkey,
-      JSON.stringify({
-        method,
-        params,
-      }),
+      JSON.stringify(request),
     );
 
     if (!encryptedCommand) {

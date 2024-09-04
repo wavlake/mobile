@@ -82,7 +82,7 @@ export default function AddNWC() {
     const maxMsatPaymentAmount = parseInt(maxZapAmount) * 1000;
     // create the connection in the db
     await createConnection({
-      name: "Wavlake Mobile App",
+      name: connectionName,
       msatBudget,
       pubkey: connectionPubkey,
       maxMsatPaymentAmount,

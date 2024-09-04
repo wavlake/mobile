@@ -153,6 +153,14 @@ export default function Layout() {
                       headerTitle: () => <Text>Connecting wallet</Text>,
                     }}
                   />
+                  <Stack.Screen
+                    name="wallet"
+                    options={{
+                      headerShown: false,
+
+                      headerTitle: () => <Text>Wallet</Text>,
+                    }}
+                  />
                 </Stack>
                 <DeepLinkHandler />
               </View>
