@@ -2,7 +2,7 @@
 
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-export const BUILD_NUM = 33;
+export const BUILD_NUM = 34;
 export const VERSION = "1.1.0";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
