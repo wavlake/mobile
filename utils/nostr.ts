@@ -377,6 +377,7 @@ export const getWriteRelayUris = (event: Event) => {
 
 export const makeZapRequest = async ({
   contentId,
+  parentContentId,
   parentContentType,
   amountInSats,
   relays = [],
@@ -385,6 +386,7 @@ export const makeZapRequest = async ({
   customTags = [],
 }: {
   contentId: string;
+  parentContentId: string;
   parentContentType: "podcast" | "album" | "artist";
   amountInSats: number;
   relays?: string[];
@@ -395,12 +397,15 @@ export const makeZapRequest = async ({
   const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
   const iTags = [
     ["i", `podcast:item:guid:${contentId}`],
-    ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
+    [
+      "i",
+      `podcast:guid:${getPodcastFeedGuid(parentContentType, parentContentId)}`,
+    ],
     [
       "i",
       `podcast:publisher:guid:${getPodcastFeedGuid(
         parentContentType,
-        contentId,
+        parentContentId,
       )}`,
     ],
   ];
@@ -667,3 +672,37 @@ export const fetchReplies = async (kind1EventIds: string[]) => {
 
   return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
 };
+
+export const fetchContentComments = async (contentIds: string[]) => {
+  const filter = {
+    kinds: [1],
+    ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
+    limit: 10,
+  };
+
+  return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
+};
+
+// TODO - instead of fetching all track comments via track #i tags, we should fetch the album comments via the album #i tag
+// export const fetchAlbumComments = async (albumIds: string[]) => {
+//   console.log("fetchAlbumComments", albumIds);
+//   const filter: Filter = {
+//     kinds: [1],
+//     ["#i"]: albumIds.map((id) => {
+//       const feedGuid = getPodcastFeedGuid("album", id);
+//       return `podcast:guid:${feedGuid}`;
+//     }),
+//   };
+//   console.log("fetchAlbumComments", { filter });
+//   return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
+// };
+
+// export const fetchPodcastComments = async (podcastId: string) => {
+//   const feedGuid = getPodcastFeedGuid("podcast", podcastId);
+//   const filter: Filter = {
+//     kinds: [1],
+//     ["#i"]: [`podcast:guid:${feedGuid}`],
+//   };
+
+//   return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
+// };

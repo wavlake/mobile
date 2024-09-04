@@ -115,6 +115,7 @@ export const FullSizeMusicPlayer = () => {
     artist,
     artworkUrl,
     timestamp: position,
+    parentContentId: albumId,
   });
 
   const handleOneTapZap = async () => {
@@ -147,6 +148,7 @@ export const FullSizeMusicPlayer = () => {
         trackId,
         timestamp: position,
         isPodcast: isPodcast ? "true" : "false",
+        parentContentId: albumId,
       },
     });
   };
