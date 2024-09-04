@@ -61,8 +61,8 @@ export default function Fund({}: {}) {
       },
     );
 
-    const rsponse = await fetch(url);
-    const data = await rsponse.json();
+    const response = await fetch(url);
+    const data = await response.json();
     const invoice = data?.pr as string;
 
     return invoice;
