@@ -1,25 +1,21 @@
 import { brandColors } from "@/constants";
-import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
-import { ContentComment } from "@/utils";
 import { useRouter } from "expo-router";
 import { TouchableOpacity, View } from "react-native";
-import { Event } from "nostr-tools";
+import { Event, EventTemplate } from "nostr-tools";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const CommentRepliesLink = ({
-  legacyReplies,
-  nostrReplies,
+  replies,
   parentcommentId,
 }: {
-  legacyReplies: ContentComment[];
-  nostrReplies: Event[];
-  parentcommentId: number;
+  replies: Array<Event | EventTemplate>;
+  parentcommentId: string;
 }) => {
   const basePathname = useGetBasePathname();
   const router = useRouter();
 
-  if (legacyReplies.length === 0 && nostrReplies.length === 0) {
+  if (replies.length === 0) {
     return undefined;
   }
 
@@ -27,7 +23,7 @@ export const CommentRepliesLink = ({
   // const hasContentOwnerReply = legacyReplies.some(
   //   (reply) => reply.isContentOwner,
   // );
-  const numReplies = legacyReplies.length + nostrReplies.length;
+
   return (
     <TouchableOpacity
       onPress={() =>
@@ -58,7 +54,7 @@ export const CommentRepliesLink = ({
             color: brandColors.orange.DEFAULT,
           }}
         >
-          {numReplies} {numReplies > 1 ? "replies" : "reply"}
+          {replies.length} {replies.length > 1 ? "replies" : "reply"}
         </Text>
       </View>
     </TouchableOpacity>

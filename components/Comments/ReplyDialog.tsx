@@ -3,16 +3,14 @@ import { Button, TextInput, CommentRow } from "@/components";
 import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
-import { ContentComment } from "@/utils";
 import { usePublishReply } from "@/hooks/usePublishReply";
-import { useSaveLegacyReply } from "@/hooks/useSaveLegacyReply";
-import { EventTemplate } from "nostr-tools";
+import { Event, UnsignedEvent } from "nostr-tools";
 
 interface ReplyDialogProps {
-  comment: ContentComment;
+  comment: Event;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  setCachedReplies?: React.Dispatch<React.SetStateAction<EventTemplate[]>>;
+  setCachedReplies?: React.Dispatch<React.SetStateAction<UnsignedEvent[]>>;
 }
 
 export const ReplyDialog = ({
@@ -46,38 +44,32 @@ const ReplyDialogContents = ({
   setCachedReplies,
   parentComment,
 }: Pick<ReplyDialogProps, "setIsOpen" | "setCachedReplies"> & {
-  parentComment: ContentComment;
+  parentComment: Event;
 }) => {
   const { save: publishReply } = usePublishReply();
-  const { mutateAsync: saveLegacyReply } = useSaveLegacyReply();
   const { colors } = useTheme();
 
   const [comment, setComment] = useState("");
   const handleReply = async () => {
-    const parentCommentEventId =
-      parentComment.eventId ?? parentComment.zapEventId;
-    if (parentCommentEventId) {
-      const tags = [
-        ["e", parentCommentEventId, "wss://relay.wavlake.com", "root"],
-        ["p", parentComment.userId],
+    const tags = [
+      ["e", parentComment.id, "wss://relay.wavlake.com", "root"],
+      ["p", parentComment.pubkey],
+    ];
+    await publishReply(comment, tags);
+    // update the app cache with the new reply
+    setCachedReplies?.((prev) => {
+      return [
+        ...prev,
+        {
+          kind: 1,
+          pubkey: parentComment.pubkey,
+          created_at: Math.floor(Date.now() / 1000),
+          tags,
+          content: comment,
+        },
       ];
-      await publishReply(comment, tags);
-      // update the app cache with the new reply
-      setCachedReplies?.((prev) => {
-        return [
-          ...prev,
-          {
-            kind: 1,
-            pubkey: parentComment.userId,
-            created_at: Math.floor(Date.now() / 1000),
-            tags,
-            content: comment,
-          },
-        ];
-      });
-    } else {
-      await saveLegacyReply({ content: comment, commentId: parentComment.id });
-    }
+    });
+
     setIsOpen(false);
   };
 

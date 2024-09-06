@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { getArtist } from "@/utils";
+import { fetchContentComments, getArtist, getArtistTracks } from "@/utils";
 import {
   ActivityIndicator,
   ScrollView,
@@ -50,6 +50,10 @@ export const ArtistPage = () => {
     queryKey: [artistId],
     queryFn: () => getArtist(artistId as string),
   });
+  const { data: tracks = [] } = useQuery({
+    queryKey: [artistId, "tracks"],
+    queryFn: () => getArtistTracks(artistId as string),
+  });
   const topAlbums = artist?.topAlbums ?? [];
   const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
   const topMessages = artist?.topMessages ?? [];
@@ -58,6 +62,12 @@ export const ArtistPage = () => {
   const router = useRouter();
   const isVerified = artist?.verified ?? false;
 
+  const trackIds = tracks.map((track) => track.id);
+  const { data: comments = [] } = useQuery({
+    queryKey: [artistId, "comments"],
+    queryFn: () => fetchContentComments(trackIds),
+    enabled: trackIds.length > 0,
+  });
   useEffect(() => {
     if (isVerified) {
       router.setParams({ includeHeaderTitleVerifiedBadge: "1" });
@@ -142,15 +152,11 @@ export const ArtistPage = () => {
         }}
       />
       <HorizontalArtworkRow items={topAlbums} onPress={handleTopAlbumPress} />
-      {topMessages.length > 0 && (
-        <>
-          <SectionHeader title="Latest Messages" />
-          <CommentList comments={topMessages} />
-          <TouchableOpacity onPress={handleLoadMore}>
-            <Text style={{ textAlign: "center" }}>View more</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      <SectionHeader title="Latest Messages" />
+      <CommentList comments={comments} />
+      <TouchableOpacity onPress={handleLoadMore}>
+        <Text style={{ textAlign: "center" }}>View more</Text>
+      </TouchableOpacity>
       {artist.bio && (
         <>
           <SectionHeader title="About" />

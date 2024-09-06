@@ -572,6 +572,14 @@ export const subscribeToTicket = async (pubkey: string) => {
 
 const followerTag = "p";
 
+export const getEventById = (eventId: string) => {
+  const filter = {
+    ids: [eventId],
+  };
+
+  return pool.get(DEFAULT_READ_RELAY_URIS, filter);
+};
+
 const getKind3Event = (pubkey?: string) => {
   if (!pubkey) {
     return null;
@@ -674,6 +682,10 @@ export const fetchReplies = async (kind1EventIds: string[]) => {
 };
 
 export const fetchContentComments = async (contentIds: string[]) => {
+  if (contentIds.length === 0) {
+    return [];
+  }
+
   const filter = {
     kinds: [1],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
@@ -685,6 +697,9 @@ export const fetchContentComments = async (contentIds: string[]) => {
 
 // TODO - instead of fetching all track comments via track #i tags, we should fetch the album comments via the album #i tag
 // export const fetchAlbumComments = async (albumIds: string[]) => {
+//   if (contentIds.length === 0) {
+//     return [];
+//   }
 //   console.log("fetchAlbumComments", albumIds);
 //   const filter: Filter = {
 //     kinds: [1],

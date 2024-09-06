@@ -11,7 +11,7 @@ import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
 export const useNostrProfileEvent = (pubkey: string) => {
   const { readRelayList } = useNostrRelayList();
-  const queryKey = useNostrProfileQueryKey();
+  const queryKey = useNostrProfileQueryKey(pubkey);
   const { data } = useQuery({
     queryKey,
     queryFn: () => getProfileMetadata(pubkey, readRelayList),
@@ -32,10 +32,13 @@ const useCachedNostrProfileEvent = (pubkey: string) => {
   return data;
 };
 
-export const useNostrProfile = () => {
-  const { pubkey } = useAuth();
-  const nostrProfileEvent = useNostrProfileEvent(pubkey ?? "");
-  const cachedNostrProfileEvent = useCachedNostrProfileEvent(pubkey ?? "");
+export const useNostrProfile = (pubkey?: string) => {
+  const { pubkey: loggedInPubkey } = useAuth();
+  // if no pubkey is provided, use the logged in user's pubkey
+  const nostrProfileEvent = useNostrProfileEvent(pubkey ?? loggedInPubkey);
+  const cachedNostrProfileEvent = useCachedNostrProfileEvent(
+    pubkey ?? loggedInPubkey,
+  );
   const events = [];
 
   if (nostrProfileEvent) {

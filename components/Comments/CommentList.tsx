@@ -1,23 +1,17 @@
-import { ContentComment } from "@/utils";
 import { CommentRow } from "./CommentRow";
 import { useRepliesMap } from "@/hooks/useRepliesMap";
+import { Event } from "nostr-tools";
 
-export const CommentList = ({ comments }: { comments: ContentComment[] }) => {
-  const nostrRepliesMap = useRepliesMap(comments);
+export const CommentList = ({ comments }: { comments: Event[] }) => {
+  const repliesMap = useRepliesMap(comments);
 
   return (
     <>
       {comments.map((comment) => {
-        const nostrReplies = comment.eventId
-          ? nostrRepliesMap[comment.eventId] ?? []
-          : [];
+        const replies = comment.id ? repliesMap[comment.id] ?? [] : [];
 
         return (
-          <CommentRow
-            nostrReplies={nostrReplies}
-            comment={comment}
-            key={comment.id}
-          />
+          <CommentRow replies={replies} comment={comment} key={comment.id} />
         );
       })}
     </>

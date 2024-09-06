@@ -1,24 +1,25 @@
 import { FlatList, View } from "react-native";
 import { CommentRow } from "./CommentRow";
-import { CommentReplyRow, LegacyCommentReplyRow } from "./CommentReplyRow";
+import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { ReplyDialog } from "./ReplyDialog";
 import { Text } from "@/components/Text";
-import { useCommentId } from "@/hooks/useCommentId";
 import { useLocalSearchParams } from "expo-router";
 import { Center } from "../Center";
-import { useReplies } from "@/hooks/useReplies";
-import { EventTemplate } from "nostr-tools";
+import { UnsignedEvent, Event } from "nostr-tools";
+import { useQuery } from "@tanstack/react-query";
+import { fetchReplies, getEventById } from "@/utils";
+import { useRepliesQueryKey } from "@/hooks/useReplies";
+import { getNostrCommentsQueryKey } from "@/hooks/useNostrComments";
 
 const LEFT_INDENTATION = 40;
 
 export const CommentRepliesPage = () => {
-  // nostr event id for the kind 1 comment
+  // nostr event id
   const { id } = useLocalSearchParams();
-  const parsedInt = parseInt(id as string);
-  if (isNaN(parsedInt)) {
+  if (typeof id !== "string") {
     return (
       <Center>
         <Text>Invalid comment id</Text>
@@ -27,59 +28,44 @@ export const CommentRepliesPage = () => {
     );
   }
 
-  return <CommentRepliesPageContents id={parsedInt} />;
+  const replyQueryKey = useRepliesQueryKey(id);
+  const { data: replies = [] } = useQuery({
+    queryKey: replyQueryKey,
+    queryFn: () => fetchReplies([id]),
+  });
+
+  const commentQueryKey = getNostrCommentsQueryKey(id);
+  const { data: comment } = useQuery({
+    queryKey: commentQueryKey,
+    queryFn: () => getEventById(id),
+  });
+
+  if (!comment) {
+    return (
+      <Center>
+        <Text>Comment not found</Text>
+        <Text>{id}</Text>
+      </Center>
+    );
+  }
+
+  return <CommentRepliesPageContents comment={comment} replies={replies} />;
 };
 
-const CommentRepliesPageContents = ({ id }: { id: number }) => {
-  const [cachedReplies, setCachedReplies] = useState<EventTemplate[]>([]);
-  const { data: comment, isLoading: commentLoading } = useCommentId(id);
+const CommentRepliesPageContents = ({
+  comment,
+  replies,
+}: {
+  comment: Event;
+  replies: Event[];
+}) => {
+  const [cachedReplies, setCachedReplies] = useState<UnsignedEvent[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
   };
 
-  // prefer the kind 1 eventId over the zapEventId
-  const { data = [], isLoading: repliesLoading } = useReplies(
-    comment?.eventId ?? comment?.zapEventId,
-  );
-  const isLoading = commentLoading || repliesLoading;
-
-  if (isLoading) {
-    return (
-      <Center>
-        <Text>Loading comments</Text>
-      </Center>
-    );
-  }
-
-  if (!comment) {
-    return (
-      <Center>
-        <Text>Error fetching comment</Text>
-      </Center>
-    );
-  }
-
-  const isLegacyComment = !comment.eventId && !comment.zapEventId;
-
-  return isLegacyComment ? (
-    <FlatList
-      ListHeaderComponent={
-        <ListHeaderComp
-          comment={comment}
-          dialogOpen={dialogOpen}
-          setDialogOpen={setDialogOpen}
-        />
-      }
-      ListHeaderComponentStyle={{
-        transform: [{ translateX: -LEFT_INDENTATION }],
-      }}
-      contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={comment.replies}
-      renderItem={({ item }) => <LegacyCommentReplyRow reply={item} />}
-      ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
-    />
-  ) : (
+  return (
     <FlatList
       ListHeaderComponent={
         <ListHeaderComp
@@ -93,7 +79,7 @@ const CommentRepliesPageContents = ({ id }: { id: number }) => {
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={data.concat(cachedReplies as any)}
+      data={[...replies, ...cachedReplies]}
       renderItem={({ item }) => <CommentReplyRow reply={item} />}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
     />
@@ -109,7 +95,7 @@ const ListHeaderComp = ({
   comment: any;
   dialogOpen: boolean;
   setDialogOpen: (isOpen: boolean) => void;
-  setCachedReplies?: React.Dispatch<React.SetStateAction<EventTemplate[]>>;
+  setCachedReplies?: React.Dispatch<React.SetStateAction<UnsignedEvent[]>>;
 }) => {
   return (
     <>

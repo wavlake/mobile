@@ -1,4 +1,3 @@
-import { ContentComment, encodeNpub } from "@/utils";
 import { TouchableOpacity, View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
 import { SatsEarned } from "../SatsEarned";
@@ -7,49 +6,29 @@ import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Event, EventTemplate } from "nostr-tools";
+import { Event, UnsignedEvent } from "nostr-tools";
+import { useNostrProfile } from "@/hooks";
 
 interface CommentRowProps extends ViewProps {
-  comment: ContentComment;
-  nostrReplies?: Event[];
+  comment: Event;
+  replies?: Event[];
   showReplyLinks?: boolean;
 }
 
 export const CommentRow = ({
   comment,
-  nostrReplies = [],
+  replies = [],
   showReplyLinks = true,
 }: CommentRowProps) => {
+  const npubMetadata = useNostrProfile(comment.pubkey);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [cachedReplies, setCachedReplies] = useState<EventTemplate[]>([]);
+  const [cachedReplies, setCachedReplies] = useState<UnsignedEvent[]>([]);
   const onReplyPress = () => {
     setDialogOpen(true);
   };
-  const {
-    id,
-    commenterArtworkUrl,
-    content,
-    msatAmount,
-    name,
-    title,
-    userId,
-    isNostr,
-    eventId,
-    zapEventId,
-    replies: legacyReplies,
-  } = comment;
 
-  const getDisplayName = () => {
-    if (isNostr) {
-      // use the provided name, else use the npub (set as the userId for nostr comments)
-      return name ?? encodeNpub(userId)?.slice(0, 10);
-    }
-
-    // keysend names may start with @
-    return name ? name.replace("@", "") : "anonymous";
-  };
-
-  const extraText = ` for "${title}"`;
+  const { picture, name } = npubMetadata || {};
+  const { id, content, pubkey } = comment;
 
   return (
     <View
@@ -65,20 +44,17 @@ export const CommentRow = ({
         isOpen={dialogOpen}
         setCachedReplies={setCachedReplies}
       />
-      <BasicAvatar
-        uri={commenterArtworkUrl}
-        pubkey={isNostr ? userId : undefined}
-      />
+      <BasicAvatar uri={picture} pubkey={pubkey} />
       <View style={{ marginLeft: 10, flex: 1 }}>
-        <Text bold>{getDisplayName()}</Text>
-        {content && <Text>{content}</Text>}
-        {msatAmount && (
+        <Text bold>{name}</Text>
+        <Text>{content}</Text>
+        {/* {msatAmount && (
           <SatsEarned
             msats={msatAmount}
             extraText={extraText}
             defaultTextColor
           />
-        )}
+        )} */}
         {showReplyLinks && (
           <View
             style={{
@@ -91,8 +67,7 @@ export const CommentRow = ({
             }}
           >
             <CommentRepliesLink
-              legacyReplies={legacyReplies}
-              nostrReplies={nostrReplies.concat(cachedReplies as any)}
+              replies={[...replies, ...cachedReplies]}
               parentcommentId={id}
             />
             <TouchableOpacity onPress={onReplyPress} style={{}}>

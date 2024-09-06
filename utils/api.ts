@@ -303,6 +303,12 @@ export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {
   return data.data;
 };
 
+export const getArtistTracks = async (artistId: string): Promise<Track[]> => {
+  const { data } = await apiClient.get(`/tracks/${artistId}/artist`);
+
+  return normalizeTrackResponse(data.data);
+};
+
 export const getPodcast = async (podcastId: string): Promise<Podcast> => {
   const { data } = await apiClient.get(`/podcasts/${podcastId}`);
 
@@ -509,8 +515,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;

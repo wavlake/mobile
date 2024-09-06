@@ -1,7 +1,13 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Dimensions, FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Album, getAlbum, getAlbumTracks } from "@/utils";
+import {
+  Album,
+  fetchContentComments,
+  getAlbum,
+  getAlbumTracks,
+  Track,
+} from "@/utils";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
@@ -13,9 +19,10 @@ import { CommentList } from "./Comments/CommentList";
 
 interface AlbumPageFooterProps {
   album: Album;
+  tracks: Track[];
 }
 
-const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
+const AlbumPageFooter = ({ album, tracks }: AlbumPageFooterProps) => {
   const { description, topMessages = [], title, id: albumId } = album;
   const basePathname = useGetBasePathname();
   const router = useRouter();
@@ -23,6 +30,10 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
   if (!description && topMessages.length === 0) {
     return null;
   }
+  const { data: comments = [] } = useQuery({
+    queryKey: [album.id, "comments"],
+    queryFn: () => fetchContentComments(tracks.map((track) => track.id)),
+  });
 
   const handleLoadMore = () => {
     router.push({
@@ -45,7 +56,7 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
       {topMessages.length > 0 && (
         <>
           <SectionHeader title="Latest Messages" />
-          <CommentList comments={topMessages} />
+          <CommentList comments={comments} />
           <TouchableOpacity onPress={handleLoadMore}>
             <Text style={{ textAlign: "center" }}>View more</Text>
           </TouchableOpacity>
@@ -117,7 +128,7 @@ export const AlbumPage = () => {
         );
       }}
       ListFooterComponent={() =>
-        album ? <AlbumPageFooter album={album} /> : null
+        album ? <AlbumPageFooter album={album} tracks={tracks} /> : null
       }
       keyExtractor={(item) => item.id}
       style={{ paddingTop: 8 }}
