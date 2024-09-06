@@ -1,4 +1,4 @@
-import { FlatList, View } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { CommentRow } from "./CommentRow";
 import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -35,10 +35,18 @@ export const CommentRepliesPage = () => {
   });
 
   const commentQueryKey = getNostrCommentsQueryKey(id);
-  const { data: comment } = useQuery({
+  const { data: comment, isLoading } = useQuery({
     queryKey: commentQueryKey,
     queryFn: () => getEventById(id),
   });
+
+  if (isLoading) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
 
   if (!comment) {
     return (
