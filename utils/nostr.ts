@@ -674,7 +674,7 @@ export const useRemoveFollower = () => {
 
 export const fetchReplies = async (kind1EventIds: string[]) => {
   const filter = {
-    kinds: [1, 9735],
+    kinds: [1],
     ["#e"]: kind1EventIds,
   };
 
@@ -685,14 +685,65 @@ export const fetchContentComments = async (contentIds: string[]) => {
   if (contentIds.length === 0) {
     return [];
   }
-
-  const filter = {
+  const commentsFilter = {
     kinds: [1],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
     limit: 10,
   };
+  const zapsFilter = {
+    kinds: [9735],
+    ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
+    limit: 10,
+  };
+  const labelEventFilter = {
+    kinds: [1985],
+    ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
+    limit: 10,
+  };
 
-  return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
+  const [kind1Comments, zaps, labelEvents] = await Promise.all([
+    pool.querySync(DEFAULT_READ_RELAY_URIS, commentsFilter),
+    pool.querySync(DEFAULT_READ_RELAY_URIS, zapsFilter),
+    pool.querySync(DEFAULT_READ_RELAY_URIS, labelEventFilter),
+  ]);
+
+  const zapComments = zaps.map((zap) => {
+    const [descTag, zapRequest] =
+      zap.tags.find(([tag]) => tag === "description") || [];
+    try {
+      const parsedZapRequest: Event = JSON.parse(zapRequest);
+      return parsedZapRequest;
+    } catch (error) {
+      console.log("error parsing zap request", error);
+      console.log("zap receipt event id", zap.id);
+      return undefined;
+    }
+  });
+  const labelEventCommentIds = labelEvents.map((event) => {
+    const [eTag, eventId] = event.tags.find((tag) => tag[0] === "e") || [];
+
+    return eventId;
+  });
+  const definedLabelEventCommentIds = labelEventCommentIds.filter(
+    (id) => id !== undefined,
+  );
+  const labelEventComments =
+    // skip if the filter is empty
+    definedLabelEventCommentIds.length > 0
+      ? await pool.querySync(DEFAULT_READ_RELAY_URIS, {
+          ids: definedLabelEventCommentIds,
+        })
+      : [];
+
+  const eventIsNotUndefinedOrEmpty = (
+    event: Event | undefined,
+  ): event is Event => {
+    return event !== undefined && event.content !== "";
+  };
+
+  return [...kind1Comments, ...zapComments, ...labelEventComments].filter(
+    eventIsNotUndefinedOrEmpty,
+  );
 };
 
 // TODO - instead of fetching all track comments via track #i tags, we should fetch the album comments via the album #i tag

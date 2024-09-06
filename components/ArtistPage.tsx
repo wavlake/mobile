@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { fetchContentComments, getArtist, getArtistTracks } from "@/utils";
+import { getArtist, getArtistTracks } from "@/utils";
 import {
   ActivityIndicator,
   ScrollView,
@@ -56,18 +56,11 @@ export const ArtistPage = () => {
   });
   const topAlbums = artist?.topAlbums ?? [];
   const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
-  const topMessages = artist?.topMessages ?? [];
   const basePathname = useGetBasePathname();
   const goToAlbumPage = useGoToAlbumPage();
   const router = useRouter();
   const isVerified = artist?.verified ?? false;
 
-  const trackIds = tracks.map((track) => track.id);
-  const { data: comments = [] } = useQuery({
-    queryKey: [artistId, "comments"],
-    queryFn: () => fetchContentComments(trackIds),
-    enabled: trackIds.length > 0,
-  });
   useEffect(() => {
     if (isVerified) {
       router.setParams({ includeHeaderTitleVerifiedBadge: "1" });
@@ -95,17 +88,6 @@ export const ArtistPage = () => {
       trackListId: artistId as string,
       startIndex: index,
       playerTitle,
-    });
-  };
-
-  const handleLoadMore = () => {
-    router.push({
-      pathname: `${basePathname}/artist/[artistId]/comments`,
-      params: {
-        artistId,
-        headerTitle: `Comments for ${artist?.name}`,
-        includeBackButton: "true",
-      },
     });
   };
 
@@ -152,11 +134,12 @@ export const ArtistPage = () => {
         }}
       />
       <HorizontalArtworkRow items={topAlbums} onPress={handleTopAlbumPress} />
-      <SectionHeader title="Latest Messages" />
-      <CommentList comments={comments} />
-      <TouchableOpacity onPress={handleLoadMore}>
-        <Text style={{ textAlign: "center" }}>View more</Text>
-      </TouchableOpacity>
+      <CommentList
+        contentIds={tracks.map((track) => track.id)}
+        parentContentId={artistId as string}
+        parentContentTitle={artist.name}
+        parentContentType="artist"
+      />
       {artist.bio && (
         <>
           <SectionHeader title="About" />

@@ -1,8 +1,10 @@
-import { fetchContentComments, getArtist, getArtistTracks } from "@/utils";
+import { getArtist, getArtistTracks } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { CommentPage } from "./Comments/CommentPage";
+import { CommentList } from "./Comments/CommentList";
+import { View } from "react-native";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 
 export const ArtistCommentPage = () => {
   const { artistId } = useLocalSearchParams();
@@ -23,11 +25,18 @@ export const ArtistCommentPage = () => {
   }, [isVerified]);
 
   const trackIds = tracks.map((track) => track.id);
-  const { data = [], isLoading } = useQuery({
-    queryKey: [artistId, "comments"],
-    queryFn: () => fetchContentComments(trackIds),
-    enabled: trackIds.length > 0,
-  });
+  const { height } = useMiniMusicPlayer();
 
-  return <CommentPage comments={data} isLoading={isLoading} />;
+  return (
+    <View
+      style={{ height: "100%", paddingTop: 16, paddingBottom: height + 16 }}
+    >
+      <CommentList
+        scrollEnabled={true}
+        contentIds={trackIds}
+        parentContentId={artistId as string}
+        showViewMoreLink={false}
+      />
+    </View>
+  );
 };

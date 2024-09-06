@@ -1,13 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Dimensions, FlatList, TouchableOpacity, View } from "react-native";
+import { Dimensions, FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Album,
-  fetchContentComments,
-  getAlbum,
-  getAlbumTracks,
-  Track,
-} from "@/utils";
+import { Album, getAlbum, getAlbumTracks, Track } from "@/utils";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
@@ -30,21 +24,7 @@ const AlbumPageFooter = ({ album, tracks }: AlbumPageFooterProps) => {
   if (!description && topMessages.length === 0) {
     return null;
   }
-  const { data: comments = [] } = useQuery({
-    queryKey: [album.id, "comments"],
-    queryFn: () => fetchContentComments(tracks.map((track) => track.id)),
-  });
 
-  const handleLoadMore = () => {
-    router.push({
-      pathname: `${basePathname}/album/[albumId]/comments`,
-      params: {
-        albumId,
-        headerTitle: `Comments for ${title}`,
-        includeBackButton: "true",
-      },
-    });
-  };
   return (
     <View style={{ marginTop: 16, marginBottom: 80, paddingHorizontal: 16 }}>
       {description && (
@@ -53,15 +33,12 @@ const AlbumPageFooter = ({ album, tracks }: AlbumPageFooterProps) => {
           <Text style={{ fontSize: 18 }}>{description}</Text>
         </>
       )}
-      {topMessages.length > 0 && (
-        <>
-          <SectionHeader title="Latest Messages" />
-          <CommentList comments={comments} />
-          <TouchableOpacity onPress={handleLoadMore}>
-            <Text style={{ textAlign: "center" }}>View more</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      <CommentList
+        parentContentId={album.id}
+        contentIds={tracks.map((track) => track.id)}
+        parentContentTitle={album.title}
+        parentContentType="album"
+      />
     </View>
   );
 };
