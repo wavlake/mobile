@@ -688,17 +688,17 @@ export const fetchContentComments = async (contentIds: string[]) => {
   const commentsFilter = {
     kinds: [1],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 10,
+    limit: 100,
   };
   const zapsFilter = {
     kinds: [9735],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 10,
+    limit: 100,
   };
   const labelEventFilter = {
     kinds: [1985],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 10,
+    limit: 100,
   };
 
   const [kind1Comments, zaps, labelEvents] = await Promise.all([
