@@ -61,25 +61,3 @@ export const useNostrProfile = (pubkey?: string) => {
     return null;
   }
 };
-
-export const useLookupNostrProfile = (pubkey?: string | null) => {
-  const { readRelayList } = useNostrRelayList();
-
-  return useQuery({
-    queryKey: ["nostrProfileMetadata", pubkey],
-    queryFn: async () => {
-      if (!pubkey) return null;
-
-      const event = await getProfileMetadata(pubkey, readRelayList);
-      if (!event) return null;
-
-      try {
-        return JSON.parse(event?.content) as NostrUserProfile;
-      } catch {
-        return null;
-      }
-    },
-    enabled: Boolean(pubkey),
-    staleTime: Infinity,
-  });
-};
