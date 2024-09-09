@@ -6,7 +6,7 @@ import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Event, UnsignedEvent } from "nostr-tools";
+import { Event, nip19, UnsignedEvent } from "nostr-tools";
 import { useNostrProfile } from "@/hooks";
 
 interface CommentRowProps extends ViewProps {
@@ -28,7 +28,20 @@ export const CommentRow = ({
   };
 
   const { picture, name } = npubMetadata || {};
-  const { id, content, pubkey } = comment;
+  const { id, content, pubkey, kind } = comment;
+
+  const isZap = kind === 9734;
+  const [amountTag, zapAmount] =
+    comment.tags.find(([tag, amount]) => tag === "amount") || [];
+  const npub = nip19.npubEncode(pubkey);
+
+  // handle any empty comments
+  const commentText =
+    content.length > 0
+      ? content
+      : isZap
+      ? `Zapped ${zapAmount} sats`
+      : `Shared by ${npubMetadata?.name ?? npub.slice(0, 10)}`;
 
   return (
     <View
@@ -47,7 +60,7 @@ export const CommentRow = ({
       <BasicAvatar uri={picture} pubkey={pubkey} />
       <View style={{ marginLeft: 10, flex: 1 }}>
         <Text bold>{name}</Text>
-        <Text>{content}</Text>
+        <Text>{commentText}</Text>
         {/* {msatAmount && (
           <SatsEarned
             msats={msatAmount}
