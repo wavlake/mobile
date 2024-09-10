@@ -4,19 +4,19 @@ import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
 import { usePublishReply } from "@/hooks/usePublishReply";
-import { Event, UnsignedEvent } from "nostr-tools";
+import { Event } from "nostr-tools";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRepliesQueryKey } from "@/hooks/useReplies";
 
 interface ReplyDialogProps {
   commentId: string;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  setCachedReplies?: React.Dispatch<React.SetStateAction<UnsignedEvent[]>>;
 }
 
 export const ReplyDialog = ({
   setIsOpen,
-  setCachedReplies,
   commentId,
   isOpen,
 }: ReplyDialogProps) => {
@@ -35,45 +35,35 @@ export const ReplyDialog = ({
       backdropStyle={{ opacity: 0.6, backgroundColor: "black" }}
       isVisible={isOpen}
     >
-      <ReplyDialogContents
-        setCachedReplies={setCachedReplies}
-        setIsOpen={setIsOpen}
-        parentComment={comment}
-      />
+      <ReplyDialogContents setIsOpen={setIsOpen} parentComment={comment} />
     </BottomSheet>
   );
 };
 
 const ReplyDialogContents = ({
   setIsOpen,
-  setCachedReplies,
   parentComment,
-}: Pick<ReplyDialogProps, "setIsOpen" | "setCachedReplies"> & {
+}: Pick<ReplyDialogProps, "setIsOpen"> & {
   parentComment: Event;
 }) => {
   const { save: publishReply } = usePublishReply();
   const { colors } = useTheme();
-
+  const queryClient = useQueryClient();
+  const replyQueryKey = useRepliesQueryKey(parentComment.id);
   const [comment, setComment] = useState("");
   const handleReply = async () => {
     const tags = [
       ["e", parentComment.id, "wss://relay.wavlake.com", "root"],
       ["p", parentComment.pubkey],
     ];
-    await publishReply(comment, tags);
+    const replyEvent = await publishReply(comment, tags);
     // update the app cache with the new reply
-    setCachedReplies?.((prev) => {
-      return [
-        ...prev,
-        {
-          kind: 1,
-          pubkey: parentComment.pubkey,
-          created_at: Math.floor(Date.now() / 1000),
-          tags,
-          content: comment,
-        },
-      ];
-    });
+    queryClient.setQueryData(
+      replyQueryKey,
+      (oldReplies: Event[] | undefined) => {
+        return oldReplies ? [...oldReplies, replyEvent] : [replyEvent];
+      },
+    );
 
     setIsOpen(false);
   };

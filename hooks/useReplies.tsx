@@ -15,7 +15,6 @@ export const useReplies = (nostrEventId?: string | null) => {
       return fetchReplies([nostrEventId]);
     },
     enabled: Boolean(nostrEventId),
-    // 10 minutes
-    staleTime: 600000,
+    staleTime: Infinity,
   });
 };

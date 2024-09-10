@@ -8,7 +8,7 @@ import { ReplyDialog } from "./ReplyDialog";
 import { Text } from "@/components/Text";
 import { useLocalSearchParams } from "expo-router";
 import { Center } from "../Center";
-import { UnsignedEvent, Event } from "nostr-tools";
+import { Event } from "nostr-tools";
 import { useReplies } from "@/hooks/useReplies";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 
@@ -56,7 +56,6 @@ const CommentRepliesPageContents = ({
   comment: Event;
   replies: Event[];
 }) => {
-  const [cachedReplies, setCachedReplies] = useState<UnsignedEvent[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
@@ -69,14 +68,13 @@ const CommentRepliesPageContents = ({
           commentId={comment.id}
           dialogOpen={dialogOpen}
           setDialogOpen={setDialogOpen}
-          setCachedReplies={setCachedReplies}
         />
       }
       ListHeaderComponentStyle={{
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={[...replies, ...cachedReplies]}
+      data={replies}
       renderItem={({ item }) => <CommentReplyRow reply={item} />}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
     />
@@ -87,12 +85,10 @@ const ListHeaderComp = ({
   commentId,
   dialogOpen,
   setDialogOpen,
-  setCachedReplies,
 }: {
   commentId: string;
   dialogOpen: boolean;
   setDialogOpen: (isOpen: boolean) => void;
-  setCachedReplies?: React.Dispatch<React.SetStateAction<UnsignedEvent[]>>;
 }) => {
   return (
     <>
@@ -100,7 +96,6 @@ const ListHeaderComp = ({
         setIsOpen={setDialogOpen}
         commentId={commentId}
         isOpen={dialogOpen}
-        setCachedReplies={setCachedReplies}
       />
       <CommentRow commentId={commentId} showReplyLinks={false} />
     </>
