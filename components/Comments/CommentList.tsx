@@ -1,13 +1,12 @@
 import { CommentRow } from "./CommentRow";
 import { useRepliesMap } from "@/hooks/useRepliesMap";
-import { fetchContentComments } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
-import { TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { SectionHeader } from "../SectionHeader";
 import { Text } from "../Text";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useRouter } from "expo-router";
+import { useNostrComments } from "@/hooks/useNostrComments";
 
 export const CommentList = ({
   contentIds,
@@ -25,11 +24,12 @@ export const CommentList = ({
   showViewMoreLink?: boolean;
 }) => {
   const router = useRouter();
-  const { data: comments = [], isFetching } = useQuery({
-    queryKey: [parentContentId, "comments"],
-    queryFn: () => fetchContentComments(contentIds),
-  });
-  const repliesMap = useRepliesMap(comments);
+  const { data: comments = [], isFetching } = useNostrComments(
+    contentIds,
+    parentContentId,
+  );
+
+  const { data: repliesMap } = useRepliesMap(comments);
   const basePathname = useGetBasePathname();
   const handleLoadMore = () => {
     if (!parentContentId || !parentContentTitle || !parentContentType) {
@@ -60,7 +60,7 @@ export const CommentList = ({
               textAlign: "center",
             }}
           >
-            {isFetching ? "Loading..." : "No comment yet"}
+            {isFetching ? <ActivityIndicator /> : "No comment yet"}
           </Text>
         </View>
       }

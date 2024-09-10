@@ -1,6 +1,5 @@
 import { fetchContentComments } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Event } from "nostr-tools";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const getNostrCommentsQueryKey = (nostrEventId?: string | null) => {
@@ -11,9 +10,10 @@ export const useNostrComments = (
   contentIds: string[],
   parentContentId: string,
 ) => {
-  const { data: comments = [], isLoading } = useQuery({
+  const { data: comments = [], ...rest } = useQuery({
     queryKey: [parentContentId, "comments"],
-    queryFn: () => fetchContentComments(contentIds),
+    queryFn: async () => fetchContentComments(contentIds),
+    staleTime: Infinity,
     enabled: contentIds.length > 0,
   });
 
@@ -22,8 +22,11 @@ export const useNostrComments = (
   // the /comment/id page will fetch this comment data from the cache
   comments.forEach((comment) => {
     const queryKey = getNostrCommentsQueryKey(comment.id);
-    queryClient.setQueryData<Event>(queryKey, () => comment);
+    queryClient.setQueryData(queryKey, comment);
   });
 
-  return comments;
+  return {
+    data: comments,
+    ...rest,
+  };
 };

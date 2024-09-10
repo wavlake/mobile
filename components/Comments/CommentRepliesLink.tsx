@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { TouchableOpacity, View } from "react-native";
 import { Event, EventTemplate } from "nostr-tools";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { useState } from "react";
 
 export const CommentRepliesLink = ({
   replies,

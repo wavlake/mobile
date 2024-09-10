@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuthToken, signEvent } from "@/utils/nostr";
+import { getAuthToken, signEvent } from "./nostr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
 import { NostrProfileData } from "./authTokenApi";

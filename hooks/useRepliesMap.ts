@@ -7,9 +7,9 @@ import { useRepliesQueryKey } from "@/hooks/useReplies";
 export const useRepliesMap = (comments: Event[]) => {
   const eventIds = comments.map((comment) => comment.id);
 
-  const { data: repliesMap = {} } = useQuery(
-    eventIds,
-    async () => {
+  const { data: repliesMap = {}, ...rest } = useQuery({
+    queryKey: ["replies", eventIds],
+    queryFn: async () => {
       const replies = await fetchReplies(eventIds);
       const repliesMap = replies.reduce<Record<string, Event[]>>(
         (acc, reply) => {
@@ -25,10 +25,9 @@ export const useRepliesMap = (comments: Event[]) => {
       );
       return repliesMap;
     },
-    {
-      enabled: eventIds.length > 0,
-    },
-  );
+    enabled: eventIds.length > 0,
+    staleTime: Infinity,
+  });
 
   const queryClient = useQueryClient();
   // cache the replies under the parent comment event id
@@ -36,8 +35,11 @@ export const useRepliesMap = (comments: Event[]) => {
   Object.keys(repliesMap).forEach((eventId) => {
     const replies = repliesMap[eventId];
     const queryKey = useRepliesQueryKey(eventId);
-    queryClient.setQueryData<Event[]>(queryKey, () => replies);
+    queryClient.setQueryData<Event[]>(queryKey, replies);
   });
 
-  return repliesMap;
+  return {
+    data: repliesMap,
+    ...rest,
+  };
 };

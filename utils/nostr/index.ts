@@ -45,9 +45,15 @@ import { ShowEvents } from "@/constants/events";
 import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/components";
 import { useAuth } from "@/hooks";
-import { updatePubkeyMetadata } from "./api";
-import { getPodcastFeedGuid } from "./rss";
-import { NWCRequest } from "./nwc";
+import { updatePubkeyMetadata } from "../api";
+import { getPodcastFeedGuid } from "../rss";
+import { NWCRequest } from "../nwc";
+import {
+  deduplicateEvents,
+  getAllCommentEvents,
+  isNotCensoredAuthor,
+  removeCensoredContent,
+} from "./comments";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
@@ -76,7 +82,7 @@ export const DEFAULT_WRITE_RELAY_URIS = [
   "wss://nostr.mutinywallet.com",
 ];
 
-const pool = new SimplePool();
+export const pool = new SimplePool();
 
 export const encodeNpub = (pubkey: string) => {
   try {
@@ -115,6 +121,7 @@ export const getEventFromRelay = (
   return new Promise(async (resolve, reject) => {
     try {
       const relay = await Relay.connect(relayUri);
+      console.log("subscribing to relay");
       const sub = relay.subscribe([filter], {
         onevent(event) {
           resolve(event);
@@ -147,6 +154,7 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   relayUris?: string[];
 }) => {
   try {
+    console.log("pool get1", filter);
     const event = await pool.get(relayUris, filter);
 
     if (event === null) {
@@ -171,6 +179,7 @@ export const getProfileMetadata = async (
     kinds: [0],
     authors: [pubkey],
   };
+  console.log("getProfileMetadata", pubkey.slice(0, 10));
   return getEventFromPoolAndCacheItIfNecessary({
     pubkey,
     filter,
@@ -204,7 +213,7 @@ export const getRelayListMetadata = async (pubkey: string) => {
     kinds: [10002],
     authors: [pubkey],
   };
-
+  console.log("getRelayListMetadata", pubkey.slice(0, 10));
   return getEventFromPoolAndCacheItIfNecessary({
     pubkey,
     filter,
@@ -577,6 +586,8 @@ export const getEventById = (eventId: string) => {
     ids: [eventId],
   };
 
+  console.log("pool get2");
+
   return pool.get(DEFAULT_READ_RELAY_URIS, filter);
 };
 
@@ -591,6 +602,7 @@ const getKind3Event = (pubkey?: string) => {
   };
 
   try {
+    console.log("pool get3");
     return pool.get(DEFAULT_READ_RELAY_URIS, filter);
   } catch {
     return null;
@@ -682,68 +694,18 @@ export const fetchReplies = async (kind1EventIds: string[]) => {
 };
 
 export const fetchContentComments = async (contentIds: string[]) => {
-  if (contentIds.length === 0) {
-    return [];
-  }
-  const commentsFilter = {
-    kinds: [1],
-    ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 100,
-  };
-  const zapsFilter = {
-    kinds: [9735],
-    ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 100,
-  };
-  const labelEventFilter = {
-    kinds: [1985],
-    ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 100,
-  };
+  const { kind1Events, zapReceipts, labelEventComments } =
+    await getAllCommentEvents(contentIds);
 
-  const [kind1Comments, zaps, labelEvents] = await Promise.all([
-    pool.querySync(DEFAULT_READ_RELAY_URIS, commentsFilter),
-    pool.querySync(DEFAULT_READ_RELAY_URIS, zapsFilter),
-    pool.querySync(DEFAULT_READ_RELAY_URIS, labelEventFilter),
-  ]);
-
-  const zapComments = zaps.map((zap) => {
-    const [descTag, zapRequest] =
-      zap.tags.find(([tag]) => tag === "description") || [];
-    try {
-      const parsedZapRequest: Event = JSON.parse(zapRequest);
-      return parsedZapRequest;
-    } catch (error) {
-      console.log("error parsing zap request", error);
-      console.log("zap receipt event id", zap.id);
-      return undefined;
-    }
-  });
-  const labelEventCommentIds = labelEvents.map((event) => {
-    const [eTag, eventId] = event.tags.find((tag) => tag[0] === "e") || [];
-
-    return eventId;
-  });
-  const definedLabelEventCommentIds = labelEventCommentIds.filter(
-    (id) => id !== undefined,
+  const deDuplicatedKind1AndZapRequests = deduplicateEvents(
+    kind1Events,
+    zapReceipts,
+    labelEventComments,
   );
-  const labelEventComments =
-    // skip if the filter is empty
-    definedLabelEventCommentIds.length > 0
-      ? await pool.querySync(DEFAULT_READ_RELAY_URIS, {
-          ids: definedLabelEventCommentIds,
-        })
-      : [];
 
-  const eventIsNotUndefinedOrEmpty = (
-    event: Event | undefined,
-  ): event is Event => {
-    return event !== undefined && event.content !== "";
-  };
-
-  return [...kind1Comments, ...zapComments, ...labelEventComments].filter(
-    eventIsNotUndefinedOrEmpty,
-  );
+  return deDuplicatedKind1AndZapRequests
+    .map(removeCensoredContent)
+    .filter(isNotCensoredAuthor);
 };
 
 // TODO - instead of fetching all track comments via track #i tags, we should fetch the album comments via the album #i tag

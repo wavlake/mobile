@@ -32,12 +32,14 @@ export const CommentRepliesPage = () => {
   const { data: replies = [] } = useQuery({
     queryKey: replyQueryKey,
     queryFn: () => fetchReplies([id]),
+    staleTime: Infinity,
   });
 
   const commentQueryKey = getNostrCommentsQueryKey(id);
   const { data: comment, isLoading } = useQuery({
     queryKey: commentQueryKey,
     queryFn: () => getEventById(id),
+    staleTime: Infinity,
   });
 
   if (isLoading) {

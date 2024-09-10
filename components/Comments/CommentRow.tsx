@@ -35,13 +35,13 @@ export const CommentRow = ({
     comment.tags.find(([tag, amount]) => tag === "amount") || [];
   const npub = nip19.npubEncode(pubkey);
 
+  // don't render empty comments that arent zaps
+  if (content.length === 0 && !isZap) {
+    return null;
+  }
+
   // handle any empty comments
-  const commentText =
-    content.length > 0
-      ? content
-      : isZap
-      ? `Zapped ${zapAmount} sats`
-      : `Shared by ${npubMetadata?.name ?? npub.slice(0, 10)}`;
+  const commentText = content.length > 0 ? content : `Zapped ${zapAmount} sats`;
 
   return (
     <View
