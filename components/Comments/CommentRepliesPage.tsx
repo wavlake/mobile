@@ -27,7 +27,7 @@ export const CommentRepliesPage = () => {
   }
 
   const { data: comment, isLoading } = useNostrEvent(id);
-  const { data: replies = [] } = useReplies(id);
+  const { data: replies = [], isFetching } = useReplies(id);
 
   if (isLoading) {
     return (
@@ -46,15 +46,23 @@ export const CommentRepliesPage = () => {
     );
   }
 
-  return <CommentRepliesPageContents comment={comment} replies={replies} />;
+  return (
+    <CommentRepliesPageContents
+      comment={comment}
+      replies={replies}
+      isLoading={isFetching}
+    />
+  );
 };
 
 const CommentRepliesPageContents = ({
   comment,
   replies,
+  isLoading,
 }: {
   comment: Event;
   replies: Event[];
+  isLoading: boolean;
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
@@ -73,6 +81,9 @@ const CommentRepliesPageContents = ({
       ListHeaderComponentStyle={{
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
+      ListEmptyComponent={
+        isLoading ? <ActivityIndicator /> : <Text>No replies yet</Text>
+      }
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
       data={replies}
       renderItem={({ item }) => <CommentReplyRow reply={item} />}
