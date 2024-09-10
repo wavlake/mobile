@@ -235,6 +235,7 @@ export interface NostrUserProfile {
   bio?: string;
   lud06?: string;
   zapService?: string;
+  publicHex?: string;
 }
 
 export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {

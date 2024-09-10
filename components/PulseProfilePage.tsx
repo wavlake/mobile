@@ -61,7 +61,9 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
         />
       }
     >
-      {npubMetadata && <PubkeyProfile profileData={npubMetadata} />}
+      {npubMetadata && (
+        <PubkeyProfile pubkey={pubkey} profileData={npubMetadata} />
+      )}
       <View
         style={{
           paddingHorizontal: 16,

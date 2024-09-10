@@ -14,12 +14,14 @@ import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 const AVATAR_SIZE = 80;
 export const PubkeyProfile = ({
   profileData,
+  pubkey,
 }: {
   profileData: NostrUserProfile;
+  pubkey: string;
 }) => {
   const basePath = useGetBasePathname();
   const { colors } = useTheme();
-  const { pubkey } = useAuth();
+  const { pubkey: loggedInUserPubkey } = useAuth();
   const userOwnsProfile = pubkey === profileData.publicHex;
   const { nostrMetadata } = useUser();
   const { picture, name, banner, about, website, nip05 } = profileData ?? {};
@@ -52,7 +54,7 @@ export const PubkeyProfile = ({
         <TouchableOpacity
           onPress={() => {
             router.push({
-              pathname: `${basePath}/profile/${pubkey}/edit`,
+              pathname: `${basePath}/profile/${loggedInUserPubkey}/edit`,
               params: { includeBackButton: "true" },
             });
           }}
@@ -183,7 +185,7 @@ export const PubkeyProfile = ({
 const FollowerInfo = ({ pubkey }: { pubkey: string }) => {
   const { data: catalogMetadata } = useCatalogPubkey(pubkey);
   const { followerCount, follows } = catalogMetadata || {};
-
+  console.log("followerCount", followerCount, catalogMetadata);
   if (typeof followerCount === "undefined" || typeof follows === "undefined") {
     return null;
   }
