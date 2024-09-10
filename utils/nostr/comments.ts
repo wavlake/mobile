@@ -133,10 +133,10 @@ export const removeCensoredContent = (event: Event) => {
   } as Event;
 };
 
-const wavlakePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
+const wavlakeFeedPubkey = process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY ?? "";
 const wavlakeTrendingBot =
   "3e0767c6c5174095658a54a9fe23d6974bc3b4de2f72452b474d0682bf6365f0";
 export const isNotCensoredAuthor = (event: Event) => {
-  const censoredAuthors = [wavlakePubkey, wavlakeTrendingBot];
+  const censoredAuthors = [wavlakeFeedPubkey, wavlakeTrendingBot];
   return !censoredAuthors.includes(event.pubkey);
 };

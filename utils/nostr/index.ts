@@ -58,7 +58,7 @@ import {
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
-const wavlakePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
+const wavlakeZapPubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
 const wavlakeRelayUri = "wss://relay.wavlake.com/";
 const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
@@ -399,7 +399,7 @@ export const makeZapRequest = async ({
   timestamp?: number;
   customTags?: EventTemplate["tags"];
 }): Promise<EventTemplate> => {
-  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
+  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakeZapPubkey}:${contentId}`;
   const iTags = [
     ["i", `podcast:item:guid:${contentId}`],
     [
@@ -415,7 +415,7 @@ export const makeZapRequest = async ({
     ],
   ];
   const zapRequestEvent = await nip57.makeZapRequest({
-    profile: wavlakePubkey,
+    profile: wavlakeZapPubkey,
     amount: amountInSats * 1000,
     relays: [wavlakeRelayUri, ...relays],
     comment,
