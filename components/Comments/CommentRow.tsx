@@ -1,4 +1,4 @@
-import { TouchableOpacity, View, ViewProps } from "react-native";
+import { Linking, TouchableOpacity, View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
 import { SatsEarned } from "../SatsEarned";
 import { Text } from "@/components/Text";
@@ -6,17 +6,40 @@ import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Event, nip19, UnsignedEvent } from "nostr-tools";
+import { Event, UnsignedEvent } from "nostr-tools";
 import { useNostrProfileEvent } from "@/hooks";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import { NostrUserProfile } from "@/utils";
 import { msatsToSatsWithCommas } from "../WalletLabel";
+import { Image } from "expo-image";
+import ParsedText from "react-native-parsed-text";
+import { brandColors } from "@/constants";
 
 interface CommentRowProps extends ViewProps {
   commentId: string;
   replies?: Event[];
   showReplyLinks?: boolean;
 }
+const handleUrlPress = (url: string) => {
+  Linking.openURL(url);
+};
+
+const blurhash = "L6PZfSi_.AyE_3t7t7R**0o#DgR4";
+
+// ParsedText's renderText expects a function that returns a string, but we return an image component
+// this works fine, so we just need to cast the return type to any
+const renderImage = (matchingString: string, matches: string[]): any => {
+  const urlParamsRemoved = matchingString.replace(/(\?|#)\S*/g, "");
+
+  return (
+    <Image
+      source={{ uri: urlParamsRemoved }}
+      placeholder={blurhash}
+      style={{ width: 200, height: 200, marginVertical: 10 }}
+      cachePolicy="memory-disk"
+    />
+  );
+};
 
 const getCommentText = (
   event: Event,
@@ -38,7 +61,9 @@ const getCommentText = (
     }
   }
 
-  return npubMetadata?.name ? `${npubMetadata.name} shared this` : "";
+  return npubMetadata?.name
+    ? `${npubMetadata.name} shared this artist's content`
+    : "";
 };
 
 export const CommentRow = ({
@@ -60,10 +85,6 @@ export const CommentRow = ({
   const { id, content, pubkey, kind } = comment;
 
   const isZap = kind === 9734;
-  const [amountTag, zapAmount] =
-    comment.tags.find(([tag, amount]) => tag === "amount") || [];
-  const npub = nip19.npubEncode(pubkey);
-
   // don't render empty comments that arent zaps
   if (content.length === 0 && !isZap) {
     return null;
@@ -73,6 +94,10 @@ export const CommentRow = ({
 
   if (!commentText) {
     return null;
+  }
+  if (commentText.includes("CALL YOU")) {
+    console.log(commentId);
+    console.log(commentText);
   }
 
   return (
@@ -92,7 +117,26 @@ export const CommentRow = ({
       <BasicAvatar uri={picture} pubkey={pubkey} npubMetadata={npubMetadata} />
       <View style={{ marginLeft: 10, flex: 1 }}>
         <Text bold>{name}</Text>
-        <Text>{commentText}</Text>
+        <ParsedText
+          style={{ color: "white" }}
+          parse={[
+            {
+              pattern:
+                /\bhttps?:\/\/\S+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\\\s]*|&[^\\\s]*)*/,
+              // /\bhttps?:\/\/\S+\.(?:jpg|jpeg|png|gif|webp)(?:\?\S*|#\S*)?/,
+              // pattern: /\bhttps?:\/\/\S+\.(?:gif|jpg|jpeg|png)\b/gi,
+              style: { color: "blue" },
+              renderText: renderImage,
+            },
+            {
+              type: "url",
+              style: { color: brandColors.purple.DEFAULT },
+              onPress: handleUrlPress,
+            },
+          ]}
+        >
+          {commentText}
+        </ParsedText>
         {/* {msatAmount && (
           <SatsEarned
             msats={msatAmount}
