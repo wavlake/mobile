@@ -185,7 +185,6 @@ export const PubkeyProfile = ({
 const FollowerInfo = ({ pubkey }: { pubkey: string }) => {
   const { data: catalogMetadata } = useCatalogPubkey(pubkey);
   const { followerCount, follows } = catalogMetadata || {};
-  console.log("followerCount", followerCount, catalogMetadata);
   if (typeof followerCount === "undefined" || typeof follows === "undefined") {
     return null;
   }
