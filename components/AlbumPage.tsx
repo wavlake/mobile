@@ -10,6 +10,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { CommentList } from "./Comments/CommentList";
+import { useAlbumComments } from "@/hooks/useAlbumComments";
 
 interface AlbumPageFooterProps {
   album: Album;
@@ -20,7 +21,7 @@ const AlbumPageFooter = ({ album, tracks }: AlbumPageFooterProps) => {
   const { description, topMessages = [], title, id: albumId } = album;
   const basePathname = useGetBasePathname();
   const router = useRouter();
-
+  const { data: commentIds = [], isFetching } = useAlbumComments(albumId, 10);
   if (!description && topMessages.length === 0) {
     return null;
   }
@@ -34,10 +35,16 @@ const AlbumPageFooter = ({ album, tracks }: AlbumPageFooterProps) => {
         </>
       )}
       <CommentList
-        parentContentId={album.id}
-        contentIds={tracks.map((track) => track.id)}
-        parentContentTitle={album.title}
-        parentContentType="album"
+        commentIds={commentIds}
+        isLoading={isFetching}
+        showMoreLink={{
+          pathname: `${basePathname}/album/[albumId]/comments`,
+          params: {
+            albumId,
+            headerTitle: `Comments for ${album.title}`,
+            includeBackButton: "true",
+          },
+        }}
       />
     </View>
   );

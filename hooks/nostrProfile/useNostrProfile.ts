@@ -9,17 +9,30 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
-export const useNostrProfileEvent = (pubkey: string) => {
+export const useNostrProfileEvent = (pubkey?: string) => {
   const { readRelayList } = useNostrRelayList();
-  const queryKey = useNostrProfileQueryKey(pubkey);
-  const { data } = useQuery({
+  const queryKey = useNostrProfileQueryKey(pubkey ?? "");
+  return useQuery({
     queryKey,
-    queryFn: () => getProfileMetadata(pubkey, readRelayList),
-    enabled: Boolean(pubkey),
-    staleTime: 10000,
-  });
+    queryFn: async () => {
+      if (!pubkey) {
+        return null;
+      }
 
-  return data;
+      const event = await getProfileMetadata(pubkey, readRelayList);
+      if (!event) {
+        return null;
+      }
+
+      try {
+        return JSON.parse(event.content) as NostrUserProfile;
+      } catch {
+        return null;
+      }
+    },
+    enabled: Boolean(pubkey),
+    staleTime: Infinity,
+  });
 };
 
 const useCachedNostrProfileEvent = (pubkey: string) => {

@@ -7,25 +7,54 @@ import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Event, nip19, UnsignedEvent } from "nostr-tools";
-import { useNostrProfile } from "@/hooks";
+import { useNostrProfileEvent } from "@/hooks";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { NostrUserProfile } from "@/utils";
+import { msatsToSatsWithCommas } from "../WalletLabel";
 
 interface CommentRowProps extends ViewProps {
-  comment: Event;
+  commentId: string;
   replies?: Event[];
   showReplyLinks?: boolean;
 }
 
+const getCommentText = (
+  event: Event,
+  npubMetadata?: NostrUserProfile | null,
+): string => {
+  if (event.content) {
+    return event.content;
+  }
+
+  if (event.kind === 9734) {
+    const amountTag = event.tags.find(([tag]) => tag === "amount");
+    if (amountTag) {
+      const msatsInt = parseInt(amountTag[1]);
+      return isNaN(msatsInt)
+        ? ""
+        : `Zapped ${msatsToSatsWithCommas(msatsInt)} sats`;
+    } else {
+      return "";
+    }
+  }
+
+  return npubMetadata?.name ? `${npubMetadata.name} shared this` : "";
+};
+
 export const CommentRow = ({
-  comment,
+  commentId,
   replies = [],
   showReplyLinks = true,
 }: CommentRowProps) => {
-  const npubMetadata = useNostrProfile(comment.pubkey);
+  const { data: comment } = useNostrEvent(commentId);
+  const { data: npubMetadata } = useNostrProfileEvent(comment?.pubkey);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [cachedReplies, setCachedReplies] = useState<UnsignedEvent[]>([]);
   const onReplyPress = () => {
     setDialogOpen(true);
   };
+
+  if (!comment) return null;
 
   const { picture, name } = npubMetadata || {};
   const { id, content, pubkey, kind } = comment;
@@ -40,8 +69,11 @@ export const CommentRow = ({
     return null;
   }
 
-  // handle any empty comments
-  const commentText = content.length > 0 ? content : `Zapped ${zapAmount} sats`;
+  const commentText = getCommentText(comment, npubMetadata);
+
+  if (!commentText) {
+    return null;
+  }
 
   return (
     <View
@@ -53,11 +85,11 @@ export const CommentRow = ({
     >
       <ReplyDialog
         setIsOpen={setDialogOpen}
-        comment={comment}
+        commentId={commentId}
         isOpen={dialogOpen}
         setCachedReplies={setCachedReplies}
       />
-      <BasicAvatar uri={picture} pubkey={pubkey} />
+      <BasicAvatar uri={picture} pubkey={pubkey} npubMetadata={npubMetadata} />
       <View style={{ marginLeft: 10, flex: 1 }}>
         <Text bold>{name}</Text>
         <Text>{commentText}</Text>

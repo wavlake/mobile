@@ -1,49 +1,64 @@
 import { CommentRow } from "./CommentRow";
 import { useRepliesMap } from "@/hooks/useRepliesMap";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatListProps,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { SectionHeader } from "../SectionHeader";
 import { Text } from "../Text";
-import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useRouter } from "expo-router";
-import { useNostrComments } from "@/hooks/useNostrComments";
+import { memo, useCallback } from "react";
+
+const getItemLayout: FlatListProps<string>["getItemLayout"] = (
+  data,
+  index,
+) => ({
+  length: 200, // Replace with your item's height
+  offset: 100 * index,
+  index,
+});
 
 export const CommentList = ({
-  contentIds,
-  parentContentId,
-  parentContentType,
-  parentContentTitle,
+  commentIds,
+  isLoading,
   scrollEnabled = false,
-  showViewMoreLink = true,
+  showMoreLink,
 }: {
-  contentIds: string[];
-  parentContentId: string;
-  parentContentType?: "artist" | "album" | "podcast";
-  parentContentTitle?: string;
+  commentIds: string[];
+  isLoading: boolean;
   scrollEnabled?: boolean;
-  showViewMoreLink?: boolean;
+  showMoreLink?: {
+    pathname: string;
+    params: Record<string, string>;
+  };
 }) => {
   const router = useRouter();
-  const { data: comments = [], isFetching } = useNostrComments(
-    contentIds,
-    parentContentId,
-  );
-
-  const { data: repliesMap } = useRepliesMap(comments);
-  const basePathname = useGetBasePathname();
+  const { data: repliesMap = {} } = useRepliesMap(commentIds);
   const handleLoadMore = () => {
-    if (!parentContentId || !parentContentTitle || !parentContentType) {
+    if (!showMoreLink) {
       return;
     }
-    router.push(
-      generateRouterParams({
-        parentContentId,
-        parentContentType,
-        parentContentTitle,
-        basePathname,
-      }),
-    );
+    router.push(showMoreLink);
   };
+
+  const MemoizedCommentRow = memo(CommentRow);
+  const renderItem = useCallback(
+    ({ item: commentId, index }: { item: string; index: number }) => {
+      const replies = commentId ? repliesMap[commentId] ?? [] : [];
+      return (
+        <MemoizedCommentRow
+          commentId={commentId}
+          key={commentId}
+          replies={replies}
+        />
+      );
+    },
+    [repliesMap],
+  );
+
   return (
     <FlatList
       ListEmptyComponent={
@@ -60,72 +75,32 @@ export const CommentList = ({
               textAlign: "center",
             }}
           >
-            {isFetching ? <ActivityIndicator /> : "No comment yet"}
+            {isLoading ? <ActivityIndicator /> : "No comment yet"}
           </Text>
         </View>
       }
-      data={comments}
+      data={commentIds}
       ListHeaderComponent={() => (
         <View>
           <SectionHeader title="Latest Messages" />
         </View>
       )}
-      renderItem={({ item, index }) => {
-        const replies = item.id ? repliesMap[item.id] ?? [] : [];
-
-        return <CommentRow comment={item} key={item.id} replies={replies} />;
-      }}
-      keyExtractor={(item) => item.id.toString()}
+      renderItem={renderItem}
+      keyExtractor={(item) => item}
       ListFooterComponent={
-        comments.length > 0 && showViewMoreLink ? (
+        commentIds.length > 0 && showMoreLink ? (
           <TouchableOpacity onPress={handleLoadMore}>
             <Text style={{ textAlign: "center" }}>View more</Text>
           </TouchableOpacity>
         ) : undefined
       }
       scrollEnabled={scrollEnabled}
+      // TODO - investigate additional optimizations
+      // getItemLayout={getItemLayout}
+      // updateCellsBatchingPeriod={50}
+      windowSize={12}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={8}
     />
   );
-};
-
-const generateRouterParams = ({
-  parentContentId,
-  parentContentType,
-  parentContentTitle,
-  basePathname,
-}: {
-  parentContentId: string;
-  parentContentType: "artist" | "album" | "podcast";
-  parentContentTitle: string;
-  basePathname: string;
-}) => {
-  switch (parentContentType) {
-    case "artist":
-      return {
-        pathname: `${basePathname}/artist/[artistId]/comments`,
-        params: {
-          artistId: parentContentId,
-          headerTtle: `Comments for ${parentContentTitle}`,
-          includeBackButton: "true",
-        },
-      };
-    case "album":
-      return {
-        pathname: `${basePathname}/album/[albumId]/comments`,
-        params: {
-          albumId: parentContentId,
-          headerTitle: `Comments for ${parentContentTitle}`,
-          includeBackButton: "true",
-        },
-      };
-    case "podcast":
-      return {
-        pathname: `${basePathname}/artist/[artistId]/comments`,
-        params: {
-          podcastId: parentContentId,
-          headerTitle: `Comments for ${parentContentTitle}`,
-          includeBackButton: "true",
-        },
-      };
-  }
 };

@@ -5,9 +5,10 @@ import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
 import { usePublishReply } from "@/hooks/usePublishReply";
 import { Event, UnsignedEvent } from "nostr-tools";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 interface ReplyDialogProps {
-  comment: Event;
+  commentId: string;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   setCachedReplies?: React.Dispatch<React.SetStateAction<UnsignedEvent[]>>;
@@ -16,9 +17,13 @@ interface ReplyDialogProps {
 export const ReplyDialog = ({
   setIsOpen,
   setCachedReplies,
-  comment,
+  commentId,
   isOpen,
 }: ReplyDialogProps) => {
+  const { data: comment } = useNostrEvent(commentId);
+
+  if (!comment) return null;
+
   return (
     <BottomSheet
       containerStyle={{
@@ -88,7 +93,7 @@ const ReplyDialogContents = ({
           gap: 10,
         }}
       >
-        <CommentRow comment={parentComment} showReplyLinks={false} />
+        <CommentRow commentId={parentComment.id} showReplyLinks={false} />
         <TextInput
           label="reply"
           autoFocus

@@ -1,56 +1,63 @@
 import { DEFAULT_READ_RELAY_URIS, pool } from ".";
 import { Event, nip19 } from "nostr-tools";
 
-export const getAllCommentEvents = async (contentIds: string[]) => {
+export const getAllCommentEvents = async (
+  contentIds: string[],
+  limit: number,
+) => {
+  // skip queries if the list is empty
   if (contentIds.length === 0) {
     return {
       kind1Events: [] as Event[],
       zapReceipts: [] as Event[],
-      labelEventComments: [] as Event[],
+      labelEventPointers: [] as Event[],
     };
   }
   const commentsFilter = {
     kinds: [1],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 100,
+    limit,
   };
   const zapsFilter = {
     kinds: [9735],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 100,
+    limit,
   };
   const labelEventFilter = {
     kinds: [1985],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
-    limit: 100,
+    limit,
   };
 
-  const [kind1Events, zapReceipts, labelEvents] = await Promise.all([
+  const [kind1Events, zapReceipts, labelEventPointers] = await Promise.all([
     pool.querySync(DEFAULT_READ_RELAY_URIS, commentsFilter),
     pool.querySync(DEFAULT_READ_RELAY_URIS, zapsFilter),
     pool.querySync(DEFAULT_READ_RELAY_URIS, labelEventFilter),
   ]);
 
-  const labelEventCommentIds = labelEvents
-    .map((event) => {
-      const [eTag, eventId] = event.tags.find((tag) => tag[0] === "e") || [];
-
-      return eventId;
-    })
-    .filter((id) => id !== undefined);
-
-  const labelEventComments =
-    // skip if the filter is empty
-    labelEventCommentIds.length > 0
-      ? await pool.querySync(DEFAULT_READ_RELAY_URIS, {
-          ids: labelEventCommentIds,
-        })
-      : [];
   return {
     kind1Events,
     zapReceipts,
-    labelEventComments,
+    labelEventPointers,
   };
+};
+
+export const getLabeledEvents = async (labelEvents: Event[]) => {
+  const labeledEventIds: string[] = [];
+  labelEvents.forEach((event) => {
+    const [eTag, eventId] = event.tags.find((tag) => tag[0] === "e") || [];
+    if (!eventId) return;
+    labeledEventIds.push(eventId);
+  });
+
+  // skip query if the list is empty
+  if (labeledEventIds.length === 0) {
+    return [];
+  }
+
+  return pool.querySync(DEFAULT_READ_RELAY_URIS, {
+    ids: labeledEventIds,
+  });
 };
 
 // in addition to zapRequests being published with a comment, sometimes a duplicated kind 1 is created, which quotes the original zap receipt.
@@ -120,14 +127,6 @@ export const removeCensoredContent = (event: Event) => {
     return acc.replace(regex, "");
   }, event.content);
 
-  if (content.length === 0 && event.kind !== 9734) {
-    return {
-      ...event,
-      // todo: efficiently get the npub metadata for the pubkey or the track info for the track tag
-      content: `Shared this artist's content`,
-    };
-  }
-
   return {
     ...event,
     content,
@@ -135,8 +134,9 @@ export const removeCensoredContent = (event: Event) => {
 };
 
 const wavlakePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
-
+const wavlakeTrendingBot =
+  "3e0767c6c5174095658a54a9fe23d6974bc3b4de2f72452b474d0682bf6365f0";
 export const isNotCensoredAuthor = (event: Event) => {
-  const censoredAuthors = [wavlakePubkey];
+  const censoredAuthors = [wavlakePubkey, wavlakeTrendingBot];
   return !censoredAuthors.includes(event.pubkey);
 };

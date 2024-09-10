@@ -1,10 +1,11 @@
-import { getArtist, getArtistTracks } from "@/utils";
+import { getArtist } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { CommentList } from "./Comments/CommentList";
 import { View } from "react-native";
 import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { useArtistComments } from "@/hooks/useArtistComments";
 
 export const ArtistCommentPage = () => {
   const { artistId } = useLocalSearchParams();
@@ -12,10 +13,9 @@ export const ArtistCommentPage = () => {
     queryKey: [artistId],
     queryFn: () => getArtist(artistId as string),
   });
-  const { data: tracks = [] } = useQuery({
-    queryKey: [artistId, "tracks"],
-    queryFn: () => getArtistTracks(artistId as string),
-  });
+  const { data: commentIds = [], isFetching } = useArtistComments(
+    artistId as string,
+  );
   const isVerified = artist?.verified ?? false;
   const router = useRouter();
   useEffect(() => {
@@ -24,7 +24,6 @@ export const ArtistCommentPage = () => {
     }
   }, [isVerified]);
 
-  const trackIds = tracks.map((track) => track.id);
   const { height } = useMiniMusicPlayer();
 
   return (
@@ -33,9 +32,8 @@ export const ArtistCommentPage = () => {
     >
       <CommentList
         scrollEnabled={true}
-        contentIds={trackIds}
-        parentContentId={artistId as string}
-        showViewMoreLink={false}
+        commentIds={commentIds}
+        isLoading={isFetching}
       />
     </View>
   );

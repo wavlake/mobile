@@ -9,10 +9,8 @@ import { Text } from "@/components/Text";
 import { useLocalSearchParams } from "expo-router";
 import { Center } from "../Center";
 import { UnsignedEvent, Event } from "nostr-tools";
-import { useQuery } from "@tanstack/react-query";
-import { fetchReplies, getEventById } from "@/utils";
-import { useRepliesQueryKey } from "@/hooks/useReplies";
-import { getNostrCommentsQueryKey } from "@/hooks/useNostrComments";
+import { useReplies } from "@/hooks/useReplies";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 const LEFT_INDENTATION = 40;
 
@@ -28,19 +26,8 @@ export const CommentRepliesPage = () => {
     );
   }
 
-  const replyQueryKey = useRepliesQueryKey(id);
-  const { data: replies = [] } = useQuery({
-    queryKey: replyQueryKey,
-    queryFn: () => fetchReplies([id]),
-    staleTime: Infinity,
-  });
-
-  const commentQueryKey = getNostrCommentsQueryKey(id);
-  const { data: comment, isLoading } = useQuery({
-    queryKey: commentQueryKey,
-    queryFn: () => getEventById(id),
-    staleTime: Infinity,
-  });
+  const { data: comment, isLoading } = useNostrEvent(id);
+  const { data: replies = [] } = useReplies(id);
 
   if (isLoading) {
     return (
@@ -79,7 +66,7 @@ const CommentRepliesPageContents = ({
     <FlatList
       ListHeaderComponent={
         <ListHeaderComp
-          comment={comment}
+          commentId={comment.id}
           dialogOpen={dialogOpen}
           setDialogOpen={setDialogOpen}
           setCachedReplies={setCachedReplies}
@@ -97,12 +84,12 @@ const CommentRepliesPageContents = ({
 };
 
 const ListHeaderComp = ({
-  comment,
+  commentId,
   dialogOpen,
   setDialogOpen,
   setCachedReplies,
 }: {
-  comment: any;
+  commentId: string;
   dialogOpen: boolean;
   setDialogOpen: (isOpen: boolean) => void;
   setCachedReplies?: React.Dispatch<React.SetStateAction<UnsignedEvent[]>>;
@@ -111,11 +98,11 @@ const ListHeaderComp = ({
     <>
       <ReplyDialog
         setIsOpen={setDialogOpen}
-        comment={comment}
+        commentId={commentId}
         isOpen={dialogOpen}
         setCachedReplies={setCachedReplies}
       />
-      <CommentRow comment={comment} showReplyLinks={false} />
+      <CommentRow commentId={commentId} showReplyLinks={false} />
     </>
   );
 };

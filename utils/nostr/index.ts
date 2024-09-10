@@ -51,6 +51,7 @@ import { NWCRequest } from "../nwc";
 import {
   deduplicateEvents,
   getAllCommentEvents,
+  getLabeledEvents,
   isNotCensoredAuthor,
   removeCensoredContent,
 } from "./comments";
@@ -121,7 +122,6 @@ export const getEventFromRelay = (
   return new Promise(async (resolve, reject) => {
     try {
       const relay = await Relay.connect(relayUri);
-      console.log("subscribing to relay");
       const sub = relay.subscribe([filter], {
         onevent(event) {
           resolve(event);
@@ -154,7 +154,6 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
   relayUris?: string[];
 }) => {
   try {
-    console.log("pool get1", filter);
     const event = await pool.get(relayUris, filter);
 
     if (event === null) {
@@ -179,7 +178,6 @@ export const getProfileMetadata = async (
     kinds: [0],
     authors: [pubkey],
   };
-  console.log("getProfileMetadata", pubkey.slice(0, 10));
   return getEventFromPoolAndCacheItIfNecessary({
     pubkey,
     filter,
@@ -188,8 +186,6 @@ export const getProfileMetadata = async (
     relayUris,
   });
 };
-
-export const getKind1Replies = async (kind1EventIds: string[]) => {};
 
 export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
   const filter = {
@@ -213,7 +209,6 @@ export const getRelayListMetadata = async (pubkey: string) => {
     kinds: [10002],
     authors: [pubkey],
   };
-  console.log("getRelayListMetadata", pubkey.slice(0, 10));
   return getEventFromPoolAndCacheItIfNecessary({
     pubkey,
     filter,
@@ -586,8 +581,6 @@ export const getEventById = (eventId: string) => {
     ids: [eventId],
   };
 
-  console.log("pool get2");
-
   return pool.get(DEFAULT_READ_RELAY_URIS, filter);
 };
 
@@ -602,7 +595,6 @@ const getKind3Event = (pubkey?: string) => {
   };
 
   try {
-    console.log("pool get3");
     return pool.get(DEFAULT_READ_RELAY_URIS, filter);
   } catch {
     return null;
@@ -693,44 +685,24 @@ export const fetchReplies = async (kind1EventIds: string[]) => {
   return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
 };
 
-export const fetchContentComments = async (contentIds: string[]) => {
-  const { kind1Events, zapReceipts, labelEventComments } =
-    await getAllCommentEvents(contentIds);
+export const fetchContentCommentEvents = async (
+  contentIds: string[],
+  limit = 100,
+) => {
+  const { kind1Events, zapReceipts, labelEventPointers } =
+    await getAllCommentEvents(contentIds, limit);
 
-  const deDuplicatedKind1AndZapRequests = deduplicateEvents(
+  const labeledEvents = await getLabeledEvents(labelEventPointers);
+
+  const deduplicatedEvents = deduplicateEvents(
     kind1Events,
     zapReceipts,
-    labelEventComments,
+    labeledEvents,
   );
 
-  return deDuplicatedKind1AndZapRequests
+  return deduplicatedEvents
     .map(removeCensoredContent)
-    .filter(isNotCensoredAuthor);
+    .filter(isNotCensoredAuthor)
+    .sort((a, b) => b.created_at - a.created_at)
+    .slice(0, limit);
 };
-
-// TODO - instead of fetching all track comments via track #i tags, we should fetch the album comments via the album #i tag
-// export const fetchAlbumComments = async (albumIds: string[]) => {
-//   if (contentIds.length === 0) {
-//     return [];
-//   }
-//   console.log("fetchAlbumComments", albumIds);
-//   const filter: Filter = {
-//     kinds: [1],
-//     ["#i"]: albumIds.map((id) => {
-//       const feedGuid = getPodcastFeedGuid("album", id);
-//       return `podcast:guid:${feedGuid}`;
-//     }),
-//   };
-//   console.log("fetchAlbumComments", { filter });
-//   return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
-// };
-
-// export const fetchPodcastComments = async (podcastId: string) => {
-//   const feedGuid = getPodcastFeedGuid("podcast", podcastId);
-//   const filter: Filter = {
-//     kinds: [1],
-//     ["#i"]: [`podcast:guid:${feedGuid}`],
-//   };
-
-//   return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
-// };

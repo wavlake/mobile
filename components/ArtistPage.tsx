@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { getArtist, getArtistTracks } from "@/utils";
+import { getArtist } from "@/utils";
 import {
   ActivityIndicator,
   ScrollView,
@@ -27,6 +27,7 @@ import { useGoToAlbumPage } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { ArtistBanner } from "@/components/ArtistBanner";
 import { CommentList } from "./Comments/CommentList";
+import { useArtistComments } from "@/hooks/useArtistComments";
 
 interface SocialIconLinkProps {
   url: string;
@@ -50,10 +51,10 @@ export const ArtistPage = () => {
     queryKey: [artistId],
     queryFn: () => getArtist(artistId as string),
   });
-  const { data: tracks = [] } = useQuery({
-    queryKey: [artistId, "tracks"],
-    queryFn: () => getArtistTracks(artistId as string),
-  });
+  const { data: commentIds = [], isFetching } = useArtistComments(
+    artistId as string,
+    10,
+  );
   const topAlbums = artist?.topAlbums ?? [];
   const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
   const basePathname = useGetBasePathname();
@@ -135,10 +136,16 @@ export const ArtistPage = () => {
       />
       <HorizontalArtworkRow items={topAlbums} onPress={handleTopAlbumPress} />
       <CommentList
-        contentIds={tracks.map((track) => track.id)}
-        parentContentId={artistId as string}
-        parentContentTitle={artist.name}
-        parentContentType="artist"
+        commentIds={commentIds}
+        isLoading={isFetching}
+        showMoreLink={{
+          pathname: `${basePathname}/artist/[artistId]/comments`,
+          params: {
+            artistId: artistId as string,
+            headerTtle: `Comments for ${artist.name}`,
+            includeBackButton: "true",
+          },
+        }}
       />
       {artist.bio && (
         <>
