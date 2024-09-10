@@ -88,15 +88,18 @@ export const CommentRow = ({
       />
       <BasicAvatar uri={picture} pubkey={pubkey} npubMetadata={npubMetadata} />
       <View style={{ marginLeft: 10, flex: 1 }}>
-        <Text bold>{name}</Text>
-        <ParsedTextRender content={content} />
-        {/* {msatAmount && (
+        <TouchableOpacity onPress={onReplyPress} style={{}}>
+          <Text bold>{name ?? "anonymous"}</Text>
+          <ParsedTextRender content={commentText} />
+          {/* {msatAmount && (
           <SatsEarned
             msats={msatAmount}
             extraText={extraText}
             defaultTextColor
           />
         )} */}
+        </TouchableOpacity>
+
         {showReplyLinks && (
           <View
             style={{
@@ -112,13 +115,6 @@ export const CommentRow = ({
               replies={[...replies, ...cachedReplies]}
               parentcommentId={id}
             />
-            <TouchableOpacity onPress={onReplyPress} style={{}}>
-              <MaterialCommunityIcons
-                name="comment-plus-outline"
-                size={24}
-                color="white"
-              />
-            </TouchableOpacity>
           </View>
         )}
       </View>

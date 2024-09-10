@@ -24,22 +24,24 @@ const renderImage = (matchingString: string, matches: string[]): any => {
   );
 };
 
-export const ParsedTextRender = ({ content }: { content?: string }) => (
-  <ParsedText
-    style={{ color: "white" }}
-    parse={[
-      {
-        pattern:
-          /\bhttps?:\/\/\S+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\\\s]*|&[^\\\s]*)*/,
-        renderText: renderImage,
-      },
-      {
-        type: "url",
-        style: { color: brandColors.purple.DEFAULT },
-        onPress: handleUrlPress,
-      },
-    ]}
-  >
-    {content}
-  </ParsedText>
-);
+export const ParsedTextRender = ({ content }: { content?: string }) => {
+  return (
+    <ParsedText
+      style={{ color: "white" }}
+      parse={[
+        {
+          pattern:
+            /\bhttps?:\/\/\S+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\\\s]*|&[^\\\s]*)*/,
+          renderText: renderImage,
+        },
+        {
+          type: "url",
+          style: { color: brandColors.purple.DEFAULT },
+          onPress: handleUrlPress,
+        },
+      ]}
+    >
+      {content}
+    </ParsedText>
+  );
+};
