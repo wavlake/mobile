@@ -3,9 +3,10 @@ import { CommentRow, Text } from "@/components";
 import { brandColors } from "@/constants";
 import { ActivityIndicator, Pressable, View } from "react-native";
 import { BottomSheet } from "@rneui/base";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CommentList } from "../Comments/CommentList";
 
+const COMMENT_ROTATION_INTERVAL = 5000;
 export const NowPlayingCommentSection = ({
   contentId,
 }: {
@@ -15,7 +16,34 @@ export const NowPlayingCommentSection = ({
     contentId,
     20,
   );
+  const [displayedComment, setDisplayedComment] = useState<string>();
   const [isExpanded, setIsExpanded] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    if (commentsData.length === 0) {
+      setDisplayedComment(undefined);
+      return;
+    }
+
+    setDisplayedComment(commentsData[0]);
+
+    let i = 0;
+    intervalRef.current = setInterval(() => {
+      i = (i + 1) % commentsData.length;
+      setDisplayedComment(commentsData[i]);
+    }, COMMENT_ROTATION_INTERVAL);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [commentsData, contentId]);
 
   return (
     <Pressable
@@ -44,7 +72,9 @@ export const NowPlayingCommentSection = ({
           <ActivityIndicator />
         </View>
       ) : (
-        <CommentRow commentId={commentsData[0]} isPressable={false} />
+        displayedComment && (
+          <CommentRow commentId={displayedComment} isPressable={false} />
+        )
       )}
       <BottomSheet
         onBackdropPress={() => setIsExpanded(false)}

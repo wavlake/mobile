@@ -187,6 +187,17 @@ export const getProfileMetadata = async (
   });
 };
 
+export const batchGetProfileMetadata = async (
+  pubkeys: string[],
+  relayUris: string[],
+) => {
+  const filter = {
+    kinds: [0],
+    authors: pubkeys,
+  };
+  return pool.querySync(relayUris, filter);
+};
+
 export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
   const filter = {
     kinds: [13194],

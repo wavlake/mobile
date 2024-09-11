@@ -3,6 +3,8 @@ import { brandColors } from "@/constants";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { NostrUserProfile } from "@/utils";
+import { Image } from "expo-image";
+import { Pressable } from "react-native";
 
 interface BasicAvatarProps {
   uri?: string | null;
@@ -49,11 +51,11 @@ export const BasicAvatar = ({
   }
 
   return (
-    <Avatar
-      size={size}
-      rounded
-      {...(uri ? { source: { uri } } : {})}
-      onPress={onPress}
-    />
+    <Pressable onPress={onPress}>
+      <Image
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+        source={uri}
+      />
+    </Pressable>
   );
 };
