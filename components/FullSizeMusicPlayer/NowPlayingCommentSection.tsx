@@ -1,10 +1,11 @@
 import { useContentComments } from "@/hooks/useContentComments";
-import { CommentRow, Text } from "@/components";
+import { CommentRow, SectionHeader, Text } from "@/components";
 import { brandColors } from "@/constants";
 import { ActivityIndicator, Pressable, View } from "react-native";
 import { BottomSheet } from "@rneui/base";
 import { useEffect, useRef, useState } from "react";
 import { CommentList } from "../Comments/CommentList";
+import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 
 const COMMENT_ROTATION_INTERVAL = 5000;
 export const NowPlayingCommentSection = ({
@@ -62,7 +63,23 @@ export const NowPlayingCommentSection = ({
         setIsExpanded(true);
       }}
     >
-      <Text>Latest Messages</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Text style={{ fontSize: 18 }} bold>
+          Latest Messages
+        </Text>
+        <ArrowTopRightOnSquareIcon
+          color={brandColors.beige.dark}
+          height={20}
+          width={20}
+        />
+      </View>
+
       {isFetching ? (
         <View
           style={{
