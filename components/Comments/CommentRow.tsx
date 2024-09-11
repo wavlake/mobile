@@ -4,7 +4,6 @@ import { Text } from "@/components/Text";
 import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Event, UnsignedEvent } from "nostr-tools";
 import { useNostrProfileEvent } from "@/hooks";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
@@ -76,7 +75,7 @@ export const CommentRow = ({
   return (
     <View
       style={{
-        marginBottom: 16,
+        marginBottom: 10,
         flexDirection: "row",
         paddingHorizontal: 16,
       }}

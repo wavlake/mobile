@@ -26,7 +26,7 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   return (
     <View
       style={{
-        marginBottom: 26,
+        marginBottom: 10,
         flexDirection: "row",
         paddingHorizontal: 16,
         display: "flex",
