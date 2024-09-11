@@ -2,11 +2,11 @@ import { CommentRow } from "./CommentRow";
 import { useRepliesMap } from "@/hooks/useRepliesMap";
 import {
   ActivityIndicator,
+  FlatList,
   FlatListProps,
   TouchableOpacity,
   View,
 } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
 import { SectionHeader } from "../SectionHeader";
 import { Text } from "../Text";
 import { useRouter } from "expo-router";
@@ -26,6 +26,8 @@ export const CommentList = ({
   isLoading,
   scrollEnabled = false,
   showMoreLink,
+  onClose,
+  showReplyLinks = true,
 }: {
   commentIds: string[];
   isLoading: boolean;
@@ -34,6 +36,8 @@ export const CommentList = ({
     pathname: string;
     params: Record<string, string>;
   };
+  onClose?: () => void;
+  showReplyLinks?: boolean;
 }) => {
   const router = useRouter();
   const { data: repliesMap = {} } = useRepliesMap(commentIds);
@@ -53,6 +57,7 @@ export const CommentList = ({
           commentId={commentId}
           key={commentId}
           replies={replies}
+          showReplyLinks={showReplyLinks}
         />
       );
     },
@@ -81,15 +86,22 @@ export const CommentList = ({
       }
       data={commentIds}
       ListHeaderComponent={() => (
-        <View>
-          <SectionHeader title="Latest Messages" />
-        </View>
+        <SectionHeader
+          title="Latest Messages"
+          rightButton={
+            onClose && (
+              <TouchableOpacity hitSlop={20} onPress={onClose}>
+                <Text style={{ textAlign: "center" }}>Close</Text>
+              </TouchableOpacity>
+            )
+          }
+        />
       )}
       renderItem={renderItem}
       keyExtractor={(item) => item}
       ListFooterComponent={
         commentIds.length > 0 && showMoreLink ? (
-          <TouchableOpacity onPress={handleLoadMore}>
+          <TouchableOpacity hitSlop={20} onPress={handleLoadMore}>
             <Text style={{ textAlign: "center" }}>View more</Text>
           </TouchableOpacity>
         ) : undefined

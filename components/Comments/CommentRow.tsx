@@ -15,6 +15,7 @@ interface CommentRowProps extends ViewProps {
   commentId: string;
   replies?: Event[];
   showReplyLinks?: boolean;
+  isPressable?: boolean;
 }
 
 const getCommentText = (
@@ -46,6 +47,7 @@ export const CommentRow = ({
   commentId,
   replies = [],
   showReplyLinks = true,
+  isPressable = true,
 }: CommentRowProps) => {
   const { data: comment } = useNostrEvent(commentId);
   const { data: npubMetadata } = useNostrProfileEvent(comment?.pubkey);
@@ -87,18 +89,31 @@ export const CommentRow = ({
       />
       <BasicAvatar uri={picture} pubkey={pubkey} npubMetadata={npubMetadata} />
       <View style={{ marginLeft: 10, flex: 1 }}>
-        <TouchableOpacity onPress={onReplyPress} style={{}}>
-          <Text bold>{name ?? "anonymous"}</Text>
-          <ParsedTextRender content={commentText} />
-          {/* {msatAmount && (
+        {isPressable ? (
+          <TouchableOpacity onPress={onReplyPress} style={{}}>
+            <Text bold>{name ?? "anonymous"}</Text>
+            <ParsedTextRender content={commentText} />
+            {/* {msatAmount && (
           <SatsEarned
             msats={msatAmount}
             extraText={extraText}
             defaultTextColor
           />
         )} */}
-        </TouchableOpacity>
-
+          </TouchableOpacity>
+        ) : (
+          <View style={{}}>
+            <Text bold>{name ?? "anonymous"}</Text>
+            <ParsedTextRender content={commentText} />
+            {/* {msatAmount && (
+          <SatsEarned
+            msats={msatAmount}
+            extraText={extraText}
+            defaultTextColor
+          />
+        )} */}
+          </View>
+        )}
         {showReplyLinks && (
           <View
             style={{

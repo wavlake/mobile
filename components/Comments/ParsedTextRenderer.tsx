@@ -7,8 +7,6 @@ const handleUrlPress = (url: string) => {
   Linking.openURL(url);
 };
 
-const blurhash = "L6PZfSi_.AyE_3t7t7R**0o#DgR4";
-
 const renderImage = (matchingString: string, matches: string[]): any => {
   const urlParamsRemoved = matchingString.replace(/(\?|#)\S*/g, "");
 
@@ -16,7 +14,9 @@ const renderImage = (matchingString: string, matches: string[]): any => {
     <View>
       <Image
         source={{ uri: urlParamsRemoved }}
-        placeholder={blurhash}
+        // TODO - figure out some placeholder image to show while loading
+        // investigate using react-native-animated
+        // placeholder={}
         style={{ width: 200, height: 200, marginVertical: 10 }}
         cachePolicy="memory-disk"
       />
