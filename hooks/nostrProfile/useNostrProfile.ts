@@ -36,20 +36,20 @@ export const useNostrProfileEvent = (pubkey?: string) => {
 };
 
 const useCachedNostrProfileEvent = (pubkey: string) => {
-  const { data } = useQuery({
+  return useQuery({
     queryKey: ["cachedNostrProfileEvent", pubkey],
     queryFn: () => getCachedNostrProfileEvent(pubkey),
     enabled: Boolean(pubkey),
   });
-
-  return data;
 };
 
 export const useNostrProfile = (pubkey?: string) => {
   const { pubkey: loggedInPubkey } = useAuth();
   // if no pubkey is provided, use the logged in user's pubkey
-  const nostrProfileEvent = useNostrProfileEvent(pubkey ?? loggedInPubkey);
-  const cachedNostrProfileEvent = useCachedNostrProfileEvent(
+  const { data: nostrProfileEvent } = useNostrProfileEvent(
+    pubkey ?? loggedInPubkey,
+  );
+  const { data: cachedNostrProfileEvent } = useCachedNostrProfileEvent(
     pubkey ?? loggedInPubkey,
   );
   const events = [];
@@ -63,7 +63,7 @@ export const useNostrProfile = (pubkey?: string) => {
   }
 
   const mostRecentProfileEvent = getMostRecentEvent(events);
-
+  console.log("mostRecentProfileEvent", mostRecentProfileEvent);
   if (!mostRecentProfileEvent) {
     return null;
   }
