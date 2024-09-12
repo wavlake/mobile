@@ -3,14 +3,15 @@ import { brandColors } from "@/constants";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { NostrUserProfile } from "@/utils";
-import { Image } from "expo-image";
 import { Pressable } from "react-native";
+import { PulsatingBasicAvatar } from "./PulsatingBasicAvatar";
 
 interface BasicAvatarProps {
   uri?: string | null;
   size?: number;
   pubkey?: string;
   npubMetadata?: NostrUserProfile | null;
+  isLoading?: boolean;
 }
 
 export const BasicAvatar = ({
@@ -18,6 +19,7 @@ export const BasicAvatar = ({
   size = 32,
   pubkey,
   npubMetadata,
+  isLoading,
 }: BasicAvatarProps) => {
   const router = useRouter();
   const basePathname = useGetBasePathname();
@@ -36,26 +38,32 @@ export const BasicAvatar = ({
     }
   };
 
-  if (!uri) {
-    return (
-      <Avatar
-        size={size}
-        rounded
-        icon={{ name: "user", type: "font-awesome" }}
-        containerStyle={{
-          backgroundColor: brandColors.purple.DEFAULT,
-        }}
-        onPress={onPress}
-      />
-    );
-  }
-
-  return (
+  return isLoading ? (
     <Pressable onPress={onPress}>
-      <Image
-        style={{ width: size, height: size, borderRadius: size / 2 }}
-        source={uri}
-      />
+      <PulsatingBasicAvatar />
     </Pressable>
+  ) : uri ? (
+    <Avatar
+      size={size}
+      rounded
+      source={{ uri }}
+      containerStyle={{
+        backgroundColor: brandColors.purple.DEFAULT,
+      }}
+      onPress={onPress}
+    />
+  ) : (
+    <Avatar
+      size={size}
+      rounded
+      icon={{
+        name: "user",
+        type: "font-awesome",
+      }}
+      containerStyle={{
+        backgroundColor: brandColors.purple.DEFAULT,
+      }}
+      onPress={onPress}
+    />
   );
 };

@@ -45,6 +45,9 @@ export const usePublishComment = () => {
           .then(async () => {
             // save event id to catalog db
             await saveCommentEventId(event.id, zapRequestEventId);
+            // TODO
+            // update the relevant album and track cache, based on the customTags
+            // add in the new comment ID to the cache
             resolve();
           })
           .catch((error: any) => {

@@ -27,6 +27,7 @@ export const getAllCommentEvents = async (
     kinds: [1985],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
     limit,
+    author: [wavlakeFeedPubkey],
   };
 
   const [kind1Events, zapReceipts, labelEventPointers] = await Promise.all([
@@ -133,7 +134,7 @@ export const removeCensoredContent = (event: Event) => {
   } as Event;
 };
 
-const wavlakeFeedPubkey = process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY ?? "";
+const wavlakeFeedPubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
 const wavlakeTrendingBot =
   "3e0767c6c5174095658a54a9fe23d6974bc3b4de2f72452b474d0682bf6365f0";
 export const isNotCensoredAuthor = (event: Event) => {

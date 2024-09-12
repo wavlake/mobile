@@ -58,7 +58,8 @@ import {
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
-const wavlakeZapPubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
+export const wavlakeZapPubkey =
+  process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
 const wavlakeRelayUri = "wss://relay.wavlake.com/";
 const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
@@ -717,4 +718,26 @@ export const fetchContentCommentEvents = async (
     .filter(isNotCensoredAuthor)
     .sort((a, b) => b.created_at - a.created_at)
     .slice(0, limit);
+};
+
+export const fetchPulseFeedEvents = async (limit = 100) => {
+  const zapFilter = {
+    kinds: [9735, 1985],
+    limit,
+    authors: [wavlakeZapPubkey],
+  };
+
+  const events = await pool.querySync(DEFAULT_READ_RELAY_URIS, zapFilter);
+
+  const zapReceipts: Event[] = [];
+  const labelEvents: Event[] = [];
+  events.forEach((event) => {
+    if (event.kind === 9735) {
+      zapReceipts.push(event);
+    } else if (event.kind === 1985) {
+      labelEvents.push(event);
+    }
+  });
+
+  return { zapReceipts, labelEvents };
 };

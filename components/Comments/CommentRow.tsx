@@ -24,7 +24,7 @@ interface CommentRowProps extends ViewProps {
   isPressable?: boolean;
 }
 
-const getCommentText = (
+export const getCommentText = (
   event: Event,
   npubMetadata?: NostrUserProfile | null,
 ): string => {
@@ -96,86 +96,48 @@ export const CommentRow = ({
         commentId={commentId}
         isOpen={dialogOpen}
       />
-      {metadataIsLoading ? (
-        <>
-          <BasicAvatar />
-          <View style={{ marginLeft: 10, flex: 1 }}>
-            {isPressable ? (
-              <TouchableOpacity
-                onPress={onReplyPress}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                }}
-              >
-                <PulsatingEllipsisLoader />
-                <ParsedTextRender content={commentText} />
-              </TouchableOpacity>
+      <BasicAvatar
+        uri={picture}
+        pubkey={pubkey}
+        npubMetadata={npubMetadata}
+        isLoading={metadataIsLoading}
+      />
+      <View style={{ marginLeft: 10, flex: 1 }}>
+        {isPressable ? (
+          <TouchableOpacity onPress={onReplyPress} style={{}}>
+            {metadataIsLoading ? (
+              <PulsatingEllipsisLoader />
             ) : (
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                }}
-              >
-                <PulsatingEllipsisLoader />
-                <ParsedTextRender content={commentText} />
-              </View>
+              <Text bold>{name ?? "anonymous"}</Text>
             )}
-            {showReplyLinks && (
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  paddingTop: 20,
-                  paddingBottom: 10,
-                  gap: 8,
-                }}
-              >
-                <CommentRepliesLink replies={replies} parentcommentId={id} />
-              </View>
-            )}
-          </View>
-        </>
-      ) : (
-        <>
-          <BasicAvatar
-            uri={picture}
-            pubkey={pubkey}
-            npubMetadata={npubMetadata}
-          />
-          <View style={{ marginLeft: 10, flex: 1 }}>
-            {isPressable ? (
-              <TouchableOpacity onPress={onReplyPress} style={{}}>
-                <Text bold>{name ?? "anonymous"}</Text>
-                <ParsedTextRender content={commentText} />
-              </TouchableOpacity>
+            <ParsedTextRender content={commentText} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{}}>
+            {metadataIsLoading ? (
+              <PulsatingEllipsisLoader />
             ) : (
-              <View style={{}}>
-                <Text bold>{name ?? "anonymous"}</Text>
-                <ParsedTextRender content={commentText} />
-              </View>
+              <Text bold>{name ?? "anonymous"}</Text>
             )}
-            {showReplyLinks && (
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  paddingTop: 20,
-                  paddingBottom: 10,
-                  gap: 8,
-                }}
-              >
-                <CommentRepliesLink replies={replies} parentcommentId={id} />
-              </View>
-            )}
+
+            <ParsedTextRender content={commentText} />
           </View>
-        </>
-      )}
+        )}
+        {showReplyLinks && (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: 20,
+              paddingBottom: 10,
+              gap: 8,
+            }}
+          >
+            <CommentRepliesLink replies={replies} parentcommentId={id} />
+          </View>
+        )}
+      </View>
     </View>
   );
 };
