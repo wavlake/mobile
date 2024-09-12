@@ -1,8 +1,11 @@
 import { signEvent, publishEvent, saveCommentEventId } from "@/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useAuth } from "./useAuth";
+import { getNostrEventQueryKey } from "./useNostrEvent";
+import { useCacheEventsAndPubkeys } from "./useCacheEventsAndPubkeys";
+import { getContentCommentsQueryKey } from "./useContentComments";
 
 const makeKind1Event = (
   pubkey: string,
@@ -18,7 +21,10 @@ const makeKind1Event = (
   };
 };
 
+const contentIdPrefix = "podcast:item:guid:";
 export const usePublishComment = () => {
+  const cacheEventData = useCacheEventsAndPubkeys();
+  const queryClient = useQueryClient();
   const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const nostrCommentMutation = useMutation({
@@ -43,11 +49,26 @@ export const usePublishComment = () => {
         nostrCommentMutation
           .mutateAsync(event)
           .then(async () => {
+            // save the event to the cache so we dont need to fetch it
+            cacheEventData([event]);
+            const iTags = event.tags.filter((tag) => tag[0] === "i");
+            const contentId = iTags
+              .find((tag) => tag[1].startsWith(contentIdPrefix))?.[1]
+              .replace(contentIdPrefix, "");
+            if (contentId) {
+              const queryKey = getContentCommentsQueryKey(contentId);
+              // manually add this new event ID to the cache
+              const oldCache = queryClient.getQueryData(queryKey) as string[];
+              queryClient.setQueryData(queryKey, [...oldCache, event.id]);
+            }
+
             // save event id to catalog db
             await saveCommentEventId(event.id, zapRequestEventId);
             // TODO
             // update the relevant album and track cache, based on the customTags
             // add in the new comment ID to the cache
+            // BLOCKED: cant work backwards from custom album id in feed/i tags to the actual album ID
+            // need to fix the IDs or create a mapping table and look it up
             resolve();
           })
           .catch((error: any) => {

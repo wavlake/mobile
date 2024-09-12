@@ -13,10 +13,7 @@ export const NowPlayingCommentSection = ({
 }: {
   contentId: string;
 }) => {
-  const { data: commentsData = [], isFetching } = useContentComments(
-    contentId,
-    20,
-  );
+  const { data: commentsData = [], isFetching } = useContentComments(contentId);
   const [displayedComment, setDisplayedComment] = useState<string>();
   const [isExpanded, setIsExpanded] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
