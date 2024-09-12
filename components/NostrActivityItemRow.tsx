@@ -133,7 +133,11 @@ export const NostrActivityItemRow = ({
             height: 40,
           }}
         >
-          <BasicAvatar uri={npubMetadata?.picture} pubkey={nostrEvent.pubkey} />
+          <BasicAvatar
+            isLoading={metadataIsLoading}
+            uri={npubMetadata?.picture}
+            pubkey={nostrEvent.pubkey}
+          />
           <View style={{ marginLeft: 10, flex: 1 }}>
             <Text ellipsizeMode="tail" numberOfLines={1} bold>
               {title}
