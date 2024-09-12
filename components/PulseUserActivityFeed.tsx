@@ -4,7 +4,6 @@ import { ActivityIndicator, FlatList, RefreshControl } from "react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks";
 import { getActivityFeed } from "@/utils";
-import { useEffect } from "react";
 
 const PAGE_SIZE = 10;
 export const PulseUserActivityFeed = ({
@@ -78,6 +77,9 @@ export const PulseUserActivityFeed = ({
           fetchNextPage();
         }
       }}
+      windowSize={8}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={4}
     />
   );
 };
