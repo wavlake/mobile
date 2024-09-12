@@ -63,7 +63,7 @@ export const useNostrProfile = (pubkey?: string) => {
   }
 
   const mostRecentProfileEvent = getMostRecentEvent(events);
-  console.log("mostRecentProfileEvent", mostRecentProfileEvent);
+
   if (!mostRecentProfileEvent) {
     return null;
   }
