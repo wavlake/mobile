@@ -11,6 +11,7 @@ export * from "./library";
 export * from "./playlist";
 export * from "./useGoToArtistPage";
 export * from "./useGoToAlbumPage";
+export * from "./useGoToPodcastPage";
 export * from "./useZap";
 export * from "./useTickets";
 export * from "./useTicketZap";

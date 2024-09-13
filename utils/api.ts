@@ -369,6 +369,17 @@ export const getLibraryAlbums = async (): Promise<Album[]> => {
   return data.data.albums;
 };
 
+export const getLibraryPodcasts = async (): Promise<Podcast[]> => {
+  const url = "/library/podcasts";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
+
+  return data.data.albums;
+};
+
 export const getLibraryTracks = async (): Promise<Track[]> => {
   const url = "/library/tracks";
   const { data } = await apiClient.get(url, {
@@ -515,8 +526,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;

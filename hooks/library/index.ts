@@ -17,3 +17,8 @@ export * from "./useLibraryPlaylists";
 export * from "./useIsPlaylistInLibrary";
 export * from "./useAddPlaylistToLibrary";
 export * from "./useDeletePlaylistFromLibrary";
+
+export * from "./useLibraryPodcasts";
+export * from "./useIsPodcastInLibrary";
+export * from "./useAddPodcastToLibrary";
+export * from "./useDeletePodcastFromLibrary";
