@@ -20,6 +20,8 @@ import {
   Episode,
 } from "@/utils";
 import { getActiveTrackIndex } from "react-native-track-player/lib/trackPlayer";
+import { getUserAgent } from "@/app.config";
+import DeviceInfo from "react-native-device-info";
 
 export type LoadTrackList = ({
   trackList,
@@ -57,6 +59,7 @@ const shuffleArrayWithIndexAtStart = (array: any[], index: number) => {
 };
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
+  const userAgent = getUserAgent(DeviceInfo.getModel());
   const [playerTitle, setPlayerTitle] = useState<string>();
   const [trackMetadataMap, setTrackMetadataMap] = useState<
     Record<string, Track>
@@ -80,7 +83,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     startIndex,
   }) => {
     isLoadingTrackList.current = true;
-    let normalizedTrackList = trackList.map((t) => ({
+    let normalizedTrackList: RNTPTrack[] = trackList.map((t) => ({
       id: t.id,
       url: t.liveUrl,
       duration: t.duration,
@@ -88,6 +91,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
       artist: t.artist,
       album: t.albumTitle,
       artwork: t.artworkUrl,
+      userAgent,
     }));
 
     const trackMetadata = trackList.reduce(

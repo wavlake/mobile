@@ -425,7 +425,6 @@ async function sendNwcMakeInvoiceRequest({
     },
     connectionSecret,
   });
-  console.log("requestEvent", requestEvent);
   if (!requestEvent) {
     throw new Error("Failed to send NWC request");
   }

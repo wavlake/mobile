@@ -1,29 +1,30 @@
 import { brandColors } from "@/constants";
 import { View, Image, TouchableOpacity } from "react-native";
 import { Avatar, SlimButton, useUser, Text } from "@/components";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { openURL } from "expo-linking";
-import { useAddFollower, useRemoveFollower } from "@/utils";
-import { NostrProfileData } from "@/utils/authTokenApi";
+import { NostrUserProfile, useAddFollower, useRemoveFollower } from "@/utils";
 import { useAuth } from "@/hooks";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 
 const AVATAR_SIZE = 80;
 export const PubkeyProfile = ({
   profileData,
+  pubkey,
 }: {
-  profileData: NostrProfileData;
+  profileData: NostrUserProfile;
+  pubkey: string;
 }) => {
   const basePath = useGetBasePathname();
   const { colors } = useTheme();
-  const { pubkey } = useAuth();
+  const { pubkey: loggedInUserPubkey } = useAuth();
   const userOwnsProfile = pubkey === profileData.publicHex;
   const { nostrMetadata } = useUser();
-  const { picture, name, banner, about, website, nip05 } =
-    profileData?.metadata ?? {};
+  const { picture, name, banner, about, website, nip05 } = profileData ?? {};
   const { mutateAsync: addFollower, isLoading: addLoading } = useAddFollower();
   const { mutateAsync: removeFollower, isLoading: removeLoading } =
     useRemoveFollower();
@@ -36,9 +37,9 @@ export const PubkeyProfile = ({
   const onFollowPress = () => {
     setIsFollowing(!isFollowing);
     if (isFollowing) {
-      removeFollower(profileData.publicHex);
+      removeFollower(pubkey);
     } else {
-      addFollower({ pubkey: profileData.publicHex });
+      addFollower({ pubkey });
     }
   };
 
@@ -53,7 +54,7 @@ export const PubkeyProfile = ({
         <TouchableOpacity
           onPress={() => {
             router.push({
-              pathname: `${basePath}/profile/${pubkey}/edit`,
+              pathname: `${basePath}/profile/${loggedInUserPubkey}/edit`,
               params: { includeBackButton: "true" },
             });
           }}
@@ -135,7 +136,7 @@ export const PubkeyProfile = ({
             >
               {name}
             </Text>
-            <FollowerInfo profileData={profileData} />
+            <FollowerInfo pubkey={pubkey} />
           </View>
           {!userOwnsProfile && (
             <SlimButton
@@ -181,8 +182,12 @@ export const PubkeyProfile = ({
   );
 };
 
-const FollowerInfo = ({ profileData }: { profileData: NostrProfileData }) => {
-  const { followerCount, follows } = profileData;
+const FollowerInfo = ({ pubkey }: { pubkey: string }) => {
+  const { data: catalogMetadata } = useCatalogPubkey(pubkey);
+  const { followerCount, follows } = catalogMetadata || {};
+  if (typeof followerCount === "undefined" || typeof follows === "undefined") {
+    return null;
+  }
 
   return (
     <View
@@ -199,10 +204,10 @@ const FollowerInfo = ({ profileData }: { profileData: NostrProfileData }) => {
           <Text style={{ fontSize: 12 }}>{` followers • `}</Text>
         </>
       )}
-      {follows?.length > 0 && (
+      {follows.length > 0 && (
         <>
           <Text style={{ fontSize: 12 }} bold>
-            {follows?.length}
+            {follows.length}
           </Text>
           <Text style={{ fontSize: 12 }}>{` following`}</Text>
         </>

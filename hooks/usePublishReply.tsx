@@ -32,13 +32,13 @@ export const usePublishReply = () => {
 
   const save = async (content: string, customTags?: string[][]) => {
     const event = await signEvent(makeKind1Event(pubkey, content, customTags));
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<Event>(async (resolve, reject) => {
       if (event) {
         nostrCommentMutation
           .mutateAsync(event)
           .then(async () => {
             toast.show("Reply published");
-            resolve();
+            resolve(event);
           })
           .catch((error: any) => {
             console.error(error);

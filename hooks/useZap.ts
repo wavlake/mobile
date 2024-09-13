@@ -33,6 +33,7 @@ export const useZap = ({
   artist,
   artworkUrl,
   timestamp,
+  parentContentId,
 }: {
   isPodcast: boolean;
   trackId?: string;
@@ -40,6 +41,7 @@ export const useZap = ({
   artist?: string;
   artworkUrl?: string;
   timestamp?: number;
+  parentContentId?: string;
 }): {
   isLoading: boolean;
   sendZap: SendZap;
@@ -56,7 +58,7 @@ export const useZap = ({
   const { enableNWC, defaultZapAmount } = settings || {};
 
   const sendZap: SendZap = async (props) => {
-    if (!trackId) {
+    if (!trackId || !parentContentId) {
       return;
     }
 
@@ -73,6 +75,7 @@ export const useZap = ({
       comment,
       contentId: trackId,
       timestamp,
+      parentContentId,
       parentContentType: isPodcast ? "podcast" : "album",
     });
 

@@ -28,6 +28,7 @@ export default function ZapPage() {
     trackId,
     timestamp,
     isPodcast,
+    parentContentId,
   } = useLocalSearchParams<{
     defaultZapAmount: string;
     title: string;
@@ -36,6 +37,7 @@ export default function ZapPage() {
     trackId: string;
     timestamp: string;
     isPodcast: string;
+    parentContentId: string;
   }>();
 
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
@@ -47,6 +49,7 @@ export default function ZapPage() {
     artworkUrl,
     timestamp: timestamp ? parseInt(timestamp) : 0,
     isPodcast: isPodcast === "true",
+    parentContentId,
   });
   const isZapDisabled =
     zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;

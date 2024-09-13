@@ -8,9 +8,8 @@ import {
   Text,
   ActivityItemRow,
 } from "@/components/";
-import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
-import { useAuth } from "@/hooks";
+import { useAuth, useNostrProfileEvent } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const PulseProfilePage = () => {
@@ -40,10 +39,10 @@ const NUM_ACTIVITY_ROWS = 3;
 const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
   const basePath = useGetBasePathname();
   const {
-    data: profileData,
-    isLoading: metadataLoading,
+    data: npubMetadata,
+    isFetching,
     refetch: refetchMetadata,
-  } = useCatalogPubkey(pubkey as string);
+  } = useNostrProfileEvent(pubkey);
   const {
     data: activity = [],
     isLoading: activityLoading,
@@ -54,7 +53,7 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
     <ScrollView
       refreshControl={
         <RefreshControl
-          refreshing={metadataLoading || activityLoading}
+          refreshing={isFetching || activityLoading}
           onRefresh={() => {
             refetchMetadata();
             refetchActivity();
@@ -62,7 +61,9 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
         />
       }
     >
-      {profileData && <PubkeyProfile profileData={profileData} />}
+      {npubMetadata && (
+        <PubkeyProfile pubkey={pubkey} profileData={npubMetadata} />
+      )}
       <View
         style={{
           paddingHorizontal: 16,

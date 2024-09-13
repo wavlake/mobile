@@ -1,33 +1,25 @@
-import { getAlbumComments } from "@/utils";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { CommentPage } from "./Comments/CommentPage";
+import { View } from "react-native";
+import { CommentList } from "./Comments/CommentList";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { useAlbumComments } from "@/hooks/useAlbumComments";
 
-const PAGE_SIZE = 10;
 export const AlbumCommentPage = () => {
   const { albumId } = useLocalSearchParams();
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
-      queryKey: [albumId, "comments"],
-      queryFn: ({ pageParam = 1 }) =>
-        getAlbumComments(albumId as string, pageParam, PAGE_SIZE),
-      getNextPageParam: (lastPage, allPages) => {
-        const nextPage =
-          lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined;
-        return nextPage;
-      },
-    });
-  const { pages = [] } = data ?? {};
-  const flattenedData = pages.flatMap((page) => page ?? []);
+  const { data: commentIds = [], isFetching } = useAlbumComments(
+    albumId as string,
+  );
+  const { height } = useMiniMusicPlayer();
 
   return (
-    <CommentPage
-      comments={flattenedData}
-      isLoading={isLoading}
-      isFetchingNextPage={isFetchingNextPage}
-      hasNextPage={hasNextPage}
-      fetchNextPage={fetchNextPage}
-    />
+    <View
+      style={{ height: "100%", paddingTop: 16, paddingBottom: height + 16 }}
+    >
+      <CommentList
+        scrollEnabled={true}
+        commentIds={commentIds}
+        isLoading={isFetching}
+      />
+    </View>
   );
 };

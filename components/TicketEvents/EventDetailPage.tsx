@@ -118,18 +118,6 @@ export const EventDetailPage = () => {
         </EventSection>
         {/* TODO - add zap comments */}
         {/* <EventSection title="Latest Messages">
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              gap: 8,
-            }}
-          >
-            {mockMessages.map((zapReceiptEvent) => {
-              return <CommentRow zapReceipt={zapReceiptEvent} />;
-            })}
-          </View>
         </EventSection> */}
       </ScrollView>
       <View
@@ -196,41 +184,5 @@ const ArtistRow: React.FC<{ metadata: ArtistMetadata }> = ({ metadata }) => {
         </Text>
       </View>
     </TouchableOpacity>
-  );
-};
-
-const CommentRow: React.FC<{ zapReceipt: UnsignedEvent }> = ({
-  zapReceipt,
-}) => {
-  return (
-    <View
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        gap: 8,
-      }}
-    >
-      <Image
-        source={{
-          uri: "https://d12wklypp119aj.cloudfront.net/image/18bcbf10-6701-4ffb-b255-bc057390d738.jpg",
-        }}
-        style={{ width: 40, height: 40, borderRadius: 20 }}
-      />
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 4,
-        }}
-      >
-        <Text style={{ fontSize: 16 }} bold>
-          {zapReceipt.content}
-        </Text>
-        <Text style={{ fontSize: 16 }} bold>
-          ⚡️ 7,777 sats from @OpenMike for "Rising Free - Joe Martin, Man Like
-          Kweks, reelrichard"
-        </Text>
-      </View>
-    </View>
   );
 };

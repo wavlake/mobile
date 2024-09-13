@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Dimensions, FlatList, TouchableOpacity, View } from "react-native";
+import { Dimensions, FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Album, getAlbum, getAlbumTracks } from "@/utils";
+import { Album, getAlbum, getAlbumTracks, Track } from "@/utils";
 import { Text } from "@/components/Text";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
@@ -10,30 +10,22 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { CommentList } from "./Comments/CommentList";
+import { useAlbumComments } from "@/hooks/useAlbumComments";
 
 interface AlbumPageFooterProps {
   album: Album;
+  tracks: Track[];
 }
 
-const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
+const AlbumPageFooter = ({ album, tracks }: AlbumPageFooterProps) => {
   const { description, topMessages = [], title, id: albumId } = album;
   const basePathname = useGetBasePathname();
   const router = useRouter();
-
+  const { data: commentIds = [], isFetching } = useAlbumComments(albumId, 10);
   if (!description && topMessages.length === 0) {
     return null;
   }
 
-  const handleLoadMore = () => {
-    router.push({
-      pathname: `${basePathname}/album/[albumId]/comments`,
-      params: {
-        albumId,
-        headerTitle: `Comments for ${title}`,
-        includeBackButton: "true",
-      },
-    });
-  };
   return (
     <View style={{ marginTop: 16, marginBottom: 80, paddingHorizontal: 16 }}>
       {description && (
@@ -42,15 +34,18 @@ const AlbumPageFooter = ({ album }: AlbumPageFooterProps) => {
           <Text style={{ fontSize: 18 }}>{description}</Text>
         </>
       )}
-      {topMessages.length > 0 && (
-        <>
-          <SectionHeader title="Latest Messages" />
-          <CommentList comments={topMessages} />
-          <TouchableOpacity onPress={handleLoadMore}>
-            <Text style={{ textAlign: "center" }}>View more</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      <CommentList
+        commentIds={commentIds}
+        isLoading={isFetching}
+        showMoreLink={{
+          pathname: `${basePathname}/album/[albumId]/comments`,
+          params: {
+            albumId,
+            headerTitle: `Comments for ${album.title}`,
+            includeBackButton: "true",
+          },
+        }}
+      />
     </View>
   );
 };
@@ -117,7 +112,7 @@ export const AlbumPage = () => {
         );
       }}
       ListFooterComponent={() =>
-        album ? <AlbumPageFooter album={album} /> : null
+        album ? <AlbumPageFooter album={album} tracks={tracks} /> : null
       }
       keyExtractor={(item) => item.id}
       style={{ paddingTop: 8 }}

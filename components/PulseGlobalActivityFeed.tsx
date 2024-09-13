@@ -1,48 +1,75 @@
-import { ActivityItemRow, Center } from "@/components";
+import { ActivityItemRow, Center, NostrActivityItemRow } from "@/components";
 import { Text } from "@/components/Text";
 import { FlatList, RefreshControl } from "react-native";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getGlobalActivityFeed } from "@/utils";
+import { useNostrPulseGlobalFeed } from "@/hooks/useNostrPulseGlobalFeed";
+import { useEffect, useMemo } from "react";
 
-const PAGE_SIZE = 10;
-export const PulseGlobalActivityFeed = () => {
+const PAGE_SIZE = 120;
+export const PulseGlobalActivityFeed = ({
+  setIsLoading,
+}: {
+  setIsLoading: (loading: boolean) => void;
+}) => {
   const {
-    data,
+    data: nostrEventData = [],
+    refetch: refetchNostrEvents,
+    isLoading: nostrLoading,
+  } = useNostrPulseGlobalFeed(120);
+
+  const {
+    data = [],
     refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     isLoading,
-  } = useInfiniteQuery({
+  } = useQuery({
     queryKey: ["globalActivityFeed"],
     queryFn: ({ pageParam = 1 }) => getGlobalActivityFeed(pageParam, PAGE_SIZE),
-    getNextPageParam: (lastPage, allPages) => {
-      const nextPage =
-        lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined;
-      return nextPage;
-    },
   });
-  const { pages = [] } = data ?? {};
-  const flattenedData = pages.flatMap((page) => page ?? []);
+
+  // Merge and sort both data sources
+  const mergedData = useMemo(() => {
+    if (data.length === 0) return nostrEventData;
+
+    const combined = [...data, ...nostrEventData];
+
+    // sort by newest first
+    const sortedCombined = combined.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
+
+    return sortedCombined;
+  }, [data, nostrEventData]);
+
+  useEffect(() => {
+    setIsLoading(isLoading || nostrLoading);
+  }, [isLoading, nostrLoading]);
 
   return (
     <FlatList
       contentContainerStyle={{ padding: 16 }}
-      data={flattenedData}
+      data={mergedData}
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        <RefreshControl
+          refreshing={isLoading || nostrLoading}
+          onRefresh={() => {
+            refetchNostrEvents();
+            refetch();
+          }}
+        />
       }
       renderItem={({ item, index }) => {
-        const isLastComment = index === flattenedData.length - 1;
-        const willShowDivider = index < flattenedData.length - 1;
+        const isLastComment = index === mergedData.length - 1;
 
         return (
           <>
-            <ActivityItemRow isExpanded={true} item={item} />
-            {isFetchingNextPage && isLastComment && (
-              <Text style={{ textAlign: "center" }}>Loading more...</Text>
+            {item.nostrEvent ? (
+              <NostrActivityItemRow item={item} />
+            ) : (
+              <ActivityItemRow isExpanded={true} item={item} />
             )}
-            {isLastComment && !hasNextPage && pages.length > 1 && (
+            {isLastComment && (
               <Text style={{ textAlign: "center" }}>No more activity</Text>
             )}
           </>
@@ -59,11 +86,8 @@ export const PulseGlobalActivityFeed = () => {
           </Center>
         ) : null
       }
-      onEndReached={() => {
-        if (hasNextPage) {
-          fetchNextPage();
-        }
-      }}
+      windowSize={8}
+      maxToRenderPerBatch={4}
     />
   );
 };

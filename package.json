@@ -51,6 +51,7 @@
     "react-native-gesture-handler": "~2.14.0",
     "react-native-get-random-values": "~1.8.0",
     "react-native-heroicons": "^3.2.0",
+    "react-native-parsed-text": "^0.0.22",
     "react-native-qrcode-svg": "^6.3.0",
     "react-native-reanimated": "~3.6.2",
     "react-native-root-toast": "^3.5.1",

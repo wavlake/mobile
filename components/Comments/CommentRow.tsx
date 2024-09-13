@@ -1,83 +1,127 @@
-import { ContentComment, encodeNpub } from "@/utils";
-import { TouchableOpacity, View, ViewProps } from "react-native";
+import {
+  ActivityIndicator,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
-import { SatsEarned } from "../SatsEarned";
 import { Text } from "@/components/Text";
 import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Event, EventTemplate } from "nostr-tools";
+import { Event } from "nostr-tools";
+import { useNostrProfileEvent } from "@/hooks";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { NostrUserProfile } from "@/utils";
+import { msatsToSatsWithCommas } from "../WalletLabel";
+import { ParsedTextRender } from "./ParsedTextRenderer";
+import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
 
 interface CommentRowProps extends ViewProps {
-  comment: ContentComment;
-  nostrReplies?: Event[];
+  commentId: string;
+  replies?: Event[];
   showReplyLinks?: boolean;
+  isPressable?: boolean;
 }
 
+export const getCommentText = (
+  event: Event,
+  npubMetadata?: NostrUserProfile | null,
+): string => {
+  if (event.content) {
+    return event.content;
+  }
+
+  if (event.kind === 9734) {
+    const amountTag = event.tags.find(([tag]) => tag === "amount");
+    if (amountTag) {
+      const msatsInt = parseInt(amountTag[1]);
+      return isNaN(msatsInt)
+        ? ""
+        : `Zapped ${msatsToSatsWithCommas(msatsInt)} sats`;
+    } else {
+      return "";
+    }
+  }
+
+  return npubMetadata?.name
+    ? `${npubMetadata.name} shared this artist's content`
+    : "";
+};
+
 export const CommentRow = ({
-  comment,
-  nostrReplies = [],
+  commentId,
+  replies = [],
   showReplyLinks = true,
+  isPressable = true,
 }: CommentRowProps) => {
+  const { data: comment } = useNostrEvent(commentId);
+  const {
+    data: npubMetadata,
+    isFetching,
+    isLoading,
+  } = useNostrProfileEvent(comment?.pubkey);
+  const metadataIsLoading = isFetching || isLoading;
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [cachedReplies, setCachedReplies] = useState<EventTemplate[]>([]);
   const onReplyPress = () => {
     setDialogOpen(true);
   };
-  const {
-    id,
-    commenterArtworkUrl,
-    content,
-    msatAmount,
-    name,
-    title,
-    userId,
-    isNostr,
-    eventId,
-    zapEventId,
-    replies: legacyReplies,
-  } = comment;
+  if (!comment) return null;
 
-  const getDisplayName = () => {
-    if (isNostr) {
-      // use the provided name, else use the npub (set as the userId for nostr comments)
-      return name ?? encodeNpub(userId)?.slice(0, 10);
-    }
+  const { picture, name } = npubMetadata || {};
+  const { id, content, pubkey, kind } = comment;
 
-    // keysend names may start with @
-    return name ? name.replace("@", "") : "anonymous";
-  };
+  const isZap = kind === 9734;
+  // don't render empty comments that arent zaps
+  if (content.length === 0 && !isZap) {
+    return null;
+  }
 
-  const extraText = ` for "${title}"`;
+  const commentText = getCommentText(comment, npubMetadata);
+
+  if (!commentText) {
+    return null;
+  }
 
   return (
     <View
       style={{
-        marginBottom: 16,
+        marginBottom: 10,
         flexDirection: "row",
         paddingHorizontal: 16,
       }}
     >
       <ReplyDialog
         setIsOpen={setDialogOpen}
-        comment={comment}
+        commentId={commentId}
         isOpen={dialogOpen}
-        setCachedReplies={setCachedReplies}
       />
       <BasicAvatar
-        uri={commenterArtworkUrl}
-        pubkey={isNostr ? userId : undefined}
+        uri={picture}
+        pubkey={pubkey}
+        npubMetadata={npubMetadata}
+        isLoading={metadataIsLoading}
       />
       <View style={{ marginLeft: 10, flex: 1 }}>
-        <Text bold>{getDisplayName()}</Text>
-        {content && <Text>{content}</Text>}
-        {msatAmount && (
-          <SatsEarned
-            msats={msatAmount}
-            extraText={extraText}
-            defaultTextColor
-          />
+        {isPressable ? (
+          <TouchableOpacity onPress={onReplyPress} style={{}}>
+            {metadataIsLoading ? (
+              <PulsatingEllipsisLoader />
+            ) : (
+              <Text bold>{name ?? "anonymous"}</Text>
+            )}
+            <ParsedTextRender content={commentText} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{}}>
+            {metadataIsLoading ? (
+              <PulsatingEllipsisLoader />
+            ) : (
+              <Text bold>{name ?? "anonymous"}</Text>
+            )}
+
+            <ParsedTextRender content={commentText} />
+          </View>
         )}
         {showReplyLinks && (
           <View
@@ -90,18 +134,7 @@ export const CommentRow = ({
               gap: 8,
             }}
           >
-            <CommentRepliesLink
-              legacyReplies={legacyReplies}
-              nostrReplies={nostrReplies.concat(cachedReplies as any)}
-              parentcommentId={id}
-            />
-            <TouchableOpacity onPress={onReplyPress} style={{}}>
-              <MaterialCommunityIcons
-                name="comment-plus-outline"
-                size={24}
-                color="white"
-              />
-            </TouchableOpacity>
+            <CommentRepliesLink replies={replies} parentcommentId={id} />
           </View>
         )}
       </View>

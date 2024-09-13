@@ -8,6 +8,7 @@ interface SectionHeaderProps {
   icon?: ReactNode;
   rightNavText?: string;
   rightNavHref?: { pathname: string; params: Record<string, any> };
+  rightButton?: ReactNode;
 }
 
 export const SectionHeader = ({
@@ -15,6 +16,7 @@ export const SectionHeader = ({
   icon,
   rightNavText,
   rightNavHref,
+  rightButton,
 }: SectionHeaderProps) => {
   return (
     <View
@@ -58,6 +60,7 @@ export const SectionHeader = ({
             <Text bold>{rightNavText} &gt;</Text>
           </Link>
         )}
+        {rightButton}
       </View>
     </View>
   );

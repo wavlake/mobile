@@ -45,13 +45,26 @@ import { ShowEvents } from "@/constants/events";
 import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/components";
 import { useAuth } from "@/hooks";
-import { updatePubkeyMetadata } from "./api";
-import { getPodcastFeedGuid } from "./rss";
-import { NWCRequest } from "./nwc";
+import { updatePubkeyMetadata } from "../api";
+import { getPodcastFeedGuid } from "../rss";
+import { NWCRequest } from "../nwc";
+import {
+  deduplicateEvents,
+  getAllCommentEvents,
+  getLabeledEvents,
+  isNotCensoredAuthor,
+  removeCensoredContent,
+} from "./comments";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
-const wavlakePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
+// this npub published zap receipts and label events
+export const wavlakeFeedPubkey =
+  process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY ?? "";
+// this npub is used by the NWC wallet service
+export const walletServicePubkey =
+  process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
+
 const wavlakeRelayUri = "wss://relay.wavlake.com/";
 const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
@@ -76,7 +89,7 @@ export const DEFAULT_WRITE_RELAY_URIS = [
   "wss://nostr.mutinywallet.com",
 ];
 
-const pool = new SimplePool();
+export const pool = new SimplePool();
 
 export const encodeNpub = (pubkey: string) => {
   try {
@@ -180,7 +193,16 @@ export const getProfileMetadata = async (
   });
 };
 
-export const getKind1Replies = async (kind1EventIds: string[]) => {};
+export const batchGetProfileMetadata = async (
+  pubkeys: string[],
+  relayUris: string[],
+) => {
+  const filter = {
+    kinds: [0],
+    authors: pubkeys,
+  };
+  return pool.querySync(relayUris, filter);
+};
 
 export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
   const filter = {
@@ -204,7 +226,6 @@ export const getRelayListMetadata = async (pubkey: string) => {
     kinds: [10002],
     authors: [pubkey],
   };
-
   return getEventFromPoolAndCacheItIfNecessary({
     pubkey,
     filter,
@@ -231,6 +252,7 @@ export interface NostrUserProfile {
   bio?: string;
   lud06?: string;
   zapService?: string;
+  publicHex?: string;
 }
 
 export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
@@ -377,6 +399,7 @@ export const getWriteRelayUris = (event: Event) => {
 
 export const makeZapRequest = async ({
   contentId,
+  parentContentId,
   parentContentType,
   amountInSats,
   relays = [],
@@ -385,6 +408,7 @@ export const makeZapRequest = async ({
   customTags = [],
 }: {
   contentId: string;
+  parentContentId: string;
   parentContentType: "podcast" | "album" | "artist";
   amountInSats: number;
   relays?: string[];
@@ -392,20 +416,23 @@ export const makeZapRequest = async ({
   timestamp?: number;
   customTags?: EventTemplate["tags"];
 }): Promise<EventTemplate> => {
-  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakePubkey}:${contentId}`;
+  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakeFeedPubkey}:${contentId}`;
   const iTags = [
     ["i", `podcast:item:guid:${contentId}`],
-    ["i", `podcast:guid:${getPodcastFeedGuid(parentContentType, contentId)}`],
+    [
+      "i",
+      `podcast:guid:${getPodcastFeedGuid(parentContentType, parentContentId)}`,
+    ],
     [
       "i",
       `podcast:publisher:guid:${getPodcastFeedGuid(
         parentContentType,
-        contentId,
+        parentContentId,
       )}`,
     ],
   ];
   const zapRequestEvent = await nip57.makeZapRequest({
-    profile: wavlakePubkey,
+    profile: wavlakeFeedPubkey,
     amount: amountInSats * 1000,
     relays: [wavlakeRelayUri, ...relays],
     comment,
@@ -567,6 +594,14 @@ export const subscribeToTicket = async (pubkey: string) => {
 
 const followerTag = "p";
 
+export const getEventById = (eventId: string) => {
+  const filter = {
+    ids: [eventId],
+  };
+
+  return pool.get(DEFAULT_READ_RELAY_URIS, filter);
+};
+
 const getKind3Event = (pubkey?: string) => {
   if (!pubkey) {
     return null;
@@ -661,9 +696,53 @@ export const useRemoveFollower = () => {
 
 export const fetchReplies = async (kind1EventIds: string[]) => {
   const filter = {
-    kinds: [1, 9735],
+    kinds: [1],
     ["#e"]: kind1EventIds,
   };
 
   return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
+};
+
+export const fetchContentCommentEvents = async (
+  contentIds: string[],
+  limit = 100,
+) => {
+  const { kind1Events, zapReceipts, labelEventPointers } =
+    await getAllCommentEvents(contentIds, limit);
+
+  const labeledEvents = await getLabeledEvents(labelEventPointers);
+
+  const deduplicatedEvents = deduplicateEvents(
+    kind1Events,
+    zapReceipts,
+    labeledEvents,
+  );
+
+  return deduplicatedEvents
+    .map(removeCensoredContent)
+    .filter(isNotCensoredAuthor)
+    .sort((a, b) => b.created_at - a.created_at)
+    .slice(0, limit);
+};
+
+export const fetchPulseFeedEvents = async (limit = 100) => {
+  const zapFilter = {
+    kinds: [9735, 1985],
+    limit,
+    authors: [wavlakeFeedPubkey],
+  };
+
+  const events = await pool.querySync(DEFAULT_READ_RELAY_URIS, zapFilter);
+
+  const zapReceipts: Event[] = [];
+  const labelEvents: Event[] = [];
+  events.forEach((event) => {
+    if (event.kind === 9735) {
+      zapReceipts.push(event);
+    } else if (event.kind === 1985) {
+      labelEvents.push(event);
+    }
+  });
+
+  return { zapReceipts, labelEvents };
 };

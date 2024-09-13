@@ -3,24 +3,27 @@ import { Button, TextInput, CommentRow } from "@/components";
 import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
-import { ContentComment } from "@/utils";
 import { usePublishReply } from "@/hooks/usePublishReply";
-import { useSaveLegacyReply } from "@/hooks/useSaveLegacyReply";
-import { EventTemplate } from "nostr-tools";
+import { Event } from "nostr-tools";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRepliesQueryKey } from "@/hooks/useReplies";
 
 interface ReplyDialogProps {
-  comment: ContentComment;
+  commentId: string;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  setCachedReplies?: React.Dispatch<React.SetStateAction<EventTemplate[]>>;
 }
 
 export const ReplyDialog = ({
   setIsOpen,
-  setCachedReplies,
-  comment,
+  commentId,
   isOpen,
 }: ReplyDialogProps) => {
+  const { data: comment } = useNostrEvent(commentId);
+
+  if (!comment) return null;
+
   return (
     <BottomSheet
       containerStyle={{
@@ -32,52 +35,36 @@ export const ReplyDialog = ({
       backdropStyle={{ opacity: 0.6, backgroundColor: "black" }}
       isVisible={isOpen}
     >
-      <ReplyDialogContents
-        setCachedReplies={setCachedReplies}
-        setIsOpen={setIsOpen}
-        parentComment={comment}
-      />
+      <ReplyDialogContents setIsOpen={setIsOpen} parentComment={comment} />
     </BottomSheet>
   );
 };
 
 const ReplyDialogContents = ({
   setIsOpen,
-  setCachedReplies,
   parentComment,
-}: Pick<ReplyDialogProps, "setIsOpen" | "setCachedReplies"> & {
-  parentComment: ContentComment;
+}: Pick<ReplyDialogProps, "setIsOpen"> & {
+  parentComment: Event;
 }) => {
   const { save: publishReply } = usePublishReply();
-  const { mutateAsync: saveLegacyReply } = useSaveLegacyReply();
   const { colors } = useTheme();
-
+  const queryClient = useQueryClient();
+  const replyQueryKey = useRepliesQueryKey(parentComment.id);
   const [comment, setComment] = useState("");
   const handleReply = async () => {
-    const parentCommentEventId =
-      parentComment.eventId ?? parentComment.zapEventId;
-    if (parentCommentEventId) {
-      const tags = [
-        ["e", parentCommentEventId, "wss://relay.wavlake.com", "root"],
-        ["p", parentComment.userId],
-      ];
-      await publishReply(comment, tags);
-      // update the app cache with the new reply
-      setCachedReplies?.((prev) => {
-        return [
-          ...prev,
-          {
-            kind: 1,
-            pubkey: parentComment.userId,
-            created_at: Math.floor(Date.now() / 1000),
-            tags,
-            content: comment,
-          },
-        ];
-      });
-    } else {
-      await saveLegacyReply({ content: comment, commentId: parentComment.id });
-    }
+    const tags = [
+      ["e", parentComment.id, "wss://relay.wavlake.com", "root"],
+      ["p", parentComment.pubkey],
+    ];
+    const replyEvent = await publishReply(comment, tags);
+    // update the app cache with the new reply
+    queryClient.setQueryData(
+      replyQueryKey,
+      (oldReplies: Event[] | undefined) => {
+        return oldReplies ? [...oldReplies, replyEvent] : [replyEvent];
+      },
+    );
+
     setIsOpen(false);
   };
 
@@ -96,7 +83,7 @@ const ReplyDialogContents = ({
           gap: 10,
         }}
       >
-        <CommentRow comment={parentComment} showReplyLinks={false} />
+        <CommentRow commentId={parentComment.id} showReplyLinks={false} />
         <TextInput
           label="reply"
           autoFocus

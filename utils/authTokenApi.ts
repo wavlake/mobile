@@ -3,7 +3,6 @@ import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { ResponseObject } from "./api";
 import { NostrUserProfile } from "./nostr";
-import { useUser } from "@/components";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 

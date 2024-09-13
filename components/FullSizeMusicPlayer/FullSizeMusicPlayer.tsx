@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Dimensions,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
@@ -29,6 +28,7 @@ import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 import { ShuffleButton } from "./ShuffleButton";
+import { NowPlayingCommentSection } from "./NowPlayingCommentSection";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
@@ -115,6 +115,7 @@ export const FullSizeMusicPlayer = () => {
     artist,
     artworkUrl,
     timestamp: position,
+    parentContentId: albumId,
   });
 
   const handleOneTapZap = async () => {
@@ -147,6 +148,7 @@ export const FullSizeMusicPlayer = () => {
         trackId,
         timestamp: position,
         isPodcast: isPodcast ? "true" : "false",
+        parentContentId: albumId,
       },
     });
   };
@@ -182,7 +184,6 @@ export const FullSizeMusicPlayer = () => {
           <View
             style={{
               display: "flex",
-              flexGrow: 1,
               flexDirection: "row",
               maxWidth: screenWidth - paddingHorizontal * 2,
             }}
@@ -197,16 +198,16 @@ export const FullSizeMusicPlayer = () => {
                 <View
                   style={{
                     flexDirection: "row",
-                    alignItems: "flex-end",
-                    gap: 8,
-                    marginRight: 30,
+                    alignItems: "center",
+                    gap: 4,
+                    marginRight: 18,
                   }}
                 >
                   <MarqueeText style={{ fontSize: 18 }}>{artist}</MarqueeText>
                   <ArrowTopRightOnSquareIcon
                     color={brandColors.beige.dark}
-                    height={30}
-                    width={30}
+                    height={20}
+                    width={20}
                   />
                 </View>
               </TouchableOpacity>
@@ -217,7 +218,7 @@ export const FullSizeMusicPlayer = () => {
               onLongPress={oneTapZap ? goToZapPage : undefined}
               style={{
                 alignItems: "flex-end",
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 width: 50,
               }}
             >
@@ -251,7 +252,6 @@ export const FullSizeMusicPlayer = () => {
               justifyContent: "space-between",
               alignItems: "flex-end",
               paddingBottom: 20,
-              flexGrow: 1,
             }}
           >
             <View
@@ -289,6 +289,7 @@ export const FullSizeMusicPlayer = () => {
               )}
             </View>
           </View>
+          <NowPlayingCommentSection contentId={activeTrack.id} />
         </View>
       </View>
       <WalletChooserModal

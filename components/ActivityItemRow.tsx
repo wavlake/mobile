@@ -15,6 +15,8 @@ import { brandColors } from "@/constants";
 import { LightningIcon } from "./LightningIcon";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { Track, getAlbumTracks } from "@/utils";
+import { Event } from "nostr-tools";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export interface ActivityItem {
   picture: string;
@@ -33,8 +35,9 @@ export interface ActivityItem {
   parentContentTitle: string;
   parentContentType: string;
   artist?: string;
+  nostrEvent?: Event;
 }
-type ContentType =
+export type ContentType =
   | "track"
   | "episode"
   | "podcast"
@@ -42,15 +45,18 @@ type ContentType =
   | "artist"
   | "playlist";
 
-type ActivityType =
+export type ActivityType =
+  // sourced from catalog API
   | "playlistCreate"
-  | "zap"
   | "playlistUpdate"
   | "trackPublish"
   | "trending"
-  | "hot";
+  | "hot"
+  // sourced from nostr events
+  | "zap"
+  | "comment";
 
-const ICON_MAP: Record<ActivityType, ReactElement> = {
+export const ICON_MAP: Record<ActivityType, ReactElement> = {
   playlistCreate: (
     <MaterialCommunityIcons
       name="playlist-music"
@@ -68,6 +74,9 @@ const ICON_MAP: Record<ActivityType, ReactElement> = {
   // zap: <ZapIcon fill={brandColors.pink.DEFAULT} width={24} height={24} />,
   zap: (
     <LightningIcon width={24} height={24} fill={brandColors.orange.DEFAULT} />
+  ),
+  comment: (
+    <FontAwesome name="comment" size={24} color={brandColors.purple.DEFAULT} />
   ),
   trackPublish: (
     <Foundation name="music" size={24} color={brandColors.pink.DEFAULT} />
@@ -95,6 +104,7 @@ const generateTitle = (item: ActivityItem, isExpanded: boolean) => {
     zap: `@${item.name ?? "anon"} sent ${satsFormatter(
       item?.zapAmount ?? 0,
     )} sats`,
+    comment: `add-nostr-data`,
     playlistCreate: `@${item.name} created a playlist`,
     trackPublish: `@${item.name} published a track`,
     trending: `${item.contentTitle} is trending`,
@@ -103,6 +113,7 @@ const generateTitle = (item: ActivityItem, isExpanded: boolean) => {
 
   return actionMap?.[item.type];
 };
+
 const generateSubTitle = (item: ActivityItem, isExpanded: boolean) => {
   if (isExpanded) {
     const isTrack = item.contentType === "track";
@@ -117,12 +128,13 @@ const generateSubTitle = (item: ActivityItem, isExpanded: boolean) => {
     trackPublish: item.contentTitle,
     trending: "",
     hot: "",
+    comment: "",
   };
 
   return actionMap?.[item.type];
 };
 
-const generateOverflowMenuProps = (item: ActivityItem) => {
+export const generateOverflowMenuProps = (item: ActivityItem) => {
   const actionMap: Record<
     ContentType,
     {
