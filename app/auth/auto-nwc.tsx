@@ -9,6 +9,7 @@ import {
   intakeNwcURI,
   useCreateConnection,
   buildUri,
+  walletServicePubkey,
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import { CheckBox } from "@rneui/base";
@@ -90,7 +91,6 @@ export default function AddNWC() {
     });
 
     // add the connection to the mobile app
-    const walletServicePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY;
     const relay = "wss://relay.wavlake.com";
     const nwcUri = buildUri(`nostr+walletconnect://${walletServicePubkey}`, {
       relay: relay,

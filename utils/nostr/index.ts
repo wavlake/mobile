@@ -58,8 +58,13 @@ import {
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
-export const wavlakeZapPubkey =
+// this npub published zap receipts and label events
+export const wavlakeFeedPubkey =
+  process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY ?? "";
+// this npub is used by the NWC wallet service
+export const walletServicePubkey =
   process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
+
 const wavlakeRelayUri = "wss://relay.wavlake.com/";
 const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
@@ -411,7 +416,7 @@ export const makeZapRequest = async ({
   timestamp?: number;
   customTags?: EventTemplate["tags"];
 }): Promise<EventTemplate> => {
-  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakeZapPubkey}:${contentId}`;
+  const nostrEventAddressPointer = `${wavlakeTrackKind}:${wavlakeFeedPubkey}:${contentId}`;
   const iTags = [
     ["i", `podcast:item:guid:${contentId}`],
     [
@@ -427,7 +432,7 @@ export const makeZapRequest = async ({
     ],
   ];
   const zapRequestEvent = await nip57.makeZapRequest({
-    profile: wavlakeZapPubkey,
+    profile: wavlakeFeedPubkey,
     amount: amountInSats * 1000,
     relays: [wavlakeRelayUri, ...relays],
     comment,
@@ -724,7 +729,7 @@ export const fetchPulseFeedEvents = async (limit = 100) => {
   const zapFilter = {
     kinds: [9735, 1985],
     limit,
-    authors: [wavlakeZapPubkey],
+    authors: [wavlakeFeedPubkey],
   };
 
   const events = await pool.querySync(DEFAULT_READ_RELAY_URIS, zapFilter);

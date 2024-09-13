@@ -1,4 +1,4 @@
-import { DEFAULT_READ_RELAY_URIS, pool } from ".";
+import { DEFAULT_READ_RELAY_URIS, pool, wavlakeFeedPubkey } from ".";
 import { Event, nip19 } from "nostr-tools";
 
 export const getAllCommentEvents = async (
@@ -134,7 +134,6 @@ export const removeCensoredContent = (event: Event) => {
   } as Event;
 };
 
-const wavlakeFeedPubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
 const wavlakeTrendingBot =
   "3e0767c6c5174095658a54a9fe23d6974bc3b4de2f72452b474d0682bf6365f0";
 export const isNotCensoredAuthor = (event: Event) => {
