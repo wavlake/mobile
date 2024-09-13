@@ -12,6 +12,7 @@ interface BasicAvatarProps {
   pubkey?: string;
   npubMetadata?: NostrUserProfile | null;
   isLoading?: boolean;
+  closeParent?: () => void;
 }
 
 export const BasicAvatar = ({
@@ -20,11 +21,13 @@ export const BasicAvatar = ({
   pubkey,
   npubMetadata,
   isLoading,
+  closeParent,
 }: BasicAvatarProps) => {
   const router = useRouter();
   const basePathname = useGetBasePathname();
   const onPress = () => {
     if (pubkey) {
+      closeParent && closeParent();
       router.push({
         pathname: `${basePathname}/profile/${pubkey}`,
         params: {

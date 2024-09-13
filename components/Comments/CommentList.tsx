@@ -58,6 +58,7 @@ export const CommentList = ({
           key={commentId}
           replies={replies}
           showReplyLinks={showReplyLinks}
+          closeParent={onClose}
         />
       );
     },

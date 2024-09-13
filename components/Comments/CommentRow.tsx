@@ -22,6 +22,7 @@ interface CommentRowProps extends ViewProps {
   replies?: Event[];
   showReplyLinks?: boolean;
   isPressable?: boolean;
+  closeParent?: () => void;
 }
 
 export const getCommentText = (
@@ -54,6 +55,7 @@ export const CommentRow = ({
   replies = [],
   showReplyLinks = true,
   isPressable = true,
+  closeParent,
 }: CommentRowProps) => {
   const { data: comment } = useNostrEvent(commentId);
   const {
@@ -101,6 +103,7 @@ export const CommentRow = ({
         pubkey={pubkey}
         npubMetadata={npubMetadata}
         isLoading={metadataIsLoading}
+        closeParent={closeParent}
       />
       <View style={{ marginLeft: 10, flex: 1 }}>
         {isPressable ? (
