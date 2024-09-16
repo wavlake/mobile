@@ -29,6 +29,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 import { ShuffleButton } from "./ShuffleButton";
 import { NowPlayingCommentSection } from "./NowPlayingCommentSection";
+import { RepeatButton } from "./RepeatButton";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
@@ -177,7 +178,7 @@ export const FullSizeMusicPlayer = () => {
         <View
           style={{
             paddingHorizontal,
-            paddingVertical: isSmallScreen ? 16 : 24,
+            paddingVertical: isSmallScreen ? 6 : 24,
             flexGrow: 1,
           }}
         >
@@ -251,7 +252,7 @@ export const FullSizeMusicPlayer = () => {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "flex-end",
-              paddingBottom: 20,
+              paddingBottom: 18,
             }}
           >
             <View
@@ -274,6 +275,7 @@ export const FullSizeMusicPlayer = () => {
                 isMusic={isMusic}
               />
               <ShuffleButton />
+              <RepeatButton />
             </View>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
