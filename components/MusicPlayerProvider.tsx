@@ -10,6 +10,7 @@ import TrackPlayer, {
   useActiveTrack,
   useTrackPlayerEvents,
   Track as RNTPTrack,
+  RepeatMode
 } from "react-native-track-player";
 import {
   getCachedNostrRelayListEvent,
@@ -41,6 +42,7 @@ interface MusicPlayerContextProps {
   playerTitle?: string;
   isSwitchingTrackList: boolean;
   isShuffled: boolean;
+  repeatMode: RepeatMode;
   toggleShuffle: () => Promise<void>;
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
@@ -69,6 +71,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [currentTrackListId, setCurrentTrackListId] = useState<string>();
   const isLoadingTrackList = useRef(false);
   const [isSwitchingTrackList, setIsSwitchingTrackList] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>(RepeatMode.Off)
   const [isShuffled, setIsShuffled] = useState(false);
   const [unshuffledTrackList, setUnshuffledTrackList] = useState<RNTPTrack[]>(
     [],
@@ -256,6 +259,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         currentTrackListId,
         playerTitle,
         isSwitchingTrackList,
+        repeatMode,
         isShuffled,
         toggleShuffle,
         loadTrackList,
