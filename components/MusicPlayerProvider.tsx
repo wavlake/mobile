@@ -44,6 +44,8 @@ interface MusicPlayerContextProps {
   toggleShuffle: () => Promise<void>;
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
+  toggleRepeatQueue: () => Promise<void>;
+  toggleRepeatTrack: () => Promise<void>;
 }
 
 // Actions from lock screen/notification bar trigger events here via musicService
@@ -227,6 +229,26 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     }
   });
 
+  const toggleRepeatQueue = async () => {
+    if (repeatMode === RepeatMode.Queue) {
+      await TrackPlayer.setRepeatMode(RepeatMode.Off);
+      setRepeatMode(RepeatMode.Off);
+    } else {
+      await TrackPlayer.setRepeatMode(RepeatMode.Queue);
+      setRepeatMode(RepeatMode.Queue);
+    }
+  };
+
+  const toggleRepeatTrack = async () => {
+    if (repeatMode === RepeatMode.Track) {
+      await TrackPlayer.setRepeatMode(RepeatMode.Off);
+      setRepeatMode(RepeatMode.Off);
+    } else {
+      await TrackPlayer.setRepeatMode(RepeatMode.Track);
+      setRepeatMode(RepeatMode.Track);
+    }
+  };
+
   return (
     <MusicPlayerContext.Provider
       value={{
@@ -238,6 +260,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         toggleShuffle,
         loadTrackList,
         reset,
+        toggleRepeatQueue,
+        toggleRepeatTrack,
       }}
     >
       {children}
