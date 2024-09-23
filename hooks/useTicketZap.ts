@@ -30,7 +30,7 @@ export const useTicketZap = (showEventDTag: string) => {
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
-  const { setBalance } = useWalletBalance();
+  const { setBalance, refetch: refetchBalance } = useWalletBalance();
 
   const sendZap: SendZap = async ({ comment = "", amount, quantity }) => {
     setIsLoading(true);
@@ -75,13 +75,17 @@ export const useTicketZap = (showEventDTag: string) => {
         settings?.nwcCommands.includes(payInvoiceCommand)
       ) {
         // use NWC, responds with preimage if successful
-        const { error, result } = await payWithNWC({
+        const response = await payWithNWC({
           userPubkey: pubkey,
           invoice,
           walletPubkey: settings?.nwcPubkey,
           nwcRelay: settings?.nwcRelay,
         });
-
+        const { error, result, result_type } = response;
+        if (result_type !== "pay_invoice") {
+          toast.show("Something went wrong. Please try again later.");
+          return;
+        }
         if (error?.message) {
           toast.show(error.message);
         } else if (result?.preimage) {
@@ -89,6 +93,8 @@ export const useTicketZap = (showEventDTag: string) => {
         }
         if (result?.balance) {
           setBalance(result.balance);
+        } else {
+          refetchBalance();
         }
       } else {
         // if no NWC, open invoice in default wallet

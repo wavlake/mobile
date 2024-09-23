@@ -1,12 +1,16 @@
 import { ActivityItemRow, Center } from "@/components";
 import { Text } from "@/components/Text";
-import { FlatList, RefreshControl } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl } from "react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks";
 import { getActivityFeed } from "@/utils";
 
 const PAGE_SIZE = 10;
-export const PulseUserActivityFeed = () => {
+export const PulseUserActivityFeed = ({
+  externalLoading,
+}: {
+  externalLoading: boolean;
+}) => {
   const { pubkey } = useAuth();
 
   const {
@@ -29,12 +33,17 @@ export const PulseUserActivityFeed = () => {
   const { pages = [] } = data ?? {};
   const flattenedData = pages.flatMap((page) => page ?? []);
 
-  return (
+  return externalLoading ? (
+    <ActivityIndicator size={"large"} />
+  ) : (
     <FlatList
       contentContainerStyle={{ padding: 16 }}
       data={flattenedData}
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        <RefreshControl
+          refreshing={isLoading || externalLoading}
+          onRefresh={refetch}
+        />
       }
       renderItem={({ item, index }) => {
         const isLastComment = index === flattenedData.length - 1;
@@ -68,6 +77,9 @@ export const PulseUserActivityFeed = () => {
           fetchNextPage();
         }
       }}
+      windowSize={8}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={4}
     />
   );
 };

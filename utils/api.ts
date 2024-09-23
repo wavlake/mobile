@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuthToken, signEvent } from "@/utils/nostr";
+import { getAuthToken, signEvent } from "./nostr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
 import { NostrProfileData } from "./authTokenApi";
@@ -301,6 +301,12 @@ export const getArtistAlbums = async (artistId: string): Promise<Album[]> => {
   const { data } = await apiClient.get(`/albums/${artistId}/artist`);
 
   return data.data;
+};
+
+export const getArtistTracks = async (artistId: string): Promise<Track[]> => {
+  const { data } = await apiClient.get(`/tracks/${artistId}/artist`);
+
+  return normalizeTrackResponse(data.data);
 };
 
 export const getPodcast = async (podcastId: string): Promise<Podcast> => {
@@ -606,7 +612,9 @@ export const getGlobalActivityFeed = async (page: number, pageSize: number) => {
     {},
   );
 
-  return data?.data;
+  // TODO - remove zaps from the backend response
+  // we now get these from relays directly
+  return data?.data.filter((item) => item.type !== "zap");
 };
 
 export const getPubkeyActivity = async (
@@ -669,4 +677,35 @@ export const saveLegacyReply = async (content: string, commentId: number) => {
   );
 
   return data?.data;
+};
+
+type Metadata = Pick<
+  ActivityItem,
+  | "artist"
+  | "contentArtwork"
+  | "contentId"
+  | "contentTitle"
+  | "contentType"
+  | "parentContentId"
+  | "parentContentTitle"
+>;
+
+export const getContentMetadataMap = async (
+  trackIds: string[],
+): Promise<Record<string, Metadata>> => {
+  const queryParams = new URLSearchParams();
+  trackIds.forEach((id) => {
+    queryParams.append("guid", id);
+  });
+
+  const { data } = await apiClient.get<ResponseObject<Metadata[]>>(
+    `/meta/content?${queryParams.toString()}`,
+  );
+
+  // transform data into a map
+  const map: Record<string, Metadata> = {};
+  data.data.forEach((item) => {
+    map[item.contentId] = item;
+  });
+  return map;
 };

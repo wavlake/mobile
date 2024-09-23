@@ -1,12 +1,13 @@
 import { View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
-import { Event } from "nostr-tools";
+import { Event, UnsignedEvent } from "nostr-tools";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
-import { ContentComment, encodeNpub } from "@/utils";
+import { encodeNpub } from "@/utils";
+import { ParsedTextRender } from "./ParsedTextRenderer";
 
 interface CommentReplyRow extends ViewProps {
-  reply: Event;
+  reply: Event | UnsignedEvent;
 }
 
 export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
@@ -15,7 +16,6 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   const { name, picture } = metadata?.metadata || {};
   const getDisplayName = () => {
     try {
-      // use the provided name, else use the npub (set as the userId for nostr comments)
       return name ?? encodeNpub(pubkey)?.slice(0, 10);
     } catch (e) {
       console.log("Failed parsing pubkey: ", e);
@@ -26,7 +26,7 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   return (
     <View
       style={{
-        marginBottom: 26,
+        marginBottom: 10,
         flexDirection: "row",
         paddingHorizontal: 16,
         display: "flex",
@@ -36,32 +36,7 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
       <BasicAvatar uri={picture} pubkey={pubkey} />
       <View style={{ marginLeft: 10, flex: 1 }}>
         <Text bold>{getDisplayName()}</Text>
-        {content && <Text>{content}</Text>}
-      </View>
-    </View>
-  );
-};
-
-export const LegacyCommentReplyRow = ({ reply }: { reply: ContentComment }) => {
-  return (
-    <View
-      style={{
-        paddingBottom: 26,
-        flexDirection: "row",
-        paddingHorizontal: 16,
-        display: "flex",
-        alignItems: "flex-start",
-      }}
-    >
-      <BasicAvatar
-        uri={reply.artworkUrl}
-        pubkey={reply.isNostr ? reply.userId : undefined}
-      />
-      <View style={{ marginLeft: 10, flex: 1 }}>
-        <Text bold>
-          {reply.name ? reply.name.replace("@", "") : "anonymous"}
-        </Text>
-        <Text>{reply.content}</Text>
+        <ParsedTextRender content={content} />
       </View>
     </View>
   );

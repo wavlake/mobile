@@ -17,7 +17,7 @@ const useNostrRelayListEvent = (pubkey: string) => {
     queryKey,
     queryFn: () => getRelayListMetadata(pubkey),
     enabled: Boolean(pubkey),
-    staleTime: 10000,
+    staleTime: Infinity,
   });
 
   return data;
@@ -28,6 +28,7 @@ const useCachedNostrRelayListEvent = (pubkey: string) => {
     queryKey: ["cachedNostrRelayListEvent", pubkey],
     queryFn: () => getCachedNostrRelayListEvent(pubkey),
     enabled: Boolean(pubkey),
+    staleTime: Infinity,
   });
 
   return data;

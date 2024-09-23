@@ -1,24 +1,23 @@
-import { FlatList, View } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { CommentRow } from "./CommentRow";
-import { CommentReplyRow, LegacyCommentReplyRow } from "./CommentReplyRow";
+import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { ReplyDialog } from "./ReplyDialog";
 import { Text } from "@/components/Text";
-import { useCommentId } from "@/hooks/useCommentId";
 import { useLocalSearchParams } from "expo-router";
 import { Center } from "../Center";
+import { Event } from "nostr-tools";
 import { useReplies } from "@/hooks/useReplies";
-import { EventTemplate } from "nostr-tools";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 const LEFT_INDENTATION = 40;
 
 export const CommentRepliesPage = () => {
-  // nostr event id for the kind 1 comment
+  // nostr event id
   const { id } = useLocalSearchParams();
-  const parsedInt = parseInt(id as string);
-  if (isNaN(parsedInt)) {
+  if (typeof id !== "string") {
     return (
       <Center>
         <Text>Invalid comment id</Text>
@@ -27,27 +26,13 @@ export const CommentRepliesPage = () => {
     );
   }
 
-  return <CommentRepliesPageContents id={parsedInt} />;
-};
-
-const CommentRepliesPageContents = ({ id }: { id: number }) => {
-  const [cachedReplies, setCachedReplies] = useState<EventTemplate[]>([]);
-  const { data: comment, isLoading: commentLoading } = useCommentId(id);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const onReplyPress = () => {
-    setDialogOpen(true);
-  };
-
-  // prefer the kind 1 eventId over the zapEventId
-  const { data = [], isLoading: repliesLoading } = useReplies(
-    comment?.eventId ?? comment?.zapEventId,
-  );
-  const isLoading = commentLoading || repliesLoading;
+  const { data: comment, isLoading } = useNostrEvent(id);
+  const { data: replies = [], isFetching } = useReplies(id);
 
   if (isLoading) {
     return (
       <Center>
-        <Text>Loading comments</Text>
+        <ActivityIndicator />
       </Center>
     );
   }
@@ -55,45 +40,52 @@ const CommentRepliesPageContents = ({ id }: { id: number }) => {
   if (!comment) {
     return (
       <Center>
-        <Text>Error fetching comment</Text>
+        <Text>Comment not found</Text>
+        <Text>{id}</Text>
       </Center>
     );
   }
 
-  const isLegacyComment = !comment.eventId && !comment.zapEventId;
-
-  return isLegacyComment ? (
-    <FlatList
-      ListHeaderComponent={
-        <ListHeaderComp
-          comment={comment}
-          dialogOpen={dialogOpen}
-          setDialogOpen={setDialogOpen}
-        />
-      }
-      ListHeaderComponentStyle={{
-        transform: [{ translateX: -LEFT_INDENTATION }],
-      }}
-      contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={comment.replies}
-      renderItem={({ item }) => <LegacyCommentReplyRow reply={item} />}
-      ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
+  return (
+    <CommentRepliesPageContents
+      comment={comment}
+      replies={replies}
+      isLoading={isFetching}
     />
-  ) : (
+  );
+};
+
+const CommentRepliesPageContents = ({
+  comment,
+  replies,
+  isLoading,
+}: {
+  comment: Event;
+  replies: Event[];
+  isLoading: boolean;
+}) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const onReplyPress = () => {
+    setDialogOpen(true);
+  };
+
+  return (
     <FlatList
       ListHeaderComponent={
         <ListHeaderComp
-          comment={comment}
+          commentId={comment.id}
           dialogOpen={dialogOpen}
           setDialogOpen={setDialogOpen}
-          setCachedReplies={setCachedReplies}
         />
       }
       ListHeaderComponentStyle={{
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
+      ListEmptyComponent={
+        isLoading ? <ActivityIndicator /> : <Text>No replies yet</Text>
+      }
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={data.concat(cachedReplies as any)}
+      data={replies}
       renderItem={({ item }) => <CommentReplyRow reply={item} />}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
     />
@@ -101,25 +93,22 @@ const CommentRepliesPageContents = ({ id }: { id: number }) => {
 };
 
 const ListHeaderComp = ({
-  comment,
+  commentId,
   dialogOpen,
   setDialogOpen,
-  setCachedReplies,
 }: {
-  comment: any;
+  commentId: string;
   dialogOpen: boolean;
   setDialogOpen: (isOpen: boolean) => void;
-  setCachedReplies?: React.Dispatch<React.SetStateAction<EventTemplate[]>>;
 }) => {
   return (
     <>
       <ReplyDialog
         setIsOpen={setDialogOpen}
-        comment={comment}
+        commentId={commentId}
         isOpen={dialogOpen}
-        setCachedReplies={setCachedReplies}
       />
-      <CommentRow comment={comment} showReplyLinks={false} />
+      <CommentRow commentId={commentId} showReplyLinks={false} />
     </>
   );
 };

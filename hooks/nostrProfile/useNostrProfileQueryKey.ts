@@ -1,8 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 
-export const useNostrProfileQueryKey = () => {
-  const { pubkey } = useAuth();
+export const useNostrProfileQueryKey = (pubkey: string) => {
   const { readRelayList } = useNostrRelayList();
 
   return ["nostrProfileEvent", pubkey, readRelayList];

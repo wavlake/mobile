@@ -33,6 +33,7 @@ export const useZap = ({
   artist,
   artworkUrl,
   timestamp,
+  parentContentId,
 }: {
   isPodcast: boolean;
   trackId?: string;
@@ -40,6 +41,7 @@ export const useZap = ({
   artist?: string;
   artworkUrl?: string;
   timestamp?: number;
+  parentContentId?: string;
 }): {
   isLoading: boolean;
   sendZap: SendZap;
@@ -52,11 +54,11 @@ export const useZap = ({
   const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
-  const { setBalance } = useWalletBalance();
+  const { setBalance, refetch: refetchBalance } = useWalletBalance();
   const { enableNWC, defaultZapAmount } = settings || {};
 
   const sendZap: SendZap = async (props) => {
-    if (!trackId) {
+    if (!trackId || !parentContentId) {
       return;
     }
 
@@ -73,6 +75,7 @@ export const useZap = ({
       comment,
       contentId: trackId,
       timestamp,
+      parentContentId,
       parentContentType: isPodcast ? "podcast" : "album",
     });
 
@@ -138,30 +141,27 @@ export const useZap = ({
         settings?.nwcCommands.includes(payInvoiceCommand)
       ) {
         // use NWC, responds with preimage if successful
-        const { error, result } = await payWithNWC({
+        const response = await payWithNWC({
           userPubkey: pubkey,
           invoice,
-          walletPubkey: settings?.nwcPubkey,
-          nwcRelay: settings?.nwcRelay,
-        }).catch((e) => {
-          console.log("useZap payWithNWC error", e);
-          return {
-            error: {
-              code: "Error",
-              message: "Something went wrong. Please try again later.",
-            },
-            result: undefined,
-          };
+          walletPubkey: settings.nwcPubkey,
+          nwcRelay: settings.nwcRelay,
         });
 
+        const { error, result, result_type } = response;
+
+        if (result_type !== "pay_invoice") {
+          toast.show("Something went wrong. Please try again later.");
+          return;
+        }
         if (error?.message) {
           const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
           toast.show(errorMsg);
-        } else if (result?.preimage) {
-          // invoice was paid, we have the preimage
         }
         if (result?.balance) {
           setBalance(result.balance);
+        } else {
+          refetchBalance();
         }
       } else {
         // fallback to opening the invoice in the default wallet

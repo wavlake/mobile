@@ -27,6 +27,7 @@ import { useGoToAlbumPage } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { ArtistBanner } from "@/components/ArtistBanner";
 import { CommentList } from "./Comments/CommentList";
+import { useArtistComments } from "@/hooks/useArtistComments";
 
 interface SocialIconLinkProps {
   url: string;
@@ -50,9 +51,12 @@ export const ArtistPage = () => {
     queryKey: [artistId],
     queryFn: () => getArtist(artistId as string),
   });
+  const { data: commentIds = [], isFetching } = useArtistComments(
+    artistId as string,
+    10,
+  );
   const topAlbums = artist?.topAlbums ?? [];
   const topTracks = artist?.topTracks?.slice(0, 4) ?? [];
-  const topMessages = artist?.topMessages ?? [];
   const basePathname = useGetBasePathname();
   const goToAlbumPage = useGoToAlbumPage();
   const router = useRouter();
@@ -85,17 +89,6 @@ export const ArtistPage = () => {
       trackListId: artistId as string,
       startIndex: index,
       playerTitle,
-    });
-  };
-
-  const handleLoadMore = () => {
-    router.push({
-      pathname: `${basePathname}/artist/[artistId]/comments`,
-      params: {
-        artistId,
-        headerTitle: `Comments for ${artist?.name}`,
-        includeBackButton: "true",
-      },
     });
   };
 
@@ -142,15 +135,18 @@ export const ArtistPage = () => {
         }}
       />
       <HorizontalArtworkRow items={topAlbums} onPress={handleTopAlbumPress} />
-      {topMessages.length > 0 && (
-        <>
-          <SectionHeader title="Latest Messages" />
-          <CommentList comments={topMessages} />
-          <TouchableOpacity onPress={handleLoadMore}>
-            <Text style={{ textAlign: "center" }}>View more</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      <CommentList
+        commentIds={commentIds}
+        isLoading={isFetching}
+        showMoreLink={{
+          pathname: `${basePathname}/artist/[artistId]/comments`,
+          params: {
+            artistId: artistId as string,
+            headerTtle: `Comments for ${artist.name}`,
+            includeBackButton: "true",
+          },
+        }}
+      />
       {artist.bio && (
         <>
           <SectionHeader title="About" />

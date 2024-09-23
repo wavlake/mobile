@@ -9,6 +9,7 @@ import {
   intakeNwcURI,
   useCreateConnection,
   buildUri,
+  walletServicePubkey,
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import { CheckBox } from "@rneui/base";
@@ -82,7 +83,7 @@ export default function AddNWC() {
     const maxMsatPaymentAmount = parseInt(maxZapAmount) * 1000;
     // create the connection in the db
     await createConnection({
-      name: "Wavlake Mobile App",
+      name: connectionName,
       msatBudget,
       pubkey: connectionPubkey,
       maxMsatPaymentAmount,
@@ -90,7 +91,6 @@ export default function AddNWC() {
     });
 
     // add the connection to the mobile app
-    const walletServicePubkey = process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY;
     const relay = "wss://relay.wavlake.com";
     const nwcUri = buildUri(`nostr+walletconnect://${walletServicePubkey}`, {
       relay: relay,

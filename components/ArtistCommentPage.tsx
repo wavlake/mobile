@@ -1,16 +1,21 @@
-import { getArtist, getArtistComments } from "@/utils";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getArtist } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { CommentPage } from "./Comments/CommentPage";
+import { CommentList } from "./Comments/CommentList";
+import { View } from "react-native";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { useArtistComments } from "@/hooks/useArtistComments";
 
-const PAGE_SIZE = 10;
 export const ArtistCommentPage = () => {
   const { artistId } = useLocalSearchParams();
   const { data: artist } = useQuery({
     queryKey: [artistId],
     queryFn: () => getArtist(artistId as string),
   });
+  const { data: commentIds = [], isFetching } = useArtistComments(
+    artistId as string,
+  );
   const isVerified = artist?.verified ?? false;
   const router = useRouter();
   useEffect(() => {
@@ -19,27 +24,17 @@ export const ArtistCommentPage = () => {
     }
   }, [isVerified]);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
-      queryKey: [artistId, "comments"],
-      queryFn: ({ pageParam = 1 }) =>
-        getArtistComments(artistId as string, pageParam, PAGE_SIZE),
-      getNextPageParam: (lastPage, allPages) => {
-        const nextPage =
-          lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined;
-        return nextPage;
-      },
-    });
-  const { pages = [] } = data ?? {};
-  const flattenedData = pages.flatMap((page) => page ?? []);
+  const { height } = useMiniMusicPlayer();
 
   return (
-    <CommentPage
-      comments={flattenedData}
-      isLoading={isLoading}
-      isFetchingNextPage={isFetchingNextPage}
-      hasNextPage={hasNextPage}
-      fetchNextPage={fetchNextPage}
-    />
+    <View
+      style={{ height: "100%", paddingTop: 16, paddingBottom: height + 16 }}
+    >
+      <CommentList
+        scrollEnabled={true}
+        commentIds={commentIds}
+        isLoading={isFetching}
+      />
+    </View>
   );
 };

@@ -1,51 +1,38 @@
-import { ContentComment, fetchReplies } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
+import { fetchReplies } from "@/utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRepliesQueryKey } from "@/hooks/useReplies";
 
-export const useRepliesMap = (comments: ContentComment[]) => {
-  const definedEventIds = comments.reduce<string[]>((acc, comment) => {
-    // prefer kind 1 events over zap receipts
-    if (comment.eventId) {
-      acc.push(comment.eventId);
-    } else if (comment.zapEventId) {
-      acc.push(comment.zapEventId);
-    }
-    return acc;
-  }, []);
+export const useRepliesMap = (commentIds: string[]) => {
+  const queryClient = useQueryClient();
 
-  const { data: nostrRepliesMap = {} } = useQuery(
-    definedEventIds,
-    async () => {
-      const replies = await fetchReplies(definedEventIds);
+  return useQuery({
+    queryKey: ["replies", commentIds],
+    queryFn: async () => {
+      const replies = await fetchReplies(commentIds);
+
       const repliesMap = replies.reduce<Record<string, Event[]>>(
         (acc, reply) => {
-          const [eTag, parentCommentId] =
-            reply.tags.find(([tag, value]) => tag === "e") || [];
-          if (parentCommentId) {
+          const parentTag = reply.tags.find(([tag]) => tag === "e");
+          if (parentTag && parentTag[1]) {
+            const parentCommentId = parentTag[1];
             acc[parentCommentId] = [...(acc[parentCommentId] || []), reply];
           }
-
           return acc;
         },
         {},
       );
+
+      // Cache the replies under the parent comment event id
+      // the /comment/id page will fetch these replies from the cache
+      Object.entries(repliesMap).forEach(([eventId, replies]) => {
+        const queryKey = useRepliesQueryKey(eventId);
+        queryClient.setQueryData<Event[]>(queryKey, replies);
+      });
+
       return repliesMap;
     },
-    {
-      enabled: definedEventIds.length > 0,
-    },
-  );
-
-  const queryClient = useQueryClient();
-  // cache the replies under the parent comment event id
-  // the /comment/id page will fetch these replies from the cache
-  Object.keys(nostrRepliesMap).forEach((eventId) => {
-    const replies = nostrRepliesMap[eventId];
-    const queryKey = useRepliesQueryKey(eventId);
-    queryClient.setQueryData<Event[]>(queryKey, () => replies);
+    enabled: commentIds.length > 0,
+    staleTime: Infinity,
   });
-
-  return nostrRepliesMap;
 };

@@ -12,10 +12,9 @@ export const useReplies = (nostrEventId?: string | null) => {
     queryKey,
     queryFn: async () => {
       if (!nostrEventId) return [];
-      const replies = await fetchReplies([nostrEventId]);
-      return replies;
+      return fetchReplies([nostrEventId]);
     },
-    // 10 minutes
-    staleTime: 600000,
+    enabled: Boolean(nostrEventId),
+    staleTime: Infinity,
   });
 };
