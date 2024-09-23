@@ -78,6 +78,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         "expo-camera",
         {
           cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+          recordAudioAndroid: false,
         },
       ],
       [
