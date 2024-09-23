@@ -17,7 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     scheme: ["wavlake", "nostr+walletconnect"],
     userInterfaceStyle: "dark",
     backgroundColor: "#000000",
-    platforms: ["ios", "android"],
+    // platforms: ["ios", "android"],
     splash: {
       image: "./assets/splash.png",
       resizeMode: "contain",
@@ -75,6 +75,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
       "@react-native-google-signin/google-signin",
+      "expo-font",
+      "expo-secure-store",
       [
         "expo-camera",
         {
