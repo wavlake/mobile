@@ -128,7 +128,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
             name: catalogUser?.name,
             // picture: user.user.photoURL ?? "",
-            lud06: `${catalogUser?.profileUrl}@wavlake.com`,
+            // lud06: `${catalogUser?.profileUrl}@wavlake.com`,
           });
 
           nsec && (await login(nsec));
