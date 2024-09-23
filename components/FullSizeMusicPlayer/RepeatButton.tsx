@@ -18,28 +18,13 @@ const repeatIconMap: Record<RepeatMode, keyof typeof MaterialIcons.glyphMap> = {
 
 export const RepeatButton = ({ size = 24 }: RepeatButtonProps) => {
   const { colors } = useTheme();
-  const { toggleRepeatQueue, toggleRepeatTrack, repeatMode } = useMusicPlayer();
-
-  const onPress = () => {
-    switch (repeatMode) {
-      case RepeatMode.Off:
-        toggleRepeatQueue();
-        break;
-      case RepeatMode.Queue:
-        toggleRepeatTrack();
-        break;
-      case RepeatMode.Track:
-        toggleRepeatQueue(); // This will set it to Off
-        break;
-    }
-  };
+  const { cycleRepeatMode, repeatMode } = useMusicPlayer();
 
   const iconName = repeatIconMap[repeatMode];
   const iconColor =
     repeatMode === RepeatMode.Off ? colors.text : brandColors.pink.DEFAULT;
-
   return (
-    <PressableIcon onPress={onPress}>
+    <PressableIcon onPress={cycleRepeatMode}>
       <MaterialIcons name={iconName} size={size} color={iconColor} />
     </PressableIcon>
   );

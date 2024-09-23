@@ -10,7 +10,7 @@ import TrackPlayer, {
   useActiveTrack,
   useTrackPlayerEvents,
   Track as RNTPTrack,
-  RepeatMode
+  RepeatMode,
 } from "react-native-track-player";
 import {
   getCachedNostrRelayListEvent,
@@ -46,8 +46,7 @@ interface MusicPlayerContextProps {
   toggleShuffle: () => Promise<void>;
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
-  toggleRepeatQueue: () => Promise<void>;
-  toggleRepeatTrack: () => Promise<void>;
+  cycleRepeatMode: () => Promise<void>;
 }
 
 // Actions from lock screen/notification bar trigger events here via musicService
@@ -71,7 +70,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [currentTrackListId, setCurrentTrackListId] = useState<string>();
   const isLoadingTrackList = useRef(false);
   const [isSwitchingTrackList, setIsSwitchingTrackList] = useState(false);
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>(RepeatMode.Off)
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>(RepeatMode.Off);
   const [isShuffled, setIsShuffled] = useState(false);
   const [unshuffledTrackList, setUnshuffledTrackList] = useState<RNTPTrack[]>(
     [],
@@ -232,24 +231,24 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     }
   });
 
-  const toggleRepeatQueue = async () => {
-    if (repeatMode === RepeatMode.Queue) {
-      await TrackPlayer.setRepeatMode(RepeatMode.Off);
-      setRepeatMode(RepeatMode.Off);
-    } else {
-      await TrackPlayer.setRepeatMode(RepeatMode.Queue);
-      setRepeatMode(RepeatMode.Queue);
+  const cycleRepeatMode = async () => {
+    let newRepeatMode: RepeatMode;
+    switch (repeatMode) {
+      case RepeatMode.Off:
+        newRepeatMode = RepeatMode.Queue;
+        break;
+      case RepeatMode.Queue:
+        newRepeatMode = RepeatMode.Track;
+        break;
+      case RepeatMode.Track:
+        newRepeatMode = RepeatMode.Off;
+        break;
+      default:
+        newRepeatMode = RepeatMode.Off;
     }
-  };
 
-  const toggleRepeatTrack = async () => {
-    if (repeatMode === RepeatMode.Track) {
-      await TrackPlayer.setRepeatMode(RepeatMode.Off);
-      setRepeatMode(RepeatMode.Off);
-    } else {
-      await TrackPlayer.setRepeatMode(RepeatMode.Track);
-      setRepeatMode(RepeatMode.Track);
-    }
+    await TrackPlayer.setRepeatMode(newRepeatMode);
+    setRepeatMode(newRepeatMode);
   };
 
   return (
@@ -264,8 +263,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         toggleShuffle,
         loadTrackList,
         reset,
-        toggleRepeatQueue,
-        toggleRepeatTrack,
+        cycleRepeatMode,
       }}
     >
       {children}
