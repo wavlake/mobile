@@ -20,7 +20,7 @@ export const ShuffleButton = ({ size = 24 }: ShuffleButtonProps) => {
       <Entypo
         name="shuffle"
         size={size}
-        color={isShuffled ? brandColors.pink.DEFAULT : colors.text}
+        color={isShuffled ? brandColors.pink.dark : colors.text}
       />
     </PressableIcon>
   );
