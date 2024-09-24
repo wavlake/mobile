@@ -40,8 +40,9 @@ export const SectionHeader = ({
       <View
         style={{
           flexDirection: "row",
-          alignItems: "baseline",
+          alignItems: "center",
           justifyContent: "space-between",
+          marginHorizontal: 10,
           flex: 1,
         }}
       >

@@ -1,7 +1,6 @@
-import { SectionHeader } from "./SectionHeader";
 import { View } from "react-native";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
+import { HorizontalArtworkRow, SectionHeader } from "@/components";
 import { Track } from "@/utils";
 
 export const ForYouSection = ({ data }: { data: Track[] }) => {
