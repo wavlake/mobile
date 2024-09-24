@@ -1,9 +1,6 @@
-import { NewBadgeIcon } from "./NewBadgeIcon";
-import { brandColors } from "@/constants";
-import { SectionHeader } from "./SectionHeader";
 import { View } from "react-native";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
+import { HorizontalArtworkRow, SectionHeader } from "@/components";
 import { Track } from "@/utils";
 
 export const NewMusicSection = ({ data }: { data: Track[] }) => {
@@ -21,13 +18,6 @@ export const NewMusicSection = ({ data }: { data: Track[] }) => {
     <View>
       <SectionHeader
         title="Out Now"
-        icon={
-          <NewBadgeIcon
-            fill={brandColors.pink.DEFAULT}
-            width={24}
-            height={24}
-          />
-        }
         rightNavText="Discover"
         rightNavHref={{
           pathname: "/music/discover",

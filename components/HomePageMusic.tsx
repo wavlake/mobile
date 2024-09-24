@@ -1,18 +1,13 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { Track } from "@/utils";
 import { NewMusicSection } from "@/components/NewMusicSection";
-import { FireIcon } from "@/components/FireIcon";
-import { brandColors } from "@/constants";
-import { SectionHeader } from "@/components/SectionHeader";
-import { Text } from "@/components/Text";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import {
+  useMusicPlayer,
+  SquareArtwork,
+  useMiniMusicPlayer,
+  Text,
+  SectionHeader,
+} from "@/components";
 import { ForYouSection } from "./ForYouSection";
 import { ListenToEarnSection } from "./ListenToEarnSection";
 import { FeaturedSection } from "./FeaturedSection";
@@ -93,16 +88,7 @@ export const HomePageMusic = () => {
                 <FeaturedSection data={featured} />
                 <ForYouSection data={forYou} />
                 <NewMusicSection data={newMusic} />
-                <SectionHeader
-                  title="Trending"
-                  icon={
-                    <FireIcon
-                      fill={brandColors.orange.DEFAULT}
-                      width={30}
-                      height={30}
-                    />
-                  }
-                />
+                <SectionHeader title="Trending" />
               </View>
             )
       }
