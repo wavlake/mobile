@@ -1,7 +1,6 @@
-import { SectionHeader } from "./SectionHeader";
 import { View } from "react-native";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
+import { HorizontalArtworkRowLarge, SectionHeader } from "@/components";
 import { Track } from "@/utils";
 
 export const FeaturedSection = ({ data }: { data: Track[] }) => {
@@ -18,7 +17,7 @@ export const FeaturedSection = ({ data }: { data: Track[] }) => {
   return (
     <View>
       <SectionHeader title="Featured" />
-      <HorizontalArtworkRow items={data} onPress={handleRowPress} />
+      <HorizontalArtworkRowLarge items={data} onPress={handleRowPress} />
     </View>
   );
 };
