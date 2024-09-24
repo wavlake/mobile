@@ -28,16 +28,13 @@ const RepeatQueueIcon = ({
       alignItems: "center",
     }}
   >
-    <Entypo name="loop" size={size} color={color} />
+    <Entypo name="cycle" size={size} color={color} />
     {showNumber && (
       <View
         style={{
-          backgroundColor: color,
           borderRadius: size * 0.5,
           position: "absolute",
-          right: -3,
-          top: 2,
-          width: size * 0.35,
+          width: size * 0.4,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -45,9 +42,8 @@ const RepeatQueueIcon = ({
       >
         <Text
           style={{
-            fontSize: size * 0.35,
-            color: "white",
-            textAlign: "right",
+            fontSize: size * 0.4,
+            color,
           }}
           bold
         >
