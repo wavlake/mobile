@@ -1,4 +1,9 @@
-import { FlatList, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { Text } from "@/components/Text";
 

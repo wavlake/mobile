@@ -1,10 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
-import { ResponseObject } from "./api";
+import {
+  HomePageDataNoAuth,
+  normalizeTrackResponse,
+  ResponseObject,
+  Track,
+} from "./api";
 import { NostrUserProfile } from "./nostr";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
+const enableResponseLogging = Boolean(
+  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
+);
 
 export const catalogApiClient = axios.create({
   baseURL: catalogApi,
@@ -15,7 +23,13 @@ const responseInterceptor = catalogApiClient.interceptors.response.use(
   // on response fulfilled (200 response)
   (response) => {
     if (!!response.data.error) {
-      console.log("catalogApiClient error", response.data.error);
+      console.log("Catalog (fb auth):", response.data.error);
+    } else {
+      enableResponseLogging &&
+        console.log(
+          "Catalog (fb auth):",
+          response.request.responseURL?.split(".com")[1],
+        );
     }
 
     return response;
@@ -216,4 +230,40 @@ export const getTransactionHistory = async (page: number) => {
   // });
 
   return data.data;
+};
+
+// if the user is logged in, we get the forYou track data
+export type HomePageData = HomePageDataNoAuth & { forYou?: Track[] };
+export const getHomePageAuth = async (): Promise<HomePageData> => {
+  const { data } = await catalogApiClient.get("/tracks/new");
+  console.log("getHomePageAuth", data.data.length);
+  return {
+    featured: normalizeTrackResponse(data.data),
+    newMusic: normalizeTrackResponse(data.data),
+    trending: normalizeTrackResponse(data.data),
+    forYou: normalizeTrackResponse(data.data),
+  };
+
+  // return {
+  //   featured: normalizeTrackResponse(data.data.featured),
+  //   newMusic: normalizeTrackResponse(data.data.newMusic),
+  //   trending: normalizeTrackResponse(data.data.trending),
+  //   forYou: normalizeTrackResponse(data.data.forYou),
+  // };
+};
+
+export type Promo = {
+  id: string;
+  title: string;
+  description: string;
+  artworkUrl: string;
+  link: string;
+};
+
+export const getUserPromos = async () => {
+  // const { data } =
+  // await catalogApiClient.get<ResponseObject<Promo[]>>("/promos/active");
+
+  // return data.data;
+  return [];
 };

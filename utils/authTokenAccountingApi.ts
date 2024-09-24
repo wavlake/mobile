@@ -5,6 +5,9 @@ import { ResponseObject } from "./api";
 import { Event } from "nostr-tools";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL;
+const enableResponseLogging = Boolean(
+  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
+);
 
 export const accountingApiClient = axios.create({
   baseURL: catalogApi,
@@ -15,9 +18,14 @@ const responseInterceptor = accountingApiClient.interceptors.response.use(
   // on response fulfilled (200 response)
   (response) => {
     if (!!response.data.error) {
-      console.log("accountingApiClient error", response.data.error);
+      console.log("Accounting error:", response.data.error);
+    } else {
+      enableResponseLogging &&
+        console.log(
+          "Accounting:",
+          response?.request?.responseURL?.split(".com")[1],
+        );
     }
-
     return response;
   },
   // on response rejected (non 200 response)

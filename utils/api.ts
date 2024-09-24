@@ -147,12 +147,35 @@ interface Genre {
 }
 
 const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
+const enableResponseLogging = Boolean(
+  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
+);
+
 const apiClient = axios.create({
   baseURL,
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (!!response.data.error) {
+      console.log(
+        `Catalog error${
+          response.headers["Authorization"] ? " (nostr auth):" : ":"
+        }`,
+        response.data.error,
+      );
+    } else {
+      enableResponseLogging &&
+        console.log(
+          `Catalog${
+            response.headers["Authorization"] ? " (nostr auth):" : ":"
+          }`,
+          response?.request?.responseURL?.split(".com")[1],
+        );
+    }
+
+    return response;
+  },
   (error) => {
     if (typeof error.response.data.error === "string") {
       const apiErrorMessage = error.response.data.error;
@@ -166,7 +189,7 @@ apiClient.interceptors.response.use(
 
 // Function to normalize the response from the API
 // TODO: Make responses from API consistent
-const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
+export const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
   return res.map((track) => ({
     id: track.id,
     title: track.title,
@@ -215,16 +238,20 @@ const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
   }));
 };
 
-export const getNewMusic = async (): Promise<Track[]> => {
-  const { data } = await apiClient.get("/tracks/new");
-
-  return normalizeTrackResponse(data.data);
+export type HomePageDataNoAuth = {
+  featured: Track[];
+  newMusic: Track[];
+  trending: Track[];
 };
 
-export const getTopMusic = async (): Promise<Track[]> => {
-  const { data } = await apiClient.get("/charts/music/top");
+export const getHomePageNoAuth = async (): Promise<HomePageDataNoAuth> => {
+  const { data } = await apiClient.get("/tracks/new");
 
-  return normalizeTrackResponse(data.data);
+  return {
+    featured: normalizeTrackResponse(data.data.featured),
+    newMusic: normalizeTrackResponse(data.data.newMusic),
+    trending: normalizeTrackResponse(data.data.trending),
+  };
 };
 
 export const getRandomMusic = async (): Promise<Track[]> => {

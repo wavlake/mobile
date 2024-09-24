@@ -14,3 +14,5 @@ export * from "./useGoToAlbumPage";
 export * from "./useZap";
 export * from "./useTickets";
 export * from "./useTicketZap";
+export * from "./useHomePage";
+export * from "./usePromos";

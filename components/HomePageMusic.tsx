@@ -1,6 +1,10 @@
-import { FlatList, TouchableOpacity, View } from "react-native";
-import { useQuery } from "@tanstack/react-query";
-import { getTopMusic, Track } from "@/utils";
+import {
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Track } from "@/utils";
 import { NewMusicSection } from "@/components/NewMusicSection";
 import { FireIcon } from "@/components/FireIcon";
 import { brandColors } from "@/constants";
@@ -12,6 +16,7 @@ import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
 import { ForYouSection } from "./ForYouSection";
 import { ListenToEarnSection } from "./ListenToEarnSection";
 import { FeaturedSection } from "./FeaturedSection";
+import { useHomePage } from "@/hooks";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -68,34 +73,41 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
 };
 
 export const HomePageMusic = () => {
-  const { data = [] } = useQuery({
-    queryKey: ["topMusic"],
-    queryFn: getTopMusic,
-  });
+  const { data: homePageData, isLoading } = useHomePage();
+  const {
+    featured = [],
+    newMusic = [],
+    trending = [],
+    forYou = [],
+  } = homePageData || {};
 
   return (
     <FlatList
-      data={data}
-      ListHeaderComponent={() => (
-        <View>
-          <ListenToEarnSection />
-          <FeaturedSection />
-          <ForYouSection />
-          <NewMusicSection />
-          <SectionHeader
-            title="Trending"
-            icon={
-              <FireIcon
-                fill={brandColors.orange.DEFAULT}
-                width={30}
-                height={30}
-              />
-            }
-          />
-        </View>
-      )}
+      data={trending}
+      ListHeaderComponent={
+        isLoading
+          ? null
+          : () => (
+              <View>
+                <ListenToEarnSection />
+                <FeaturedSection data={featured} />
+                <ForYouSection data={forYou} />
+                <NewMusicSection data={newMusic} />
+                <SectionHeader
+                  title="Trending"
+                  icon={
+                    <FireIcon
+                      fill={brandColors.orange.DEFAULT}
+                      width={30}
+                      height={30}
+                    />
+                  }
+                />
+              </View>
+            )
+      }
       renderItem={({ item, index }) => (
-        <TopMusicRow trackList={data} track={item} index={index} />
+        <TopMusicRow trackList={trending} track={item} index={index} />
       )}
       keyExtractor={(item) => item.id}
     />
