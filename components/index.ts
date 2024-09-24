@@ -61,3 +61,4 @@ export * from "./WalletLabel";
 export * from "./QRScanner";
 export * from "./OrSeparator";
 export * from "./NostrActivityItemRow";
+export * from "./ListenToEarnPage";

@@ -1,15 +1,19 @@
 import { Text } from "./Text";
-import { View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity, View } from "react-native";
 import { brandColors } from "@/constants";
 import { usePromos } from "@/hooks";
 import { useUser } from "./UserContextProvider";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 
 export const ListenToEarnSection = () => {
   const { user, initializingAuth } = useUser();
   const { data: promos = [] } = usePromos();
-  const onPress = () => console.log("Listen to earn pressed");
+  const router = useRouter();
+  const onPress = () =>
+    router.push({
+      pathname: "/earn",
+    });
 
   // this feature is hidden for users who are not logged in
   if (!initializingAuth && !user) {
