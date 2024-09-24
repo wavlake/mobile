@@ -28,6 +28,10 @@ export interface Track {
   podcast?: Podcast;
   podcastUrl?: string;
   podcastId?: string;
+  genre?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface Episode {
@@ -549,8 +553,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       username: string;
       userId: string;
       // artworkUrl?: string;

@@ -2,6 +2,7 @@ import { FlatList, TouchableOpacity, View } from "react-native";
 import { Text, SquareArtwork } from "@/components";
 import { useGetColorPalette } from "@/hooks";
 import { brandColors } from "@/constants";
+import { Track } from "@/utils";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
@@ -35,7 +36,7 @@ export const HorizontalArtworkRowLarge = ({
 };
 
 const RowItem: React.FC<{
-  item: HorizontalArtworkRowItem;
+  item: HorizontalArtworkRowItem & Pick<Track, "genre">;
   isLast: boolean;
 }> = ({ item, isLast }) => {
   const {
@@ -83,7 +84,7 @@ const RowItem: React.FC<{
         ellipsizeMode="tail"
         numberOfLines={1}
       >
-        Singer/Songwriter
+        {item.genre?.name}
       </Text>
     </View>
   );
