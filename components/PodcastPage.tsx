@@ -66,7 +66,7 @@ export const PodcastPage = () => {
             <SquareArtwork size={screenWidth} url={artworkUrl} />
             <AlbumOrArtistPageButtons
               type="podcast"
-              shareUrl={`https://wavlake.com/podcast/${podcastId}`}
+              shareUrl={`https://wavlake.com/podcast/${podcast.podcastUrl}`}
               content={podcast}
               trackListId={id}
               trackListTitle={name}
