@@ -222,34 +222,7 @@ export const getTransactionHistory = async (page: number) => {
     }>
   >(`/accounts/txs/${page}`, {});
 
-  // const listOfTxsByDate = Object.keys(data.data.transactions).map((date) => {
-  //   return {
-  //     date,
-  //     transactions: data.data.transactions[date],
-  //   };
-  // });
-
   return data.data;
-};
-
-// if the user is logged in, we get the forYou track data
-export type HomePageData = HomePageDataNoAuth & { forYou?: Track[] };
-export const getHomePageAuth = async (): Promise<HomePageData> => {
-  const { data } = await catalogApiClient.get("/tracks/new");
-  console.log("getHomePageAuth", data.data.length);
-  return {
-    featured: normalizeTrackResponse(data.data),
-    newMusic: normalizeTrackResponse(data.data),
-    trending: normalizeTrackResponse(data.data),
-    forYou: normalizeTrackResponse(data.data),
-  };
-
-  // return {
-  //   featured: normalizeTrackResponse(data.data.featured),
-  //   newMusic: normalizeTrackResponse(data.data.newMusic),
-  //   trending: normalizeTrackResponse(data.data.trending),
-  //   forYou: normalizeTrackResponse(data.data.forYou),
-  // };
 };
 
 export type Promo = {

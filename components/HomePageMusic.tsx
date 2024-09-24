@@ -71,7 +71,7 @@ export const HomePageMusic = () => {
   const { data: homePageData, isLoading } = useHomePage();
   const {
     featured = [],
-    newMusic = [],
+    newTracks = [],
     trending = [],
     forYou = [],
   } = homePageData || {};
@@ -87,7 +87,7 @@ export const HomePageMusic = () => {
                 <ListenToEarnSection />
                 <FeaturedSection data={featured} />
                 <ForYouSection data={forYou} />
-                <NewMusicSection data={newMusic} />
+                <NewMusicSection data={newTracks} />
                 <SectionHeader title="Trending" />
               </View>
             )

@@ -238,18 +238,25 @@ const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
   }));
 };
 
-export type HomePageDataNoAuth = {
+// if the user is logged in, we get the forYou track data
+export type HomePageData = {
   featured: Track[];
-  newMusic: Track[];
+  newTracks: Track[];
   trending: Track[];
+  forYou?: Track[];
 };
 
-export const getHomePageNoAuth = async (): Promise<HomePageDataNoAuth> => {
-  const { data } = await apiClient.get("/tracks/new");
+export const getHomePage = async (): Promise<HomePageData> => {
+  const url = "/tracks/featured";
+  const { data } = await apiClient.get(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
 
   return {
     featured: normalizeTrackResponse(data.data.featured),
-    newMusic: normalizeTrackResponse(data.data.newMusic),
+    newTracks: normalizeTrackResponse(data.data.new),
     trending: normalizeTrackResponse(data.data.trending),
   };
 };
@@ -542,8 +549,8 @@ export const useCreateUser = ({
     mutationFn: async ({
       username,
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       username: string;
       userId: string;
       // artworkUrl?: string;

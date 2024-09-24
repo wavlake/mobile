@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getHomePageNoAuth, getHomePageAuth, HomePageData } from "@/utils";
+import { getHomePage, HomePageData } from "@/utils";
 import { useUser } from "@/components";
 
 export const useHomePage = () => {
@@ -7,7 +7,7 @@ export const useHomePage = () => {
 
   return useQuery<HomePageData>({
     queryKey: ["homePage", !!user],
-    queryFn: user ? getHomePageAuth : getHomePageNoAuth,
+    queryFn: getHomePage,
     enabled: !initializingAuth,
   });
 };

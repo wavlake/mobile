@@ -19,6 +19,7 @@ import {
   useDeleteTrackFromLibrary,
   useIsTrackInLibrary,
   useZap,
+  useGetColorPalette,
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
@@ -59,6 +60,8 @@ export const FullSizeMusicPlayer = () => {
     title: "",
     artworkUrl: "",
   };
+  // const { background, foreground, backgroundIsBlack } =
+  //   useGetColorPalette(artworkUrl);
 
   const isTrackInLibrary = useIsTrackInLibrary(trackId);
   const addTrackToLibraryMutation = useAddTrackToLibrary();
@@ -163,6 +166,10 @@ export const FullSizeMusicPlayer = () => {
 
   const isMusic = albumTitle != "podcast";
 
+  // const backgroundColor = backgroundIsBlack
+  //   ? brandColors.black.light
+  //   : background ?? brandColors.black.light;
+
   return (
     <>
       <View
@@ -171,6 +178,7 @@ export const FullSizeMusicPlayer = () => {
           display: "flex",
           flexDirection: "column",
           flexGrow: 1,
+          // backgroundColor,
         }}
       >
         <ArtworkCarousel />

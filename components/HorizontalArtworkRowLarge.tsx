@@ -1,6 +1,7 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { Text, SquareArtwork } from "@/components";
 import { useGetColorPalette } from "@/hooks";
+import { brandColors } from "@/constants";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
@@ -37,15 +38,26 @@ const RowItem: React.FC<{
   item: HorizontalArtworkRowItem;
   isLast: boolean;
 }> = ({ item, isLast }) => {
-  const { background, foreground, dominant } = useGetColorPalette(
-    item.artworkUrl,
-  );
+  const {
+    background,
+    foreground: textColor,
+    backgroundIsBlack,
+    lightenedBackgroundColor,
+    isLoading,
+  } = useGetColorPalette(item.artworkUrl);
+
+  // default to light black if these colors are not available
+  const backgroundColor = isLoading
+    ? brandColors.black.DEFAULT
+    : backgroundIsBlack
+    ? lightenedBackgroundColor || brandColors.black.light
+    : background ?? brandColors.black.light;
 
   return (
     <View
       style={{
         marginRight: isLast ? 0 : 16,
-        backgroundColor: background ?? "#000",
+        backgroundColor,
         borderRadius: 40,
         width: 232,
         padding: 16,
@@ -56,7 +68,7 @@ const RowItem: React.FC<{
         style={{
           textAlign: "center",
           paddingTop: 8,
-          color: foreground ?? "#fff",
+          color: isLoading ? brandColors.black.DEFAULT : textColor ?? "white",
         }}
         ellipsizeMode="tail"
         numberOfLines={1}
@@ -66,7 +78,7 @@ const RowItem: React.FC<{
       <Text
         style={{
           textAlign: "center",
-          color: foreground ?? "#fff",
+          color: isLoading ? brandColors.black.DEFAULT : textColor ?? "white",
         }}
         ellipsizeMode="tail"
         numberOfLines={1}
