@@ -75,17 +75,16 @@ export const HomePageMusic = () => {
     trending = [],
     forYou = [],
   } = homePageData || {};
-
   return (
     <FlatList
-      data={trending}
+      data={forYou}
       ListHeaderComponent={
         isLoading
           ? null
           : () => (
               <View>
                 <ListenToEarnSection />
-                <FeaturedSection data={featured} />
+                <FeaturedSection data={forYou} />
                 <ForYouSection data={forYou} />
                 <NewMusicSection data={newTracks} />
                 <SectionHeader title="Trending" />

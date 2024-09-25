@@ -1,7 +1,8 @@
+import { ContentType } from "./../components/ActivityItemRow";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
-import { ResponseObject } from "./api";
+import { normalizeTrackResponse, ResponseObject, TrackResponse } from "./api";
 import { NostrUserProfile } from "./nostr";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
@@ -220,18 +221,27 @@ export const getTransactionHistory = async (page: number) => {
   return data.data;
 };
 
-export type Promo = {
+interface Promo {
   id: string;
-  title: string;
-  description: string;
-  artworkUrl: string;
-  link: string;
-};
+  msatBudget: number;
+  msatPayoutAmount: number;
+  contentId: string;
+  contentType: ContentType;
+  contentMetadata: TrackResponse;
+}
 
 export const getUserPromos = async () => {
-  // const { data } =
-  // await catalogApiClient.get<ResponseObject<Promo[]>>("/promos/active");
-
-  // return data.data;
-  return [];
+  const { data } =
+    await catalogApiClient.get<
+      ResponseObject<Array<Promo & { contentMetadata: TrackResponse }>>
+    >("/promos/active");
+  return data.data.map((promo) => {
+    const [normalizedTrackData] = normalizeTrackResponse([
+      promo.contentMetadata,
+    ]);
+    return {
+      ...promo,
+      contentMetadata: normalizedTrackData,
+    };
+  });
 };

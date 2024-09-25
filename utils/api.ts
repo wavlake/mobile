@@ -58,7 +58,7 @@ export interface Podcast {
   podcastUrl: string;
 }
 
-interface TrackResponse extends Track {
+export interface TrackResponse extends Track {
   [key: string]: unknown;
 }
 
