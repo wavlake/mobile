@@ -13,6 +13,7 @@ interface LikeButtonProps {
   isLiked?: boolean;
   isLoading?: boolean;
   isMusic?: boolean;
+  color?: string;
 }
 
 export const LikeButton = ({
@@ -23,6 +24,7 @@ export const LikeButton = ({
   isLiked = false,
   isLoading = false,
   isMusic = true,
+  color,
 }: LikeButtonProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
@@ -34,12 +36,13 @@ export const LikeButton = ({
 
   if (!isMusic || !pubkey) return null;
 
+  const unLikedColor = color ?? colors.text;
   return (
     <PressableIcon onPress={handlePress} label={label} fullWidth={fullWidth}>
       <MaterialCommunityIcons
         name={isLiked ? "cards-heart" : "cards-heart-outline"}
         size={size}
-        color={isLiked ? brandColors.pink.DEFAULT : colors.text}
+        color={isLiked ? brandColors.pink.DEFAULT : unLikedColor}
       />
     </PressableIcon>
   );

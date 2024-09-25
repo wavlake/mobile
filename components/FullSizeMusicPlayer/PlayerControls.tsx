@@ -20,9 +20,15 @@ import {
 
 interface PlayerControlsProps {
   isSmallScreen: boolean;
+  color?: string;
+  isEarning?: boolean;
 }
 
-export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
+export const PlayerControls = ({
+  isSmallScreen,
+  color,
+  isEarning,
+}: PlayerControlsProps) => {
   const { colors } = useTheme();
   const { position, duration } = useProgress();
   const { state: playbackState } = usePlaybackState();
@@ -81,6 +87,7 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
           size={isSmallScreen ? 40 : 60}
           type={playbackState === State.Paused ? "play" : "pause"}
           onPress={togglePlayPause}
+          isEarning={isEarning}
         />
         <Pressable onPress={skipToNext}>
           <Ionicons

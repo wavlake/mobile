@@ -10,6 +10,7 @@ interface PlaylistButtonProps {
   contentId: string;
   contentTitle: string;
   isMusic: boolean;
+  color?: string;
 }
 
 export const PlaylistButton = ({
@@ -17,6 +18,7 @@ export const PlaylistButton = ({
   contentId,
   contentTitle,
   isMusic,
+  color,
 }: PlaylistButtonProps) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
@@ -39,7 +41,7 @@ export const PlaylistButton = ({
         <MaterialCommunityIcons
           name={"playlist-plus"}
           size={size}
-          color={colors.text}
+          color={color ?? colors.text}
         />
       </PressableIcon>
       {/* This is conditionally rendered so the dialog state resets when its closed. */}
