@@ -253,7 +253,7 @@ export const FullSizeMusicPlayer = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <PlayerControls isSmallScreen={isSmallScreen} />
+          <PlayerControls isEarning isSmallScreen={isSmallScreen} />
           <View
             style={{
               flexDirection: "row",
