@@ -1,4 +1,4 @@
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, FlatListProps, TouchableOpacity, View } from "react-native";
 import { Text, SquareArtwork } from "@/components";
 import { useGetColorPalette } from "@/hooks";
 import { brandColors } from "@/constants";
@@ -31,6 +31,9 @@ export const HorizontalArtworkRowLarge = ({
       }}
       scrollEnabled
       showsHorizontalScrollIndicator={false}
+      windowSize={4}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={3}
     />
   );
 };

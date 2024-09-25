@@ -154,7 +154,6 @@ const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const enableResponseLogging = Boolean(
   process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
 );
-
 const apiClient = axios.create({
   baseURL,
 });
@@ -185,6 +184,7 @@ apiClient.interceptors.response.use(
       const apiErrorMessage = error.response.data.error;
       return Promise.reject(apiErrorMessage);
     } else {
+      console.log("Catalog error:", error);
       console.error(error);
       return Promise.reject("An error occurred");
     }
@@ -252,7 +252,14 @@ export type HomePageData = {
 
 export const getHomePage = async (): Promise<HomePageData> => {
   const url = "/tracks/featured";
-  const { data } = await apiClient.get(url, {
+  const { data } = await apiClient.get<
+    ResponseObject<{
+      featured: TrackResponse[];
+      newTracks: TrackResponse[];
+      trending: TrackResponse[];
+      forYou: TrackResponse[];
+    }>
+  >(url, {
     headers: {
       Authorization: await createAuthHeader(url),
     },
@@ -260,8 +267,9 @@ export const getHomePage = async (): Promise<HomePageData> => {
 
   return {
     featured: normalizeTrackResponse(data.data.featured),
-    newTracks: normalizeTrackResponse(data.data.new),
+    newTracks: normalizeTrackResponse(data.data.newTracks),
     trending: normalizeTrackResponse(data.data.trending),
+    forYou: normalizeTrackResponse(data.data.forYou),
   };
 };
 

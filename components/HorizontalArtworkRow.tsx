@@ -44,6 +44,9 @@ export const HorizontalArtworkRow = ({
       }}
       scrollEnabled
       showsHorizontalScrollIndicator={false}
+      windowSize={5}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={3}
     />
   );
 };

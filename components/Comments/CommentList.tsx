@@ -108,9 +108,6 @@ export const CommentList = ({
         ) : undefined
       }
       scrollEnabled={scrollEnabled}
-      // TODO - investigate additional optimizations
-      // getItemLayout={getItemLayout}
-      // updateCellsBatchingPeriod={50}
       windowSize={12}
       removeClippedSubviews={true}
       maxToRenderPerBatch={8}
