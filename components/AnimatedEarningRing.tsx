@@ -1,9 +1,6 @@
-import { brandColors } from "@/constants";
 import React, { useEffect, useRef } from "react";
-import { Animated, Easing, View } from "react-native";
-import Svg, { Defs, LinearGradient, Stop, Circle } from "react-native-svg";
-
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+import { View, Animated, Easing } from "react-native";
+import SpinnerSvg from "./SPINNER.svg";
 
 export const AnimatedEarningRing = ({
   size,
@@ -12,90 +9,56 @@ export const AnimatedEarningRing = ({
   size: number;
   colors: any;
 }) => {
-  const rotateAnimation = useRef(new Animated.Value(0)).current;
+  const adjustedSize = size * 4.7;
+  const spinValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const startAnimation = () => {
-      Animated.timing(rotateAnimation, {
+    const spin = () => {
+      Animated.timing(spinValue, {
         toValue: 1,
-        duration: 4000,
+        duration: 2000,
         easing: Easing.linear,
         useNativeDriver: true,
       }).start(() => {
-        rotateAnimation.setValue(0);
-        startAnimation();
+        spinValue.setValue(0);
+        spin();
       });
     };
 
-    startAnimation();
+    spin();
+  }, []);
 
-    return () => rotateAnimation.stopAnimation();
-  }, [rotateAnimation]);
-
-  const spin = rotateAnimation.interpolate({
+  const rotate = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "360deg"],
   });
-  const ringSize = size + 20; // 10 units thick on each side
-  const circleRadius = ringSize / 2;
-  const strokeWidth = 10;
+
+  const centerCircleSize = adjustedSize * 0.1; // Adjust this value to change the size of the center circle
 
   return (
     <View
       style={{
+        width: adjustedSize,
+        height: adjustedSize,
+        backgroundColor: "transparent",
         position: "absolute",
-        transform: [{ translateX: -10 }, { translateY: -10 }, { scale: 0.95 }],
+        zIndex: -1,
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      <AnimatedSvg
-        height={ringSize}
-        width={ringSize}
+      <Animated.View style={{ transform: [{ rotate }] }}>
+        <SpinnerSvg width={adjustedSize} height={adjustedSize} />
+      </Animated.View>
+      <View
         style={{
-          transform: [{ rotate: spin }],
+          position: "absolute",
+          width: centerCircleSize,
+          height: centerCircleSize,
+          borderRadius: centerCircleSize / 2,
+          backgroundColor: "black",
         }}
-      >
-        <Defs>
-          <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
-            <Stop
-              offset="0"
-              stopColor={brandColors.pink.DEFAULT}
-              stopOpacity="0.1"
-            />
-            <Stop
-              offset="0.85"
-              stopColor={brandColors.pink.DEFAULT}
-              stopOpacity="0.1"
-            />
-            <Stop
-              offset="0.95"
-              stopColor={brandColors.black.DEFAULT}
-              stopOpacity="1"
-            />
-            <Stop
-              offset="1"
-              stopColor={brandColors.black.DEFAULT}
-              stopOpacity="1"
-            />
-          </LinearGradient>
-        </Defs>
-        <Circle
-          cx={ringSize / 2}
-          cy={ringSize / 2}
-          r={circleRadius - strokeWidth / 2}
-          stroke={brandColors.pink.DEFAULT}
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        <Circle
-          cx={ringSize / 2}
-          cy={ringSize / 2}
-          r={circleRadius - strokeWidth / 2}
-          stroke="url(#grad)"
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeLinecap="round"
-        />
-      </AnimatedSvg>
+      />
     </View>
   );
 };
