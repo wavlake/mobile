@@ -43,7 +43,7 @@ export const PlayerControls = ({
 
   const isPlaying = playbackState === State.Playing;
   return (
-    <View style={{ paddingVertical: isSmallScreen ? 0 : 24 }}>
+    <View style={{ paddingVertical: isSmallScreen ? 12 : 24 }}>
       <Slider
         minimumTrackTintColor="white"
         thumbStyle={{ height: 12, width: 12, backgroundColor: "white" }}
