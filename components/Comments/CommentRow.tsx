@@ -1,9 +1,4 @@
-import {
-  ActivityIndicator,
-  TouchableOpacity,
-  View,
-  ViewProps,
-} from "react-native";
+import { TouchableOpacity, View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "@/components/Text";
 import { CommentRepliesLink } from "./CommentRepliesLink";

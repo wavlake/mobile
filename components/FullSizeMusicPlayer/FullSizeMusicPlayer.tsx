@@ -118,6 +118,7 @@ export const FullSizeMusicPlayer = () => {
     title,
     artist,
     artworkUrl,
+    // TODO - move useProgress() to the zap hook
     timestamp: position,
     parentContentId: albumId,
   });

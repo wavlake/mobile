@@ -17,6 +17,7 @@ import {
   usePlaybackState,
   useProgress,
 } from "react-native-track-player";
+import { useMusicPlayer } from "../MusicPlayerProvider";
 
 interface PlayerControlsProps {
   isSmallScreen: boolean;
@@ -32,6 +33,7 @@ export const PlayerControls = ({
   const { state: playbackState } = usePlaybackState();
   const [sliderValue, setSliderValue] = useState(position);
   const [isSliding, setIsSliding] = useState(false);
+  const { isEarning, totalEarned } = useMusicPlayer();
 
   useEffect(() => {
     if (!isSliding) {
@@ -86,6 +88,7 @@ export const PlayerControls = ({
           size={isSmallScreen ? 40 : 60}
           type={isPlaying ? "pause" : "play"}
           onPress={togglePlayPause}
+          isEarning={isEarning}
         />
         <Pressable onPress={skipToNext}>
           <Ionicons
@@ -103,7 +106,7 @@ export const PlayerControls = ({
           height: 16,
         }}
       >
-        {isEarning ? `Earnings: 12 sats` : undefined}
+        {isEarning ? `Earnings: ${totalEarned} sats` : undefined}
       </Text>
     </View>
   );

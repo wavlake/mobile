@@ -10,7 +10,7 @@ interface PlayPauseTrackButtonProps {
   type: "play" | "pause";
   onPress: () => void;
   color?: string;
-  isEarning?: boolean;
+  isEarning: boolean;
 }
 
 export const PlayPauseTrackButton = ({

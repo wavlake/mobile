@@ -1,87 +1,91 @@
-import { Promo } from "@/utils";
-import { useState, useEffect, useRef } from "react";
-import { useProgress } from "react-native-track-player";
-import { useUpdateReward } from "./useUpdateReward";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { usePlaybackState, useProgress } from "react-native-track-player";
 import { useCreateReward } from "./useCreateReward";
+import { useUser } from "@/components";
+import { usePromoCheck } from "./usePromoCheck";
 
-export const useEarnPromo = (
-  promoDetails: Promo | undefined,
-  isPlaying: boolean,
-) => {
+export const useEarnPromo = (contentId?: string) => {
+  const { data: promoDetails, isLoading: isPromoLoading } =
+    usePromoCheck(contentId);
+  const { catalogUser } = useUser();
+  const userCanEarn = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
+  const { state: playbackState } = usePlaybackState();
+  const isPlaying = playbackState === "playing";
   const [isEarning, setIsEarning] = useState(false);
   const [totalEarned, setTotalEarned] = useState(0);
-  const lastUpdateRef = useRef(0); // Keeps track of the last minute mark when we triggered an update
-  const rewardIdRef = useRef<string | null>(null); // Keeps track of the current rewardId
-  const { position } = useProgress();
-  const updateReward = useUpdateReward();
+  const lastRewardPositionRef = useRef(0);
+  const { position } = useProgress(5000); // Update every 5 seconds for testing, change back to 60000 for production
+  console.log({ position });
   const createReward = useCreateReward();
 
-  useEffect(() => {
-    const startEarning = async () => {
-      if (!promoDetails || !isPlaying) return;
+  const canEarn = userCanEarn && isPlaying && promoDetails && !isPromoLoading;
 
-      // Check if we need to create a reward initially (if starting from the beginning)
-      if (lastUpdateRef.current === 0) {
-        const createResponse = await createReward.mutateAsync({
-          promoId: promoDetails.id,
-        });
-        if (!createResponse.success) {
-          setIsEarning(false);
-          return;
-        }
-
-        // Save the rewardId from the create response
-        rewardIdRef.current = createResponse.rewardId;
-        setIsEarning(true);
-        lastUpdateRef.current = position; // Set initial timestamp
-      }
-
-      // Check if another full minute has passed
-      const elapsedTime = Math.floor((position - lastUpdateRef.current) / 60); // Elapsed minutes
-      if (elapsedTime >= 1 && rewardIdRef.current) {
-        // Call updateReward with the saved rewardId
-        const updateResponse = await updateReward.mutateAsync({
-          rewardId: rewardIdRef.current, // Use the rewardId from the previous create call
-        });
-        if (!updateResponse.success) {
-          setIsEarning(false);
-          return;
-        }
-
-        // Call createReward again and save the new rewardId
-        const createResponseAgain = await createReward.mutateAsync({
-          promoId: promoDetails.id,
-        });
-        if (!createResponseAgain.success) {
-          setIsEarning(false);
-          return;
-        }
-
-        // Update the rewardId and increment total earned
-        rewardIdRef.current = createResponseAgain.rewardId;
-        setTotalEarned((prev) => prev + 10);
-        lastUpdateRef.current = position; // Update the timestamp after the reward
-      }
-    };
-
-    // Start earning if promoDetails are defined and playback is active
-    if (promoDetails && isPlaying) {
-      startEarning();
+  const attemptReward = useCallback(async () => {
+    console.log("attempting");
+    if (!canEarn) {
+      console.log("cannot earn");
+      setIsEarning(false);
+      return;
     }
 
-    // Stop earning when playback stops
-    if (!isPlaying) {
+    console.log("can earn");
+    setIsEarning(true);
+
+    // Check if we've moved forward by at least 59 seconds since the last reward
+    if (position - lastRewardPositionRef.current >= 59) {
+      try {
+        const createResponse = await createReward.mutateAsync({
+          promoId: promoDetails!.id,
+        });
+
+        if (createResponse.success) {
+          setTotalEarned((prev) => prev + 10);
+          lastRewardPositionRef.current = position;
+          console.log("Reward created successfully");
+        } else {
+          throw new Error("Reward creation failed");
+        }
+      } catch (error) {
+        console.error("Error creating reward:", error);
+        setIsEarning(false);
+      }
+    } else {
+      console.log("Not enough time has passed since last reward");
+    }
+  }, [canEarn, position, createReward.mutateAsync, promoDetails]);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (canEarn && isPlaying) {
+      console.log("Scheduling attempt reward");
+      timeoutId = setTimeout(attemptReward, 1000); // Delay to prevent rapid re-renders
+    } else {
+      console.log("Cannot earn or not playing, setting isEarning to false");
       setIsEarning(false);
     }
 
     return () => {
-      // Reset values on unmount or when playback stops
-      if (!isPlaying) {
-        lastUpdateRef.current = 0;
-        rewardIdRef.current = null;
-      }
+      clearTimeout(timeoutId);
+      console.log("Cleared timeout");
     };
-  }, [position, promoDetails, isPlaying]);
+  }, [canEarn, isPlaying, attemptReward]);
 
+  useEffect(() => {
+    console.log("Content ID changed, resetting states");
+    setIsEarning(false);
+    lastRewardPositionRef.current = 0;
+    setTotalEarned(0);
+  }, [contentId]);
+
+  console.log({
+    isEarning,
+    totalEarned,
+    canEarn,
+    isPlaying,
+    userCanEarn,
+    promoDetails,
+    isPromoLoading,
+  });
   return { isEarning, totalEarned };
 };

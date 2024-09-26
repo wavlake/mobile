@@ -95,15 +95,9 @@ export const useWavlakeWalletZap = ({
   });
 };
 
-export const updateReward = async (body: { rewardId: string }) => {
-  console.log(accountingApi);
-  const { data } = await accountingApiClient.put(`/promo/reward`, body);
-  return data;
-};
-
 export const createReward = async (body: { promoId: number }) => {
-  console.log(accountingApi);
-
-  const { data } = await accountingApiClient.post(`/promo/reward`, body);
-  return data;
+  console.log("createReward", body);
+  // const { data } = await accountingApiClient.post(`/promo/reward`, body);
+  // return data;
+  return { success: true };
 };

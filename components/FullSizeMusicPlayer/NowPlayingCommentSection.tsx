@@ -1,5 +1,5 @@
 import { useContentComments } from "@/hooks/useContentComments";
-import { CommentRow, SectionHeader, Text } from "@/components";
+import { CommentRow, Text } from "@/components";
 import { brandColors } from "@/constants";
 import { ActivityIndicator, Pressable, View } from "react-native";
 import { BottomSheet } from "@rneui/base";
@@ -17,7 +17,6 @@ export const NowPlayingCommentSection = ({
   const [displayedComment, setDisplayedComment] = useState<string>();
   const [isExpanded, setIsExpanded] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
