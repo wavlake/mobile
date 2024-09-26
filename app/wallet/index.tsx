@@ -10,7 +10,9 @@ import {
 } from "react-native";
 
 export const getDollarAmount = (msats?: number, price?: number | null) => {
-  if (!price || !msats) return;
+  if (typeof price !== "number" || typeof msats !== "number") return;
+  if (msats === 0) return "0";
+
   const sats = Math.floor(msats / 1000);
   const USD = (sats / 100000000) * price;
   return USD.toFixed(2);
@@ -124,7 +126,7 @@ const BalanceInfo = () => {
               fontSize: 18,
             }}
           >
-            {usdValue ? `~$${getDollarAmount(balance, bitcoinPrice)}` : ""}
+            {typeof usdValue === "string" ? `~$${usdValue}` : ""}
           </Text>
         )}
       </View>
