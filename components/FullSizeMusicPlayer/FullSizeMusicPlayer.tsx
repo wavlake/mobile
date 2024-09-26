@@ -265,11 +265,15 @@ export const FullSizeMusicPlayer = () => {
             }}
           >
             <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 24 }}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 16,
+              }}
             >
               <LikeButton
                 onPress={handleLikePress}
-                size={24}
+                size={20}
                 isLiked={isTrackInLibrary}
                 isLoading={
                   addTrackToLibraryMutation.isLoading ||
@@ -278,25 +282,30 @@ export const FullSizeMusicPlayer = () => {
                 isMusic={isMusic}
               />
               <PlaylistButton
-                size={30}
+                size={24}
                 contentId={activeTrack.id}
                 contentTitle={title}
                 isMusic={isMusic}
               />
-              <ShuffleButton />
-              <RepeatButton />
-            </View>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 16 }}
-            >
-              <ShareButton url={shareUrl} />
+              <ShuffleButton size={20} />
+              <View
+                style={{
+                  flexGrow: 1,
+                }}
+              >
+                <RepeatButton size={20} />
+              </View>
+              <ShareButton size={30} url={shareUrl} />
               {isMusic && (
-                <OverflowMenu
-                  artist={artist}
-                  artistId={artistId}
-                  albumTitle={albumTitle}
-                  albumId={albumId}
-                />
+                <View>
+                  <OverflowMenu
+                    size={20}
+                    artist={artist}
+                    artistId={artistId}
+                    albumTitle={albumTitle}
+                    albumId={albumId}
+                  />
+                </View>
               )}
             </View>
           </View>
