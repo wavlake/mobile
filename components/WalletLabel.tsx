@@ -13,6 +13,8 @@ export const satsFormatter = (mSats: number) => {
     return Math.floor(sats / 10000) / 100 + "M";
   } else if (sats >= 1000) {
     return Math.floor(sats / 100) / 10 + "k";
+  } else if (sats === 0) {
+    return "0";
   } else if (sats < 1) {
     return "<1";
   } else {
@@ -34,7 +36,7 @@ export const satsWithCommas = (sats: number) => {
 
 export const WalletLabel: React.FC = () => {
   const { data: balance } = useWalletBalance();
-
+  const userHasABalance = typeof balance === "number";
   return (
     <View
       style={{
@@ -45,7 +47,7 @@ export const WalletLabel: React.FC = () => {
       }}
     >
       <Text style={{ fontSize: 24 }}>Wallet</Text>
-      {balance && (
+      {userHasABalance && (
         <>
           <Text style={{ fontSize: 4 }}>{"\u2B24"}</Text>
           <Text style={{ fontSize: 14 }}>{satsFormatter(balance)} sats</Text>
