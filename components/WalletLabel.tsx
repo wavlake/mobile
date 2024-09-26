@@ -13,6 +13,8 @@ export const satsFormatter = (mSats: number) => {
     return Math.floor(sats / 10000) / 100 + "M";
   } else if (sats >= 1000) {
     return Math.floor(sats / 100) / 10 + "k";
+  } else if (sats === 0) {
+    return "0";
   } else if (sats < 1) {
     return "<1";
   } else {

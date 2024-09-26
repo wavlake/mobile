@@ -105,7 +105,9 @@ const BalanceInfo = () => {
               fontSize: 32,
             }}
           >
-            {balance ? `${msatsToSatsWithCommas(balance)} sats` : ""}
+            {typeof balance === "number"
+              ? `${msatsToSatsWithCommas(balance)} sats`
+              : "-"}
           </Text>
         )}
       </View>
