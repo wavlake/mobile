@@ -6,31 +6,19 @@ import {
 } from "react-native";
 import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { Center, PlaylistButton, MarqueeText } from "@/components";
+import { Center, MarqueeText } from "@/components";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
 import { cacheSettings, validateWalletKey } from "@/utils";
-import {
-  useAuth,
-  useAddTrackToLibrary,
-  useDeleteTrackFromLibrary,
-  useIsTrackInLibrary,
-  useZap,
-  useGetColorPalette,
-} from "@/hooks";
-import { ShareButton } from "@/components/ShareButton";
-import { LikeButton } from "@/components/LikeButton";
-import { OverflowMenu } from "@/components/FullSizeMusicPlayer/OverflowMenu";
+import { useAuth, useZap } from "@/hooks";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
-import { ShuffleButton } from "./ShuffleButton";
 import { NowPlayingCommentSection } from "./NowPlayingCommentSection";
-import { RepeatButton } from "./RepeatButton";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
@@ -65,17 +53,11 @@ export const FullSizeMusicPlayer = () => {
   // const { background, foreground, backgroundIsBlack } =
   //   useGetColorPalette(artworkUrl);
 
-  const isTrackInLibrary = useIsTrackInLibrary(trackId);
-  const addTrackToLibraryMutation = useAddTrackToLibrary();
-  const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
   const screenWidth = Dimensions.get("window").width;
   const isSmallScreen = Dimensions.get("window").height < 700;
   const paddingHorizontal = 24;
   const { pubkey } = useAuth();
   const isPodcast = albumTitle === "podcast";
-  const shareUrl = isPodcast
-    ? `https://wavlake.com/episode/${trackId}`
-    : `https://wavlake.com/track/${trackId}`;
   const handleTitlePress = () => {
     router.push({
       pathname: isPodcast
@@ -100,17 +82,6 @@ export const FullSizeMusicPlayer = () => {
         includeBackButton: "true",
       },
     });
-  };
-  const handleLikePress = async () => {
-    if (!activeTrack) {
-      return;
-    }
-
-    if (isTrackInLibrary) {
-      deleteTrackFromLibraryMutation.mutate(trackId);
-    } else {
-      addTrackToLibraryMutation.mutate(activeTrack);
-    }
   };
 
   const { sendZap, isLoading } = useZap({
@@ -167,7 +138,6 @@ export const FullSizeMusicPlayer = () => {
     );
   }
 
-  const isMusic = albumTitle != "podcast";
   // const backgroundColor = backgroundIsBlack
   //   ? brandColors.black.light
   //   : background ?? brandColors.black.light;
@@ -256,59 +226,6 @@ export const FullSizeMusicPlayer = () => {
             </TouchableOpacity>
           </View>
           <PlayerControls isSmallScreen={isSmallScreen} />
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-              paddingBottom: 18,
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 16,
-              }}
-            >
-              <LikeButton
-                onPress={handleLikePress}
-                size={20}
-                isLiked={isTrackInLibrary}
-                isLoading={
-                  addTrackToLibraryMutation.isLoading ||
-                  deleteTrackFromLibraryMutation.isLoading
-                }
-                isMusic={isMusic}
-              />
-              <PlaylistButton
-                size={24}
-                contentId={activeTrack.id}
-                contentTitle={title}
-                isMusic={isMusic}
-              />
-              <ShuffleButton size={20} />
-              <View
-                style={{
-                  flexGrow: 1,
-                }}
-              >
-                <RepeatButton size={20} />
-              </View>
-              <ShareButton size={30} url={shareUrl} />
-              {isMusic && (
-                <View>
-                  <OverflowMenu
-                    size={20}
-                    artist={artist}
-                    artistId={artistId}
-                    albumTitle={albumTitle}
-                    albumId={albumId}
-                  />
-                </View>
-              )}
-            </View>
-          </View>
           <NowPlayingCommentSection contentId={activeTrack.id} />
         </View>
       </View>

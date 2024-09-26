@@ -7,7 +7,7 @@ import { PressableIcon } from "../PressableIcon";
 
 interface PlaylistButtonProps {
   size?: number;
-  contentId: string;
+  contentId?: string;
   contentTitle: string;
   isMusic: boolean;
   color?: string;
@@ -26,14 +26,14 @@ export const PlaylistButton = ({
   const [selectedContentTitle, setSelectedContentTitle] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  if (!pubkey || !isMusic || !contentId) return;
+
   const onPress = () => {
     // grab the contentId (it may change if the next track plays)
     setSelectedContentId(contentId);
     setSelectedContentTitle(contentTitle);
     setIsDialogOpen(true);
   };
-
-  if (!pubkey || !isMusic) return;
 
   return (
     <>
