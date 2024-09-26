@@ -15,20 +15,15 @@ export const useEarnPromo = (contentId?: string) => {
   const [totalEarned, setTotalEarned] = useState(0);
   const lastRewardPositionRef = useRef(0);
   const { position } = useProgress(5000); // Update every 5 seconds for testing, change back to 60000 for production
-  console.log({ position });
   const createReward = useCreateReward();
-
   const canEarn = userCanEarn && isPlaying && promoDetails && !isPromoLoading;
 
   const attemptReward = useCallback(async () => {
-    console.log("attempting");
     if (!canEarn) {
-      console.log("cannot earn");
       setIsEarning(false);
       return;
     }
 
-    console.log("can earn");
     setIsEarning(true);
 
     // Check if we've moved forward by at least 59 seconds since the last reward
@@ -39,9 +34,8 @@ export const useEarnPromo = (contentId?: string) => {
         });
 
         if (createResponse.success) {
-          setTotalEarned((prev) => prev + 10);
+          setTotalEarned((prev) => prev + promoDetails.msatPayoutAmount);
           lastRewardPositionRef.current = position;
-          console.log("Reward created successfully");
         } else {
           throw new Error("Reward creation failed");
         }
@@ -49,43 +43,22 @@ export const useEarnPromo = (contentId?: string) => {
         console.error("Error creating reward:", error);
         setIsEarning(false);
       }
-    } else {
-      console.log("Not enough time has passed since last reward");
     }
   }, [canEarn, position, createReward.mutateAsync, promoDetails]);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
     if (canEarn && isPlaying) {
-      console.log("Scheduling attempt reward");
-      timeoutId = setTimeout(attemptReward, 1000); // Delay to prevent rapid re-renders
+      attemptReward();
     } else {
-      console.log("Cannot earn or not playing, setting isEarning to false");
-      setIsEarning(false);
+      isEarning && setIsEarning(false);
     }
-
-    return () => {
-      clearTimeout(timeoutId);
-      console.log("Cleared timeout");
-    };
   }, [canEarn, isPlaying, attemptReward]);
 
   useEffect(() => {
-    console.log("Content ID changed, resetting states");
     setIsEarning(false);
     lastRewardPositionRef.current = 0;
     setTotalEarned(0);
   }, [contentId]);
 
-  console.log({
-    isEarning,
-    totalEarned,
-    canEarn,
-    isPlaying,
-    userCanEarn,
-    promoDetails,
-    isPromoLoading,
-  });
   return { isEarning, totalEarned };
 };

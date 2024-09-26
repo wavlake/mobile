@@ -39,7 +39,7 @@ export const FullSizeMusicPlayer = () => {
   }>();
   const router = useRouter();
   const { position } = useProgress();
-  const { activeTrack, isEarning } = useMusicPlayer();
+  const { activeTrack } = useMusicPlayer();
   const { data: settings, refetch: refetchSettings } = useSettings();
   const { oneTapZap = false } = settings || {};
 
