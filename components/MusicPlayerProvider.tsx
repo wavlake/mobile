@@ -10,6 +10,7 @@ import TrackPlayer, {
   useActiveTrack,
   useTrackPlayerEvents,
   Track as RNTPTrack,
+  RepeatMode,
 } from "react-native-track-player";
 import {
   getCachedNostrRelayListEvent,
@@ -41,9 +42,11 @@ interface MusicPlayerContextProps {
   playerTitle?: string;
   isSwitchingTrackList: boolean;
   isShuffled: boolean;
+  repeatMode: RepeatMode;
   toggleShuffle: () => Promise<void>;
   loadTrackList: LoadTrackList;
   reset: () => Promise<void>;
+  cycleRepeatMode: () => Promise<void>;
 }
 
 // Actions from lock screen/notification bar trigger events here via musicService
@@ -67,6 +70,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const [currentTrackListId, setCurrentTrackListId] = useState<string>();
   const isLoadingTrackList = useRef(false);
   const [isSwitchingTrackList, setIsSwitchingTrackList] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>(RepeatMode.Off);
   const [isShuffled, setIsShuffled] = useState(false);
   const [unshuffledTrackList, setUnshuffledTrackList] = useState<RNTPTrack[]>(
     [],
@@ -227,6 +231,26 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     }
   });
 
+  const cycleRepeatMode = async () => {
+    let newRepeatMode: RepeatMode;
+    switch (repeatMode) {
+      case RepeatMode.Off:
+        newRepeatMode = RepeatMode.Queue;
+        break;
+      case RepeatMode.Queue:
+        newRepeatMode = RepeatMode.Track;
+        break;
+      case RepeatMode.Track:
+        newRepeatMode = RepeatMode.Off;
+        break;
+      default:
+        newRepeatMode = RepeatMode.Off;
+    }
+
+    await TrackPlayer.setRepeatMode(newRepeatMode);
+    setRepeatMode(newRepeatMode);
+  };
+
   return (
     <MusicPlayerContext.Provider
       value={{
@@ -234,10 +258,12 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         currentTrackListId,
         playerTitle,
         isSwitchingTrackList,
+        repeatMode,
         isShuffled,
         toggleShuffle,
         loadTrackList,
         reset,
+        cycleRepeatMode,
       }}
     >
       {children}
