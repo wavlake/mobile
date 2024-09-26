@@ -2,6 +2,7 @@ import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { Slider } from "@rneui/themed";
 import {
   formatTime,
+  Promo,
   seekTo,
   skipToNext,
   skipToPrevious,
@@ -17,17 +18,18 @@ import {
   usePlaybackState,
   useProgress,
 } from "react-native-track-player";
+import { useEarnPromo } from "@/hooks";
 
 interface PlayerControlsProps {
   isSmallScreen: boolean;
   color?: string;
-  isEarning?: boolean;
+  promo?: Promo;
 }
 
 export const PlayerControls = ({
   isSmallScreen,
   color,
-  isEarning,
+  promo,
 }: PlayerControlsProps) => {
   const { colors } = useTheme();
   const { position, duration } = useProgress();
@@ -41,6 +43,8 @@ export const PlayerControls = ({
     }
   }, [position, isSliding]);
 
+  const isPlaying = playbackState === State.Playing;
+  const { isEarning, totalEarned } = useEarnPromo(promo, isPlaying);
   return (
     <View style={{ paddingVertical: isSmallScreen ? 0 : 24 }}>
       <Slider
@@ -85,7 +89,7 @@ export const PlayerControls = ({
         </Pressable>
         <PlayPauseTrackButton
           size={isSmallScreen ? 40 : 60}
-          type={playbackState === State.Paused ? "play" : "pause"}
+          type={isPlaying ? "pause" : "play"}
           onPress={togglePlayPause}
           isEarning={isEarning}
         />
@@ -97,6 +101,16 @@ export const PlayerControls = ({
           />
         </Pressable>
       </View>
+      <Text
+        style={{
+          marginTop: 10,
+          textAlign: "center",
+          fontSize: 12,
+          height: 16,
+        }}
+      >
+        {promo ? `Earnings: 12 sats` : undefined}
+      </Text>
     </View>
   );
 };

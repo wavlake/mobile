@@ -560,8 +560,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       userId: string;
       // artworkUrl?: string;
     }) => {
@@ -754,4 +754,19 @@ export const getContentMetadataMap = async (
     map[item.contentId] = item;
   });
   return map;
+};
+
+export interface Promo {
+  contentId: string;
+  contentType: string;
+  id: number;
+  msatBudget: number;
+  msatPayoutAmount: number;
+}
+
+export const getPromoByContentId = async (contentId: string) => {
+  const { data } = await apiClient.get<ResponseObject<Promo>>(
+    `/promos/content/${contentId}`,
+  );
+  return data.data;
 };

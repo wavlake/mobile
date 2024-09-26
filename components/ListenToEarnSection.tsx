@@ -14,15 +14,11 @@ export const ListenToEarnSection = () => {
     router.push({
       pathname: "/earn",
     });
-  console.log("promos", promos);
+
   // this feature is hidden for users who are not logged in
   if ((!initializingAuth && !user) || !promos.length) {
     return null;
   }
-
-  // if (!promos.length) {
-  //   return null;
-  // }
 
   return (
     <TouchableOpacity onPress={onPress}>

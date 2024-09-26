@@ -1,3 +1,4 @@
+import { brandColors } from "@/constants";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, View } from "react-native";
 import Svg, { Defs, LinearGradient, Stop, Circle } from "react-native-svg";
@@ -17,7 +18,7 @@ export const AnimatedEarningRing = ({
     const startAnimation = () => {
       Animated.timing(rotateAnimation, {
         toValue: 1,
-        duration: 1000,
+        duration: 4000,
         easing: Easing.linear,
         useNativeDriver: true,
       }).start(() => {
@@ -55,16 +56,33 @@ export const AnimatedEarningRing = ({
       >
         <Defs>
           <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
-            <Stop offset="0" stopColor="white" stopOpacity="0.1" />
-            <Stop offset="0.5" stopColor="pink" stopOpacity="1" />
-            <Stop offset="1" stopColor="white" stopOpacity="0.1" />
+            <Stop
+              offset="0"
+              stopColor={brandColors.pink.DEFAULT}
+              stopOpacity="0.1"
+            />
+            <Stop
+              offset="0.85"
+              stopColor={brandColors.pink.DEFAULT}
+              stopOpacity="0.1"
+            />
+            <Stop
+              offset="0.95"
+              stopColor={brandColors.black.DEFAULT}
+              stopOpacity="1"
+            />
+            <Stop
+              offset="1"
+              stopColor={brandColors.black.DEFAULT}
+              stopOpacity="1"
+            />
           </LinearGradient>
         </Defs>
         <Circle
           cx={ringSize / 2}
           cy={ringSize / 2}
           r={circleRadius - strokeWidth / 2}
-          stroke={colors.background}
+          stroke={brandColors.pink.DEFAULT}
           strokeWidth={strokeWidth}
           fill="none"
         />

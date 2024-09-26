@@ -37,7 +37,7 @@ export const ListenToEarnPage = () => {
               marginBottom: 16,
             }}
           >
-            Promotoed
+            Promoted
           </Text>
           <Text
             style={{
@@ -77,10 +77,10 @@ export const ListenToEarnPage = () => {
                   flexDirection: "column",
                 }}
               >
-                <Text style={{ fontSize: 18 }} numberOfLines={1} bold>
+                <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
                   {contentMetadata.title}
                 </Text>
-                <Text numberOfLines={1}>{contentMetadata.artist}</Text>
+                <Text>{contentMetadata.artist}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -90,7 +90,10 @@ export const ListenToEarnPage = () => {
       scrollEnabled
       ListEmptyComponent={
         <Center>
-          <Text>No playlists in your library yet.</Text>
+          <Text>
+            There are currently no active promos available to you, please check
+            back tomorrow.
+          </Text>
         </Center>
       }
     />

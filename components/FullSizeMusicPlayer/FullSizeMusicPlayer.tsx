@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { Center, PlaylistButton, MarqueeText } from "@/components";
+import { Center, PlaylistButton, MarqueeText, useUser } from "@/components";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -20,6 +20,7 @@ import {
   useIsTrackInLibrary,
   useZap,
   useGetColorPalette,
+  usePromoCheck,
 } from "@/hooks";
 import { ShareButton } from "@/components/ShareButton";
 import { LikeButton } from "@/components/LikeButton";
@@ -60,6 +61,11 @@ export const FullSizeMusicPlayer = () => {
     title: "",
     artworkUrl: "",
   };
+
+  const { catalogUser } = useUser();
+  const userCanEarn = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
+  const { data: contentPromo } = usePromoCheck(Boolean(userCanEarn) && trackId);
+
   // const { background, foreground, backgroundIsBlack } =
   //   useGetColorPalette(artworkUrl);
 
@@ -165,7 +171,6 @@ export const FullSizeMusicPlayer = () => {
   }
 
   const isMusic = albumTitle != "podcast";
-
   // const backgroundColor = backgroundIsBlack
   //   ? brandColors.black.light
   //   : background ?? brandColors.black.light;
@@ -253,7 +258,7 @@ export const FullSizeMusicPlayer = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <PlayerControls isEarning isSmallScreen={isSmallScreen} />
+          <PlayerControls promo={contentPromo} isSmallScreen={isSmallScreen} />
           <View
             style={{
               flexDirection: "row",

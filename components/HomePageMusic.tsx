@@ -84,7 +84,7 @@ export const HomePageMusic = () => {
           : () => (
               <View>
                 <ListenToEarnSection />
-                <FeaturedSection data={forYou} />
+                <FeaturedSection data={featured} />
                 <ForYouSection data={forYou} />
                 <NewMusicSection data={newTracks} />
                 <SectionHeader title="Trending" />

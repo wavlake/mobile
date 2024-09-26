@@ -1,4 +1,4 @@
-import { Text } from "@/components/Text";
+import { Text } from "@/components";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { View } from "react-native";
 
@@ -34,7 +34,7 @@ export const satsWithCommas = (sats: number) => {
 
 export const WalletLabel: React.FC = () => {
   const { data: balance } = useWalletBalance();
-
+  const userHasABalance = typeof balance === "number";
   return (
     <View
       style={{
@@ -45,7 +45,7 @@ export const WalletLabel: React.FC = () => {
       }}
     >
       <Text style={{ fontSize: 24 }}>Wallet</Text>
-      {balance && (
+      {userHasABalance && (
         <>
           <Text style={{ fontSize: 4 }}>{"\u2B24"}</Text>
           <Text style={{ fontSize: 14 }}>{satsFormatter(balance)} sats</Text>
