@@ -1,16 +1,17 @@
 import { Drawer } from "expo-router/drawer";
-import { HeaderBackButton, HeaderTitleLogo, Avatar, Text } from "@/components";
+import { HeaderBackButton, HeaderTitleLogo, Text } from "@/components";
 import {
   useTheme,
   DrawerActions,
   useNavigation,
 } from "@react-navigation/native";
-import { useRouter, useGlobalSearchParams } from "expo-router";
+import { useRouter, useGlobalSearchParams, usePathname } from "expo-router";
 import { useAuth } from "@/hooks";
 import { View, Pressable } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
 import { VerificationIcon } from "@/components/VerificationIcon";
 import { Ionicons } from "@expo/vector-icons";
+import { LoggedInUserAvater } from "@/components/LoggedInUserAvater";
 
 const MenuButton = () => {
   const { colors } = useTheme();
@@ -33,6 +34,7 @@ const MenuButton = () => {
 export default function DrawerLayout() {
   const { colors } = useTheme();
   const router = useRouter();
+  const pathname = usePathname();
   const globalSearchParams = useGlobalSearchParams();
   const { pubkey } = useAuth();
   const headerTitle =
@@ -68,13 +70,18 @@ export default function DrawerLayout() {
         <Pressable
           hitSlop={20}
           onPress={() => {
+            // if the user is already on their profile page, don't let the user navigate to it again
+            if (pathname === `/profile/profile/${pubkey}`) {
+              return;
+            }
+
             router.push({
               pathname: `/profile/profile/${pubkey}`,
               params: { includeBackButton: "true" },
             });
           }}
         >
-          <Avatar size={24} />
+          <LoggedInUserAvater size={24} />
         </Pressable>
       </View>
     );
