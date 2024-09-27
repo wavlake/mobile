@@ -28,6 +28,7 @@ export interface Track {
   podcast?: Podcast;
   podcastUrl?: string;
   podcastId?: string;
+  hasPromo?: boolean;
   genre?: {
     id: number;
     name: string;
@@ -207,6 +208,7 @@ export const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
     liveUrl: track.liveUrl,
     duration: track.duration,
     msatTotal: track.msatTotal,
+    hasPromo: track.hasPromo,
   }));
 };
 
@@ -239,6 +241,7 @@ const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
     liveUrl: episode.liveUrl,
     duration: episode.duration,
     msatTotal: episode.msatTotal30Days || 0,
+    hasPromo: episode.hasPromo,
   }));
 };
 
@@ -754,20 +757,4 @@ export const getContentMetadataMap = async (
     map[item.contentId] = item;
   });
   return map;
-};
-
-export interface Promo {
-  contentId: string;
-  contentType: string;
-  id: number;
-  msatBudget: number;
-  msatPayoutAmount: number;
-}
-
-export const getPromoByContentId = async (contentId: string) => {
-  const { data } = await apiClient.get<ResponseObject<Promo>>(
-    `/promos/content/${contentId}`,
-  );
-
-  return data.data;
 };

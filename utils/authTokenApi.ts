@@ -221,13 +221,13 @@ export const getTransactionHistory = async (page: number) => {
   return data.data;
 };
 
-interface Promo {
-  id: string;
+export interface Promo {
+  id: number;
   msatBudget: number;
   msatPayoutAmount: number;
   contentId: string;
-  contentType: ContentType;
-  contentMetadata: TrackResponse;
+  contentType: string;
+  rewardsRemaining: boolean;
 }
 
 export const getUserPromos = async () => {
@@ -244,4 +244,12 @@ export const getUserPromos = async () => {
       contentMetadata: normalizedTrackData,
     };
   });
+};
+
+export const getPromoByContentId = async (contentId: string) => {
+  const { data } = await catalogApiClient.get<ResponseObject<Promo>>(
+    `/promos/content/${contentId}`,
+  );
+
+  return data.data;
 };
