@@ -13,19 +13,18 @@ export const AnimatedEarningRing = ({
   const spinValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const spin = () => {
+    const spin = Animated.loop(
       Animated.timing(spinValue, {
         toValue: 1,
         duration: 2000,
         easing: Easing.linear,
         useNativeDriver: true,
-      }).start(() => {
-        spinValue.setValue(0);
-        spin();
-      });
-    };
+      }),
+    );
 
-    spin();
+    spin.start();
+
+    return () => spin.stop();
   }, []);
 
   const rotate = spinValue.interpolate({
