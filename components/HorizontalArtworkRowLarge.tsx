@@ -62,7 +62,7 @@ const RowItem: React.FC<{
       style={{
         marginRight: isLast ? 0 : 16,
         backgroundColor,
-        borderRadius: 40,
+        borderRadius: 20,
         width: 232,
         padding: 16,
       }}
