@@ -5,9 +5,13 @@ import { useUser } from "@/components";
 import { usePromoCheck } from "./usePromoCheck";
 import { Promo } from "@/utils";
 
+// TODO - this can be driven by promoDetails
+const EARNING_INTERVAL = 60; // in seconds
+
 export const useEarnPromo = (contentId?: string) => {
-  const { data: promoDetails, isLoading: isPromoLoading } =
-    usePromoCheck(contentId);
+  // promoDetails will be undefined if there is no contentId
+  // which will prevent the user from earning
+  const { data: promoDetails } = usePromoCheck(contentId);
   const { catalogUser } = useUser();
   const userCanEarn = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
   const { state: playbackState } = usePlaybackState();
@@ -27,7 +31,7 @@ export const useEarnPromo = (contentId?: string) => {
       }
 
       // Check if we've played for at least 60 seconds since the last reward
-      if (elapsedTime - lastRewardTimeRef.current >= 60) {
+      if (elapsedTime - lastRewardTimeRef.current >= EARNING_INTERVAL) {
         try {
           const createResponse = await createReward({
             promoId: promoDetails.id,
@@ -54,8 +58,10 @@ export const useEarnPromo = (contentId?: string) => {
     [elapsedTime, createReward],
   );
 
+  // this boolean is the main condition for earning
   const canEarn = userCanEarn && isPlaying && promoDetails;
 
+  // this effect will start the earning process
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (canEarn && !satsDepleted) {
@@ -72,6 +78,7 @@ export const useEarnPromo = (contentId?: string) => {
     };
   }, [canEarn, satsDepleted]);
 
+  // this effect will check if we can attempt a reward, based on the elapsed time
   useEffect(() => {
     if (isEarning && promoDetails) {
       attemptReward(promoDetails);
