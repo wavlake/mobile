@@ -83,7 +83,10 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     ? trackMetadataMap[activeRNTPTrack.id]
     : undefined;
 
-  const { isEarning, totalEarned } = useEarnPromo(activeTrack?.id);
+  // skip useEarnPromo hook if track has no promo
+  const { isEarning, totalEarned } = useEarnPromo(
+    activeTrack?.hasPromo ? activeTrack?.id : undefined,
+  );
 
   const loadTrackList: LoadTrackList = async ({
     trackList,
