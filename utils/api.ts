@@ -768,5 +768,6 @@ export const getPromoByContentId = async (contentId: string) => {
   const { data } = await apiClient.get<ResponseObject<Promo>>(
     `/promos/content/${contentId}`,
   );
+
   return data.data;
 };
