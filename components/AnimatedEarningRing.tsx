@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { View, Animated, Easing } from "react-native";
-import SpinnerSvg from "./SPINNER.svg";
+import { SpinningRingImage } from "./AnimatedEarningRingBase64Image";
 
 export const AnimatedEarningRing = ({
   size,
@@ -9,7 +9,7 @@ export const AnimatedEarningRing = ({
   size: number;
   colors: any;
 }) => {
-  const adjustedSize = size * 4.7;
+  const adjustedSize = size * 1.2;
   const spinValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -33,23 +33,27 @@ export const AnimatedEarningRing = ({
     outputRange: ["0deg", "360deg"],
   });
 
-  const centerCircleSize = adjustedSize * 0.1; // Adjust this value to change the size of the center circle
+  const centerCircleSize = adjustedSize * 0.5;
 
   return (
     <View
       style={{
         width: adjustedSize,
         height: adjustedSize,
-        backgroundColor: "transparent",
         position: "absolute",
         zIndex: -1,
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <Animated.View style={{ transform: [{ rotate }] }}>
-        <SpinnerSvg width={adjustedSize} height={adjustedSize} />
-      </Animated.View>
+      <Animated.Image
+        style={{
+          width: adjustedSize,
+          height: adjustedSize,
+          transform: [{ rotate }],
+        }}
+        source={{ uri: SpinningRingImage }}
+      />
       <View
         style={{
           position: "absolute",

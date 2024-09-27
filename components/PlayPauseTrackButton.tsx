@@ -24,28 +24,26 @@ export const PlayPauseTrackButton = ({
   const fill = color || colors.text;
 
   return (
-    <View>
-      <Pressable
-        onPress={onPress}
-        style={{
-          backgroundColor: colors.background,
-          borderRadius: size / 2,
-          width: size,
-          height: size,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {isEarning && <AnimatedEarningRing colors={colors} size={size} />}
-        <View>
-          {type === "pause" && (
-            <PauseRoundIcon width={size} height={size} fill={fill} />
-          )}
-          {type === "play" && (
-            <PlayRoundIcon width={size} height={size} fill={fill} />
-          )}
-        </View>
-      </Pressable>
-    </View>
+    <Pressable
+      onPress={onPress}
+      style={{
+        backgroundColor: colors.background,
+        borderRadius: size / 2,
+        width: size,
+        height: size,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {isEarning && <AnimatedEarningRing colors={colors} size={size} />}
+      <View>
+        {type === "pause" && (
+          <PauseRoundIcon width={size} height={size} fill={fill} />
+        )}
+        {type === "play" && (
+          <PlayRoundIcon width={size} height={size} fill={fill} />
+        )}
+      </View>
+    </Pressable>
   );
 };
