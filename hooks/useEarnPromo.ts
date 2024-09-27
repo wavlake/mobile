@@ -59,7 +59,7 @@ export const useEarnPromo = (contentId?: string) => {
   );
 
   // this boolean is the main condition for earning
-  const canEarn = userCanEarn && isPlaying && promoDetails;
+  const canEarn = userCanEarn && isPlaying && promoDetails?.rewardsRemaining;
 
   // this effect will start the earning process
   useEffect(() => {
