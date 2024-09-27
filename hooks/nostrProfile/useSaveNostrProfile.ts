@@ -8,13 +8,15 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
-import { useNostrProfile } from "./useNostrProfile";
+import { useNostrProfileEvent } from "./useNostrProfile";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
 export const useSaveNostrProfile = () => {
-  const profile = useNostrProfile();
+  const { data: profile } = useNostrProfileEvent();
   const { writeRelayList } = useNostrRelayList();
-  const nostrProfileQueryKey = useNostrProfileQueryKey();
+  const nostrProfileQueryKey = useNostrProfileQueryKey(
+    profile?.publicHex ?? "",
+  );
   const queryClient = useQueryClient();
   const nostrProfileMutation = useMutation({
     mutationFn: async (newNostrProfileEvent: Event) => {

@@ -276,6 +276,7 @@ export default function Login() {
                 {mostRecentUserData.metadata?.picture && (
                   <Avatar
                     size={NPUB_AVATAR_SIZE}
+                    name={mostRecentUserData.metadata?.name}
                     imageUrl={mostRecentUserData.metadata?.picture}
                   />
                 )}

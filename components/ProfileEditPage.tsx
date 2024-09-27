@@ -1,22 +1,23 @@
-import { Button, Avatar, TextInput, Text } from "@/components";
+import { Button, TextInput, Text } from "@/components";
 import { Alert, ScrollView, View } from "react-native";
 import { useState } from "react";
 import {
   useAuth,
-  useNostrProfile,
+  useNostrProfileEvent,
   useSaveNostrProfile,
   useToast,
 } from "@/hooks";
 import { encodeNsec, encodeNpub, getSeckey } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useTheme } from "@react-navigation/native";
+import { LoggedInUserAvater } from "./LoggedInUserAvater";
 
 export const ProfileEditPage = () => {
   const { colors } = useTheme();
   const toast = useToast();
   const { pubkey = "" } = useAuth();
   const npub = encodeNpub(pubkey) ?? "";
-  const profile = useNostrProfile();
+  const { data: profile } = useNostrProfileEvent();
   const { save, isSaving } = useSaveNostrProfile();
   const [name, setName] = useState(profile?.name ?? "");
   const isSaveDisabled =
@@ -49,7 +50,7 @@ export const ProfileEditPage = () => {
   const handleSave = () => {
     const saveProfile = async () => {
       try {
-        await save(pubkey, { name });
+        await save({ name });
         toast.show("Profile saved");
       } catch {
         toast.show("Failed to save profile");
@@ -87,7 +88,7 @@ export const ProfileEditPage = () => {
         paddingBottom: 80,
       }}
     >
-      <Avatar size={120} />
+      <LoggedInUserAvater size={120} />
       <TextInput label="username" value={name} onChangeText={setName} />
       <Button onPress={handleSave} disabled={isSaveDisabled} loading={isSaving}>
         Save

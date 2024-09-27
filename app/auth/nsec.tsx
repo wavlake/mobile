@@ -213,6 +213,7 @@ export default function Login() {
                     {profileMetadata?.picture && (
                       <Avatar
                         size={NPUB_AVATAR_SIZE}
+                        name={profileMetadata.name}
                         imageUrl={profileMetadata.picture}
                       />
                     )}
