@@ -1,7 +1,8 @@
-import { Avatar, Button, Center, Text } from "@/components";
+import { Button, Center, Text } from "@/components";
 import { View } from "react-native";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
+import { LoggedInUserAvater } from "@/components/LoggedInUserAvater";
 
 export default function WelcomePage() {
   const { newNpub } = useLocalSearchParams<{
@@ -32,7 +33,7 @@ export default function WelcomePage() {
           gap: 20,
         }}
       >
-        <Avatar size={100} imageUrl={catalogUser?.artworkUrl} />
+        <LoggedInUserAvater size={100} />
         <Text style={{ fontSize: 18 }}>Hi, {catalogUser?.name}</Text>
         <Text style={{ fontSize: 18 }}>Welcome to Wavlake!</Text>
       </View>

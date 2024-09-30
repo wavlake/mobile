@@ -28,6 +28,11 @@ export interface Track {
   podcast?: Podcast;
   podcastUrl?: string;
   podcastId?: string;
+  hasPromo?: boolean;
+  genre?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface Episode {
@@ -54,7 +59,7 @@ export interface Podcast {
   podcastUrl: string;
 }
 
-interface TrackResponse extends Track {
+export interface TrackResponse extends Track {
   [key: string]: unknown;
 }
 
@@ -147,17 +152,40 @@ interface Genre {
 }
 
 const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
+const enableResponseLogging = Boolean(
+  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
+);
 const apiClient = axios.create({
   baseURL,
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (!!response.data.error) {
+      console.log(
+        `Catalog error${
+          response.headers["Authorization"] ? " (nostr auth):" : ":"
+        }`,
+        response.data.error,
+      );
+    } else {
+      enableResponseLogging &&
+        console.log(
+          `Catalog${
+            response.headers["Authorization"] ? " (nostr auth):" : ":"
+          }`,
+          response?.request?.responseURL?.split(".com")[1],
+        );
+    }
+
+    return response;
+  },
   (error) => {
     if (typeof error.response.data.error === "string") {
       const apiErrorMessage = error.response.data.error;
       return Promise.reject(apiErrorMessage);
     } else {
+      console.log("Catalog error:", error);
       console.error(error);
       return Promise.reject("An error occurred");
     }
@@ -166,7 +194,7 @@ apiClient.interceptors.response.use(
 
 // Function to normalize the response from the API
 // TODO: Make responses from API consistent
-const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
+export const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
   return res.map((track) => ({
     id: track.id,
     title: track.title,
@@ -180,6 +208,7 @@ const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
     liveUrl: track.liveUrl,
     duration: track.duration,
     msatTotal: track.msatTotal,
+    hasPromo: track.hasPromo,
   }));
 };
 
@@ -212,19 +241,39 @@ const normalilzeEpisodeResponse = (res: TrackResponse[]): Track[] => {
     liveUrl: episode.liveUrl,
     duration: episode.duration,
     msatTotal: episode.msatTotal30Days || 0,
+    hasPromo: episode.hasPromo,
   }));
 };
 
-export const getNewMusic = async (): Promise<Track[]> => {
-  const { data } = await apiClient.get("/tracks/new");
-
-  return normalizeTrackResponse(data.data);
+// if the user is logged in, we get the forYou track data
+export type HomePageData = {
+  featured: Track[];
+  newTracks: Track[];
+  trending: Track[];
+  forYou?: Track[];
 };
 
-export const getTopMusic = async (): Promise<Track[]> => {
-  const { data } = await apiClient.get("/charts/music/top");
+export const getHomePage = async (): Promise<HomePageData> => {
+  const url = "/tracks/featured";
+  const { data } = await apiClient.get<
+    ResponseObject<{
+      featured: TrackResponse[];
+      newTracks: TrackResponse[];
+      trending: TrackResponse[];
+      forYou: TrackResponse[];
+    }>
+  >(url, {
+    headers: {
+      Authorization: await createAuthHeader(url),
+    },
+  });
 
-  return normalizeTrackResponse(data.data);
+  return {
+    featured: normalizeTrackResponse(data.data.featured),
+    newTracks: normalizeTrackResponse(data.data.newTracks),
+    trending: normalizeTrackResponse(data.data.trending),
+    forYou: normalizeTrackResponse(data.data.forYou),
+  };
 };
 
 export const getRandomMusic = async (): Promise<Track[]> => {
@@ -514,8 +563,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       userId: string;
       // artworkUrl?: string;
     }) => {

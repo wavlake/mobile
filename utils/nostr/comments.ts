@@ -1,5 +1,5 @@
 import { DEFAULT_READ_RELAY_URIS, pool, wavlakeFeedPubkey } from ".";
-import { Event, nip19 } from "nostr-tools";
+import { Event, Filter, nip19 } from "nostr-tools";
 
 export const getAllCommentEvents = async (
   contentIds: string[],
@@ -13,21 +13,21 @@ export const getAllCommentEvents = async (
       labelEventPointers: [] as Event[],
     };
   }
-  const commentsFilter = {
+  const commentsFilter: Filter = {
     kinds: [1],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
     limit,
   };
-  const zapsFilter = {
+  const zapsFilter: Filter = {
     kinds: [9735],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
     limit,
   };
-  const labelEventFilter = {
+  const labelEventFilter: Filter = {
     kinds: [1985],
     ["#i"]: contentIds.map((id) => `podcast:item:guid:${id}`),
     limit,
-    author: [wavlakeFeedPubkey],
+    authors: [wavlakeFeedPubkey],
   };
 
   const [kind1Events, zapReceipts, labelEventPointers] = await Promise.all([

@@ -1,15 +1,17 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { useQuery } from "@tanstack/react-query";
-import { getTopMusic, Track } from "@/utils";
+import { Track } from "@/utils";
 import { NewMusicSection } from "@/components/NewMusicSection";
-import { FireIcon } from "@/components/FireIcon";
-import { brandColors } from "@/constants";
-import { SectionHeader } from "@/components/SectionHeader";
-import { Text } from "@/components/Text";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
-import { AdCarousel } from "./AdCarousel";
+import {
+  useMusicPlayer,
+  SquareArtwork,
+  useMiniMusicPlayer,
+  Text,
+  SectionHeader,
+} from "@/components";
+import { ForYouSection } from "./ForYouSection";
+import { ListenToEarnSection } from "./ListenToEarnSection";
+import { FeaturedSection } from "./FeaturedSection";
+import { useHomePage } from "@/hooks";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -66,32 +68,31 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
 };
 
 export const HomePageMusic = () => {
-  const { data = [] } = useQuery({
-    queryKey: ["topMusic"],
-    queryFn: getTopMusic,
-  });
-
+  const { data: homePageData, isLoading } = useHomePage();
+  const {
+    featured = [],
+    newTracks = [],
+    trending = [],
+    forYou = [],
+  } = homePageData || {};
   return (
     <FlatList
-      data={data}
-      ListHeaderComponent={() => (
-        <View>
-          <AdCarousel />
-          <NewMusicSection />
-          <SectionHeader
-            title="Trending"
-            icon={
-              <FireIcon
-                fill={brandColors.orange.DEFAULT}
-                width={30}
-                height={30}
-              />
-            }
-          />
-        </View>
-      )}
+      data={forYou}
+      ListHeaderComponent={
+        isLoading
+          ? null
+          : () => (
+              <View>
+                <ListenToEarnSection />
+                <FeaturedSection data={featured} />
+                <ForYouSection data={forYou} />
+                <NewMusicSection data={newTracks} />
+                <SectionHeader title="Trending" />
+              </View>
+            )
+      }
       renderItem={({ item, index }) => (
-        <TopMusicRow trackList={data} track={item} index={index} />
+        <TopMusicRow trackList={trending} track={item} index={index} />
       )}
       keyExtractor={(item) => item.id}
     />

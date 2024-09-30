@@ -1,4 +1,9 @@
-import { FlatList, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { Text } from "@/components/Text";
 
@@ -39,6 +44,9 @@ export const HorizontalArtworkRow = ({
       }}
       scrollEnabled
       showsHorizontalScrollIndicator={false}
+      windowSize={5}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={3}
     />
   );
 };

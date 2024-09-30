@@ -1,6 +1,5 @@
 import { Avatar as BaseAvatar } from "@rneui/themed";
 import { Image } from "expo-image";
-import { useNostrProfile } from "@/hooks";
 import { brandColors } from "@/constants";
 
 // just using a sample blurhash to resemble a loading state
@@ -9,21 +8,16 @@ const blurhash = "L6PZfSi_.AyE_3t7t7R**0o#DgR4";
 interface AvatarProps {
   size: number;
   imageUrl?: string | null;
+  name?: string | null;
 }
 
-export const Avatar = ({ size, imageUrl }: AvatarProps) => {
-  const profile = useNostrProfile();
+export const Avatar = ({ size, imageUrl, name }: AvatarProps) => {
+  const initial = name?.[0] ?? "";
 
-  // use provided imageUrl if available, else use profile picture
-  // this is used on the account creation page before the user has a profile event created
-  // some legacy user avatars were created using an "image" instead of "picture"
-  const avatarUrl = imageUrl ?? profile?.picture ?? profile?.image;
-  const initial = profile?.name?.[0] ?? "";
-
-  if (avatarUrl) {
+  if (imageUrl) {
     return (
       <Image
-        source={{ uri: avatarUrl }}
+        source={{ uri: imageUrl }}
         placeholder={blurhash}
         style={{ width: size, height: size, borderRadius: size / 2 }}
         cachePolicy="memory-disk"

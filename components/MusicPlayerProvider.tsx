@@ -23,6 +23,7 @@ import {
 import { getActiveTrackIndex } from "react-native-track-player/lib/trackPlayer";
 import { getUserAgent } from "@/app.config";
 import DeviceInfo from "react-native-device-info";
+import { useEarnPromo } from "@/hooks";
 
 export type LoadTrackList = ({
   trackList,
@@ -42,6 +43,8 @@ interface MusicPlayerContextProps {
   playerTitle?: string;
   isSwitchingTrackList: boolean;
   isShuffled: boolean;
+  isEarning: boolean;
+  totalEarned: number;
   repeatMode: RepeatMode;
   toggleShuffle: () => Promise<void>;
   loadTrackList: LoadTrackList;
@@ -79,6 +82,11 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   const activeTrack = activeRNTPTrack
     ? trackMetadataMap[activeRNTPTrack.id]
     : undefined;
+
+  // skip useEarnPromo hook if track has no promo
+  const { isEarning, totalEarned } = useEarnPromo(
+    activeTrack?.hasPromo ? activeTrack?.id : undefined,
+  );
 
   const loadTrackList: LoadTrackList = async ({
     trackList,
@@ -260,6 +268,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
         isSwitchingTrackList,
         repeatMode,
         isShuffled,
+        isEarning,
+        totalEarned,
         toggleShuffle,
         loadTrackList,
         reset,

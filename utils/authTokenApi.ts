@@ -1,10 +1,14 @@
+import { ContentType } from "./../components/ActivityItemRow";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
-import { ResponseObject } from "./api";
+import { normalizeTrackResponse, ResponseObject, TrackResponse } from "./api";
 import { NostrUserProfile } from "./nostr";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
+const enableResponseLogging = Boolean(
+  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
+);
 
 export const catalogApiClient = axios.create({
   baseURL: catalogApi,
@@ -15,7 +19,13 @@ const responseInterceptor = catalogApiClient.interceptors.response.use(
   // on response fulfilled (200 response)
   (response) => {
     if (!!response.data.error) {
-      console.log("catalogApiClient error", response.data.error);
+      console.log("Catalog (fb auth):", response.data.error);
+    } else {
+      enableResponseLogging &&
+        console.log(
+          "Catalog (fb auth):",
+          response.request.responseURL?.split(".com")[1],
+        );
     }
 
     return response;
@@ -208,12 +218,38 @@ export const getTransactionHistory = async (page: number) => {
     }>
   >(`/accounts/txs/${page}`, {});
 
-  // const listOfTxsByDate = Object.keys(data.data.transactions).map((date) => {
-  //   return {
-  //     date,
-  //     transactions: data.data.transactions[date],
-  //   };
-  // });
+  return data.data;
+};
+
+export interface Promo {
+  id: number;
+  msatBudget: number;
+  msatPayoutAmount: number;
+  contentId: string;
+  contentType: string;
+  rewardsRemaining: boolean;
+}
+
+export const getUserPromos = async () => {
+  const { data } =
+    await catalogApiClient.get<
+      ResponseObject<Array<Promo & { contentMetadata: TrackResponse }>>
+    >("/promos/active");
+  return data.data.map((promo) => {
+    const [normalizedTrackData] = normalizeTrackResponse([
+      promo.contentMetadata,
+    ]);
+    return {
+      ...promo,
+      contentMetadata: normalizedTrackData,
+    };
+  });
+};
+
+export const getPromoByContentId = async (contentId: string) => {
+  const { data } = await catalogApiClient.get<ResponseObject<Promo>>(
+    `/promos/content/${contentId}`,
+  );
 
   return data.data;
 };

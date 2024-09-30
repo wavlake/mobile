@@ -17,17 +17,24 @@ import {
   usePlaybackState,
   useProgress,
 } from "react-native-track-player";
+import { useMusicPlayer } from "../MusicPlayerProvider";
+import { BottomControlBar } from "./BottomControlBar";
 
 interface PlayerControlsProps {
   isSmallScreen: boolean;
+  color?: string;
 }
 
-export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
+export const PlayerControls = ({
+  isSmallScreen,
+  color,
+}: PlayerControlsProps) => {
   const { colors } = useTheme();
   const { position, duration } = useProgress();
   const { state: playbackState } = usePlaybackState();
   const [sliderValue, setSliderValue] = useState(position);
   const [isSliding, setIsSliding] = useState(false);
+  const { isEarning, totalEarned } = useMusicPlayer();
 
   useEffect(() => {
     if (!isSliding) {
@@ -35,8 +42,16 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
     }
   }, [position, isSliding]);
 
+  const isPlaying = playbackState === State.Playing;
   return (
-    <View style={{ paddingVertical: isSmallScreen ? 12 : 24 }}>
+    <View
+      style={{
+        paddingTop: isSmallScreen ? 12 : 24,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
       <Slider
         minimumTrackTintColor="white"
         thumbStyle={{ height: 12, width: 12, backgroundColor: "white" }}
@@ -68,28 +83,50 @@ export const PlayerControls = ({ isSmallScreen }: PlayerControlsProps) => {
       </View>
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-evenly",
-          paddingTop: isSmallScreen ? 8 : 16,
+          flexGrow: 1,
         }}
       >
-        <Pressable onPress={skipToPrevious}>
-          <Ionicons name="play-skip-back-sharp" size={36} color={colors.text} />
-        </Pressable>
-        <PlayPauseTrackButton
-          size={isSmallScreen ? 40 : 60}
-          type={playbackState === State.Paused ? "play" : "pause"}
-          onPress={togglePlayPause}
-        />
-        <Pressable onPress={skipToNext}>
-          <Ionicons
-            name="play-skip-forward-sharp"
-            size={36}
-            color={colors.text}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            paddingTop: isSmallScreen ? 8 : 16,
+          }}
+        >
+          <Pressable onPress={skipToPrevious}>
+            <Ionicons
+              name="play-skip-back-sharp"
+              size={36}
+              color={colors.text}
+            />
+          </Pressable>
+          <PlayPauseTrackButton
+            size={isSmallScreen ? 40 : 60}
+            type={isPlaying ? "pause" : "play"}
+            onPress={togglePlayPause}
+            isEarning={isEarning}
           />
-        </Pressable>
+          <Pressable onPress={skipToNext}>
+            <Ionicons
+              name="play-skip-forward-sharp"
+              size={36}
+              color={colors.text}
+            />
+          </Pressable>
+        </View>
+        <Text
+          style={{
+            marginTop: 10,
+            textAlign: "center",
+            fontSize: 12,
+            height: 16,
+          }}
+        >
+          {isEarning ? `Earnings: ${totalEarned} sats` : undefined}
+        </Text>
       </View>
+      <BottomControlBar />
     </View>
   );
 };

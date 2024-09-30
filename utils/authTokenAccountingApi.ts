@@ -4,10 +4,13 @@ import auth from "@react-native-firebase/auth";
 import { ResponseObject } from "./api";
 import { Event } from "nostr-tools";
 
-const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL;
+const accountingApi = process.env.EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL;
+const enableResponseLogging = Boolean(
+  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
+);
 
 export const accountingApiClient = axios.create({
-  baseURL: catalogApi,
+  baseURL: accountingApi,
 });
 
 // this interceptor handles errors and doesn't need to be updated once registered
@@ -15,9 +18,14 @@ const responseInterceptor = accountingApiClient.interceptors.response.use(
   // on response fulfilled (200 response)
   (response) => {
     if (!!response.data.error) {
-      console.log("accountingApiClient error", response.data.error);
+      console.log("Accounting error:", response.data.error);
+    } else {
+      enableResponseLogging &&
+        console.log(
+          "Accounting:",
+          response?.request?.responseURL?.split(".com")[1],
+        );
     }
-
     return response;
   },
   // on response rejected (non 200 response)
@@ -85,4 +93,11 @@ export const useWavlakeWalletZap = ({
       onError?.(response.error ?? "Error editing user");
     },
   });
+};
+
+export const createReward = async (body: { promoId: number }) => {
+  const { data } = await accountingApiClient.post<
+    ResponseObject<{ rewardsRemaining: boolean }>
+  >(`/promo/reward`, body);
+  return data;
 };

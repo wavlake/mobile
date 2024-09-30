@@ -12,10 +12,12 @@ import { Center } from "@/components/Center";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
 import { FireIcon } from "@/components/FireIcon";
 import { brandColors } from "@/constants";
-import { SectionHeader } from "@/components/SectionHeader";
-import { TrackRow } from "@/components/TrackRow";
-import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
-import { Text } from "@/components/Text";
+import {
+  Text,
+  HorizontalArtworkRow,
+  SectionHeader,
+  TrackRow,
+} from "@/components";
 import { WebsiteIcon } from "@/components/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";

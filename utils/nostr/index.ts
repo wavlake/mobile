@@ -79,6 +79,7 @@ export const DEFAULT_READ_RELAY_URIS = [
   "wss://nostr.wine",
   "wss://relay.snort.social",
   "wss://relay.wavlake.com",
+  "wss://relay.fountain.fm",
 ];
 
 export const DEFAULT_WRITE_RELAY_URIS = [

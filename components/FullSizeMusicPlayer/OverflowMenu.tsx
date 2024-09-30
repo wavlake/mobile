@@ -7,8 +7,12 @@ import { OverflowMenuDialog, OverflowMenuProps } from "./OverflowMenuDialog";
 
 export const OverflowMenu = ({
   size = 24,
+  color,
   ...dialogProps
-}: Omit<OverflowMenuProps, "isOpen" | "setIsOpen"> & { size?: number }) => {
+}: Omit<OverflowMenuProps, "isOpen" | "setIsOpen"> & {
+  size?: number;
+  color?: string;
+}) => {
   const { pubkey } = useAuth();
   const { colors } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +24,7 @@ export const OverflowMenu = ({
         <Ionicons
           name="ellipsis-horizontal-sharp"
           size={size}
-          color={colors.text}
+          color={color ?? colors.text}
         />
       </PressableIcon>
       <OverflowMenuDialog

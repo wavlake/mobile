@@ -6,9 +6,10 @@ import { PressableIcon } from "./PressableIcon";
 interface ShareButtonProps {
   url: string;
   size?: number;
+  color?: string;
 }
 
-export const ShareButton = ({ url, size = 40 }: ShareButtonProps) => {
+export const ShareButton = ({ url, size = 40, color }: ShareButtonProps) => {
   const { colors } = useTheme();
   const handleShare = async () => {
     await Share.share({ message: url });
@@ -16,7 +17,7 @@ export const ShareButton = ({ url, size = 40 }: ShareButtonProps) => {
 
   return (
     <PressableIcon onPress={handleShare}>
-      <ShareIcon width={size} height={size} fill={colors.text} />
+      <ShareIcon width={size} height={size} fill={color ?? colors.text} />
     </PressableIcon>
   );
 };

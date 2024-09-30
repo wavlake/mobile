@@ -1,8 +1,7 @@
 import { View } from "react-native";
 import { useGoToAlbumPage, useLibraryAlbums } from "@/hooks";
-import { SectionHeader } from "@/components/SectionHeader";
 import { Album } from "@/utils";
-import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
+import { HorizontalArtworkRow, SectionHeader } from "@/components";
 
 export const LibraryRecentAlbumsSection = () => {
   const { data: albums = [] } = useLibraryAlbums();
