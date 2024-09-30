@@ -46,8 +46,7 @@ export const ListenToEarnPage = () => {
               textAlign: "center",
             }}
           >
-            You can earn sats to listen to any of the following tracks. Limit
-            1000 sats per user per day.
+            You can earn sats to listen to any of the following tracks.
           </Text>
         </Center>
       )}
