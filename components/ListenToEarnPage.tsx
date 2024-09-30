@@ -86,7 +86,7 @@ export const ListenToEarnPage = () => {
           </TouchableOpacity>
         );
       }}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.contentId}
       scrollEnabled
       ListEmptyComponent={
         <Center>
