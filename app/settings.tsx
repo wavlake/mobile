@@ -6,6 +6,7 @@ import {
   View,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
@@ -250,6 +251,24 @@ export default function SettingsPage() {
             </View>
           )}
         </View>
+        {userIsLoggedIn && (
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: "/backup-nsec" })}
+          >
+            <View
+              style={{
+                marginTop: 24,
+                marginBottom: 4,
+                flexDirection: "row",
+              }}
+            >
+              <Text bold>Export your nsec</Text>
+              <Text>
+                Tap here to view your account nsec and copy it to a safe place.
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
         <View style={{ flex: 1, alignSelf: "flex-start", marginBottom: 4 }}>
           <Text bold>Version information</Text>
           <Text>
