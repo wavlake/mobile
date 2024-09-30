@@ -563,8 +563,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       userId: string;
       // artworkUrl?: string;
     }) => {

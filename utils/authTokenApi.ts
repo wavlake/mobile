@@ -236,6 +236,8 @@ export const getUserPromos = async () => {
       ResponseObject<Array<Promo & { contentMetadata: TrackResponse }>>
     >("/promos/active");
   return data.data.map((promo) => {
+    if (!promo) return;
+
     const [normalizedTrackData] = normalizeTrackResponse([
       promo.contentMetadata,
     ]);
@@ -252,4 +254,21 @@ export const getPromoByContentId = async (contentId: string) => {
   );
 
   return data.data;
+};
+
+export const checkIPRegion = async () => {
+  return catalogApiClient.get<ResponseObject<{ regionPass: boolean }>>(
+    `accounts/check-region`,
+    {},
+  );
+};
+
+export const saveUserIdentity = async (data: {
+  firstName: string;
+  lastName: string;
+}) => {
+  const { data: response } = await catalogApiClient.post<
+    ResponseObject<{ userId: string }>
+  >(`/accounts/log-identity`, data);
+  return response.data;
 };

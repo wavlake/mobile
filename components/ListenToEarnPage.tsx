@@ -55,6 +55,8 @@ export const ListenToEarnPage = () => {
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
       renderItem={({ item, index }) => {
+        if (!item) return null;
+
         const { contentMetadata } = item;
         const isLastRow = index === promos.length - 1;
         const marginBottom = isLastRow ? height + 16 : 16;
@@ -85,7 +87,7 @@ export const ListenToEarnPage = () => {
           </TouchableOpacity>
         );
       }}
-      keyExtractor={(item) => item.contentId}
+      keyExtractor={(item) => (item ? item.contentId : "null")}
       scrollEnabled
       ListEmptyComponent={
         <Center>
