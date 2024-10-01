@@ -256,13 +256,6 @@ export const getPromoByContentId = async (contentId: string) => {
   return data.data;
 };
 
-export const checkIPRegion = async () => {
-  return catalogApiClient.get<ResponseObject<{ regionPass: boolean }>>(
-    `accounts/check-region`,
-    {},
-  );
-};
-
 export const saveUserIdentity = async (data: {
   firstName: string;
   lastName: string;
