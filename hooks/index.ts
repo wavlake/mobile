@@ -20,3 +20,4 @@ export * from "./useGetColorPalette";
 export * from "./usePromoCheck";
 export * from "./useEarnPromo";
 export * from "./useCreateReward";
+export * from "./useCheckIfUsernameExists";
