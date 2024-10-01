@@ -149,11 +149,7 @@ const SignUpPage = () => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <KeyboardAvoidingView
-        behavior="position"
-        enabled
-        keyboardVerticalOffset={-60}
-      >
+      <KeyboardAvoidingView behavior="padding" enabled>
         <ScrollView
           contentContainerStyle={{
             display: "flex",
@@ -197,6 +193,8 @@ const SignUpPage = () => {
             />
             <TextInput
               label="Username"
+              // disable password manager
+              textContentType="none"
               autoCorrect={false}
               value={username}
               onChangeText={(value) => {
