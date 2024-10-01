@@ -14,10 +14,6 @@ import {
 } from "@/utils/authTokenApi";
 import { useAddPubkeyToUser, useCreateUser } from "@/utils";
 
-const generateUsername = (name: string, uid: string) => {
-  return `${name}_${uid.split("").slice(0, 7).join("")}`;
-};
-
 type UserContextProps = {
   user: FirebaseUser;
   initializingAuth: boolean;
@@ -50,7 +46,6 @@ const UserContext = createContext<UserContextProps>({
   ...firebaseService,
   signInWithGoogle: async () => ({ error: "not initialized" }),
   signInWithEmail: async () => ({ error: "not initialized" }),
-  createUserWithEmail: async () => ({ error: "not initialized" }),
 });
 
 // this hook manages the user's firebase auth state
@@ -159,46 +154,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const createUserWithEmail = async (email: string, password: string) => {
-    try {
-      const user = await firebaseService.createUserWithEmail(email, password);
-      if ("error" in user) {
-        throw user.error;
-      }
-
-      // create the wavlake db user using the new firebase userId
-      // catalog handles random username generation
-      const newUser = await createUser({
-        userId: user.user.uid,
-        // todo - add profile image if available
-        // artworkUrl: user.user.photoURL ?? "",
-      });
-
-      if (!newUser) {
-        throw "error creating user in db";
-      }
-
-      if (!pubkey) {
-        // new mobile user, so create a new nostr account
-        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-          name: newUser.name,
-          // picture: newUser.artworkUrl,
-        });
-
-        nsec && (await login(nsec));
-        newPubkey && (await addPubkeyToAccount());
-      } else {
-        // old mobile user, associate the pubkey to the new firebase userID
-        await addPubkeyToAccount();
-      }
-
-      return user;
-    } catch (error) {
-      console.error("error creating user with email");
-      return { error };
-    }
-  };
-
   const signInWithEmail = async (email: string, password: string) => {
     let createdNewNpub = false;
     try {
@@ -264,7 +219,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         ...firebaseService,
         signInWithGoogle,
         signInWithEmail,
-        createUserWithEmail,
       }}
     >
       {children}
