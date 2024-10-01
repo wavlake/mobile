@@ -1,16 +1,32 @@
 import { Text, Button, Center, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Link, useRouter } from "expo-router";
+import { useRegionCheck } from "@/hooks/useRegionCheck";
 
-export default function Login() {
+export default function InitialPage() {
   const router = useRouter();
+  const {
+    isLoading: regionChecking,
+    data: isAllowed = true,
+    refetch,
+  } = useRegionCheck({ enabled: true });
 
   const handleLogin = async () => {
     router.push("/auth/login");
   };
 
   const handleSignUp = async () => {
-    router.push("/auth/signup");
+    if (regionChecking) {
+      // If the region check is still loading, wait for it to complete
+      await refetch();
+    }
+
+    router.push({
+      pathname: "/auth/signup",
+      params: {
+        isRegionVerified: isAllowed ? "true" : "false",
+      },
+    });
   };
 
   return (
