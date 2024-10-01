@@ -1,11 +1,4 @@
-import { useState } from "react";
-import { Button, TextInput, LogoIcon, OrSeparator } from "@/components";
-import {
-  View,
-  TouchableWithoutFeedback,
-  Keyboard,
-  TouchableOpacity,
-} from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { ElementType } from "react";
 import { useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
@@ -14,83 +7,6 @@ import { TwitterIcon } from "@/components/TwitterIcon";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { NostrIcon } from "@/components/NostrIcon";
 import { useAuth, useToast } from "@/hooks";
-import { ScrollView } from "react-native";
-
-export const LoginSignUpForm = ({
-  onSubmit,
-  buttonText,
-  setErrorMessage,
-  errorMessage,
-}: {
-  onSubmit: (email: string, password: string) => void;
-  buttonText: string;
-  setErrorMessage: (message: string) => void;
-  errorMessage: string;
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ScrollView
-        contentContainerStyle={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          paddingHorizontal: 24,
-          paddingVertical: 20,
-          gap: 20,
-        }}
-      >
-        <View style={{ marginVertical: 30 }}>
-          <LogoIcon fill="white" width={130} height={108} />
-        </View>
-        <View
-          style={{
-            width: "100%",
-          }}
-        >
-          <TextInput
-            label="Email"
-            autoCorrect={false}
-            value={email}
-            keyboardType="email-address"
-            onChangeText={(value) => {
-              setEmail(value);
-              setErrorMessage("");
-            }}
-          />
-          <TextInput
-            label="Password"
-            secureTextEntry
-            autoCorrect={false}
-            value={password}
-            keyboardType="visible-password"
-            onChangeText={(value) => {
-              setPassword(value);
-              setErrorMessage("");
-            }}
-            errorMessage={errorMessage}
-          />
-        </View>
-        <Button
-          color="white"
-          onPress={async () => {
-            setIsLoading(true);
-            await onSubmit(email, password);
-            setIsLoading(false);
-          }}
-          loading={isLoading}
-        >
-          {buttonText}
-        </Button>
-        <OrSeparator />
-        <LoginProviders setIsLoading={setIsLoading} />
-      </ScrollView>
-    </TouchableWithoutFeedback>
-  );
-};
 
 const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
   Icon,
@@ -104,7 +20,7 @@ const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
   </TouchableOpacity>
 );
 
-const LoginProviders = ({
+export const ExternalLoginProviders = ({
   setIsLoading,
 }: {
   setIsLoading: (loading: boolean) => void;
