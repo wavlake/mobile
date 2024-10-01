@@ -22,14 +22,14 @@ export const PubkeyProfile = ({
   const basePath = useGetBasePathname();
   const { colors } = useTheme();
   const { pubkey: loggedInUserPubkey } = useAuth();
-  const userOwnsProfile = pubkey === profileData.publicHex;
+  const userOwnsProfile = pubkey === loggedInUserPubkey;
   const { nostrMetadata } = useUser();
   const { picture, name, banner, about, website, nip05 } = profileData ?? {};
   const { mutateAsync: addFollower, isLoading: addLoading } = useAddFollower();
   const { mutateAsync: removeFollower, isLoading: removeLoading } =
     useRemoveFollower();
   const userIsFollowing = nostrMetadata?.follows.some(
-    (follow) => follow.pubkey === profileData.publicHex,
+    (follow) => follow.pubkey === loggedInUserPubkey,
   );
   const [isFollowing, setIsFollowing] = useState(userIsFollowing);
   const router = useRouter();
@@ -60,19 +60,23 @@ export const PubkeyProfile = ({
           }}
           style={{
             backgroundColor: "black",
-            opacity: 0.7,
-            padding: 5,
+            opacity: 0.8,
+            paddingVertical: 5,
+            paddingHorizontal: 10,
             borderRadius: 10,
-            right: 5,
-            top: 5,
+            right: 10,
+            top: 10,
             zIndex: 1,
             position: "absolute",
             display: "flex",
             flexDirection: "row",
             gap: 5,
+            alignItems: "center",
           }}
         >
-          <Text bold>Edit</Text>
+          <Text bold style={{ fontSize: 20 }}>
+            Edit
+          </Text>
           <Icon name="edit" size={20} color={colors.text} />
         </TouchableOpacity>
       )}
