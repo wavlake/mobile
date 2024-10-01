@@ -602,6 +602,7 @@ export const useCreateNewUser = () => {
           username: string;
           profileUrl: string;
           pubkey: string;
+          loginToken: string;
         }>
       >(`/accounts/user`, body);
 
