@@ -6,6 +6,7 @@ import {
   OrSeparator,
   Text,
   ExternalLoginProviders,
+  useUser,
 } from "@/components";
 import {
   View,
@@ -28,6 +29,7 @@ const SignUpPage = () => {
     isRegionVerified: "true" | "false";
   }>();
   const { login } = useAuth();
+  const { signInWithToken } = useUser();
   const isRegionVerified = isVerifiedString === "true";
   const router = useRouter();
   const [fullname, setFullname] = useState("");
@@ -123,6 +125,14 @@ const SignUpPage = () => {
 
     if (typeof userResult?.error === "string") {
       setPasswordErrorMsg(userResult.error);
+      return;
+    }
+
+    // log the user into firebase
+    if (userResult.data?.loginToken) {
+      await signInWithToken(userResult.data.loginToken);
+    } else {
+      toast.show("An error occurred while signing you in.");
       return;
     }
 
