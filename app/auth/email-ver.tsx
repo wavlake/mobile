@@ -1,6 +1,11 @@
 import { Text, Button, Center, useUser } from "@/components";
-import { useToast } from "@/hooks";
-import { useRouter } from "expo-router";
+import {
+  DEFAULT_CONNECTION_SETTINGS,
+  useAutoConnectNWC,
+  useToast,
+} from "@/hooks";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
   View,
   TouchableWithoutFeedback,
@@ -8,8 +13,16 @@ import {
   Linking,
   TouchableOpacity,
 } from "react-native";
+import DeviceInfo from "react-native-device-info";
 
 export default function EmailVer() {
+  const { navFromEmailVerLink } = useLocalSearchParams<{
+    navFromEmailVerLink: "true" | "false";
+  }>();
+  const userCameFromEmailLink = navFromEmailVerLink === "true";
+  const { resendVerificationEmail, checkIfEmailIsVerified, catalogUser } =
+    useUser();
+  const { connectWallet } = useAutoConnectNWC();
   const router = useRouter();
   const toast = useToast();
   const openEmailClient = async () => {
@@ -45,11 +58,16 @@ export default function EmailVer() {
     }
   };
 
-  const { resendVerificationEmail, checkIfEmailIsVerified } = useUser();
-
   const handleCheckAgain = async () => {
     const { success, isVerified, error } = await checkIfEmailIsVerified();
     if (isVerified) {
+      // auto connect NWC if user is region verified
+      if (catalogUser?.isRegionVerified) {
+        await connectWallet({
+          ...DEFAULT_CONNECTION_SETTINGS,
+          connectionName: DeviceInfo.getModel(),
+        });
+      }
       router.push("/auth/welcome");
     } else if (success) {
       toast.show("Please check your email for a verification link");
@@ -57,6 +75,13 @@ export default function EmailVer() {
       toast.show(error ?? "Something went wrong. Please try again later.");
     }
   };
+
+  // trigger a check if the user came from an email link
+  useEffect(() => {
+    if (userCameFromEmailLink) {
+      handleCheckAgain();
+    }
+  }, [userCameFromEmailLink]);
 
   const handleResend = async () => {
     const { success, isVerified, error } = await checkIfEmailIsVerified();

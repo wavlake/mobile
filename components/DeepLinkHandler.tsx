@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
+import { useUser } from "./UserContextProvider";
+import { useToast } from "@/hooks";
 
 const ROUTE_MAPPING: Record<
   string,
@@ -20,23 +22,58 @@ const ROUTE_MAPPING: Record<
     includeBackButton: "true",
     history: ["/library"],
   },
-  // used for artists
   "": {
     getPath: (name: string) => `/artist/${name}`,
     includeBackButton: "true",
     history: ["/library"],
   },
-  // TODO - build out mobile track page
-  // "track/": (id: string) => `/music/playlists/${id}`,
 };
 
 const DeepLinkHandler = () => {
+  const toast = useToast();
   const router = useRouter();
+  const { verifyEmailLink } = useUser();
+
   useEffect(() => {
     const handleDeepLink: Linking.URLListener = async (event) => {
       const { path, queryParams } = Linking.parse(event.url);
+      const urlParams = new URL(event.url).searchParams;
+      const emailLinkAction = urlParams.get("mode");
+
+      // Handle email verification
+      if (emailLinkAction === "verifyEmail") {
+        const result = await verifyEmailLink(event.url);
+        if (result.success) {
+          // navigate to email verification screen to resume process
+          router.replace({
+            pathname: "/auth/email-ver",
+            params: {
+              navFromEmailVerLink: "true",
+            },
+          });
+        } else {
+          const errorMessage =
+            "error" in result ? result.error : "An unexpected error occurred.";
+          toast.show(errorMessage);
+          router.replace({
+            pathname: "/auth/error",
+            params: { errorMessage },
+          });
+        }
+        return;
+      } else if (emailLinkAction === "resetPassword") {
+        // TODO - navigate to reset password screen and call resetPassword
+        toast.show(
+          "Reset password not yet supported. Please visit wavlake.com to reset your password.",
+        );
+      } else if (emailLinkAction === "recoverEmail") {
+        // TODO
+        toast.show(
+          "Email recovery not yet supported. Please visit wavlake.com to recover your email.",
+        );
+      }
+
       // special NWC case
-      // for "Open in supported app" links
       if (event.url.startsWith("nostr+walletconnect")) {
         router.push({
           pathname: "/nwc",
@@ -47,7 +84,7 @@ const DeepLinkHandler = () => {
         return;
       }
 
-      // example: path = "/playlist/<playlist-ID>
+      // existing deep link handling
       if (!path) return;
       for (const [
         route,
@@ -56,10 +93,8 @@ const DeepLinkHandler = () => {
         if (path.startsWith(route)) {
           const id = path.split("/")[1];
           const mobilePath = getPath(id);
-          // keeping temporarily to aid in debugging, can remove once deep links are stable
           console.log("Handling universal link:", { path, id, mobilePath });
 
-          // this is needed to replicate the navigation path the user would have normally taken to reach the deep link
           history.forEach((path) => router.push(path));
           router.push({
             pathname: mobilePath,
