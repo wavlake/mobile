@@ -4,6 +4,7 @@ import {
   TextInput,
   OrSeparator,
   ExternalLoginProviders,
+  LogoIcon,
 } from "@/components";
 import {
   View,
@@ -57,6 +58,9 @@ export default function Login() {
           gap: 20,
         }}
       >
+        <View style={{ marginVertical: 30 }}>
+          <LogoIcon fill="white" width={130} height={108} />
+        </View>
         <View
           style={{
             width: "100%",
