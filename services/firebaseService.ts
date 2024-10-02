@@ -31,6 +31,13 @@ const signInAnonymously = () =>
 const signInWithToken = (token: string) =>
   auth()
     .signInWithCustomToken(token)
+    .then(async (user) => {
+      const emailNotVerified = !user.user.emailVerified;
+      if (emailNotVerified) {
+        await user.user.sendEmailVerification();
+      }
+      return user;
+    })
     .catch((error) => {
       return { error: error.code };
     });
@@ -142,14 +149,28 @@ const resendVerificationEmail = async () => {
     });
 };
 
-const checkIfEmailIsVerified = () => {
+const checkIfEmailIsVerified = async () => {
   const user = auth().currentUser;
+
   if (!user) {
-    console.error("User must be logged in");
     return { success: false, error: "User must be logged in" };
   }
 
-  return user.emailVerified;
+  try {
+    // Reload the user to get the most up-to-date data
+    await user.reload();
+
+    // Get the fresh user object
+    const freshUser = auth().currentUser;
+
+    if (freshUser) {
+      return { success: true, isVerified: freshUser.emailVerified };
+    } else {
+      return { success: false, error: "Failed to get updated user data" };
+    }
+  } catch (error) {
+    return { success: false, error: "Failed to reload user data" };
+  }
 };
 
 export const firebaseService = {

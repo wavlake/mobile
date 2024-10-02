@@ -1,4 +1,4 @@
-import { Text, Button, Center, LogoIcon, useUser } from "@/components";
+import { Text, Button, Center, useUser } from "@/components";
 import { useToast } from "@/hooks";
 import { useRouter } from "expo-router";
 import {
@@ -6,8 +6,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Linking,
+  TouchableOpacity,
 } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function EmailVer() {
   const router = useRouter();
@@ -46,6 +46,30 @@ export default function EmailVer() {
   };
 
   const { resendVerificationEmail, checkIfEmailIsVerified } = useUser();
+
+  const handleCheckAgain = async () => {
+    const { success, isVerified, error } = await checkIfEmailIsVerified();
+    if (isVerified) {
+      router.push("/auth/welcome");
+    } else if (success) {
+      toast.show("Please check your email for a verification link");
+    } else {
+      toast.show(error ?? "Something went wrong. Please try again later.");
+    }
+  };
+
+  const handleResend = async () => {
+    const { success, isVerified, error } = await checkIfEmailIsVerified();
+    if (isVerified) {
+      router.push("/auth/welcome");
+    } else if (success) {
+      await resendVerificationEmail();
+      toast.show("Verification email sent");
+    } else {
+      toast.show(error ?? "Something went wrong. Please try again later.");
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <Center
@@ -70,30 +94,20 @@ export default function EmailVer() {
           >
             Please check your email for a verification link
           </Text>
-          <Button color="white" onPress={checkIfEmailIsVerified}>
+          <Button color="white" onPress={handleCheckAgain}>
             Check Again
           </Button>
+          <TouchableOpacity onPress={openEmailClient}>
+            <Text style={{ fontSize: 18 }} bold>
+              Open Email App
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleResend}>
+            <Text style={{ fontSize: 18 }} bold>
+              Re-send Verification Email
+            </Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={{
-            marginBottom: 60,
-          }}
-          onPress={openEmailClient}
-        >
-          <Text style={{ fontSize: 18 }} bold>
-            Open Email App
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            marginBottom: 60,
-          }}
-          onPress={resendVerificationEmail}
-        >
-          <Text style={{ fontSize: 18 }} bold>
-            Re-send Verification Email
-          </Text>
-        </TouchableOpacity>
         <TouchableOpacity
           style={{
             marginBottom: 60,

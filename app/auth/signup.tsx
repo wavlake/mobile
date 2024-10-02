@@ -49,6 +49,16 @@ const SignUpPage = () => {
   const formIsValid = () => {
     // fullname must be at least two space-separated words
 
+    if (username) {
+      // username must be compatible with a url, e.g. wavlake.com/username/satoshi-nakamoto
+      if (!username.match(/^[a-zA-Z0-9-_]+$/)) {
+        setUserErrorMsg(
+          "Username can only contain letters, numbers, hyphens, and underscores.",
+        );
+        return false;
+      }
+    }
+
     if (isRegionVerified && !fullname) {
       // show a popup saying "You must enter your full name if you want to use the built in wallet"?
     }
@@ -131,20 +141,19 @@ const SignUpPage = () => {
     // log the user into firebase
     if (userResult.data?.loginToken) {
       await signInWithToken(userResult.data.loginToken);
+      router.replace({
+        pathname: "/auth/email-ver",
+        params: {
+          newNpub: "true",
+          email,
+          username,
+          pubkey,
+        },
+      });
     } else {
-      toast.show("An error occurred while signing you in.");
+      toast.show("An error occurred while signing you up.");
       return;
     }
-
-    router.replace({
-      pathname: "/auth/email-ver",
-      params: {
-        newNpub: "true",
-        email,
-        username,
-        pubkey,
-      },
-    });
   };
 
   return (
