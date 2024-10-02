@@ -4,11 +4,13 @@ import { useUser } from "@/components";
 
 export const usePromos = () => {
   const { user, catalogUser, initializingAuth } = useUser();
-  const enabled =
+  const enabled = Boolean(
     !initializingAuth &&
-    catalogUser?.isRegionVerified &&
-    !catalogUser?.isLocked;
+      catalogUser?.isRegionVerified &&
+      !catalogUser?.isLocked,
+  );
 
+  console.log({ enabled });
   return useQuery({
     queryKey: ["promos", !!user],
     queryFn: getUserPromos,
