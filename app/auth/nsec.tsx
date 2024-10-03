@@ -7,38 +7,16 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
-  Alert,
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Text, Button, TextInput, NsecInfoDialog } from "@/components";
 import { CopyButton } from "@/components/CopyButton";
 import { BasicAvatar } from "@/components/BasicAvatar";
-import { useAuth, useNostrProfileEvent } from "@/hooks";
-import { useUser } from "@/components/UserContextProvider";
-import {
-  decodeNsec,
-  encodeNpub,
-  encodeNsec,
-  generateSecretKey,
-  getPublicKey,
-  getSeckey,
-  NostrUserProfile,
-  useAddPubkeyToUser,
-} from "@/utils";
-import { bytesToHex } from "@noble/hashes/utils";
+import { useNsecLoginPageLogic } from "@/hooks";
+import { encodeNpub, NostrUserProfile } from "@/utils";
+import { useRouter } from "expo-router";
 
-// Helper Functions
-const getNpubFromNsec = (nsec: string) => {
-  const seckey = decodeNsec(nsec);
-  if (!seckey) return { npub: null, pubkey: null };
-  const pubkey = getPublicKey(seckey);
-  const npub = encodeNpub(pubkey);
-  return { npub, pubkey };
-};
-
-// Components
 const NsecInput: React.FC<{
   nsec: string;
   setNsec: (nsec: string) => void;
@@ -184,109 +162,27 @@ const RandomNpubInfo: React.FC = () => (
 );
 
 // Main Component
-const NsecPage: React.FC = () => {
-  const {
-    createdRandomNpub: createdNpubString,
-    userAssociatedPubkey,
-    nostrOnlyLogin: nostrOnlyLoginString,
-  } = useLocalSearchParams<{
-    createdRandomNpub: "true" | "false";
-    userAssociatedPubkey: string;
-    nostrOnlyLogin: "true" | "false";
-  }>();
-  const createdRandomNpub = createdNpubString === "true";
-  const nostrOnlyLogin = nostrOnlyLoginString === "true";
-  const [nsec, setNsec] = useState("");
-  const [isGeneratedNsec, setIsGeneratedNsec] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const router = useRouter();
-  const { login } = useAuth();
-  const { user } = useUser();
-  const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
+export default function NsecLoginPage() {
   const { colors } = useTheme();
-
-  const { pubkey: nsecInputPubkey } = getNpubFromNsec(nsec);
-
-  const { data: nsecInputMetadata, isFetching: nsecInputMetadataLoading } =
-    useNostrProfileEvent(nsecInputPubkey);
-  const { data: assoicatedMetadata, isFetching: associatedMetadataLoading } =
-    useNostrProfileEvent(userAssociatedPubkey);
-
-  const createRandomNsec = () => {
-    const privateKey = bytesToHex(generateSecretKey());
-    setNsec(encodeNsec(privateKey) ?? "");
-    setIsGeneratedNsec(true);
-  };
-
-  const handleNsecSubmit = async () => {
-    const savedSecKey = await getSeckey();
-    const savedNsec = encodeNsec(savedSecKey ?? "");
-    if (savedNsec === nsec) {
-      router.replace("/");
-      return;
-    }
-
-    setIsLoggingIn(true);
-
-    if (
-      Boolean(userAssociatedPubkey) &&
-      userAssociatedPubkey !== nsecInputPubkey
-    ) {
-      Alert.alert(
-        "This nsec does not match the one associated with your account, are you sure you want to continue?",
-        "You won't be able to access any previous library contents.",
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "Continue",
-            style: "destructive",
-            onPress: async () => {
-              const success = await login(nsec);
-              if (!success) {
-                setErrorMessage("Invalid nostr nsec");
-                setIsLoggingIn(false);
-                return;
-              }
-
-              if (user) {
-                await addPubkeyToAccount();
-              }
-
-              router.replace(
-                nostrOnlyLogin
-                  ? {
-                      pathname: "auth/welcome",
-                      params: {
-                        nostrOnlyLogin: "true",
-                      },
-                    }
-                  : "/",
-              );
-              setIsLoggingIn(false);
-            },
-          },
-        ],
-      );
-    }
-
-    const success = await login(nsec);
-    if (!success) {
-      setErrorMessage("Invalid nostr nsec");
-      setIsLoggingIn(false);
-      return;
-    }
-
-    if (user) {
-      await addPubkeyToAccount();
-    }
-
-    router.replace("/");
-    setIsLoggingIn(false);
-  };
+  const {
+    createdRandomNpub,
+    userAssociatedPubkey,
+    nsec,
+    setNsec,
+    isGeneratedNsec,
+    setIsGeneratedNsec,
+    errorMessage,
+    setErrorMessage,
+    isLoggingIn,
+    nsecInputPubkey,
+    nsecInputMetadata,
+    nsecInputMetadataLoading,
+    assoicatedMetadata,
+    associatedMetadataLoading,
+    createRandomNsec,
+    handleNsecSubmit,
+  } = useNsecLoginPageLogic();
+  const router = useRouter();
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -335,7 +231,7 @@ const NsecPage: React.FC = () => {
       </ScrollView>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -401,5 +297,3 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 });
-
-export default NsecPage;

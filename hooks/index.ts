@@ -22,3 +22,4 @@ export * from "./useEarnPromo";
 export * from "./useCreateReward";
 export * from "./useCheckIfUsernameExists";
 export * from "./useAutoConnectNWC";
+export * from "./useNsecLoginPageLogic";
