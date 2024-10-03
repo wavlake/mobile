@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   NostrUserProfile,
+  encodeNpub,
   getCachedNostrProfileEvent,
   getMostRecentEvent,
   getProfileMetadata,
@@ -9,13 +10,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 
-export const useNostrProfileEvent = (pubkey?: string) => {
+export const useNostrProfileEvent = (pubkey?: string | null) => {
   const { readRelayList } = useNostrRelayList();
   const queryKey = useNostrProfileQueryKey(pubkey ?? "");
   return useQuery({
     queryKey,
     queryFn: async () => {
-      if (!pubkey) {
+      const isValid = pubkey && pubkey.length === 64 && !!encodeNpub(pubkey);
+
+      if (!isValid) {
         return null;
       }
 

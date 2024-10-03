@@ -29,7 +29,7 @@ const SignUpPage = () => {
     isRegionVerified: "true" | "false";
   }>();
   const { login } = useAuth();
-  const { signInWithToken } = useUser();
+  const { createUserWithEmail } = useUser();
   const isRegionVerified = isVerifiedString === "true";
   const router = useRouter();
   const [fullname, setFullname] = useState("");
@@ -44,7 +44,6 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [passwordErrorMsg, setPasswordErrorMsg] = useState("");
   const createNewNostrAccount = useCreateNewNostrAccount();
-  const { mutateAsync: createNewUser } = useCreateNewUser();
   const toast = useToast();
   const formIsValid = () => {
     // fullname must be at least two space-separated words
@@ -124,13 +123,13 @@ const SignUpPage = () => {
       lastName = fullname.split(" ")[1];
     }
 
-    const userResult = await createNewUser({
+    const userResult = await createUserWithEmail({
       email,
       password,
-      pubkey,
       firstName,
       lastName,
       username,
+      pubkey,
     });
 
     if (typeof userResult?.error === "string") {
@@ -138,22 +137,12 @@ const SignUpPage = () => {
       return;
     }
 
-    // log the user into firebase
-    if (userResult.data?.loginToken) {
-      await signInWithToken(userResult.data.loginToken);
-      router.replace({
-        pathname: "/auth/email-ver",
-        params: {
-          newNpub: "true",
-          email,
-          username,
-          pubkey,
-        },
-      });
-    } else {
-      toast.show("An error occurred while signing you up.");
-      return;
-    }
+    router.replace({
+      pathname: "/auth/email-ver",
+      params: {
+        createdRandomNpub: "true",
+      },
+    });
   };
 
   return (

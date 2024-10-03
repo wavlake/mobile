@@ -14,9 +14,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
+import { useAuth } from "@/hooks";
 
 export default function Login() {
   const router = useRouter();
+  const { pubkey } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
   const { signInWithEmail } = useUser();
   const [isLoading, setIsLoading] = useState(false);
@@ -29,18 +31,21 @@ export default function Login() {
       setErrorMessage(result.error);
       return;
     }
-    if (result.hasExistingNostrProfile) {
+    // if the user isn't pubkey-logged in via signInWithEmail above
+    // we need to collect their previously used nsec
+    if (!pubkey) {
       router.push({
-        pathname: "/auth/nsec-login",
+        pathname: "/auth/nsec",
         params: {
-          newNpub: result.createdNewNpub ? "true" : "false",
+          createdRandomNpub: result.createdRandomNpub ? "true" : "false",
+          userAssociatedPubkey: result.userAssociatedPubkey,
         },
       });
     } else {
       router.replace({
-        pathname: result.isRegionVerified ? "/auth/auto-nwc" : "/auth/welcome",
+        pathname: "/auth/welcome",
         params: {
-          newNpub: result.createdNewNpub ? "true" : "false",
+          createdRandomNpub: result.createdRandomNpub ? "true" : "false",
         },
       });
     }

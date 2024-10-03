@@ -49,6 +49,10 @@ const DeepLinkHandler = () => {
             pathname: "/auth/email-ver",
             params: {
               navFromEmailVerLink: "true",
+              // TODO - this state should come from the email ver link
+              // https://firebase.google.com/docs/auth/web/passing-state-in-email-actions
+              // assume true so users can edit their npub after verifying email
+              createdRandomNpub: "true",
             },
           });
         } else {
@@ -93,7 +97,6 @@ const DeepLinkHandler = () => {
         if (path.startsWith(route)) {
           const id = path.split("/")[1];
           const mobilePath = getPath(id);
-          console.log("Handling universal link:", { path, id, mobilePath });
 
           history.forEach((path) => router.push(path));
           router.push({

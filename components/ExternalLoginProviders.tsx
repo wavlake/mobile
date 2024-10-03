@@ -38,26 +38,28 @@ export const ExternalLoginProviders = ({
         const result = await signInWithGoogle();
         if ("error" in result) {
           show(result.error);
-        } else {
-          if (result.hasExistingNostrProfile && !pubkey) {
-            router.push({
-              pathname: "/auth/nsec-login",
-              params: {
-                newNpub: result.createdNewNpub ? "true" : "false",
-              },
-            });
-          } else {
-            router.replace({
-              pathname: result.isRegionVerified
-                ? "/auth/auto-nwc"
-                : "/auth/welcome",
-              params: {
-                newNpub: result.createdNewNpub ? "true" : "false",
-              },
-            });
-          }
+          setIsLoading(false);
+          return;
         }
-        setIsLoading(false);
+
+        // if the user isn't pubkey-logged in via signInWithEmail above
+        // we need to collect their previously used nsec
+        if (!pubkey) {
+          router.push({
+            pathname: "/auth/nsec",
+            params: {
+              createdRandomNpub: result.createdRandomNpub ? "true" : "false",
+              userAssociatedPubkey: result.userAssociatedPubkey,
+            },
+          });
+        } else {
+          router.replace({
+            pathname: "/auth/welcome",
+            params: {
+              createdRandomNpub: result.createdRandomNpub ? "true" : "false",
+            },
+          });
+        }
       },
     },
     // TODO: implement these providers
@@ -80,7 +82,10 @@ export const ExternalLoginProviders = ({
       icon: NostrIcon,
       onPress: () => {
         setIsLoading(true);
-        router.push("/auth/nsec");
+        router.push({
+          pathname: "/auth/nsec",
+          params: { nostrOnlyLogin: "true" },
+        });
         setIsLoading(false);
       },
     },

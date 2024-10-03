@@ -32,7 +32,9 @@ const validateMaxZapAmount = (value?: string) => {
 export default function AddNWC() {
   const router = useRouter();
   const toast = useToast();
-  const { newNpub } = useLocalSearchParams<{ newNpub: "true" | "false" }>();
+  const { createdRandomNpub } = useLocalSearchParams<{
+    createdRandomNpub: "true" | "false";
+  }>();
   const { connectWallet } = useAutoConnectNWC();
   const [selectedBudget, setBudget] = useState(0);
   const [maxZapAmount, setMaxZapAmount] = useState<string | undefined>();
@@ -73,7 +75,7 @@ export default function AddNWC() {
         router.replace({
           pathname: "/auth/welcome",
           params: {
-            newNpub,
+            createdRandomNpub,
           },
         });
       }

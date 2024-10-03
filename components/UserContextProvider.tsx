@@ -12,7 +12,16 @@ import {
   PrivateUserData,
   usePrivateUserData,
 } from "@/utils/authTokenApi";
-import { useAddPubkeyToUser, useCreateUser } from "@/utils";
+import { useAddPubkeyToUser, useCreateNewUser } from "@/utils";
+
+interface CreateEmailUserArgs {
+  email: string;
+  password: string;
+  pubkey: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 type UserContextProps = {
   user: FirebaseUser;
@@ -25,16 +34,17 @@ type UserContextProps = {
     password: string,
   ) => Promise<{
     error?: any;
-    hasExistingNostrProfile?: boolean;
+    userAssociatedPubkey?: string | null;
     isRegionVerified?: boolean;
-    createdNewNpub?: boolean;
+    createdRandomNpub?: boolean;
   }>;
   signInWithGoogle: () => Promise<{
     error?: any;
-    hasExistingNostrProfile?: boolean;
+    userAssociatedPubkey?: string | null;
     isRegionVerified?: boolean;
-    createdNewNpub?: boolean;
+    createdRandomNpub?: boolean;
   }>;
+  createUserWithEmail: (args: CreateEmailUserArgs) => Promise<any>;
 } & typeof firebaseService;
 
 const UserContext = createContext<UserContextProps>({
@@ -44,13 +54,15 @@ const UserContext = createContext<UserContextProps>({
   nostrMetadata: undefined,
   refetchUser: async () => {},
   ...firebaseService,
+  createUserWithEmail: async () => ({ error: "not initialized" }),
   signInWithGoogle: async () => ({ error: "not initialized" }),
   signInWithEmail: async () => ({ error: "not initialized" }),
 });
 
 // this hook manages the user's firebase auth state
 export const UserContextProvider = ({ children }: PropsWithChildren) => {
-  const { mutateAsync: createUser } = useCreateUser({});
+  const { mutateAsync: createUser } = useCreateNewUser();
+
   const [catalogUser, setCatalogUser] = useState<PrivateUserData | undefined>(
     undefined,
   );
@@ -97,7 +109,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const signInWithGoogle = async () => {
-    let createdNewNpub = false;
     try {
       const user = await firebaseService.signInWithGoogle();
       if ("error" in user) {
@@ -105,21 +116,42 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       }
 
       if (user.additionalUserInfo?.isNewUser) {
+        // create a new nostr account for the new google user
+        const username = user.user.displayName;
+        const { nsec, pubkey } = await createNewNostrAccount(
+          username
+            ? {
+                name: username,
+              }
+            : {},
+        );
+
+        if (!pubkey || !nsec) {
+          throw "error creating new nostr account";
+        }
+
+        login(nsec);
         // create the wavlake db user using the new firebase userId
         // catalog handles random username generation
         await createUser({
-          userId: user.user.uid,
+          pubkey,
           // TODO - add profile image if available
           // artworkUrl: user.user.photoURL ?? "",
         });
       }
+
+      // fetch user data
       const { data: catalogUser } = await _refetchUser();
 
-      const hasExistingNostrProfile =
-        catalogUser?.nostrProfileData.length !== 0;
+      let createdRandomNpub = false;
+      const userAssociatedPubkey =
+        catalogUser?.nostrProfileData?.[0]?.publicHex;
+
+      // users is not logged in with an nsec
       if (!pubkey) {
-        if (!hasExistingNostrProfile) {
-          // new mobile user, so create a new nostr account
+        if (!userAssociatedPubkey) {
+          // this will catch old pre-existing google users who have no npub
+          // create a new npub for the user and log them in
           const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
             name: catalogUser?.name,
             // picture: user.user.photoURL ?? "",
@@ -128,22 +160,25 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
           nsec && (await login(nsec));
           newPubkey && (await addPubkeyToAccount());
-          createdNewNpub = true;
+          createdRandomNpub = true;
         } else {
           // user has an npub, so we don't need to create a new one
+          // we'll request they enter the nsec on the next screen
         }
       } else {
-        // mobile user thats already logged in with an nsec, associate the pubkey to the firebase userID
-        !catalogUser?.nostrProfileData
+        const pubkeyAssocationExists = catalogUser?.nostrProfileData
           .map((data) => data.publicHex)
-          .includes(pubkey) && (await addPubkeyToAccount());
+          .includes(pubkey);
+
+        // ensure pubkey association to the user
+        if (!pubkeyAssocationExists) await addPubkeyToAccount();
       }
       const isRegionVerified = catalogUser?.isRegionVerified;
       return {
         ...user,
-        hasExistingNostrProfile,
+        userAssociatedPubkey,
         isRegionVerified,
-        createdNewNpub,
+        createdRandomNpub,
       };
     } catch (error) {
       console.error("error signing in with google", error);
@@ -154,8 +189,62 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
+  const createUserWithEmail = async ({
+    email,
+    password,
+    username,
+    firstName,
+    lastName,
+    pubkey,
+  }: CreateEmailUserArgs) => {
+    try {
+      const user = await firebaseService.createUserWithEmailFirebase(
+        email,
+        password,
+      );
+      if ("error" in user) {
+        throw user.error;
+      }
+
+      // create the wavlake db user using the new firebase userId
+      // catalog handles random username generation
+      const newUser = await createUser({
+        username,
+        firstName,
+        lastName,
+        pubkey,
+        // todo - add profile image if available
+        // artworkUrl: user.user.photoURL ?? "",
+      });
+      let createdRandomNpub = false;
+
+      if (!newUser) {
+        throw "error creating user in db";
+      }
+
+      if (!pubkey) {
+        // new mobile user, so create a new nostr account
+        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
+          name: newUser.username,
+          // picture: newUser.artworkUrl,
+        });
+
+        nsec && (await login(nsec));
+        newPubkey && (await addPubkeyToAccount());
+        createdRandomNpub = true;
+      } else {
+        // already logged in mobile user, associate pubkey to the new user
+        await addPubkeyToAccount();
+      }
+
+      return user;
+    } catch (error) {
+      console.error("error creating user with email");
+      return { error };
+    }
+  };
+
   const signInWithEmail = async (email: string, password: string) => {
-    let createdNewNpub = false;
     try {
       const user = await firebaseService.signInWithEmail(email, password);
       if ("error" in user) {
@@ -167,14 +256,14 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw "catalog user not found";
       }
 
-      const hasExistingNostrProfile =
-        catalogUser?.nostrProfileData.length !== 0;
+      let createdRandomNpub = false;
+
+      const userAssociatedPubkey =
+        catalogUser?.nostrProfileData?.[0]?.publicHex;
       if (!pubkey) {
-        if (!hasExistingNostrProfile) {
-          // New login (may or may not have an npub yet, so we give them a brand new one)
-          // if a user re-logs in to the app via firebase email and has saved their old mobile app's nsec
-          // they'll need to manually log in with that by clicking "Nostr user? Click here" on the welcome page
-          // and pasting it in the input field (we dont have it saved in the db so we cant log them in automatically)
+        if (!userAssociatedPubkey) {
+          // this will catch old pre-existing google users who have no npub
+          // create a new npub for the user and log them in
           const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
             name: catalogUser.name,
             image: catalogUser.artworkUrl,
@@ -182,23 +271,26 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
           nsec && (await login(nsec));
           newPubkey && (await addPubkeyToAccount());
-          createdNewNpub = true;
+          createdRandomNpub = true;
         } else {
           // user has an npub, so we don't need to create a new one
+          // we'll request they enter the nsec on the next screen
         }
       } else {
-        // mobile user thats already logged in with an nsec, associate the pubkey to the firebase userID
-        !catalogUser?.nostrProfileData
+        const pubkeyAssocationExists = catalogUser?.nostrProfileData
           .map((data) => data.publicHex)
-          .includes(pubkey) && (await addPubkeyToAccount());
+          .includes(pubkey);
+
+        // ensure pubkey association to the user
+        if (!pubkeyAssocationExists) await addPubkeyToAccount();
       }
       const isRegionVerified = catalogUser?.isRegionVerified;
 
       return {
         ...user,
-        hasExistingNostrProfile,
+        userAssociatedPubkey,
         isRegionVerified,
-        createdNewNpub,
+        createdRandomNpub,
       };
     } catch (error) {
       console.error("error signing in with email");
@@ -217,8 +309,17 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           (n) => n.publicHex === pubkey,
         ),
         ...firebaseService,
+        // signInAnonymously: firebaseService.signInAnonymously,
+        // signInWithToken: firebaseService.signInWithToken,
+        // signOut: firebaseService.signOut,
+        // onAuthStateChange: firebaseService.onAuthStateChange,
+        // verifyEmailLink: firebaseService.verifyEmailLink,
+        // resetPassword: firebaseService.resetPassword,
+        // checkIfEmailIsVerified: firebaseService.checkIfEmailIsVerified,
+        // resendVerificationEmail: firebaseService.resendVerificationEmail,
         signInWithGoogle,
         signInWithEmail,
+        createUserWithEmail,
       }}
     >
       {children}

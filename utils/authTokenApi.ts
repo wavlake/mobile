@@ -265,3 +265,25 @@ export const saveUserIdentity = async (data: {
   >(`/accounts/log-identity`, data);
   return response.data;
 };
+
+export const useCreateNewUser = () => {
+  return useMutation({
+    mutationFn: async (body: {
+      username?: string;
+      firstName?: string;
+      lastName?: string;
+      pubkey: string;
+    }) => {
+      const { data } = await catalogApiClient.post<
+        ResponseObject<{
+          username: string;
+          profileUrl: string;
+          pubkey: string;
+          loginToken: string;
+        }>
+      >(`/accounts/user`, body);
+
+      return data.data;
+    },
+  });
+};

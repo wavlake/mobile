@@ -563,8 +563,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       userId: string;
       // artworkUrl?: string;
     }) => {
@@ -581,32 +581,6 @@ export const useCreateUser = ({
     },
     onError(response: ResponseObject) {
       onError?.(response?.error ?? "Error creating user");
-    },
-  });
-};
-
-export const useCreateNewUser = () => {
-  return useMutation({
-    mutationFn: async (body: {
-      email: string;
-      password: string;
-      username?: string;
-      firstName?: string;
-      lastName?: string;
-      pubkey: string;
-    }) => {
-      const { data } = await apiClient.post<
-        ResponseObject<{
-          uid: string;
-          email: string;
-          username: string;
-          profileUrl: string;
-          pubkey: string;
-          loginToken: string;
-        }>
-      >(`/accounts/user`, body);
-
-      return data;
     },
   });
 };

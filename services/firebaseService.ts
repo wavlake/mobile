@@ -7,7 +7,7 @@ GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_FIREBASE_OAUTH_CLIENT_ID,
 });
 
-const createUserWithEmail = (email: string, password: string) =>
+const createUserWithEmailFirebase = (email: string, password: string) =>
   auth()
     .createUserWithEmailAndPassword(email, password)
     .catch((error) => {
@@ -174,7 +174,7 @@ const checkIfEmailIsVerified = async () => {
 };
 
 export const firebaseService = {
-  createUserWithEmail,
+  createUserWithEmailFirebase,
   signInWithEmail,
   signInAnonymously,
   signInWithToken,

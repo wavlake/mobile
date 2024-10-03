@@ -10,7 +10,6 @@ export const usePromos = () => {
       !catalogUser?.isLocked,
   );
 
-  console.log({ enabled });
   return useQuery({
     queryKey: ["promos", !!user],
     queryFn: getUserPromos,
