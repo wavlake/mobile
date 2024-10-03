@@ -206,6 +206,8 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw user.error;
       }
 
+      await user.user.sendEmailVerification();
+
       // create the wavlake db user using the new firebase userId
       // catalog handles random username generation
       const newUser = await createUser({
