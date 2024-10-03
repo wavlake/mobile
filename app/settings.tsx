@@ -252,24 +252,32 @@ export default function SettingsPage() {
           )}
         </View>
         {userIsLoggedIn && (
-          <TouchableOpacity
-            onPress={() => router.push({ pathname: "/backup-nsec" })}
+          <View
+            style={{
+              flexDirection: "row",
+            }}
           >
-            <View
-              style={{
-                marginTop: 24,
-                marginBottom: 4,
-                flexDirection: "row",
-              }}
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: "/backup-nsec" })}
             >
-              <Text bold>Export your nsec</Text>
-              <Text>
-                Tap here to view your account nsec and copy it to a safe place.
-              </Text>
-            </View>
-          </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <Text bold>Export your nostr secret key</Text>
+                <Text>
+                  Tap here to view your account nsec and copy it to a safe
+                  place.
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         )}
-        <View style={{ flex: 1, alignSelf: "flex-start", marginBottom: 4 }}>
+        <View
+          style={{
+            marginTop: 24,
+            flex: 1,
+            alignSelf: "flex-start",
+            marginBottom: 4,
+          }}
+        >
           <Text bold>Version information</Text>
           <Text>
             {VERSION} ({BUILD_NUM})
