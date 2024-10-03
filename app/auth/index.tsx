@@ -2,25 +2,19 @@ import { Text, Button, Center, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useRegionCheck } from "@/hooks/useRegionCheck";
+import { useState } from "react";
 
 export default function InitialPage() {
   const router = useRouter();
-  const {
-    isLoading: regionChecking,
-    data: isAllowed = true,
-    refetch,
-  } = useRegionCheck({ enabled: true });
-
+  const [isLoading, setIsLoading] = useState(false);
+  const { refetch } = useRegionCheck({ enabled: false });
   const handleLogin = async () => {
     router.push("/auth/login");
   };
 
   const handleSignUp = async () => {
-    if (regionChecking) {
-      // If the region check is still loading, wait for it to complete
-      await refetch();
-    }
-
+    setIsLoading(true);
+    const isAllowed = await refetch();
     router.push({
       pathname: "/auth/signup",
       params: {
@@ -52,7 +46,7 @@ export default function InitialPage() {
           <Button color="white" onPress={handleLogin}>
             Login
           </Button>
-          <Button color="white" onPress={handleSignUp}>
+          <Button color="white" onPress={handleSignUp} loading={isLoading}>
             Sign Up
           </Button>
         </View>
