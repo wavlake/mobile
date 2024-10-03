@@ -15,6 +15,7 @@ import {
 import {
   cacheIsFirstAppLaunch,
   getIsFirstAppLaunch,
+  getSkipLogin,
   getRandomMusic,
 } from "@/utils";
 import { useAuth, useIsNavigationReady } from "@/hooks";
@@ -47,6 +48,13 @@ export default function TabLayout() {
         // ensure user is logged out of firebase
         await signOut();
 
+        await router.push("/auth");
+      }
+
+      const skipLogin = await getSkipLogin();
+
+      if (!skipLogin) {
+        // dont skip login
         await router.push("/auth");
       }
     })();

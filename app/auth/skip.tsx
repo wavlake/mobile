@@ -1,12 +1,15 @@
 import { Button, Center, Text } from "@/components";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
+import { cacheSkipLogin } from "@/utils";
 
 export default function Skip() {
   const router = useRouter();
   const handleLoginAnonymously = async () => {
+    await cacheSkipLogin();
     router.replace("/");
   };
+
   return (
     <Center>
       <View style={{ paddingHorizontal: 36, paddingBottom: 120 }}>

@@ -7,17 +7,17 @@ import { Track } from "@/utils";
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
   title: string;
-  albumId: string;
-  albumTitle: string;
+  // albumId: string;
+  // albumTitle: string;
   artist: string;
-  artistId: string;
-  artistUrl: string;
-  avatarUrl: undefined;
-  duration: number;
-  hasPromo: undefined;
-  id: string;
-  liveUrl: string;
-  msatTotal: undefined;
+  // artistId: string;
+  // artistUrl: string;
+  // avatarUrl: undefined;
+  // duration: number;
+  // hasPromo: undefined;
+  // id: string;
+  // liveUrl: string;
+  // msatTotal: undefined;
 }
 
 interface HorizontalArtworkRowProps {
