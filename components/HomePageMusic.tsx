@@ -77,7 +77,7 @@ export const HomePageMusic = () => {
   } = homePageData || {};
   return (
     <FlatList
-      data={forYou}
+      data={trending}
       ListHeaderComponent={
         isLoading
           ? null
