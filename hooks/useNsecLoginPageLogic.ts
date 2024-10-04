@@ -125,10 +125,13 @@ export const useNsecLoginPageLogic = () => {
     if (user) {
       await addPubkeyToAccount();
       if (user.emailVerified && catalogUser?.isRegionVerified) {
-        await connectWallet({
-          ...DEFAULT_CONNECTION_SETTINGS,
-          connectionName: DeviceInfo.getModel(),
-        });
+        await connectWallet(
+          {
+            ...DEFAULT_CONNECTION_SETTINGS,
+            connectionName: DeviceInfo.getModel(),
+          },
+          nsecInputPubkey,
+        );
       }
     }
     router.replace(

@@ -38,7 +38,12 @@ export const useAutoConnectNWC = () => {
   const queryClient = useQueryClient();
   const settingsKey = useSettingsQueryKey();
 
-  const connectWallet = async (settings: ConnectionSettings) => {
+  const connectWallet = async (
+    settings: ConnectionSettings,
+    // optional userPubkey to use for the NWC connection
+    // to be used during login, when useAuth() is not up to date
+    overrideUserPubkey?: string | null,
+  ) => {
     const { connectionName, msatBudget, maxMsatPaymentAmount, requestMethods } =
       settings;
 
@@ -66,7 +71,7 @@ export const useAutoConnectNWC = () => {
 
     const { isSuccess, error, fetchInfo } = await intakeNwcURI({
       uri: nwcUri,
-      pubkey: userPubkey,
+      pubkey: overrideUserPubkey || userPubkey,
     });
 
     if (isSuccess) {
