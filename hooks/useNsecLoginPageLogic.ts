@@ -55,9 +55,9 @@ export const useNsecLoginPageLogic = () => {
   const { pubkey: nsecInputPubkey } = getNpubFromNsec(nsec);
 
   const { data: nsecInputMetadata, isFetching: nsecInputMetadataLoading } =
-    useNostrProfileEvent(nsecInputPubkey);
+    useNostrProfileEvent(nsecInputPubkey, false);
   const { data: assoicatedMetadata, isFetching: associatedMetadataLoading } =
-    useNostrProfileEvent(userAssociatedPubkey);
+    useNostrProfileEvent(userAssociatedPubkey, false);
 
   const createRandomNsec = useCallback(() => {
     const privateKey = bytesToHex(generateSecretKey());
