@@ -9,11 +9,9 @@ import {
 } from "@/hooks";
 import { useUser } from "@/components/UserContextProvider";
 import {
-  decodeNsec,
-  encodeNpub,
   encodeNsec,
   generateSecretKey,
-  getPublicKey,
+  getKeysFromNostrSecret,
   getSeckey,
   useAddPubkeyToUser,
 } from "@/utils";
@@ -24,14 +22,6 @@ type NsecPageParams = {
   createdRandomNpub: "true" | "false";
   userAssociatedPubkey: string;
   nostrOnlyLogin: "true" | "false";
-};
-
-const getNpubFromNsec = (nsec: string) => {
-  const seckey = decodeNsec(nsec);
-  if (!seckey) return { npub: null, pubkey: null };
-  const pubkey = getPublicKey(seckey);
-  const npub = encodeNpub(pubkey);
-  return { npub, pubkey };
 };
 
 export const useNsecLoginPageLogic = () => {
@@ -52,7 +42,7 @@ export const useNsecLoginPageLogic = () => {
   const { user, catalogUser } = useUser();
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
   const { connectWallet } = useAutoConnectNWC();
-  const { pubkey: nsecInputPubkey } = getNpubFromNsec(nsec);
+  const { pubkey: nsecInputPubkey } = getKeysFromNostrSecret(nsec) || {};
 
   const { data: nsecInputMetadata, isFetching: nsecInputMetadataLoading } =
     useNostrProfileEvent(nsecInputPubkey, false);
