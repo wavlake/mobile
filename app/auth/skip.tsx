@@ -1,12 +1,12 @@
 import { Button, Center, Text } from "@/components";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { cacheSkipLogin } from "@/utils";
+import { setSkipLogin } from "@/utils";
 
 export default function Skip() {
   const router = useRouter();
   const handleLoginAnonymously = async () => {
-    await cacheSkipLogin();
+    await setSkipLogin();
     router.replace("/");
   };
 

@@ -39,12 +39,13 @@ export const getIsFirstAppLaunch = async () => {
   return (await getData(isFirstAppLaunchKey)) === null;
 };
 
-export const cacheSkipLogin = async () => {
-  await storeData(isSkipLoginKey, "1");
+const SKIP_LOGIN = "skip-login";
+export const setSkipLogin = async () => {
+  await storeData(isSkipLoginKey, SKIP_LOGIN);
 };
 
-export const getSkipLogin = async () => {
-  return (await getData(isSkipLoginKey)) === "1";
+export const shouldForceLogin = async () => {
+  return (await getData(isSkipLoginKey)) !== SKIP_LOGIN;
 };
 
 export const cacheNostrProfileEvent = async (pubkey: string, event: Event) => {

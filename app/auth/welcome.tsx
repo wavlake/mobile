@@ -3,8 +3,16 @@ import { View } from "react-native";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { LoggedInUserAvater } from "@/components/LoggedInUserAvater";
+import { useEffect } from "react";
+import { setSkipLogin } from "@/utils";
 
 export default function WelcomePage() {
+  // the user has successfully logged in
+  // don't force the login page anymore
+  useEffect(() => {
+    setSkipLogin();
+  }, []);
+
   const { createdRandomNpub, nostrOnlyLogin: nostrOnlyLoginString } =
     useLocalSearchParams<{
       createdRandomNpub: "true" | "false";

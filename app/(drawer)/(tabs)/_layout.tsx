@@ -15,7 +15,7 @@ import {
 import {
   cacheIsFirstAppLaunch,
   getIsFirstAppLaunch,
-  getSkipLogin,
+  shouldForceLogin,
   getRandomMusic,
 } from "@/utils";
 import { useAuth, useIsNavigationReady } from "@/hooks";
@@ -52,9 +52,8 @@ export default function TabLayout() {
         return;
       }
 
-      const skipLogin = await getSkipLogin();
-      if (!skipLogin) {
-        // dont skip login
+      const forceLogin = await shouldForceLogin();
+      if (forceLogin) {
         await router.push("/auth");
       }
     })();
