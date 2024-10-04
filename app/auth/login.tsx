@@ -14,7 +14,12 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
-import { useAuth } from "@/hooks";
+import {
+  DEFAULT_CONNECTION_SETTINGS,
+  useAuth,
+  useAutoConnectNWC,
+} from "@/hooks";
+import DeviceInfo from "react-native-device-info";
 
 export default function Login() {
   const router = useRouter();
@@ -24,12 +29,20 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { connectWallet } = useAutoConnectNWC();
 
   const handleLogin = async (email: string, password: string) => {
     const result = await signInWithEmail(email, password);
     if ("error" in result) {
       setErrorMessage(result.error);
       return;
+    }
+
+    if (result.isEmailVerified && result.isRegionVerified) {
+      await connectWallet({
+        ...DEFAULT_CONNECTION_SETTINGS,
+        connectionName: DeviceInfo.getModel(),
+      });
     }
     // if the user isn't pubkey-logged in via signInWithEmail above
     // we need to collect their previously used nsec

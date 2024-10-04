@@ -36,12 +36,14 @@ type UserContextProps = {
     error?: any;
     userAssociatedPubkey?: string | null;
     isRegionVerified?: boolean;
+    isEmailVerified?: boolean;
     createdRandomNpub?: boolean;
   }>;
   signInWithGoogle: () => Promise<{
     error?: any;
     userAssociatedPubkey?: string | null;
     isRegionVerified?: boolean;
+    isEmailVerified?: boolean;
     createdRandomNpub?: boolean;
   }>;
   createUserWithEmail: (args: CreateEmailUserArgs) => Promise<any>;
@@ -178,6 +180,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         ...user,
         userAssociatedPubkey,
         isRegionVerified,
+        isEmailVerified: user.user.emailVerified,
         createdRandomNpub,
       };
     } catch (error) {
@@ -292,6 +295,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         ...user,
         userAssociatedPubkey,
         isRegionVerified,
+        isEmailVerified: user.user.emailVerified,
         createdRandomNpub,
       };
     } catch (error) {

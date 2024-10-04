@@ -6,7 +6,8 @@ import { ZBDIcon } from "@/components/ZBDIcon";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { NostrIcon } from "@/components/NostrIcon";
-import { useAuth, useToast } from "@/hooks";
+import { DEFAULT_CONNECTION_SETTINGS, useAuth, useToast } from "@/hooks";
+import DeviceInfo from "react-native-device-info";
 
 const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
   Icon,
@@ -42,6 +43,12 @@ export const ExternalLoginProviders = ({
           return;
         }
 
+        if (result.isEmailVerified && result.isRegionVerified) {
+          await connectWallet({
+            ...DEFAULT_CONNECTION_SETTINGS,
+            connectionName: DeviceInfo.getModel(),
+          });
+        }
         // if the user isn't pubkey-logged in via signInWithEmail above
         // we need to collect their previously used nsec
         if (!pubkey) {
@@ -109,3 +116,6 @@ export const ExternalLoginProviders = ({
     </View>
   );
 };
+function connectWallet(arg0: any) {
+  throw new Error("Function not implemented.");
+}
