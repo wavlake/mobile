@@ -12,6 +12,7 @@ import {
   WalletConnectionMethods,
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
+import { useWalletBalance } from "./useWalletBalance";
 
 interface ConnectionSettings {
   connectionName: string;
@@ -37,6 +38,7 @@ export const useAutoConnectNWC = () => {
   const { mutate: createConnection } = useCreateConnection();
   const queryClient = useQueryClient();
   const settingsKey = useSettingsQueryKey();
+  const { refetch: fetchBalance } = useWalletBalance();
 
   const connectWallet = async (
     settings: ConnectionSettings,
@@ -78,6 +80,7 @@ export const useAutoConnectNWC = () => {
       // Fetch the info event and refresh settings
       await fetchInfo?.();
       queryClient.invalidateQueries(settingsKey);
+      fetchBalance();
       return { success: true };
     } else {
       error && toast.show(error);
