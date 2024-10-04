@@ -5,6 +5,7 @@ import {
   deleteSeckey,
   getPubkeyFromCachedSeckey,
   encodeNsec,
+  deleteNwcSecret,
 } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
@@ -38,6 +39,7 @@ export const useAuth = () => {
   };
   const logout = async () => {
     await deleteSeckey();
+    pubkey && (await deleteNwcSecret(pubkey));
     await refetch();
   };
   const goToRoot = async () => {
