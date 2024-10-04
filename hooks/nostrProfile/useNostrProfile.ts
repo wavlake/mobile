@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  DEFAULT_READ_RELAY_URIS,
   NostrUserProfile,
+  encodeNpub,
   getCachedNostrProfileEvent,
   getMostRecentEvent,
   getProfileMetadata,
@@ -8,18 +10,33 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
+import { useMemo } from "react";
 
-export const useNostrProfileEvent = (pubkey?: string) => {
+export const useNostrProfileEvent = (
+  pubkey?: string | null,
+  // when a new user is logged in, the readRelayList is updated, which causes this query to refetch
+  shouldUpdateOnRelayListChange: boolean = true,
+) => {
   const { readRelayList } = useNostrRelayList();
+
+  const memoizedReadRelayList = useMemo(() => {
+    return shouldUpdateOnRelayListChange
+      ? readRelayList
+      : readRelayList.slice(0);
+  }, [shouldUpdateOnRelayListChange, readRelayList]);
+
   const queryKey = useNostrProfileQueryKey(pubkey ?? "");
+
   return useQuery({
     queryKey,
     queryFn: async () => {
-      if (!pubkey) {
+      const isValid = pubkey && pubkey.length === 64 && !!encodeNpub(pubkey);
+
+      if (!isValid) {
         return null;
       }
 
-      const event = await getProfileMetadata(pubkey, readRelayList);
+      const event = await getProfileMetadata(pubkey, memoizedReadRelayList);
       if (!event) {
         return null;
       }

@@ -236,6 +236,8 @@ export const getUserPromos = async () => {
       ResponseObject<Array<Promo & { contentMetadata: TrackResponse }>>
     >("/promos/active");
   return data.data.map((promo) => {
+    if (!promo) return;
+
     const [normalizedTrackData] = normalizeTrackResponse([
       promo.contentMetadata,
     ]);
@@ -252,4 +254,36 @@ export const getPromoByContentId = async (contentId: string) => {
   );
 
   return data.data;
+};
+
+export const saveUserIdentity = async (data: {
+  firstName: string;
+  lastName: string;
+}) => {
+  const { data: response } = await catalogApiClient.post<
+    ResponseObject<{ userId: string }>
+  >(`/accounts/log-identity`, data);
+  return response.data;
+};
+
+export const useCreateNewUser = () => {
+  return useMutation({
+    mutationFn: async (body: {
+      username?: string;
+      firstName?: string;
+      lastName?: string;
+      pubkey: string;
+    }) => {
+      const { data } = await catalogApiClient.post<
+        ResponseObject<{
+          username: string;
+          profileUrl: string;
+          pubkey: string;
+          loginToken: string;
+        }>
+      >(`/accounts/user`, body);
+
+      return data.data;
+    },
+  });
 };

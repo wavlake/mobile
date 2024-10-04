@@ -3,6 +3,7 @@ import { Event } from "nostr-tools";
 import { WalletKey } from "@/utils";
 
 const isFirstAppLaunchKey = "isFirstAppLaunch";
+const isSkipLoginKey = "skipLogin";
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNWCInfoEventKey = (pubkey: string) => `${pubkey}.nwcInfoEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
@@ -36,6 +37,15 @@ export const cacheIsFirstAppLaunch = async () =>
 
 export const getIsFirstAppLaunch = async () => {
   return (await getData(isFirstAppLaunchKey)) === null;
+};
+
+const SKIP_LOGIN = "skip-login";
+export const setSkipLogin = async () => {
+  await storeData(isSkipLoginKey, SKIP_LOGIN);
+};
+
+export const shouldForceLogin = async () => {
+  return (await getData(isSkipLoginKey)) !== SKIP_LOGIN;
 };
 
 export const cacheNostrProfileEvent = async (pubkey: string, event: Event) => {

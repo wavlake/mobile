@@ -3,11 +3,23 @@ import { View } from "react-native";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { LoggedInUserAvater } from "@/components/LoggedInUserAvater";
+import { useEffect } from "react";
+import { setSkipLogin } from "@/utils";
 
 export default function WelcomePage() {
-  const { newNpub } = useLocalSearchParams<{
-    newNpub: "true" | "false";
-  }>();
+  // the user has successfully logged in
+  // don't force the login page anymore
+  useEffect(() => {
+    setSkipLogin();
+  }, []);
+
+  const { createdRandomNpub, nostrOnlyLogin: nostrOnlyLoginString } =
+    useLocalSearchParams<{
+      createdRandomNpub: "true" | "false";
+      nostrOnlyLogin: "true" | "false";
+    }>();
+  const nostrOnlyLogin = nostrOnlyLoginString === "true";
+  const showLoginWithNsec = createdRandomNpub && !nostrOnlyLogin;
   const router = useRouter();
   const { catalogUser } = useUser();
 
@@ -15,7 +27,6 @@ export default function WelcomePage() {
     router.replace("/");
   };
 
-  const showNostrLoginLink = newNpub === "true";
   return (
     <Center
       style={{
@@ -58,8 +69,12 @@ export default function WelcomePage() {
           Edit Profile
         </Text>
         <Button onPress={goToHomePage}>Start listening</Button>
-        {showNostrLoginLink && (
-          <Link href="/auth/nsec">
+        {showLoginWithNsec && (
+          <Link
+            href={`/auth/nsec?createdRandomNpub=${
+              createdRandomNpub ?? "false"
+            }`}
+          >
             <Text style={{ fontSize: 18 }} bold>
               Nostr user? Click here
             </Text>

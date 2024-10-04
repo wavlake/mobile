@@ -19,10 +19,6 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen
-        name="backup-nsec"
-        options={{ headerTitle: () => <Text>Backup nsec</Text> }}
-      />
-      <Stack.Screen
         name="nsec"
         options={{ headerTitle: () => <Text>Nsec</Text> }}
       />

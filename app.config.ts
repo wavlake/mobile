@@ -2,7 +2,7 @@
 
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-export const BUILD_NUM = 44;
+export const BUILD_NUM = 49;
 export const VERSION = "1.1.0";
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
@@ -46,6 +46,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               host: "*.wavlake.com",
               pathPrefix: "/album/",
             },
+            // TODO - uncomment and update android deeplink
+            // {
+            //   scheme: "https",
+            //   host: "*.wavlake.com",
+            //   pathPrefix: "/verification-link",
+            // },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },

@@ -7,6 +7,17 @@ import { Track } from "@/utils";
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
   title: string;
+  // albumId: string;
+  // albumTitle: string;
+  artist: string;
+  // artistId: string;
+  // artistUrl: string;
+  // avatarUrl: undefined;
+  // duration: number;
+  // hasPromo: undefined;
+  // id: string;
+  // liveUrl: string;
+  // msatTotal: undefined;
 }
 
 interface HorizontalArtworkRowProps {
@@ -39,7 +50,7 @@ export const HorizontalArtworkRowLarge = ({
 };
 
 const RowItem: React.FC<{
-  item: HorizontalArtworkRowItem & Pick<Track, "genre">;
+  item: HorizontalArtworkRowItem;
   isLast: boolean;
 }> = ({ item, isLast }) => {
   const {
@@ -56,7 +67,7 @@ const RowItem: React.FC<{
     : backgroundIsBlack
     ? lightenedBackgroundColor || brandColors.black.light
     : background ?? brandColors.black.light;
-
+  isLast && console.log(item);
   return (
     <View
       style={{
@@ -87,7 +98,7 @@ const RowItem: React.FC<{
         ellipsizeMode="tail"
         numberOfLines={1}
       >
-        {item.genre?.name}
+        {item.artist}
       </Text>
     </View>
   );

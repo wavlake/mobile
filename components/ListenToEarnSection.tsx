@@ -6,6 +6,7 @@ import { useUser } from "./UserContextProvider";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
+const IMAGE_HEIGHT = 143;
 export const ListenToEarnSection = () => {
   const { user, initializingAuth } = useUser();
   const { data: promos = [] } = usePromos();
@@ -26,30 +27,18 @@ export const ListenToEarnSection = () => {
         style={{
           backgroundColor: brandColors.purple.DEFAULT,
           borderRadius: 10,
-          height: 120,
+          height: IMAGE_HEIGHT,
           flexDirection: "row",
           gap: 10,
           justifyContent: "center",
         }}
       >
-        <Text
-          style={{
-            color: "black",
-            alignSelf: "center",
-            marginBottom: 20,
-            fontSize: 24,
-            transform: [{ rotate: "-15deg" }],
-          }}
-          bold
-        >
-          Listen to Earn
-        </Text>
         <Image
           style={{
-            width: 120,
-            height: 120,
+            width: "100%",
+            height: IMAGE_HEIGHT,
           }}
-          source={require("@/assets/megaphone.png")}
+          source={require("@/assets/TOPUPMUSIC5.png")}
         />
       </View>
     </TouchableOpacity>

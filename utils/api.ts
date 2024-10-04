@@ -758,3 +758,22 @@ export const getContentMetadataMap = async (
   });
   return map;
 };
+
+interface UsernameCheck {
+  username: string;
+  isValid: boolean;
+}
+export const checkUsername = async (username: string) => {
+  const { data } = await apiClient.post<ResponseObject<UsernameCheck[]>>(
+    `/splits/check-usernames`,
+    { usernames: [username] },
+  );
+  return data;
+};
+
+export const checkIPRegion = async () => {
+  return apiClient.get<ResponseObject<{ regionPass: boolean }>>(
+    `accounts/check-region`,
+    {},
+  );
+};

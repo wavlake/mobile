@@ -24,6 +24,7 @@ import {
   utils,
   nip04,
   SimplePool,
+  getPublicKey,
 } from "nostr-tools";
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
@@ -104,6 +105,31 @@ export const encodeNsec = (seckey: string) => {
   try {
     return nip19.nsecEncode(hexToBytes(seckey));
   } catch {
+    return null;
+  }
+};
+
+// can handle both nsec and hex private keys
+export const getKeysFromNostrSecret = (secret: string | `nsec${string}`) => {
+  try {
+    if (secret.startsWith("nsec")) {
+      if (secret.length !== 63) return;
+      const seckey = decodeNsec(secret);
+      const pubkey = seckey && getPublicKey(seckey);
+      const npub = pubkey && encodeNpub(pubkey);
+
+      return { nsec: secret, seckey, pubkey, npub };
+    } else {
+      if (secret.length !== 64) return;
+      const nsec = encodeNsec(secret);
+      const seckey = nsec && decodeNsec(nsec);
+      const pubkey = seckey && getPublicKey(seckey);
+      const npub = pubkey && encodeNpub(pubkey);
+
+      return { seckey, pubkey, npub, nsec };
+    }
+  } catch {
+    console.error("Failed to get keys from Nostr secret");
     return null;
   }
 };

@@ -44,7 +44,9 @@ export const useEarnPromo = (contentId?: string) => {
           }
 
           if (createResponse.success) {
-            setTotalEarned((prev) => prev + promoDetails.msatPayoutAmount);
+            setTotalEarned(
+              (prev) => prev + promoDetails.msatPayoutAmount / 1000,
+            );
             lastRewardTimeRef.current = elapsedTime;
           } else {
             throw new Error(createResponse.error);

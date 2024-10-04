@@ -15,6 +15,7 @@ import {
 import {
   cacheIsFirstAppLaunch,
   getIsFirstAppLaunch,
+  shouldForceLogin,
   getRandomMusic,
 } from "@/utils";
 import { useAuth, useIsNavigationReady } from "@/hooks";
@@ -48,9 +49,15 @@ export default function TabLayout() {
         await signOut();
 
         await router.push("/auth");
+        return;
+      }
+
+      const forceLogin = await shouldForceLogin();
+      if (forceLogin) {
+        await router.push("/auth");
       }
     })();
-  }, [logout, isNavigationReady]);
+  }, [isNavigationReady]);
 
   return (
     <MiniMusicPlayerProvider>

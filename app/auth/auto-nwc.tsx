@@ -1,19 +1,7 @@
-import { Text, Button, TextInput, useUser } from "@/components";
+import { Text, Button, TextInput } from "@/components";
 import { brandColors } from "@/constants";
-import { useAuth, useToast } from "@/hooks";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import DeviceInfo from "react-native-device-info";
-import {
-  generateSecretKey,
-  getPublicKey,
-  intakeNwcURI,
-  useCreateConnection,
-  buildUri,
-  walletServicePubkey,
-} from "@/utils";
-import { bytesToHex } from "@noble/hashes/utils";
 import { CheckBox } from "@rneui/base";
-import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -22,6 +10,7 @@ import {
   ScrollView,
   View,
 } from "react-native";
+import { useAutoConnectNWC, useToast } from "@/hooks";
 
 const msatBudgetOptions = [
   { msat: 10000000, label: "10k sats per week" },
@@ -29,34 +18,29 @@ const msatBudgetOptions = [
   { msat: 50000000, label: "50k sats per week" },
   { msat: 0, label: "Unlimited" },
 ];
+
 const validateMaxZapAmount = (value?: string) => {
   if (!value || value === "") {
     return "Please enter a max zap amount";
   }
   if (isNaN(parseInt(value)) || parseInt(value) < 0) {
-    return "Please enter a postive integer";
+    return "Please enter a positive integer";
   }
-
   return;
 };
 
 export default function AddNWC() {
-  const { newNpub } = useLocalSearchParams<{
-    newNpub: "true" | "false";
-  }>();
-  const { catalogUser } = useUser();
-  const { pubkey: userPubkey } = useAuth();
-  const toast = useToast();
   const router = useRouter();
-  const { mutate: createConnection } = useCreateConnection();
-  const queryClient = useQueryClient();
-  const settingsKey = useSettingsQueryKey();
+  const toast = useToast();
+  const { createdRandomNpub } = useLocalSearchParams<{
+    createdRandomNpub: "true" | "false";
+  }>();
+  const { connectWallet } = useAutoConnectNWC();
   const [selectedBudget, setBudget] = useState(0);
   const [maxZapAmount, setMaxZapAmount] = useState<string | undefined>();
-  const [zapAmountErrorMessage, setzapAmountErrorMessage] = useState("");
+  const [zapAmountErrorMessage, setZapAmountErrorMessage] = useState("");
   const [connectionNameErrorMessage, setConnectionNameErrorMessage] =
     useState("");
-
   const [connectionName, setConnectionName] = useState(DeviceInfo.getModel());
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,7 +48,7 @@ export default function AddNWC() {
     const zapAmountError = validateMaxZapAmount(maxZapAmount);
 
     if (zapAmountError) {
-      setzapAmountErrorMessage(zapAmountError);
+      setZapAmountErrorMessage(zapAmountError);
     }
 
     if (!connectionName) {
@@ -76,48 +60,31 @@ export default function AddNWC() {
     }
 
     setIsLoading(true);
-    const pk = generateSecretKey();
-    const connectionPubkey = getPublicKey(pk);
 
     const msatBudget = msatBudgetOptions[selectedBudget].msat;
     const maxMsatPaymentAmount = parseInt(maxZapAmount) * 1000;
-    // create the connection in the db
-    await createConnection({
-      name: connectionName,
-      msatBudget,
-      pubkey: connectionPubkey,
-      maxMsatPaymentAmount,
-      requestMethods: ["get_balance", "pay_invoice"],
-    });
 
-    // add the connection to the mobile app
-    const relay = "wss://relay.wavlake.com";
-    const nwcUri = buildUri(`nostr+walletconnect://${walletServicePubkey}`, {
-      relay: relay,
-      secret: bytesToHex(pk),
-      lud16: catalogUser?.profileUrl
-        ? `${catalogUser.profileUrl}@wavlake.com`
-        : undefined,
-    });
-
-    const { isSuccess, error, fetchInfo } = await intakeNwcURI({
-      uri: nwcUri,
-      pubkey: userPubkey,
-    });
-    if (isSuccess) {
-      // fetch the info event and refresh settings after
-      await fetchInfo?.();
-      queryClient.invalidateQueries(settingsKey);
-    } else {
-      error && toast.show(error);
+    try {
+      const { success } = await connectWallet({
+        connectionName,
+        msatBudget,
+        maxMsatPaymentAmount,
+        requestMethods: ["get_balance", "pay_invoice"],
+      });
+      if (success) {
+        router.replace({
+          pathname: "/auth/welcome",
+          params: {
+            createdRandomNpub,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to establish connection:", error);
+      toast.show("Failed to establish connection");
+    } finally {
+      setIsLoading(false);
     }
-
-    router.replace({
-      pathname: "/auth/welcome",
-      params: {
-        newNpub,
-      },
-    });
   };
 
   return (
@@ -158,7 +125,7 @@ export default function AddNWC() {
           label="Max Zap amount (sats)"
           keyboardType="numeric"
           onChangeText={(value) => {
-            setzapAmountErrorMessage("");
+            setZapAmountErrorMessage("");
             setMaxZapAmount(value);
           }}
           value={maxZapAmount}

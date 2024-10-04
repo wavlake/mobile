@@ -1,10 +1,10 @@
 import { bytesToHex } from "@noble/hashes/utils";
 import {
-  decodeNsec,
   saveSeckey,
   deleteSeckey,
   getPubkeyFromCachedSeckey,
-  encodeNsec,
+  deleteNwcSecret,
+  getKeysFromNostrSecret,
 } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
@@ -18,9 +18,7 @@ export const useAuth = () => {
     staleTime: Infinity,
   });
   const login = async (privkey: string) => {
-    const seckey = privkey.startsWith("nsec")
-      ? decodeNsec(privkey)
-      : decodeNsec(encodeNsec(privkey) ?? ""); // encode and then decode hex privkey to make sure it is valid
+    const { seckey } = getKeysFromNostrSecret(privkey) || {};
 
     if (!seckey) {
       return false;
@@ -38,6 +36,7 @@ export const useAuth = () => {
   };
   const logout = async () => {
     await deleteSeckey();
+    pubkey && (await deleteNwcSecret(pubkey));
     await refetch();
   };
   const goToRoot = async () => {
