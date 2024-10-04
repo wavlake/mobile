@@ -49,16 +49,16 @@ export default function TabLayout() {
         await signOut();
 
         await router.push("/auth");
+        return;
       }
 
       const skipLogin = await getSkipLogin();
-
       if (!skipLogin) {
         // dont skip login
         await router.push("/auth");
       }
     })();
-  }, [logout, isNavigationReady]);
+  }, [isNavigationReady]);
 
   return (
     <MiniMusicPlayerProvider>
