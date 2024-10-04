@@ -38,12 +38,6 @@ export default function Login() {
       return;
     }
 
-    if (result.isEmailVerified && result.isRegionVerified) {
-      await connectWallet({
-        ...DEFAULT_CONNECTION_SETTINGS,
-        connectionName: DeviceInfo.getModel(),
-      });
-    }
     // if the user isn't pubkey-logged in via signInWithEmail above
     // we need to collect their previously used nsec
     if (!pubkey) {
@@ -55,6 +49,12 @@ export default function Login() {
         },
       });
     } else {
+      if (result.isEmailVerified && result.isRegionVerified) {
+        await connectWallet({
+          ...DEFAULT_CONNECTION_SETTINGS,
+          connectionName: DeviceInfo.getModel(),
+        });
+      }
       router.replace({
         pathname: "/auth/welcome",
         params: {

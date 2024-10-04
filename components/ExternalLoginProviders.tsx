@@ -6,7 +6,12 @@ import { ZBDIcon } from "@/components/ZBDIcon";
 import { TwitterIcon } from "@/components/TwitterIcon";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { NostrIcon } from "@/components/NostrIcon";
-import { DEFAULT_CONNECTION_SETTINGS, useAuth, useToast } from "@/hooks";
+import {
+  DEFAULT_CONNECTION_SETTINGS,
+  useAuth,
+  useAutoConnectNWC,
+  useToast,
+} from "@/hooks";
 import DeviceInfo from "react-native-device-info";
 
 const ProviderButton: React.FC<{ Icon: ElementType; onPress: () => void }> = ({
@@ -26,6 +31,7 @@ export const ExternalLoginProviders = ({
 }: {
   setIsLoading: (loading: boolean) => void;
 }) => {
+  const { connectWallet } = useAutoConnectNWC();
   const router = useRouter();
   const { pubkey } = useAuth();
   const { signInWithGoogle } = useUser();
@@ -43,12 +49,6 @@ export const ExternalLoginProviders = ({
           return;
         }
 
-        if (result.isEmailVerified && result.isRegionVerified) {
-          await connectWallet({
-            ...DEFAULT_CONNECTION_SETTINGS,
-            connectionName: DeviceInfo.getModel(),
-          });
-        }
         // if the user isn't pubkey-logged in via signInWithEmail above
         // we need to collect their previously used nsec
         if (!pubkey) {
@@ -60,6 +60,12 @@ export const ExternalLoginProviders = ({
             },
           });
         } else {
+          if (result.isEmailVerified && result.isRegionVerified) {
+            await connectWallet({
+              ...DEFAULT_CONNECTION_SETTINGS,
+              connectionName: DeviceInfo.getModel(),
+            });
+          }
           router.replace({
             pathname: "/auth/welcome",
             params: {
@@ -116,6 +122,3 @@ export const ExternalLoginProviders = ({
     </View>
   );
 };
-function connectWallet(arg0: any) {
-  throw new Error("Function not implemented.");
-}

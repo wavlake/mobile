@@ -1,7 +1,12 @@
 import { useState, useCallback } from "react";
 import { Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useAuth, useNostrProfileEvent } from "@/hooks";
+import {
+  DEFAULT_CONNECTION_SETTINGS,
+  useAuth,
+  useAutoConnectNWC,
+  useNostrProfileEvent,
+} from "@/hooks";
 import { useUser } from "@/components/UserContextProvider";
 import {
   decodeNsec,
@@ -13,6 +18,7 @@ import {
   useAddPubkeyToUser,
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
+import DeviceInfo from "react-native-device-info";
 
 type NsecPageParams = {
   createdRandomNpub: "true" | "false";
@@ -43,9 +49,9 @@ export const useNsecLoginPageLogic = () => {
 
   const router = useRouter();
   const { login } = useAuth();
-  const { user } = useUser();
+  const { user, catalogUser } = useUser();
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
-
+  const { connectWallet } = useAutoConnectNWC();
   const { pubkey: nsecInputPubkey } = getNpubFromNsec(nsec);
 
   const { data: nsecInputMetadata, isFetching: nsecInputMetadataLoading } =
@@ -118,8 +124,13 @@ export const useNsecLoginPageLogic = () => {
 
     if (user) {
       await addPubkeyToAccount();
+      if (user.emailVerified && catalogUser?.isRegionVerified) {
+        await connectWallet({
+          ...DEFAULT_CONNECTION_SETTINGS,
+          connectionName: DeviceInfo.getModel(),
+        });
+      }
     }
-
     router.replace(
       nostrOnlyLogin
         ? {
