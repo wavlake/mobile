@@ -22,14 +22,14 @@ const ContentItem = ({
   contentMetadata,
   marginBottom,
   onPress,
-  isSpent,
+  noRewardsLeft,
   msatsEarned,
   totalmSatsAvailable,
 }: {
   contentMetadata: Track;
   marginBottom: number;
   onPress: () => void;
-  isSpent: boolean;
+  noRewardsLeft: boolean;
   msatsEarned: number;
   totalmSatsAvailable: number;
 }) => {
@@ -41,10 +41,10 @@ const ContentItem = ({
       style={[
         styles.container,
         { marginBottom },
-        isSpent && styles.spentContainer,
+        noRewardsLeft && styles.spentContainer,
       ]}
       onPress={onPress}
-      disabled={isSpent}
+      disabled={noRewardsLeft}
     >
       <View style={styles.contentWrapper}>
         <SquareArtwork size={150} url={contentMetadata.artworkUrl} />
@@ -63,17 +63,17 @@ const ContentItem = ({
             }}
           >
             <Text
-              style={[styles.title, isSpent && styles.spentText]}
+              style={[styles.title, noRewardsLeft && styles.spentText]}
               numberOfLines={2}
             >
               {contentMetadata.title}
             </Text>
-            <Text style={[styles.artist, isSpent && styles.spentText]}>
+            <Text style={[styles.artist, noRewardsLeft && styles.spentText]}>
               {contentMetadata.artist}
             </Text>
           </View>
           <View style={styles.earningsContainer}>
-            <Text style={[styles.earnings, isSpent && styles.spentText]}>
+            <Text style={[styles.earnings, noRewardsLeft && styles.spentText]}>
               {userEarningsTotal}
             </Text>
           </View>
@@ -176,7 +176,7 @@ export const ListenToEarnPage = () => {
           totalEarnedToday,
           availableEarnings,
         } = item;
-        console.log("contentMetadata", item);
+        console.log(item);
         const isLastRow = index === promos.length - 1;
         const marginBottom = isLastRow ? height + 16 : 16;
         const onPress = () => handleRowPress(contentMetadata);
@@ -185,7 +185,7 @@ export const ListenToEarnPage = () => {
             contentMetadata={contentMetadata}
             marginBottom={marginBottom}
             onPress={onPress}
-            isSpent={false} //!rewardsRemaining}
+            noRewardsLeft={!rewardsRemaining}
             msatsEarned={totalEarnedToday}
             totalmSatsAvailable={availableEarnings}
           />

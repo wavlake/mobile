@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { View, Animated } from "react-native";
+import { Animated } from "react-native";
 import { useMusicPlayer } from "../MusicPlayerProvider";
 import { TopUpGreen, Text } from "@/components";
 import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
-import { getCachedPromoData } from "@/utils";
 
 // Helper function to darken a hex color
 const darkenColor = (color: string, percent: number) => {
@@ -35,7 +34,7 @@ export const PlayerHeaderTitle = () => {
     promoCheckResult?.data || {};
 
   const isPlaying = playbackState === State.Playing;
-  const showTopUp =
+  const showEarnings =
     typeof totalEarnedToday === "number" &&
     typeof availableEarnings === "number";
 
@@ -71,7 +70,7 @@ export const PlayerHeaderTitle = () => {
     ],
   });
 
-  if (!showTopUp) {
+  if (!showEarnings) {
     return <Text>{playerTitle}</Text>;
   }
 
