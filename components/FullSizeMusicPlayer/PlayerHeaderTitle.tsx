@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import { Animated } from "react-native";
 import { useMusicPlayer } from "../MusicPlayerProvider";
-import { TopUpGreen, Text } from "@/components";
+import { Text } from "@/components";
 import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
+
+const TopUpGreen = "#15f38c";
 
 // Helper function to darken a hex color
 const darkenColor = (color: string, percent: number) => {

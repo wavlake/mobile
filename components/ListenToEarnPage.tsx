@@ -16,8 +16,6 @@ import {
 import { Track } from "@/utils";
 import React from "react";
 
-export const TopUpGreen = "#15f38c";
-
 const ContentItem = ({
   contentMetadata,
   marginBottom,
@@ -41,7 +39,7 @@ const ContentItem = ({
       style={[
         styles.container,
         { marginBottom },
-        noRewardsLeft && styles.spentContainer,
+        noRewardsLeft && styles.noRewardsLeftContainter,
       ]}
       onPress={onPress}
       disabled={noRewardsLeft}
@@ -62,20 +60,13 @@ const ContentItem = ({
               flexGrow: 1,
             }}
           >
-            <Text
-              style={[styles.title, noRewardsLeft && styles.spentText]}
-              numberOfLines={2}
-            >
+            <Text style={[styles.title]} numberOfLines={2}>
               {contentMetadata.title}
             </Text>
-            <Text style={[styles.artist, noRewardsLeft && styles.spentText]}>
-              {contentMetadata.artist}
-            </Text>
+            <Text style={[styles.artist]}>{contentMetadata.artist}</Text>
           </View>
           <View style={styles.earningsContainer}>
-            <Text style={[styles.earnings, noRewardsLeft && styles.spentText]}>
-              {userEarningsTotal}
-            </Text>
+            <Text style={[styles.earnings]}>{userEarningsTotal}</Text>
           </View>
         </View>
       </View>
@@ -89,7 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  spentContainer: {
+  noRewardsLeftContainter: {
     opacity: 0.5,
   },
   contentWrapper: {
@@ -108,9 +99,6 @@ const styles = StyleSheet.create({
   },
   artist: {
     fontSize: 14,
-  },
-  spentText: {
-    color: TopUpGreen,
   },
   spentArtwork: {
     opacity: 0.7,
