@@ -1,17 +1,16 @@
 import { useNavigation } from "expo-router";
-import { FullSizeMusicPlayer, useMusicPlayer, Text } from "@/components";
+import { FullSizeMusicPlayer } from "@/components";
 import { useEffect } from "react";
+import { PlayerHeaderTitle } from "@/components/FullSizeMusicPlayer/PlayerHeaderTitle";
 
 export default function Player() {
-  const { playerTitle } = useMusicPlayer();
-  const headerTitle = playerTitle ?? "";
   const navigation = useNavigation();
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: () => <Text>{headerTitle}</Text>,
+      headerTitle: () => <PlayerHeaderTitle />,
     });
-  }, [navigation, headerTitle]);
+  }, [navigation]);
 
   return <FullSizeMusicPlayer />;
 }
