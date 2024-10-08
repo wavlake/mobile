@@ -1,5 +1,11 @@
 import { usePromos } from "@/hooks";
-import { FlatList, RefreshControl, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Center } from "./Center";
 import {
   SquareArtwork,
@@ -8,6 +14,114 @@ import {
   useMusicPlayer,
 } from "@/components";
 import { Track } from "@/utils";
+import React from "react";
+
+export const TopUpGreen = "#15f38c";
+
+const ContentItem = ({
+  contentMetadata,
+  marginBottom,
+  onPress,
+  isSpent,
+  msatsEarned,
+  totalmSatsAvailable,
+}: {
+  contentMetadata: Track;
+  marginBottom: number;
+  onPress: () => void;
+  isSpent: boolean;
+  msatsEarned: number;
+  totalmSatsAvailable: number;
+}) => {
+  const userEarningsTotal = `${msatsEarned / 1000}/${
+    totalmSatsAvailable / 1000
+  } sats`;
+  return (
+    <TouchableOpacity
+      style={[
+        styles.container,
+        { marginBottom },
+        isSpent && styles.spentContainer,
+      ]}
+      onPress={onPress}
+      disabled={isSpent}
+    >
+      <View style={styles.contentWrapper}>
+        <SquareArtwork size={150} url={contentMetadata.artworkUrl} />
+        <View
+          style={{
+            flexDirection: "column",
+            display: "flex",
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "column",
+              justifyContent: "center",
+              paddingTop: 20,
+              flexGrow: 1,
+            }}
+          >
+            <Text
+              style={[styles.title, isSpent && styles.spentText]}
+              numberOfLines={2}
+            >
+              {contentMetadata.title}
+            </Text>
+            <Text style={[styles.artist, isSpent && styles.spentText]}>
+              {contentMetadata.artist}
+            </Text>
+          </View>
+          <View style={styles.earningsContainer}>
+            <Text style={[styles.earnings, isSpent && styles.spentText]}>
+              {userEarningsTotal}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  spentContainer: {
+    opacity: 0.5,
+  },
+  contentWrapper: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  textContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+    paddingTop: 20,
+    flexGrow: 1,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  artist: {
+    fontSize: 14,
+  },
+  spentText: {
+    color: TopUpGreen,
+  },
+  spentArtwork: {
+    opacity: 0.7,
+  },
+  earningsContainer: {
+    justifyContent: "center",
+  },
+  earnings: {
+    fontSize: 14,
+  },
+});
 
 export const ListenToEarnPage = () => {
   const { height } = useMiniMusicPlayer();
@@ -18,7 +132,6 @@ export const ListenToEarnPage = () => {
       trackList: [item],
       trackListId: "earning",
       startIndex: 0,
-      playerTitle: "Earning",
     });
   };
 
@@ -57,34 +170,25 @@ export const ListenToEarnPage = () => {
       renderItem={({ item, index }) => {
         if (!item) return null;
 
-        const { contentMetadata } = item;
+        const {
+          contentMetadata,
+          rewardsRemaining,
+          totalEarnedToday,
+          availableEarnings,
+        } = item;
+        console.log("contentMetadata", item);
         const isLastRow = index === promos.length - 1;
         const marginBottom = isLastRow ? height + 16 : 16;
         const onPress = () => handleRowPress(contentMetadata);
         return (
-          <TouchableOpacity style={{ marginBottom }} onPress={onPress}>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 10,
-              }}
-            >
-              <SquareArtwork size={150} url={contentMetadata.artworkUrl} />
-
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
-                  {contentMetadata.title}
-                </Text>
-                <Text>{contentMetadata.artist}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+          <ContentItem
+            contentMetadata={contentMetadata}
+            marginBottom={marginBottom}
+            onPress={onPress}
+            isSpent={false} //!rewardsRemaining}
+            msatsEarned={totalEarnedToday}
+            totalmSatsAvailable={availableEarnings}
+          />
         );
       }}
       keyExtractor={(item) => (item ? item.contentId : "null")}
