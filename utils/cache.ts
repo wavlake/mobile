@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Event } from "nostr-tools";
-import { WalletKey } from "@/utils";
+import { Promo, WalletKey } from "@/utils";
 
 const isFirstAppLaunchKey = "isFirstAppLaunch";
 const isSkipLoginKey = "skipLogin";
@@ -10,6 +10,7 @@ const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
 const makeSettingsKey = (pubkey?: string) =>
   `${pubkey || "anonymous"}.defaultZapWallet`;
+const makePromoKey = (trackId: string) => `promo-${trackId}`;
 
 const storeData = async (key: string, value: string) => {
   await AsyncStorage.setItem(key, value);
@@ -87,6 +88,23 @@ export const getCachedNostrRelayListEvent = async (
   const nostrRelayListEventKey = makeNostrRelayListEventKey(pubkey);
 
   return getObjectData(nostrRelayListEventKey);
+};
+
+export const cachePromoData = async (data: Promo) => {
+  const promoKey = makePromoKey(data.contentId);
+
+  await storeObjectData(promoKey, {
+    ...data,
+    timestamp: Date.now(),
+  });
+};
+
+export const getCachedPromoData = async (
+  contentId: string,
+): Promise<(Promo & { timestamp: number }) | null> => {
+  const promoKey = makePromoKey(contentId);
+
+  return getObjectData(promoKey);
 };
 
 export interface Settings {

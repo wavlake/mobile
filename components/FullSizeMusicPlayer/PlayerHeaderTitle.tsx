@@ -5,6 +5,7 @@ import { TopUpGreen, Text } from "@/components";
 import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
+import { getCachedPromoData } from "@/utils";
 
 // Helper function to darken a hex color
 const darkenColor = (color: string, percent: number) => {

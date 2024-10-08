@@ -1,4 +1,10 @@
-import { createReward, getPromoByContentId, Promo } from "@/utils";
+import {
+  createReward,
+  getPromoByContentId,
+  Promo,
+  getCachedPromoData,
+  cachePromoData,
+} from "@/utils";
 
 const EARNING_INTERVAL = 60; // in seconds
 const CHECK_INTERVAL = 1; // in seconds
@@ -23,6 +29,15 @@ const attemptReward = async () => {
         lastRewardTime = elapsedTime;
       }
 
+      if (response.data) {
+        cachePromoData({
+          ...currentPromoDetails,
+          // update the cached promo info
+          rewardsRemaining: response.data.rewardsRemaining,
+          totalEarnedToday: response.data.totalEarnedToday,
+          availableEarnings: response.data.availableEarnings,
+        });
+      }
       if (!response.data.rewardsRemaining) {
         stopEarning();
       }
@@ -39,6 +54,8 @@ export const startEarning = async (trackId: string) => {
   }
 
   const promoDetails = await getPromoByContentId(trackId);
+
+  cachePromoData(promoDetails);
 
   if (promoDetails && promoDetails.rewardsRemaining) {
     currentPromoDetails = promoDetails;
