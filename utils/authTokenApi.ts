@@ -228,6 +228,9 @@ export interface Promo {
   contentId: string;
   contentType: string;
   rewardsRemaining: boolean;
+  totalEarned: number;
+  totalEarnedToday: number;
+  availableEarnings: number;
 }
 
 export const getUserPromos = async () => {
