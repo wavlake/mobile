@@ -94,6 +94,7 @@ export const PlayerHeaderTitle = () => {
           textAlign: "center",
           color: "black",
         }}
+        bold
       >{`Top Up (${earnedToday / 1000}/${earnableToday / 1000} sats)`}</Text>
     </Animated.View>
   );
