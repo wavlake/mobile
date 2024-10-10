@@ -1,6 +1,11 @@
 import TrackPlayer, { Event, State } from "react-native-track-player";
 import { skipToPrevious } from "@/utils";
-import { startEarning, stopEarning } from "./earning";
+import {
+  pauseEarning,
+  resumeEarning,
+  startEarning,
+  stopEarning,
+} from "./earning";
 
 // This service enables the use of the media controls on the lock screen
 // and in the notification tray
@@ -25,6 +30,19 @@ export const musicService = async () => {
     TrackPlayer.seekTo(event.position);
   });
 
+  TrackPlayer.addEventListener(Event.PlaybackState, async (event) => {
+    if (event.state === State.Playing) {
+      const track = await TrackPlayer.getActiveTrack();
+      if (track?.hasPromo) {
+        resumeEarning();
+      }
+    } else if (event.state === State.Paused) {
+      pauseEarning();
+    } else {
+      stopEarning();
+    }
+  });
+
   TrackPlayer.addEventListener(
     Event.PlaybackActiveTrackChanged,
     async (event) => {
@@ -38,16 +56,4 @@ export const musicService = async () => {
       }
     },
   );
-
-  TrackPlayer.addEventListener(Event.PlaybackState, async (event) => {
-    if (event.state === State.Playing) {
-      // Resume earning if it was paused
-      const track = await TrackPlayer.getActiveTrack();
-      if (track?.hasPromo) {
-        startEarning(track.id);
-      }
-    } else {
-      stopEarning();
-    }
-  });
 };
