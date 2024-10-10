@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { WalletLabel } from "./WalletLabel";
 import { useUser } from "./UserContextProvider";
 import { useSettings } from "@/hooks/useSettings";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
@@ -26,6 +27,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
     catalogUser?.isRegionVerified &&
     !catalogUser?.isLocked &&
     settings?.enableNWC;
+
+  const showTopUp = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
 
   return (
     <DrawerContentScrollView
@@ -79,6 +82,22 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             )}
             onPress={async () => {
               router.push({ pathname: "/wallet" });
+              props.navigation.closeDrawer();
+            }}
+          />
+        )}
+        {showTopUp && (
+          <DrawerItem
+            label={() => <Text style={{ fontSize: 24 }}>Top Up</Text>}
+            icon={({ color, size }) => (
+              <MaterialCommunityIcons
+                name="hand-coin-outline"
+                size={size}
+                color={color}
+              />
+            )}
+            onPress={async () => {
+              router.push({ pathname: "/earn" });
               props.navigation.closeDrawer();
             }}
           />
