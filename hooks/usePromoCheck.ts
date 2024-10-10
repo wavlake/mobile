@@ -8,6 +8,7 @@ import {
 import { usePlaybackState } from "react-native-track-player";
 import { getUsePromoQueryKey } from "./usePromos";
 import { useUser } from "@/components";
+import { useRef, useEffect } from "react";
 
 const CACHE_STALE_TIME = 5 * 1000; // 5 seconds
 
@@ -16,6 +17,19 @@ export const usePromoCheck = (contentId?: string | boolean) => {
   const { user } = useUser();
   const promoListQueryKey = getUsePromoQueryKey(user?.uid);
   const queryClient = useQueryClient();
+
+  const shouldRefetchOnceMoreRef = useRef(false);
+  const lastPlaybackStateRef = useRef(playbackState);
+
+  useEffect(() => {
+    if (
+      playbackState === "playing" &&
+      lastPlaybackStateRef.current !== "playing"
+    ) {
+      shouldRefetchOnceMoreRef.current = true;
+    }
+    lastPlaybackStateRef.current = playbackState;
+  }, [playbackState]);
 
   return useQuery<Promo | null>({
     queryKey: ["promoCheck", contentId],
@@ -42,7 +56,14 @@ export const usePromoCheck = (contentId?: string | boolean) => {
     enabled: Boolean(contentId),
     refetchInterval: (data) => {
       // no need to refetch if not playing
-      if (playbackState !== "playing") return false;
+      if (playbackState !== "playing") {
+        // fetch one more time after playback ends
+        if (shouldRefetchOnceMoreRef.current) {
+          shouldRefetchOnceMoreRef.current = false;
+          return CACHE_STALE_TIME;
+        }
+        return false;
+      }
 
       if (data?.promoUser.canEarnToday) return CACHE_STALE_TIME;
 
