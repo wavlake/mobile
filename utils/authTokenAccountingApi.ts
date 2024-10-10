@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { ResponseObject } from "./api";
 import { Event } from "nostr-tools";
+import { Promo } from "./authTokenApi";
 
 const accountingApi = process.env.EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL;
 const enableResponseLogging = Boolean(
@@ -96,12 +97,9 @@ export const useWavlakeWalletZap = ({
 };
 
 export const createReward = async (body: { promoId: number }) => {
-  const { data } = await accountingApiClient.post<
-    ResponseObject<{
-      rewardsRemaining: boolean;
-      totalEarnedToday: number;
-      availableEarnings: number;
-    }>
-  >(`/promo/reward`, body);
+  const { data } = await accountingApiClient.post<ResponseObject<Promo>>(
+    `/promo/reward`,
+    body,
+  );
   return data;
 };

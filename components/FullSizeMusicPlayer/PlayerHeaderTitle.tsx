@@ -32,19 +32,21 @@ export const PlayerHeaderTitle = () => {
     activeTrack?.hasPromo && activeTrack.id,
   );
 
-  const { rewardsRemaining, totalEarnedToday, availableEarnings } =
-    promoCheckResult?.data || {};
+  const {
+    promoUser: { canEarnToday, earnedToday, earnableToday },
+  } = promoCheckResult?.data || {
+    promoUser: {},
+  };
 
   const isPlaying = playbackState === State.Playing;
   const showEarnings =
-    typeof totalEarnedToday === "number" &&
-    typeof availableEarnings === "number";
+    typeof earnedToday === "number" && typeof earnableToday === "number";
 
   // Animation setup
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (isPlaying && rewardsRemaining) {
+    if (isPlaying && canEarnToday) {
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -62,7 +64,7 @@ export const PlayerHeaderTitle = () => {
     } else {
       pulseAnim.setValue(0);
     }
-  }, [isPlaying, rewardsRemaining, pulseAnim]);
+  }, [isPlaying, canEarnToday, pulseAnim]);
 
   const backgroundColor = pulseAnim.interpolate({
     inputRange: [0, 1],
@@ -81,9 +83,7 @@ export const PlayerHeaderTitle = () => {
       style={{
         borderRadius: 20,
         backgroundColor:
-          isPlaying && rewardsRemaining
-            ? backgroundColor
-            : brandColors.beige.dark,
+          isPlaying && canEarnToday ? backgroundColor : brandColors.beige.dark,
         padding: 6,
         width: 200,
       }}
@@ -94,9 +94,7 @@ export const PlayerHeaderTitle = () => {
           textAlign: "center",
           color: "black",
         }}
-      >{`Top Up (${totalEarnedToday / 1000}/${
-        availableEarnings / 1000
-      } sats)`}</Text>
+      >{`Top Up (${earnedToday / 1000}/${earnableToday / 1000} sats)`}</Text>
     </Animated.View>
   );
 };

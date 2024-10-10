@@ -20,20 +20,21 @@ const ContentItem = ({
   contentMetadata,
   marginBottom,
   onPress,
-  noRewardsLeft,
-  msatsEarned,
-  totalmSatsAvailable,
+  canEarnToday,
+  earnedToday,
+  earnableToday,
 }: {
   contentMetadata: Track;
   marginBottom: number;
   onPress: () => void;
-  noRewardsLeft: boolean;
-  msatsEarned: number;
-  totalmSatsAvailable: number;
+  canEarnToday: boolean;
+  earnedToday: number;
+  earnableToday: number;
 }) => {
-  const userEarningsTotal = `${msatsEarned / 1000}/${
-    totalmSatsAvailable / 1000
+  const userEarningsTotal = `${earnedToday / 1000}/${
+    earnableToday / 1000
   } sats`;
+  const noRewardsLeft = !canEarnToday;
   return (
     <TouchableOpacity
       style={[
@@ -42,7 +43,6 @@ const ContentItem = ({
         noRewardsLeft && styles.noRewardsLeftContainter,
       ]}
       onPress={onPress}
-      disabled={noRewardsLeft}
     >
       <View style={styles.contentWrapper}>
         <SquareArtwork size={150} url={contentMetadata.artworkUrl} />
@@ -138,7 +138,7 @@ export const ListenToEarnPage = () => {
               marginBottom: 16,
             }}
           >
-            Promoted
+            Top Up
           </Text>
           <Text
             style={{
@@ -147,7 +147,8 @@ export const ListenToEarnPage = () => {
               textAlign: "center",
             }}
           >
-            You can earn sats to listen to any of the following tracks.
+            You can earn sats to listen to any of the following promoted tracks.
+            Limit of earning once per track per day.
           </Text>
         </Center>
       )}
@@ -160,11 +161,9 @@ export const ListenToEarnPage = () => {
 
         const {
           contentMetadata,
-          rewardsRemaining,
-          totalEarnedToday,
-          availableEarnings,
+          promoUser: { canEarnToday, earnedToday, earnableToday },
         } = item;
-        console.log(item);
+
         const isLastRow = index === promos.length - 1;
         const marginBottom = isLastRow ? height + 16 : 16;
         const onPress = () => handleRowPress(contentMetadata);
@@ -173,9 +172,9 @@ export const ListenToEarnPage = () => {
             contentMetadata={contentMetadata}
             marginBottom={marginBottom}
             onPress={onPress}
-            noRewardsLeft={!rewardsRemaining}
-            msatsEarned={totalEarnedToday}
-            totalmSatsAvailable={availableEarnings}
+            canEarnToday={canEarnToday}
+            earnedToday={earnedToday}
+            earnableToday={earnableToday}
           />
         );
       }}

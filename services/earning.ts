@@ -2,7 +2,6 @@ import {
   createReward,
   getPromoByContentId,
   Promo,
-  getCachedPromoData,
   cachePromoData,
 } from "@/utils";
 
@@ -13,19 +12,19 @@ let earningInterval: NodeJS.Timeout | null = null;
 let currentPromoDetails: Promo | null = null;
 let elapsedTime: number = 0;
 let lastRewardTime: number = 0;
-let totalEarned: number = 0;
+let isRewardInProgress: boolean = false;
 
 const attemptReward = async () => {
-  if (!currentPromoDetails) return;
+  if (!currentPromoDetails || isRewardInProgress) return;
 
   try {
     if (elapsedTime - lastRewardTime >= EARNING_INTERVAL) {
+      isRewardInProgress = true;
       const response = await createReward({
         promoId: currentPromoDetails.id,
       });
 
       if (response.success) {
-        totalEarned += currentPromoDetails.msatPayoutAmount;
         lastRewardTime = elapsedTime;
       }
 
@@ -33,18 +32,38 @@ const attemptReward = async () => {
         cachePromoData({
           ...currentPromoDetails,
           // update the cached promo info
-          rewardsRemaining: response.data.rewardsRemaining,
-          totalEarnedToday: response.data.totalEarnedToday,
-          availableEarnings: response.data.availableEarnings,
+          promoUser: {
+            ...currentPromoDetails.promoUser,
+            canEarnToday: response.data.promoUser.canEarnToday,
+            lifetimeEarnings: response.data.promoUser.lifetimeEarnings,
+            earnedToday: response.data.promoUser.earnedToday,
+            earnableToday: response.data.promoUser.earnableToday,
+          },
         });
+        // update the local earning's copy of current promo details
+        currentPromoDetails = {
+          ...currentPromoDetails,
+          promoUser: {
+            ...currentPromoDetails.promoUser,
+            canEarnToday: response.data.promoUser.canEarnToday,
+            lifetimeEarnings: response.data.promoUser.lifetimeEarnings,
+            earnedToday: response.data.promoUser.earnedToday,
+            earnableToday: response.data.promoUser.earnableToday,
+          },
+        };
       }
-      if (!response.data.rewardsRemaining) {
+      if (!response.data.promoUser.canEarnToday) {
         stopEarning();
       }
+    } else {
+      // re-cache the promo info so its timestamp is updated
+      cachePromoData(currentPromoDetails);
     }
   } catch (error) {
     console.error("Error creating reward:", error);
     stopEarning();
+  } finally {
+    isRewardInProgress = false;
   }
 };
 
@@ -56,18 +75,19 @@ export const startEarning = async (trackId: string) => {
   const promoDetails = await getPromoByContentId(trackId);
 
   cachePromoData(promoDetails);
-
-  if (promoDetails && promoDetails.rewardsRemaining) {
+  if (promoDetails && promoDetails.promoUser.canEarnToday) {
     currentPromoDetails = promoDetails;
 
     // Reset elapsed time and last reward time
     elapsedTime = 0;
     lastRewardTime = 0;
-
+    isRewardInProgress = false;
     earningInterval = setInterval(() => {
-      elapsedTime++;
+      elapsedTime = elapsedTime + CHECK_INTERVAL;
       attemptReward();
     }, CHECK_INTERVAL * 1000);
+  } else {
+    console.log("No rewards remaining, skipping earning");
   }
 };
 
@@ -79,6 +99,5 @@ export const stopEarning = () => {
   currentPromoDetails = null;
   elapsedTime = 0;
   lastRewardTime = 0;
+  isRewardInProgress = false;
 };
-
-export const getTotalEarned = () => totalEarned;

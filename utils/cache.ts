@@ -92,7 +92,6 @@ export const getCachedNostrRelayListEvent = async (
 
 export const cachePromoData = async (data: Promo) => {
   const promoKey = makePromoKey(data.contentId);
-
   await storeObjectData(promoKey, {
     ...data,
     timestamp: Date.now(),

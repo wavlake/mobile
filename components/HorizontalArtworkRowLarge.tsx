@@ -67,7 +67,7 @@ const RowItem: React.FC<{
     : backgroundIsBlack
     ? lightenedBackgroundColor || brandColors.black.light
     : background ?? brandColors.black.light;
-  isLast && console.log(item);
+
   return (
     <View
       style={{
