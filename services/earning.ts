@@ -86,8 +86,6 @@ export const startEarning = async (trackId: string) => {
       elapsedTime = elapsedTime + CHECK_INTERVAL;
       attemptReward();
     }, CHECK_INTERVAL * 1000);
-  } else {
-    console.log("No rewards remaining, skipping earning");
   }
 };
 
