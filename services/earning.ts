@@ -21,9 +21,7 @@ class EarningManager {
   private isPlaying: boolean = false;
   private currentTrackId: string | null = null;
 
-  private constructor() {
-    console.log("EarningManager instance created");
-  }
+  private constructor() {}
 
   public static getInstance(): EarningManager {
     if (!EarningManager.instance) {
