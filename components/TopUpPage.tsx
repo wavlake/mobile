@@ -7,25 +7,20 @@ import {
   View,
 } from "react-native";
 import { Center } from "./Center";
-import {
-  SquareArtwork,
-  Text,
-  useMiniMusicPlayer,
-  useMusicPlayer,
-} from "@/components";
+import { SquareArtwork, Text, useMusicPlayer } from "@/components";
 import { Track } from "@/utils";
 import React from "react";
+import { useRouter } from "expo-router";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 const ContentItem = ({
   contentMetadata,
-  marginBottom,
   onPress,
   canEarnToday,
   earnedToday,
   earnableToday,
 }: {
   contentMetadata: Track;
-  marginBottom: number;
   onPress: () => void;
   canEarnToday: boolean;
   earnedToday: number;
@@ -39,7 +34,6 @@ const ContentItem = ({
     <TouchableOpacity
       style={[
         styles.container,
-        { marginBottom },
         noRewardsLeft && styles.noRewardsLeftContainter,
       ]}
       onPress={onPress}
@@ -79,6 +73,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 16,
   },
   noRewardsLeftContainter: {
     opacity: 0.5,
@@ -111,8 +106,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ListenToEarnPage = () => {
-  const { height } = useMiniMusicPlayer();
+export const TopUpPage = () => {
+  const router = useRouter();
+  const basePathname = useGetBasePathname();
   const { data: promos = [], isLoading, refetch } = usePromos();
   const { loadTrackList } = useMusicPlayer();
   const handleRowPress = (item: Track) => {
@@ -121,36 +117,27 @@ export const ListenToEarnPage = () => {
       trackListId: "earning",
       startIndex: 0,
     });
+    router.push({
+      pathname: "/player",
+      params: { basePathname },
+    });
   };
 
   return (
     <FlatList
       contentContainerStyle={{ flexGrow: 1 }}
       ListHeaderComponent={() => (
-        <Center
+        <Text
           style={{
+            fontSize: 14,
+            // marginBottom: 16,
             padding: 16,
+            textAlign: "center",
           }}
         >
-          <Text
-            style={{
-              fontSize: 20,
-              marginBottom: 16,
-            }}
-          >
-            Top Up
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              marginBottom: 16,
-              textAlign: "center",
-            }}
-          >
-            You can earn sats to listen to any of the following promoted tracks.
-            Limit of earning once per track per day.
-          </Text>
-        </Center>
+          You can earn sats to listen to any of the following promoted tracks.
+          Limit of earning once per track per day.
+        </Text>
       )}
       data={promos}
       refreshControl={
@@ -164,13 +151,10 @@ export const ListenToEarnPage = () => {
           promoUser: { canEarnToday, earnedToday, earnableToday },
         } = item;
 
-        const isLastRow = index === promos.length - 1;
-        const marginBottom = isLastRow ? height + 16 : 16;
         const onPress = () => handleRowPress(contentMetadata);
         return (
           <ContentItem
             contentMetadata={contentMetadata}
-            marginBottom={marginBottom}
             onPress={onPress}
             canEarnToday={canEarnToday}
             earnedToday={earnedToday}

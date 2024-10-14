@@ -147,6 +147,16 @@ export default function Layout() {
                       }}
                     />
                     <Stack.Screen
+                      name="topup"
+                      options={{
+                        headerBackVisible: false,
+                        headerLeft: () => <HeaderBackButton />,
+                        headerTitle: () => (
+                          <Text style={{ fontSize: 18 }}>Top Up</Text>
+                        ),
+                      }}
+                    />
+                    <Stack.Screen
                       name="nwcScanner"
                       options={{
                         headerTitle: () => <Text>Nostr Wallet Connect</Text>,

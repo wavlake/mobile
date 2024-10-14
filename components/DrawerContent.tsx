@@ -98,7 +98,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               />
             )}
             onPress={async () => {
-              router.push({ pathname: "/earn" });
+              router.push({ pathname: "/topup" });
               props.navigation.closeDrawer();
             }}
           />

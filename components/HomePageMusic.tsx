@@ -7,10 +7,10 @@ import {
   useMiniMusicPlayer,
   Text,
   SectionHeader,
+  TopUpSection,
+  ForYouSection,
+  FeaturedSection,
 } from "@/components";
-import { ForYouSection } from "./ForYouSection";
-import { ListenToEarnSection } from "./ListenToEarnSection";
-import { FeaturedSection } from "./FeaturedSection";
 import { useHomePage } from "@/hooks";
 
 interface TopMusicRowProps {
@@ -83,7 +83,7 @@ export const HomePageMusic = () => {
           ? null
           : () => (
               <View>
-                <ListenToEarnSection />
+                <TopUpSection />
                 <FeaturedSection data={featured} />
                 <ForYouSection data={forYou} />
                 <NewMusicSection data={newTracks} />
