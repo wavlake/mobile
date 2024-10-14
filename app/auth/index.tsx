@@ -2,10 +2,12 @@ import { Text, Button, Center, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useRegionCheck } from "@/hooks/useRegionCheck";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
 
 export default function InitialPage() {
   const router = useRouter();
+  const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const { refetch } = useRegionCheck({ enabled: false });
   const handleLogin = async () => {
@@ -15,13 +17,23 @@ export default function InitialPage() {
   const handleSignUp = async () => {
     setIsLoading(true);
     const isAllowed = await refetch();
-    router.push({
+    await router.push({
       pathname: "/auth/signup",
       params: {
         isRegionVerified: isAllowed ? "true" : "false",
       },
     });
+    setIsLoading(false);
   };
+
+  // Prevents user from going back, user must choose an option on page
+  useEffect(
+    () =>
+      navigation.addListener("beforeRemove", (e) => {
+        e.preventDefault();
+      }),
+    [navigation],
+  );
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>

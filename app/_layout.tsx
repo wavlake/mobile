@@ -17,7 +17,7 @@ import {
   QueryClientProvider,
   focusManager,
 } from "@tanstack/react-query";
-import { MusicPlayerProvider, Text } from "@/components";
+import { MusicPlayerProvider, Text, HeaderBackButton } from "@/components";
 import { AppState, Platform, AppStateStatus, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import TrackPlayer, {
@@ -140,7 +140,11 @@ export default function Layout() {
                     />
                     <Stack.Screen
                       name="settings"
-                      options={{ headerTitle: () => <Text>Settings</Text> }}
+                      options={{
+                        headerBackVisible: false,
+                        headerLeft: () => <HeaderBackButton />,
+                        headerTitle: () => <Text>Settings</Text>,
+                      }}
                     />
                     <Stack.Screen
                       name="nwcScanner"

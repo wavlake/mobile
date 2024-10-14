@@ -1,6 +1,5 @@
 import { Stack } from "expo-router";
-import { HeaderBackButton, Text } from "@/components";
-import { Platform } from "react-native";
+import { Text, HeaderBackButton } from "@/components";
 
 export default function ZapLayout() {
   return (
@@ -13,9 +12,8 @@ export default function ZapLayout() {
         headerTintColor: "white",
         headerBackTitleVisible: false,
         headerTitleAlign: "center",
-        headerLeft:
-          // android shows a double back button, so we hide it
-          Platform.OS === "android" ? undefined : () => <HeaderBackButton />,
+        headerBackVisible: false,
+        headerLeft: () => <HeaderBackButton />,
       }}
     >
       <Stack.Screen

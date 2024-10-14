@@ -19,7 +19,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import { CheckBox } from "@rneui/base";
 import { brandColors } from "@/constants";
-import { useCreateNewUser } from "@/utils";
 import { useAuth, useCreateNewNostrAccount, useToast } from "@/hooks";
 
 const ZBD_TOS = "https://zbd.gg/z/terms";
