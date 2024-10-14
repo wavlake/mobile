@@ -47,7 +47,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               <Ionicons name="log-in-outline" size={size} color={color} />
             )}
             onPress={() => {
-              router.push("/auth");
+              router.canDismiss() && router.dismissAll();
+              router.replace("/auth");
               props.navigation.closeDrawer();
             }}
           />
@@ -144,6 +145,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
                       onPress: async () => {
                         await logout();
                         await signOut();
+                        router.canDismiss() && router.dismissAll();
                         router.replace("/auth");
                         props.navigation.closeDrawer();
                       },

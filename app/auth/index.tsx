@@ -2,12 +2,10 @@ import { Text, Button, Center, LogoIcon } from "@/components";
 import { View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useRegionCheck } from "@/hooks/useRegionCheck";
-import { useState, useEffect } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
 
 export default function InitialPage() {
   const router = useRouter();
-  const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const { refetch } = useRegionCheck({ enabled: false });
   const handleLogin = async () => {
@@ -25,15 +23,6 @@ export default function InitialPage() {
     });
     setIsLoading(false);
   };
-
-  // Prevents user from going back, user must choose an option on page
-  useEffect(
-    () =>
-      navigation.addListener("beforeRemove", (e) => {
-        e.preventDefault();
-      }),
-    [navigation],
-  );
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
