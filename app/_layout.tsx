@@ -159,8 +159,6 @@ export default function Layout() {
                       name="wallet"
                       options={{
                         headerShown: false,
-
-                        headerTitle: () => <Text>Wallet</Text>,
                       }}
                     />
                   </Stack>
