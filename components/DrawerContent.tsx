@@ -14,6 +14,7 @@ import { WalletLabel } from "./WalletLabel";
 import { useUser } from "./UserContextProvider";
 import { useSettings } from "@/hooks/useSettings";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Entypo from "@expo/vector-icons/Entypo";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
@@ -91,11 +92,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Top Up</Text>}
             icon={({ color, size }) => (
-              <MaterialCommunityIcons
-                name="hand-coin-outline"
-                size={size}
-                color={color}
-              />
+              <Entypo name="sound" size={size} color={color} />
             )}
             onPress={async () => {
               router.push({ pathname: "/topup" });
