@@ -49,7 +49,7 @@ const NsecInputMetadata: React.FC<{
   isLoading: boolean;
   isGeneratedNsec: boolean;
   profileMetadata: NostrUserProfile | null | undefined;
-  nsecInputPubkey: string | null;
+  nsecInputPubkey?: string | null;
 }> = ({ isLoading, isGeneratedNsec, profileMetadata, nsecInputPubkey }) => {
   const NPUB_AVATAR_SIZE = 40;
   if (isGeneratedNsec || !nsecInputPubkey)
