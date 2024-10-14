@@ -62,7 +62,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             props.navigation.closeDrawer();
           }}
         />
-        <DrawerItem
+        {/* <DrawerItem
           label={() => <Text style={{ fontSize: 24 }}>Events</Text>}
           icon={({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
@@ -73,7 +73,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             });
             props.navigation.closeDrawer();
           }}
-        />
+        /> */}
         {showWallet && (
           <DrawerItem
             label={() => <WalletLabel />}
