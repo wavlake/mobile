@@ -48,8 +48,8 @@ export default function AuthLayout() {
         name="welcome"
         options={{
           headerTitle: () => <Text>Welcome</Text>,
-          // Hide back button from header (null doesnt work)
-          // disable back gesture on Android
+          headerBackVisible: false,
+          headerLeft: undefined,
           gestureEnabled: false,
         }}
       />
