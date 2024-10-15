@@ -114,13 +114,6 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="earn"
-            options={{
-              // this hides the tab from showing in the tab bar
-              href: null,
-            }}
-          />
-          <Tabs.Screen
             name="profile"
             options={{
               // this hides the tab from showing in the tab bar
