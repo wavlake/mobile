@@ -56,15 +56,22 @@ const RowItem: React.FC<{
   const {
     background,
     foreground: textColor,
-    backgroundIsBlack,
+    backgroundIsNearBlack,
     lightenedBackgroundColor,
     isLoading,
   } = useGetColorPalette(item.artworkUrl);
 
+  if (item.title === "The Hard Way") {
+    console.log("background", background);
+    console.log("textColor", textColor);
+    console.log("backgroundIsNearBlack", backgroundIsNearBlack);
+    console.log("lightenedBackgroundColor", lightenedBackgroundColor);
+    console.log("isLoading", isLoading);
+  }
   // default to light black if these colors are not available
   const backgroundColor = isLoading
     ? brandColors.black.DEFAULT
-    : backgroundIsBlack
+    : backgroundIsNearBlack
     ? lightenedBackgroundColor || brandColors.black.light
     : background ?? brandColors.black.light;
 
