@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import * as Linking from "expo-linking";
-import { useRouter } from "expo-router";
 import { useUser } from "./UserContextProvider";
 import { useToast } from "@/hooks";
+import { RouteParams, useRouter } from "expo-router";
 
-const ROUTE_MAPPING: Record<
+export const ROUTE_MAPPING: Record<
   string,
   {
     getPath: (id: string) => string;
@@ -22,102 +22,127 @@ const ROUTE_MAPPING: Record<
     includeBackButton: "true",
     history: ["/library"],
   },
-  "": {
-    getPath: (name: string) => `/artist/${name}`,
-    includeBackButton: "true",
-    history: ["/library"],
+  "verification-link": {
+    getPath: (id: string) => `/auth/email-ver`,
+    includeBackButton: "false",
+    history: [],
   },
 };
 
-const DeepLinkHandler = () => {
-  const toast = useToast();
-  const router = useRouter();
-  const { verifyEmailLink } = useUser();
+interface InitialState {
+  routes: Array<{
+    name: string;
+    params?: RouteParams<string>;
+  }>;
+}
 
+const DeepLinkHandler: React.FC<PropsWithChildren> = ({ children }) => {
+  const [initialState, setInitialState] = useState<InitialState | undefined>();
+  const toast = useToast();
+  const { verifyEmailLink } = useUser();
+  const router = useRouter();
   useEffect(() => {
-    const handleDeepLink: Linking.URLListener = async (event) => {
-      const { path, queryParams } = Linking.parse(event.url);
-      const urlParams = new URL(event.url).searchParams;
+    const handleDeepLink = async (url: string | null) => {
+      if (!url) {
+        return;
+      }
+
+      const { path } = Linking.parse(url);
+      const urlParams = new URL(url).searchParams;
       const emailLinkAction = urlParams.get("mode");
 
-      // Handle email verification
       if (emailLinkAction === "verifyEmail") {
-        const result = await verifyEmailLink(event.url);
+        const result = await verifyEmailLink(url);
         if (result.success) {
-          // navigate to email verification screen to resume process
-          router.replace({
-            pathname: "/auth/email-ver",
-            params: {
-              navFromEmailVerLink: "true",
-              // TODO - this state should come from the email ver link
-              // https://firebase.google.com/docs/auth/web/passing-state-in-email-actions
-              // assume true so users can edit their npub after verifying email
-              createdRandomNpub: "true",
-            },
+          setInitialState({
+            routes: [
+              {
+                name: "/auth/email-ver",
+                params: {
+                  navFromEmailVerLink: "true",
+                  createdRandomNpub: "true",
+                },
+              },
+            ],
           });
         } else {
           const errorMessage =
             "error" in result ? result.error : "An unexpected error occurred.";
           toast.show(errorMessage);
-          router.replace({
-            pathname: "/auth/error",
-            params: { errorMessage },
+          setInitialState({
+            routes: [
+              {
+                name: "/auth/email-ver",
+                params: { errorMessage },
+              },
+            ],
           });
         }
-        return;
       } else if (emailLinkAction === "resetPassword") {
-        // TODO - navigate to reset password screen and call resetPassword
         toast.show(
           "Reset password not yet supported. Please visit wavlake.com to reset your password.",
         );
       } else if (emailLinkAction === "recoverEmail") {
-        // TODO
         toast.show(
           "Email recovery not yet supported. Please visit wavlake.com to recover your email.",
         );
-      }
-
-      // special NWC case
-      if (event.url.startsWith("nostr+walletconnect")) {
-        router.push({
-          pathname: "/nwc",
-          params: {
-            uri: event.url,
-          },
-        });
-        return;
-      }
-
-      // existing deep link handling
-      if (!path) return;
-      for (const [
-        route,
-        { getPath, history, includeBackButton },
-      ] of Object.entries(ROUTE_MAPPING)) {
-        if (path.startsWith(route)) {
-          const id = path.split("/")[1];
-          const mobilePath = getPath(id);
-
-          history.forEach((path) => router.push(path));
-          router.push({
-            pathname: mobilePath,
-            params: {
-              includeBackButton: "true",
+      } else if (url.startsWith("nostr+walletconnect")) {
+        setInitialState({
+          routes: [
+            {
+              name: "/nwc",
+              params: { uri: url },
             },
-          });
-          return;
+          ],
+        });
+      } else if (path) {
+        for (const [
+          route,
+          { getPath, history, includeBackButton },
+        ] of Object.entries(ROUTE_MAPPING)) {
+          if (path.startsWith(route)) {
+            const id = path.split("/")[1];
+            const mobilePath = getPath(id);
+            setInitialState({
+              routes: [
+                ...history.map((path) => ({ name: path })),
+                {
+                  name: mobilePath,
+                  params: {
+                    includeBackButton: includeBackButton ? "true" : "false",
+                  },
+                },
+              ],
+            });
+            break;
+          }
         }
       }
     };
 
-    const subscription = Linking.addEventListener("url", handleDeepLink);
+    Linking.getInitialURL().then(handleDeepLink);
+
+    const subscription = Linking.addEventListener("url", (event) =>
+      handleDeepLink(event.url),
+    );
 
     return () => {
       subscription.remove();
     };
-  }, [router]);
+  }, []);
 
-  return null;
+  useEffect(() => {
+    if (initialState && initialState.routes.length > 0) {
+      const route = initialState.routes[0];
+      console.log("Navigating to:", route.name, route.params);
+      router.replace({
+        pathname: route.name as any,
+        params: route.params,
+      });
+    }
+  }, [initialState]);
+
+  return children;
 };
 
 export default DeepLinkHandler;
