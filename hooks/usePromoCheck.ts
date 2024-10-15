@@ -35,7 +35,6 @@ export const usePromoCheck = (contentId?: string | boolean) => {
     queryKey: ["promoCheck", contentId],
     queryFn: async () => {
       if (typeof contentId !== "string") return null;
-      queryClient.invalidateQueries(promoListQueryKey);
       // First, try to get data from cache
       const cachedData = await getCachedPromoData(contentId);
       const now = Date.now();
@@ -45,6 +44,7 @@ export const usePromoCheck = (contentId?: string | boolean) => {
         return cachedData;
       }
 
+      queryClient.invalidateQueries(promoListQueryKey);
       // If cache is stale or doesn't exist, fetch from API
       const apiData = await getPromoByContentId(contentId);
 
