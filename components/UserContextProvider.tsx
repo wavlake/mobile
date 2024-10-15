@@ -91,13 +91,13 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       if (user) {
         const { data: incomingCatalogUser } = await _refetchUser();
         if (incomingCatalogUser?.id) {
-          // when a user has just been created in catalog, only the firebase data will come back
-          // so we check if the catalog user db info is also present (id comes from the db)
           setCatalogUser(incomingCatalogUser);
         } else {
           // if id is not there, we need to refetch again to get the full user data from the db
+          // when a new user is signing up, the client creates the firebase user and then makes a call to create the user in the db
+          // we need to pause to let the db record be created before we try to fetch it
+          await new Promise((resolve) => setTimeout(resolve, 3000));
           const { data: refetchedCatalogUser } = await _refetchUser();
-
           setCatalogUser(refetchedCatalogUser);
         }
       } else {
