@@ -16,7 +16,7 @@ export const HeaderBackButton = ({ direction = "left" }: HeaderTitleProps) => {
     if (isPresented) {
       router.back();
     } else {
-      router.push("../");
+      router.replace("/");
     }
   };
 
