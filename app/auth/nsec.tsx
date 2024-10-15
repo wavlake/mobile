@@ -186,7 +186,10 @@ export default function NsecLoginPage() {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+      >
         {userAssociatedPubkey && (
           <AssociatedAccountInfo
             useAssoicatedPubkeyMetadata={assoicatedMetadata}
@@ -234,10 +237,16 @@ export default function NsecLoginPage() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flexDirection: "column",
     paddingHorizontal: 24,
     paddingBottom: 50,
+  },
+  contentContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    height: "100%",
   },
   content: {
     flexDirection: "column",
