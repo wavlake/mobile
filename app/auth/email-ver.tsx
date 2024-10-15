@@ -16,10 +16,12 @@ import {
 import DeviceInfo from "react-native-device-info";
 
 export default function EmailVer() {
-  const { navFromEmailVerLink, createdRandomNpub } = useLocalSearchParams<{
-    navFromEmailVerLink: "true" | "false";
-    createdRandomNpub: "true" | "false";
-  }>();
+  const { navFromEmailVerLink, createdRandomNpub, errorMessage } =
+    useLocalSearchParams<{
+      navFromEmailVerLink: "true" | "false";
+      createdRandomNpub: "true" | "false";
+      errorMessage: string;
+    }>();
   const userCameFromEmailLink = navFromEmailVerLink === "true";
   const { resendVerificationEmail, checkIfEmailIsVerified, catalogUser } =
     useUser();
@@ -103,42 +105,50 @@ export default function EmailVer() {
           paddingHorizontal: 24,
         }}
       >
-        <View
-          style={{
-            flexGrow: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 40,
-          }}
-        >
-          <Text
+        {errorMessage ? (
+          <Text style={{ color: "white", paddingBottom: 40 }}>
+            {errorMessage}
+          </Text>
+        ) : (
+          <View
             style={{
-              fontSize: 14,
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 40,
             }}
           >
-            Please check your email for a verification link
-          </Text>
-          <Button color="white" onPress={handleCheckAgain}>
-            Check Again
-          </Button>
-          <TouchableOpacity onPress={openEmailClient}>
-            <Text style={{ fontSize: 18 }} bold>
-              Open Email App
+            <Text
+              style={{
+                fontSize: 14,
+              }}
+            >
+              Please check your email for a verification link
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleResend}>
-            <Text style={{ fontSize: 18 }} bold>
-              Re-send Verification Email
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <Button color="white" onPress={handleCheckAgain}>
+              Check Again
+            </Button>
+            <TouchableOpacity onPress={openEmailClient}>
+              <Text style={{ fontSize: 18 }} bold>
+                Open Email App
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleResend}>
+              <Text style={{ fontSize: 18 }} bold>
+                Re-send Verification Email
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <TouchableOpacity
           style={{
             marginBottom: 60,
           }}
-          onPress={() => router.back()}
+          onPress={() => {
+            router.canGoBack() ? router.back() : router.replace("/");
+          }}
         >
           <Text style={{ fontSize: 18 }} bold>
             Go Back
