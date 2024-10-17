@@ -13,16 +13,18 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Linking,
+  StyleSheet,
   KeyboardAvoidingView,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import { CheckBox } from "@rneui/base";
 import { brandColors } from "@/constants";
-import { useCreateNewUser } from "@/utils";
 import { useAuth, useCreateNewNostrAccount, useToast } from "@/hooks";
 
 const ZBD_TOS = "https://zbd.gg/z/terms";
+const WAVLAKE_TOS =
+  "https://wavlake.notion.site/Terms-of-Service-c8713bd924b64b3fb3b510b6a4bc1b9c";
 
 const SignUpPage = () => {
   const { isRegionVerified: isVerifiedString } = useLocalSearchParams<{
@@ -215,37 +217,10 @@ const SignUpPage = () => {
             />
             {isRegionVerified && (
               <>
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 10,
-                  }}
-                >
-                  <CheckBox
-                    checked={tosChecked}
-                    onPress={() => setTosChecked(!tosChecked)}
-                    iconType="material-community"
-                    checkedIcon="checkbox-outline"
-                    uncheckedIcon={"checkbox-blank-outline"}
-                    containerStyle={{
-                      backgroundColor: "transparent",
-                    }}
-                    size={28}
-                    checkedColor="white"
-                  />
-                  <Text>I agree to the</Text>
-                  <Text
-                    onPress={() => {
-                      Linking.openURL(ZBD_TOS);
-                    }}
-                    style={{ color: brandColors.purple.DEFAULT }}
-                  >
-                    Terms of Service
-                  </Text>
-                </View>
+                <AgreementCheckbox
+                  checked={tosChecked}
+                  onCheckChanged={setTosChecked}
+                />
                 {tosError && (
                   <Text
                     style={{
@@ -278,5 +253,76 @@ const SignUpPage = () => {
     </TouchableWithoutFeedback>
   );
 };
+
+const AgreementCheckbox: React.FC<{
+  checked: boolean;
+  onCheckChanged: (checked: boolean) => void;
+}> = ({ checked, onCheckChanged }) => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.checkboxContainer}>
+        <CheckBox
+          checked={checked}
+          onPress={() => onCheckChanged(!checked)}
+          iconType="material-community"
+          checkedIcon="checkbox-outline"
+          uncheckedIcon="checkbox-blank-outline"
+          containerStyle={styles.checkbox}
+          size={28}
+          checkedColor="white"
+        />
+        <View style={styles.textContainer}>
+          <Text>
+            {"I agree to "}
+            <Text
+              onPress={() => {
+                Linking.openURL(WAVLAKE_TOS);
+              }}
+              style={{ color: brandColors.purple.DEFAULT }}
+            >
+              terms
+            </Text>
+            {" and "}
+            <Text
+              onPress={() => {
+                Linking.openURL(ZBD_TOS);
+              }}
+              style={{ color: brandColors.purple.DEFAULT }}
+            >
+              payments
+            </Text>
+            {" policy."}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    backgroundColor: "transparent",
+    marginLeft: 0,
+    marginRight: 10,
+    padding: 0,
+  },
+  textContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    flex: 1,
+  },
+  link: {
+    textDecorationLine: "underline",
+  },
+});
 
 export default SignUpPage;

@@ -18,7 +18,6 @@ export * from "./useHomePage";
 export * from "./usePromos";
 export * from "./useGetColorPalette";
 export * from "./usePromoCheck";
-export * from "./useEarnPromo";
 export * from "./useCreateReward";
 export * from "./useCheckIfUsernameExists";
 export * from "./useAutoConnectNWC";

@@ -50,7 +50,7 @@ export const FullSizeMusicPlayer = () => {
     artworkUrl: "",
   };
 
-  // const { background, foreground, backgroundIsBlack } =
+  // const { background, foreground, backgroundIsNearBlack } =
   //   useGetColorPalette(artworkUrl);
 
   const screenWidth = Dimensions.get("window").width;
@@ -138,7 +138,7 @@ export const FullSizeMusicPlayer = () => {
     );
   }
 
-  // const backgroundColor = backgroundIsBlack
+  // const backgroundColor = backgroundIsNearBlack
   //   ? brandColors.black.light
   //   : background ?? brandColors.black.light;
 

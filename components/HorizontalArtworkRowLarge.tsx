@@ -56,18 +56,11 @@ const RowItem: React.FC<{
   const {
     background,
     foreground: textColor,
-    backgroundIsBlack,
-    lightenedBackgroundColor,
     isLoading,
   } = useGetColorPalette(item.artworkUrl);
 
-  // default to light black if these colors are not available
-  const backgroundColor = isLoading
-    ? brandColors.black.DEFAULT
-    : backgroundIsBlack
-    ? lightenedBackgroundColor || brandColors.black.light
-    : background ?? brandColors.black.light;
-  isLast && console.log(item);
+  const backgroundColor = background ?? brandColors.black.DEFAULT;
+
   return (
     <View
       style={{

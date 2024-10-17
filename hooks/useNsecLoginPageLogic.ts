@@ -124,16 +124,12 @@ export const useNsecLoginPageLogic = () => {
         );
       }
     }
-    router.replace(
-      nostrOnlyLogin
-        ? {
-            pathname: "auth/welcome",
-            params: {
-              nostrOnlyLogin: "true",
-            },
-          }
-        : "/",
-    );
+    router.replace({
+      pathname: "auth/welcome",
+      params: {
+        nostrOnlyLogin: nostrOnlyLogin ? "true" : "false",
+      },
+    });
     setIsLoggingIn(false);
   };
 
