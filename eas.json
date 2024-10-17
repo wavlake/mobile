@@ -2,7 +2,7 @@
   "build": {
     "production": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1",
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog.wavlake.com/v1",
         "EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL": "https://accounting.wavlake.com/v1",
         "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
       },
@@ -10,7 +10,7 @@
     },
     "external": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1",
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog.wavlake.com/v1",
         "EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL": "https://accounting.wavlake.com/v1",
         "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58",
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
@@ -20,7 +20,7 @@
     },
     "internal": {
       "env": {
-        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog-prod-dot-wavlake-alpha.uc.r.appspot.com/v1",
+        "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog.wavlake.com/v1",
         "EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL": "https://accounting.wavlake.com/v1",
         "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58",
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
