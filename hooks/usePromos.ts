@@ -8,7 +8,8 @@ export const usePromos = () => {
   const enabled = Boolean(
     !initializingAuth &&
       catalogUser?.isRegionVerified &&
-      !catalogUser?.isLocked,
+      !catalogUser?.isLocked &&
+      user,
   );
 
   const queryKey = getUsePromoQueryKey(user?.uid);

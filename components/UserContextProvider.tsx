@@ -79,6 +79,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const { refetch: _refetchUser } = usePrivateUserData();
 
   const refetchUser = async () => {
+    if (!user) return;
     const { data: incomingCatalogUser } = await _refetchUser();
     setCatalogUser(incomingCatalogUser);
   };
