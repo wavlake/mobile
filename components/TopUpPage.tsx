@@ -40,18 +40,12 @@ const ContentItem = ({
     >
       <View style={styles.contentWrapper}>
         <SquareArtwork size={150} url={contentMetadata.artworkUrl} />
-        <View
-          style={{
-            flexDirection: "column",
-            display: "flex",
-          }}
-        >
-          <View style={{ flex: 1, flexGrow: 1 }}>
-            <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
-              {contentMetadata.title}
-            </Text>
-            <Text>{contentMetadata.artist}</Text>
-          </View>
+
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
+            {contentMetadata.title}
+          </Text>
+          <Text numberOfLines={2}>{contentMetadata.artist}</Text>
           <View style={styles.earningsContainer}>
             <Text style={[styles.earnings]}>{userEarningsTotal}</Text>
           </View>
