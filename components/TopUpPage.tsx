@@ -46,18 +46,11 @@ const ContentItem = ({
             display: "flex",
           }}
         >
-          <View
-            style={{
-              flexDirection: "column",
-              justifyContent: "center",
-              paddingTop: 20,
-              flexGrow: 1,
-            }}
-          >
-            <Text style={[styles.title]} numberOfLines={2}>
+          <View style={{ flex: 1, flexGrow: 1 }}>
+            <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
               {contentMetadata.title}
             </Text>
-            <Text style={[styles.artist]}>{contentMetadata.artist}</Text>
+            <Text>{contentMetadata.artist}</Text>
           </View>
           <View style={styles.earningsContainer}>
             <Text style={[styles.earnings]}>{userEarningsTotal}</Text>

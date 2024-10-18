@@ -152,9 +152,7 @@ export default function Layout() {
                         options={{
                           headerBackVisible: false,
                           headerLeft: () => <HeaderBackButton />,
-                          headerTitle: () => (
-                            <Text style={{ fontSize: 18 }}>Top Up</Text>
-                          ),
+                          headerTitle: () => <Text>Top Up</Text>,
                         }}
                       />
                       <Stack.Screen
