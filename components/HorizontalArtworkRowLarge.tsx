@@ -1,8 +1,6 @@
-import { FlatList, FlatListProps, TouchableOpacity, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { Text, SquareArtwork } from "@/components";
-import { useGetColorPalette } from "@/hooks";
 import { brandColors } from "@/constants";
-import { Track } from "@/utils";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
@@ -53,13 +51,8 @@ const RowItem: React.FC<{
   item: HorizontalArtworkRowItem;
   isLast: boolean;
 }> = ({ item, isLast }) => {
-  const {
-    background,
-    foreground: textColor,
-    isLoading,
-  } = useGetColorPalette(item.artworkUrl);
-
-  const backgroundColor = background ?? brandColors.black.DEFAULT;
+  const backgroundColor = brandColors.black.DEFAULT;
+  const textColor = "white";
 
   return (
     <View
@@ -76,7 +69,7 @@ const RowItem: React.FC<{
         style={{
           textAlign: "center",
           paddingTop: 8,
-          color: isLoading ? brandColors.black.DEFAULT : textColor ?? "white",
+          color: textColor,
         }}
         ellipsizeMode="tail"
         numberOfLines={1}
@@ -86,7 +79,7 @@ const RowItem: React.FC<{
       <Text
         style={{
           textAlign: "center",
-          color: isLoading ? brandColors.black.DEFAULT : textColor ?? "white",
+          color: textColor,
         }}
         ellipsizeMode="tail"
         numberOfLines={1}
