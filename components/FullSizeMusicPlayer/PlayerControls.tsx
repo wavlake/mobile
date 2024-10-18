@@ -34,7 +34,6 @@ export const PlayerControls = ({
   const { state: playbackState } = usePlaybackState();
   const [sliderValue, setSliderValue] = useState(position);
   const [isSliding, setIsSliding] = useState(false);
-  const { isEarning, totalEarned } = useMusicPlayer();
 
   useEffect(() => {
     if (!isSliding) {
@@ -105,7 +104,6 @@ export const PlayerControls = ({
             size={isSmallScreen ? 40 : 60}
             type={isPlaying ? "pause" : "play"}
             onPress={togglePlayPause}
-            isEarning={isEarning}
           />
           <Pressable onPress={skipToNext}>
             <Ionicons
@@ -115,16 +113,6 @@ export const PlayerControls = ({
             />
           </Pressable>
         </View>
-        <Text
-          style={{
-            marginTop: 10,
-            textAlign: "center",
-            fontSize: 12,
-            height: 16,
-          }}
-        >
-          {isEarning ? `Earnings: ${totalEarned} sats` : undefined}
-        </Text>
       </View>
       <BottomControlBar />
     </View>

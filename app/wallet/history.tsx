@@ -1,10 +1,10 @@
 import { getTransactionHistory } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
-import { FlatList, View } from "react-native";
+import { FlatList, View, RefreshControl } from "react-native";
 import { Text, useUser, satsFormatter } from "@/components";
 
 const GREEN = "#49DE80";
+const INCOMING_TYPES = ["Zap", "Deposit", "Earnings", "Top Up"];
 type DateTxMap<T> = {
   [date: string]: T[];
 };
@@ -30,21 +30,27 @@ function flattenDateObjects<T>(data: DateTxMap<T>[]): DateTxList<T>[] {
 
 export default function HistoryPage() {
   const { catalogUser } = useUser();
-  const router = useRouter();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
-      queryKey: ["transaction_history", catalogUser?.id],
-      queryFn: ({ pageParam = 1 }) => getTransactionHistory(pageParam),
-      getNextPageParam: (lastPage, allPages) => {
-        const nextPage = lastPage.pagination.currentPage + 1;
-        return nextPage > lastPage.pagination.totalPages ? undefined : nextPage;
-      },
-    });
-
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["transaction_history", catalogUser?.id],
+    queryFn: ({ pageParam = 1 }) => getTransactionHistory(pageParam),
+    getNextPageParam: (lastPage, allPages) => {
+      const nextPage = lastPage.pagination.currentPage + 1;
+      return nextPage > lastPage.pagination.totalPages ? undefined : nextPage;
+    },
+    staleTime: 1000 * 60 * 2, // 1 minutes
+  });
   const { pages = [] } = data ?? {};
   const flattenedData = flattenDateObjects(
     pages.map((page) => page.transactions),
   );
+
   return (
     <View style={{ height: "100%", paddingBottom: 16 }}>
       {isLoading ? (
@@ -61,6 +67,9 @@ export default function HistoryPage() {
         <>
           <FlatList
             data={flattenedData}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+            }
             renderItem={({ item, index }) => {
               const isLastRow = index === flattenedData.length - 1;
               return (
@@ -85,11 +94,7 @@ export default function HistoryPage() {
                     {item.transactions.map((tx) => {
                       const msatAmountInt = parseInt(tx.msatAmount);
                       const satAmount = satsFormatter(msatAmountInt);
-                      const isIncoming = [
-                        "Zap",
-                        "Deposit",
-                        "Earnings",
-                      ].includes(tx.type);
+                      const isIncoming = INCOMING_TYPES.includes(tx.type);
                       return (
                         <View
                           style={{

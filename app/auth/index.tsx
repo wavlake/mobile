@@ -15,12 +15,13 @@ export default function InitialPage() {
   const handleSignUp = async () => {
     setIsLoading(true);
     const isAllowed = await refetch();
-    router.push({
+    await router.push({
       pathname: "/auth/signup",
       params: {
         isRegionVerified: isAllowed ? "true" : "false",
       },
     });
+    setIsLoading(false);
   };
 
   return (
