@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { Text, HeaderBackButton } from "@/components";
 
-export default function ZapLayout() {
+export default function WalletLayout() {
   return (
     <Stack
       screenOptions={{
