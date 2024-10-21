@@ -1,4 +1,4 @@
-import { Text, TextInput, WalletChooser } from "@/components";
+import { Text, WalletChooser } from "@/components";
 import { useRouter } from "expo-router";
 import {
   Keyboard,
@@ -147,14 +147,6 @@ export default function AdvancedSettingsPage() {
         }}
       >
         <View style={{ marginBottom: 24, width: "100%" }}>
-          {/* <TextInput
-            onFocus={() => setIsFocusedOnZapAmount(true)}
-            onBlur={() => setIsFocusedOnZapAmount(false)}
-            label="Default zap amount"
-            value={defaultZapAmount}
-            keyboardType="numeric"
-            onChangeText={setDefaultZapAmount}
-          /> */}
           <WalletChooser
             selectedWallet={defaultZapWallet}
             onSelectedWalletChange={setDefaultZapWallet}
