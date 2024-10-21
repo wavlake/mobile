@@ -10,7 +10,7 @@ import {
 import { encodeNsec, encodeNpub, getSeckey } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useTheme } from "@react-navigation/native";
-import { LoggedInUserAvater } from "./LoggedInUserAvater";
+import { LoggedInUserAvatar } from "./LoggedInUserAvatar";
 
 export const ProfileEditPage = () => {
   const { colors } = useTheme();
@@ -88,7 +88,7 @@ export const ProfileEditPage = () => {
         paddingBottom: 80,
       }}
     >
-      <LoggedInUserAvater size={120} />
+      <LoggedInUserAvatar size={120} />
       <TextInput label="username" value={name} onChangeText={setName} />
       <Button onPress={handleSave} disabled={isSaveDisabled} loading={isSaving}>
         Save

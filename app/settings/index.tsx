@@ -1,4 +1,4 @@
-import { Text, TextInput, WalletChooser } from "@/components";
+import { Text, Button, useUser } from "@/components";
 import { useRouter } from "expo-router";
 import {
   Keyboard,
@@ -10,104 +10,221 @@ import {
 } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuth, useToast } from "@/hooks";
-import {
-  WalletKey,
-  cacheSettings,
-  deleteNwcSecret,
-  payInvoiceCommand,
-} from "@/utils";
-import { useTheme } from "@react-navigation/native";
-import { Switch } from "@rneui/themed";
-import { brandColors } from "@/constants";
-
-import { useQueryClient } from "@tanstack/react-query";
+import { BUILD_NUM, VERSION } from "@/app.config";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
 import { useSettings } from "@/hooks/useSettings";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { brandColors } from "@/constants";
+import { Tooltip } from "@rneui/themed";
 
 export default function SettingsPage() {
-  const toast = useToast();
   const router = useRouter();
-  const { pubkey, userIsLoggedIn } = useAuth();
-  const { colors } = useTheme();
-
+  const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
   const { data: settings } = useSettings();
-  const [defaultZapAmount, setDefaultZapAmount] = useState(
-    settings?.defaultZapAmount ?? "",
-  );
-  const [isFocusedOnZapAmount, setIsFocusedOnZapAmount] = useState(false);
-  const [defaultZapWallet, setDefaultZapWallet] = useState<WalletKey>(
-    settings?.defaultZapWallet ?? "default",
-  );
-  const [allowListeningActivity, setAllowListeningActivity] = useState(
-    settings?.allowListeningActivity ?? false,
-  );
-  const [enableNWC, setEnableNWC] = useState(settings?.enableNWC ?? false);
+  const [lnurlInfoOpen, setLnurlInfoOpen] = useState(false);
 
-  const [oneTapZap, setOneTapZap] = useState(settings?.oneTapZap ?? false);
-  const [publishKind1, setPublishKind1] = useState(
-    settings?.publishKind1 ?? false,
-  );
-
-  const queryClient = useQueryClient();
-  const settingsKey = useSettingsQueryKey();
-
-  const handleSave = async () => {
-    toast.clearAll();
-    Keyboard.dismiss();
-    await cacheSettings(
-      {
-        defaultZapAmount,
-        defaultZapWallet,
-        allowListeningActivity,
-        enableNWC,
-        oneTapZap,
-        publishKind1,
-      },
-      pubkey,
-    );
-    queryClient.invalidateQueries(settingsKey);
-    toast.show("saved");
-  };
-
-  // autosave settings on change
-  useEffect(() => {
-    if (!settings || isFocusedOnZapAmount) return;
-    if (
-      defaultZapAmount !== settings.defaultZapAmount ||
-      defaultZapWallet !== settings.defaultZapWallet ||
-      allowListeningActivity !== settings.allowListeningActivity ||
-      enableNWC !== settings.enableNWC ||
-      oneTapZap !== settings.oneTapZap ||
-      publishKind1 !== settings.publishKind1
-    ) {
-      handleSave();
-    }
-  }, [
-    isFocusedOnZapAmount,
-    defaultZapWallet,
-    allowListeningActivity,
-    enableNWC,
-    oneTapZap,
-    publishKind1,
-  ]);
+  // const [defaultZapAmount, setDefaultZapAmount] = useState(
+  //   settings?.defaultZapAmount ?? "",
+  // );
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView
         contentContainerStyle={{
-          padding: 24,
-          alignItems: "center",
+          paddingVertical: 20,
         }}
       >
         <View
           style={{
-            flexDirection: "row",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 40,
           }}
         >
+          <View
+            style={{
+              alignItems: "center",
+            }}
+          >
+            <Text bold>Version</Text>
+            <Text>
+              {VERSION} ({BUILD_NUM})
+            </Text>
+          </View>
+          {pubkey && (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                }}
+                bold
+              >
+                Profile
+              </Text>
+              <LoggedInUserAvatar size={100} />
+              <Button
+                color="white"
+                onPress={() =>
+                  router.push({
+                    pathname: "/settings/edit-profile",
+                  })
+                }
+                width={160}
+              >
+                Update
+              </Button>
+            </View>
+          )}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            {catalogUser?.name && (
+              <>
+                <Text>Username:</Text>
+                <View
+                  style={{
+                    backgroundColor: brandColors.black.DEFAULT,
+                    padding: 6,
+                    borderRadius: 6,
+                    minWidth: 250,
+                  }}
+                >
+                  <Text
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    {catalogUser.name}
+                  </Text>
+                </View>
+              </>
+            )}
+            <Text>Zap default:</Text>
+            <View
+              style={{
+                backgroundColor: brandColors.black.DEFAULT,
+                padding: 6,
+                borderRadius: 6,
+                minWidth: 250,
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                {settings?.defaultZapAmount || "Please set an amount"}
+              </Text>
+            </View>
+            <Button
+              color="white"
+              onPress={() =>
+                router.push({
+                  pathname: "/settings/edit-profile",
+                })
+              }
+              style={{
+                paddingTop: 10,
+              }}
+              width={160}
+            >
+              Edit Details
+            </Button>
+          </View>
+          {catalogUser?.isRegionVerified && catalogUser.emailVerified && (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  paddingBottom: 10,
+                }}
+                bold
+              >
+                Wavlake Lightning Address:
+              </Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                {catalogUser.profileUrl}@wavlake.com
+              </Text>
+              <Tooltip
+                visible={lnurlInfoOpen}
+                onOpen={() => {
+                  setLnurlInfoOpen(true);
+                }}
+                onClose={() => {
+                  setLnurlInfoOpen(false);
+                }}
+                popover={
+                  <Text>
+                    Your Wavlake Lightning Address is active with your username
+                    as the identifier. This is a standard LNURL address you can
+                    share with others to receive payments to your Wavlake
+                    wallet.
+                  </Text>
+                }
+                backgroundColor={brandColors.black.DEFAULT}
+                containerStyle={{
+                  padding: 10,
+                  width: 200,
+                  height: 200,
+                }}
+                width={200}
+                withOverlay={false}
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 10,
+                    marginTop: 10,
+                  }}
+                >
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      color: "green",
+                    }}
+                    bold
+                  >
+                    Active
+                  </Text>
+                  <AntDesign name="questioncircle" size={20} color="white" />
+                </View>
+              </Tooltip>
+            </View>
+          )}
           <TouchableOpacity
+            hitSlop={20}
             onPress={() => router.push({ pathname: "/settings/advanced" })}
           >
-            <View style={{ flex: 1 }}>
+            <View
+              style={{
+                flexGrow: 1,
+              }}
+            >
               <Text bold>Advanced Settings</Text>
             </View>
           </TouchableOpacity>

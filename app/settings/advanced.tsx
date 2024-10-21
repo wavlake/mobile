@@ -27,7 +27,6 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
-import { BUILD_NUM, VERSION } from "@/app.config";
 
 function getDomainFromWebSocket(wsAddress?: string) {
   if (!wsAddress) return "NWC";
@@ -45,9 +44,7 @@ export default function AdvancedSettingsPage() {
   const { colors } = useTheme();
 
   const { data: settings } = useSettings();
-  const [defaultZapAmount, setDefaultZapAmount] = useState(
-    settings?.defaultZapAmount ?? "",
-  );
+
   const [isFocusedOnZapAmount, setIsFocusedOnZapAmount] = useState(false);
   const [defaultZapWallet, setDefaultZapWallet] = useState<WalletKey>(
     settings?.defaultZapWallet ?? "default",
@@ -70,7 +67,6 @@ export default function AdvancedSettingsPage() {
     Keyboard.dismiss();
     await cacheSettings(
       {
-        defaultZapAmount,
         defaultZapWallet,
         allowListeningActivity,
         enableNWC,
@@ -125,7 +121,6 @@ export default function AdvancedSettingsPage() {
   useEffect(() => {
     if (!settings || isFocusedOnZapAmount) return;
     if (
-      defaultZapAmount !== settings.defaultZapAmount ||
       defaultZapWallet !== settings.defaultZapWallet ||
       allowListeningActivity !== settings.allowListeningActivity ||
       enableNWC !== settings.enableNWC ||
@@ -152,14 +147,14 @@ export default function AdvancedSettingsPage() {
         }}
       >
         <View style={{ marginBottom: 24, width: "100%" }}>
-          <TextInput
+          {/* <TextInput
             onFocus={() => setIsFocusedOnZapAmount(true)}
             onBlur={() => setIsFocusedOnZapAmount(false)}
             label="Default zap amount"
             value={defaultZapAmount}
             keyboardType="numeric"
             onChangeText={setDefaultZapAmount}
-          />
+          /> */}
           <WalletChooser
             selectedWallet={defaultZapWallet}
             onSelectedWalletChange={setDefaultZapWallet}
@@ -270,19 +265,6 @@ export default function AdvancedSettingsPage() {
             </TouchableOpacity>
           </View>
         )}
-        <View
-          style={{
-            marginTop: 24,
-            flex: 1,
-            alignSelf: "flex-start",
-            marginBottom: 4,
-          }}
-        >
-          <Text bold>Version information</Text>
-          <Text>
-            {VERSION} ({BUILD_NUM})
-          </Text>
-        </View>
       </ScrollView>
     </TouchableWithoutFeedback>
   );

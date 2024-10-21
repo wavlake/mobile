@@ -11,7 +11,7 @@ import { View, Pressable } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
 import { VerificationIcon } from "@/components/VerificationIcon";
 import { Ionicons } from "@expo/vector-icons";
-import { LoggedInUserAvater } from "@/components/LoggedInUserAvater";
+import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
 
 const MenuButton = () => {
   const { colors } = useTheme();
@@ -81,7 +81,7 @@ export default function DrawerLayout() {
             });
           }}
         >
-          <LoggedInUserAvater size={24} />
+          <LoggedInUserAvatar size={24} />
         </Pressable>
       </View>
     );

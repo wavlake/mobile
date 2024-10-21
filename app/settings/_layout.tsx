@@ -37,6 +37,13 @@ export default function SettingsLayout() {
           headerTitle: () => <Text>Nostr Key</Text>,
         }}
       />
+      <Stack.Screen
+        name="edit-profile"
+        options={{
+          presentation: "card",
+          headerTitle: () => <Text>Update Profile</Text>,
+        }}
+      />
     </Stack>
   );
 }
