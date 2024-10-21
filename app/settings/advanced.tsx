@@ -38,7 +38,7 @@ function getDomainFromWebSocket(wsAddress?: string) {
   return match ? match[1] : "NWC";
 }
 
-export default function SettingsPage() {
+export default function AdvancedSettingsPage() {
   const toast = useToast();
   const router = useRouter();
   const { pubkey, userIsLoggedIn } = useAuth();
@@ -258,7 +258,7 @@ export default function SettingsPage() {
             }}
           >
             <TouchableOpacity
-              onPress={() => router.push({ pathname: "/backup-nsec" })}
+              onPress={() => router.push({ pathname: "/settings/backup-nsec" })}
             >
               <View style={{ flex: 1 }}>
                 <Text bold>Export your nostr secret key</Text>
