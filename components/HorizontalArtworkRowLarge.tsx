@@ -8,6 +8,14 @@ interface HorizontalArtworkRowItem {
   // albumId: string;
   // albumTitle: string;
   artist: string;
+  colorInfo?: {
+    darkMuted: string;
+    darkVibrant: string;
+    lightMuted: string;
+    lightVibrant: string;
+    muted: string;
+    vibrant: string;
+  };
   // artistId: string;
   // artistUrl: string;
   // avatarUrl: undefined;
@@ -51,8 +59,9 @@ const RowItem: React.FC<{
   item: HorizontalArtworkRowItem;
   isLast: boolean;
 }> = ({ item, isLast }) => {
-  const backgroundColor = brandColors.black.DEFAULT;
-  const textColor = "white";
+  const backgroundColor =
+    item?.colorInfo?.darkVibrant ?? brandColors.black.DEFAULT;
+  const textColor = item?.colorInfo?.lightVibrant ?? "white";
 
   return (
     <View

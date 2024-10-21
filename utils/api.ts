@@ -29,12 +29,19 @@ export interface Track {
   podcastUrl?: string;
   podcastId?: string;
   hasPromo?: boolean;
+  colorInfo?: {
+    darkMuted: string;
+    darkVibrant: string;
+    lightMuted: string;
+    lightVibrant: string;
+    muted: string;
+    vibrant: string;
+  };
   genre?: {
     id: number;
     name: string;
   };
 }
-
 export interface Episode {
   id: string;
   title: string;
@@ -209,6 +216,7 @@ export const normalizeTrackResponse = (res: TrackResponse[]): Track[] => {
     duration: track.duration,
     msatTotal: track.msatTotal,
     hasPromo: track.hasPromo,
+    colorInfo: track.colorInfo,
   }));
 };
 
@@ -563,8 +571,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       userId: string;
       // artworkUrl?: string;
     }) => {
