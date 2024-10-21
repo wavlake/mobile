@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { HeaderBackButton, Text } from "@/components";
+import { Text, HeaderBackButton } from "@/components";
 
 export default function ZapLayout() {
   return (
@@ -12,6 +12,7 @@ export default function ZapLayout() {
         headerTintColor: "white",
         headerBackTitleVisible: false,
         headerTitleAlign: "center",
+        headerBackVisible: false,
         headerLeft: () => <HeaderBackButton />,
       }}
     >

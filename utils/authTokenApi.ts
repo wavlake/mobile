@@ -222,12 +222,17 @@ export const getTransactionHistory = async (page: number) => {
 };
 
 export interface Promo {
+  promoUser: {
+    canEarnToday: boolean;
+    lifetimeEarnings: number;
+    earnedToday: number;
+    earnableToday: number;
+  };
   id: number;
   msatBudget: number;
   msatPayoutAmount: number;
   contentId: string;
   contentType: string;
-  rewardsRemaining: boolean;
 }
 
 export const getUserPromos = async () => {

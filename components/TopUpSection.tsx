@@ -1,4 +1,3 @@
-import { Text } from "./Text";
 import { TouchableOpacity, View } from "react-native";
 import { brandColors } from "@/constants";
 import { usePromos } from "@/hooks";
@@ -7,13 +6,13 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
 const IMAGE_HEIGHT = 143;
-export const ListenToEarnSection = () => {
+export const TopUpSection = () => {
   const { user, initializingAuth } = useUser();
   const { data: promos = [] } = usePromos();
   const router = useRouter();
   const onPress = () =>
     router.push({
-      pathname: "/earn",
+      pathname: "/topup",
     });
 
   // this feature is hidden for users who are not logged in

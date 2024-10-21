@@ -16,14 +16,7 @@ export const NewMusicSection = ({ data }: { data: Track[] }) => {
 
   return (
     <View>
-      <SectionHeader
-        title="Out Now"
-        rightNavText="Discover"
-        rightNavHref={{
-          pathname: "/music/discover",
-          params: { headerTitle: "New music", includeBackButton: "true" },
-        }}
-      />
+      <SectionHeader title="Out Now" />
       <HorizontalArtworkRow items={data} onPress={handleRowPress} />
     </View>
   );

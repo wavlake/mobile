@@ -1,10 +1,11 @@
 import { Button, Center, Text } from "@/components";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
 import { LoggedInUserAvater } from "@/components/LoggedInUserAvater";
 import { useEffect } from "react";
 import { setSkipLogin } from "@/utils";
+import { useAuth, useNostrProfileEvent } from "@/hooks";
 
 export default function WelcomePage() {
   // the user has successfully logged in
@@ -19,14 +20,24 @@ export default function WelcomePage() {
       nostrOnlyLogin: "true" | "false";
     }>();
   const nostrOnlyLogin = nostrOnlyLoginString === "true";
-  const showLoginWithNsec = createdRandomNpub && !nostrOnlyLogin;
+  // hiding this option for now
+  const showLoginWithNsec = false; //createdRandomNpub && !nostrOnlyLogin;
   const router = useRouter();
   const { catalogUser } = useUser();
-
+  const { pubkey } = useAuth();
+  const { data: userProfile, isLoading } = useNostrProfileEvent(pubkey);
+  const userName = nostrOnlyLogin ? userProfile?.name : catalogUser?.name;
   const goToHomePage = async () => {
     router.replace("/");
   };
 
+  if (isLoading) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
   return (
     <Center
       style={{
@@ -45,7 +56,7 @@ export default function WelcomePage() {
         }}
       >
         <LoggedInUserAvater size={100} />
-        <Text style={{ fontSize: 18 }}>Hi, {catalogUser?.name}</Text>
+        {userName && <Text style={{ fontSize: 18 }}>Hi, {userName}</Text>}
         <Text style={{ fontSize: 18 }}>Welcome to Wavlake!</Text>
       </View>
       <View

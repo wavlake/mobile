@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
 import { useTheme } from "@react-navigation/native";
-import { Text } from "@/components";
-
+import { Text, HeaderBackButton } from "@/components";
 export default function AuthLayout() {
   const { colors } = useTheme();
 
@@ -16,8 +15,19 @@ export default function AuthLayout() {
         headerBackTitleVisible: false,
         headerTitle: "",
         headerTitleAlign: "center",
+        headerBackVisible: false,
+        headerLeft: () => <HeaderBackButton />,
       }}
     >
+      <Stack.Screen
+        name="index"
+        options={{
+          headerTitle: "",
+          headerBackVisible: false,
+          headerLeft: undefined,
+          gestureEnabled: false,
+        }}
+      />
       <Stack.Screen
         name="nsec"
         options={{ headerTitle: () => <Text>Nsec</Text> }}
@@ -38,9 +48,8 @@ export default function AuthLayout() {
         name="welcome"
         options={{
           headerTitle: () => <Text>Welcome</Text>,
-          // Hide back button from header (null doesnt work)
-          headerLeft: () => <Text />,
-          // disable back gesture on Android
+          headerBackVisible: false,
+          headerLeft: undefined,
           gestureEnabled: false,
         }}
       />

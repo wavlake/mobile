@@ -96,10 +96,10 @@ export default function Login() {
           />
           <TextInput
             label="Password"
-            secureTextEntry
+            secureTextEntry={true}
             autoCorrect={false}
             value={password}
-            keyboardType="visible-password"
+            keyboardType="default"
             onChangeText={(value) => {
               setPassword(value);
               setErrorMessage("");
@@ -110,6 +110,11 @@ export default function Login() {
         <Button
           color="white"
           onPress={async () => {
+            if (!email || !password) {
+              setErrorMessage("Please enter your email and password");
+              return;
+            }
+
             setIsLoading(true);
             await handleLogin(email, password);
             setIsLoading(false);

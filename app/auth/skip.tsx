@@ -7,6 +7,7 @@ export default function Skip() {
   const router = useRouter();
   const handleLoginAnonymously = async () => {
     await setSkipLogin();
+    router.canDismiss() && router.dismissAll();
     router.replace("/");
   };
 
