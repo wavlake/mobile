@@ -165,7 +165,6 @@ const RandomNpubInfo: React.FC = () => (
 export default function NsecLoginPage() {
   const { colors } = useTheme();
   const {
-    createdRandomNpub,
     userAssociatedPubkey,
     nsec,
     setNsec,
@@ -229,7 +228,7 @@ export default function NsecLoginPage() {
             <Text>Random key</Text>
             <Ionicons name="dice-outline" size={30} color={colors.text} />
           </TouchableOpacity>
-          {(createdRandomNpub || isGeneratedNsec) && <RandomNpubInfo />}
+          {isGeneratedNsec && <RandomNpubInfo />}
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>

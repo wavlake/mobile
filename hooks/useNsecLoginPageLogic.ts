@@ -19,18 +19,13 @@ import { bytesToHex } from "@noble/hashes/utils";
 import DeviceInfo from "react-native-device-info";
 
 type NsecPageParams = {
-  createdRandomNpub: "true" | "false";
   userAssociatedPubkey: string;
   nostrOnlyLogin: "true" | "false";
 };
 
 export const useNsecLoginPageLogic = () => {
-  const {
-    createdRandomNpub: createdNpubString,
-    userAssociatedPubkey,
-    nostrOnlyLogin: nostrOnlyLoginString,
-  } = useLocalSearchParams<NsecPageParams>();
-  const createdRandomNpub = createdNpubString === "true";
+  const { userAssociatedPubkey, nostrOnlyLogin: nostrOnlyLoginString } =
+    useLocalSearchParams<NsecPageParams>();
   const nostrOnlyLogin = nostrOnlyLoginString === "true";
   const [nsec, setNsec] = useState("");
   const [isGeneratedNsec, setIsGeneratedNsec] = useState(false);
@@ -134,7 +129,6 @@ export const useNsecLoginPageLogic = () => {
   };
 
   return {
-    createdRandomNpub,
     userAssociatedPubkey,
     nsec,
     setNsec,

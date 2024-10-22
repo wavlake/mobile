@@ -14,16 +14,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
-import {
-  DEFAULT_CONNECTION_SETTINGS,
-  useAuth,
-  useAutoConnectNWC,
-} from "@/hooks";
+import { DEFAULT_CONNECTION_SETTINGS, useAutoConnectNWC } from "@/hooks";
 import DeviceInfo from "react-native-device-info";
 
 export default function Login() {
   const router = useRouter();
-  const { pubkey } = useAuth();
   const [errorMessage, setErrorMessage] = useState("");
   const { signInWithEmail } = useUser();
   const [isLoading, setIsLoading] = useState(false);
@@ -38,30 +33,15 @@ export default function Login() {
       return;
     }
 
-    // if the user isn't pubkey-logged in via signInWithEmail above
-    // we need to collect their previously used nsec
-    if (!pubkey) {
-      router.push({
-        pathname: "/auth/nsec",
-        params: {
-          createdRandomNpub: result.createdRandomNpub ? "true" : "false",
-          userAssociatedPubkey: result.userAssociatedPubkey,
-        },
-      });
-    } else {
-      if (result.isEmailVerified && result.isRegionVerified) {
-        await connectWallet({
-          ...DEFAULT_CONNECTION_SETTINGS,
-          connectionName: DeviceInfo.getModel(),
-        });
-      }
-      router.replace({
-        pathname: "/auth/welcome",
-        params: {
-          createdRandomNpub: result.createdRandomNpub ? "true" : "false",
-        },
+    if (result.isEmailVerified && result.isRegionVerified) {
+      await connectWallet({
+        ...DEFAULT_CONNECTION_SETTINGS,
+        connectionName: DeviceInfo.getModel(),
       });
     }
+    router.replace({
+      pathname: "/auth/welcome",
+    });
   };
 
   return (

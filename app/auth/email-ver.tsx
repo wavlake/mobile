@@ -16,12 +16,10 @@ import {
 import DeviceInfo from "react-native-device-info";
 
 export default function EmailVer() {
-  const { navFromEmailVerLink, createdRandomNpub, errorMessage } =
-    useLocalSearchParams<{
-      navFromEmailVerLink: "true" | "false";
-      createdRandomNpub: "true" | "false";
-      errorMessage: string;
-    }>();
+  const { navFromEmailVerLink, errorMessage } = useLocalSearchParams<{
+    navFromEmailVerLink: "true" | "false";
+    errorMessage: string;
+  }>();
   const userCameFromEmailLink = navFromEmailVerLink === "true";
   const { resendVerificationEmail, checkIfEmailIsVerified, catalogUser } =
     useUser();
@@ -71,7 +69,7 @@ export default function EmailVer() {
           connectionName: DeviceInfo.getModel(),
         });
       }
-      router.push({ pathname: "/auth/welcome", params: { createdRandomNpub } });
+      router.push({ pathname: "/auth/welcome" });
     } else if (success) {
       toast.show("Please check your email for a verification link");
     } else {
@@ -89,7 +87,7 @@ export default function EmailVer() {
   const handleResend = async () => {
     const { success, isVerified, error } = await checkIfEmailIsVerified();
     if (isVerified) {
-      router.push({ pathname: "/auth/welcome", params: { createdRandomNpub } });
+      router.push({ pathname: "/auth/welcome" });
     } else if (success) {
       await resendVerificationEmail();
       toast.show("Verification email sent");

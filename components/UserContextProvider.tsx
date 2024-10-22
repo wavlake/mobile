@@ -37,14 +37,12 @@ type UserContextProps = {
     userAssociatedPubkey?: string | null;
     isRegionVerified?: boolean;
     isEmailVerified?: boolean;
-    createdRandomNpub?: boolean;
   }>;
   signInWithGoogle: () => Promise<{
     error?: any;
     userAssociatedPubkey?: string | null;
     isRegionVerified?: boolean;
     isEmailVerified?: boolean;
-    createdRandomNpub?: boolean;
   }>;
   createUserWithEmail: (args: CreateEmailUserArgs) => Promise<any>;
 } & typeof firebaseService;
@@ -146,28 +144,19 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       // fetch user data
       const { data: catalogUser } = await _refetchUser();
 
-      let createdRandomNpub = false;
       const userAssociatedPubkey =
         catalogUser?.nostrProfileData?.[0]?.publicHex;
 
-      // users is not logged in with an nsec
-      if (!pubkey) {
-        if (!userAssociatedPubkey) {
-          // this will catch old pre-existing google users who have no npub
-          // create a new npub for the user and log them in
-          const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-            name: catalogUser?.name,
-            // picture: user.user.photoURL ?? "",
-            // lud06: `${catalogUser?.profileUrl}@wavlake.com`,
-          });
+      if (!pubkey && !userAssociatedPubkey) {
+        // this is an existing user but new app user, create a new npub for them
+        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
+          name: catalogUser?.name,
+          // picture: user.user.photoURL ?? "",
+          // lud06: `${catalogUser?.profileUrl}@wavlake.com`,
+        });
 
-          nsec && (await login(nsec));
-          newPubkey && (await addPubkeyToAccount());
-          createdRandomNpub = true;
-        } else {
-          // user has an npub, so we don't need to create a new one
-          // we'll request they enter the nsec on the next screen
-        }
+        nsec && (await login(nsec));
+        newPubkey && (await addPubkeyToAccount());
       } else {
         const pubkeyAssocationExists = catalogUser?.nostrProfileData
           .map((data) => data.publicHex)
@@ -182,7 +171,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         userAssociatedPubkey,
         isRegionVerified,
         isEmailVerified: user.user.emailVerified,
-        createdRandomNpub,
       };
     } catch (error) {
       console.error("error signing in with google", error);
@@ -222,7 +210,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         // todo - add profile image if available
         // artworkUrl: user.user.photoURL ?? "",
       });
-      let createdRandomNpub = false;
 
       if (!newUser) {
         throw "error creating user in db";
@@ -237,7 +224,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
         nsec && (await login(nsec));
         newPubkey && (await addPubkeyToAccount());
-        createdRandomNpub = true;
       } else {
         // already logged in mobile user, associate pubkey to the new user
         await addPubkeyToAccount();
@@ -262,26 +248,17 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw "catalog user not found";
       }
 
-      let createdRandomNpub = false;
-
       const userAssociatedPubkey =
         catalogUser?.nostrProfileData?.[0]?.publicHex;
-      if (!pubkey) {
-        if (!userAssociatedPubkey) {
-          // this will catch old pre-existing google users who have no npub
-          // create a new npub for the user and log them in
-          const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-            name: catalogUser.name,
-            image: catalogUser.artworkUrl,
-          });
+      if (!pubkey && !userAssociatedPubkey) {
+        // this is a new app user, create a new npub for them
+        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
+          name: catalogUser.name,
+          image: catalogUser.artworkUrl,
+        });
 
-          nsec && (await login(nsec));
-          newPubkey && (await addPubkeyToAccount());
-          createdRandomNpub = true;
-        } else {
-          // user has an npub, so we don't need to create a new one
-          // we'll request they enter the nsec on the next screen
-        }
+        nsec && (await login(nsec));
+        newPubkey && (await addPubkeyToAccount());
       } else {
         const pubkeyAssocationExists = catalogUser?.nostrProfileData
           .map((data) => data.publicHex)
@@ -290,6 +267,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         // ensure pubkey association to the user
         if (!pubkeyAssocationExists) await addPubkeyToAccount();
       }
+
       const isRegionVerified = catalogUser?.isRegionVerified;
 
       return {
@@ -297,7 +275,6 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         userAssociatedPubkey,
         isRegionVerified,
         isEmailVerified: user.user.emailVerified,
-        createdRandomNpub,
       };
     } catch (error) {
       console.error("error signing in with email");

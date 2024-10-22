@@ -1,4 +1,4 @@
-import { Button, QRScanner, Text, TextInput } from "@/components";
+import { Button, QRScanner, Text, TextInput, useUser } from "@/components";
 import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
@@ -19,6 +19,8 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const settingsKey = useSettingsQueryKey();
   const queryClient = useQueryClient();
+  const { catalogUser } = useUser();
+  const userIdOrPubkey = catalogUser?.id ?? pubkey;
 
   const onBarCodeScanned: (
     scanningResult: BarcodeScanningResult,
@@ -33,7 +35,7 @@ export default function SettingsPage() {
     setIsLoading(true);
     const { isSuccess, error, fetchInfo } = await intakeNwcURI({
       uri,
-      pubkey,
+      userIdOrPubkey,
     });
     if (isSuccess) {
       queryClient.invalidateQueries(settingsKey);

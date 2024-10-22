@@ -73,7 +73,7 @@ export const useAutoConnectNWC = () => {
 
     const { isSuccess, error, fetchInfo } = await intakeNwcURI({
       uri: nwcUri,
-      pubkey: overrideUserPubkey || userPubkey,
+      userIdOrPubkey: overrideUserPubkey || catalogUser?.id || userPubkey,
     });
 
     if (isSuccess) {

@@ -1,4 +1,4 @@
-import { Text, Center, CancelButton } from "@/components";
+import { Text, Center, CancelButton, useUser } from "@/components";
 import { useAuth, useToast } from "@/hooks";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import { intakeNwcURI } from "@/utils";
@@ -13,7 +13,9 @@ export default function AddNWC() {
   const params = useLocalSearchParams();
   const toast = useToast();
   const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
   const settingsKey = useSettingsQueryKey();
+  const userIdOrPubkey = catalogUser?.id ?? pubkey;
 
   useEffect(() => {
     const asyncFunction = async () => {
@@ -21,7 +23,7 @@ export default function AddNWC() {
       if (uri && pubkey) {
         const { isSuccess, error, fetchInfo } = await intakeNwcURI({
           uri: uri as string,
-          pubkey,
+          userIdOrPubkey,
         });
         if (isSuccess) {
           queryClient.invalidateQueries(settingsKey);

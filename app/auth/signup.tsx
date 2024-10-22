@@ -141,9 +141,6 @@ const SignUpPage = () => {
 
     router.replace({
       pathname: "/auth/email-ver",
-      params: {
-        createdRandomNpub: "true",
-      },
     });
   };
 

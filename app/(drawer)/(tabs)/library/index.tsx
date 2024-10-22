@@ -58,10 +58,18 @@ export default function LibraryPage() {
     <Center>
       <View style={{ paddingHorizontal: 16, paddingBottom: 40 }}>
         <Text style={{ fontSize: 18 }}>
-          You must be logged in to create a library.
+          You must add a nostr account to create a library.
         </Text>
       </View>
-      <Button onPress={() => router.push("/auth")}>Register</Button>
+      <Button
+        onPress={() => {
+          router.push("/settings");
+          router.push("/settings/advanced");
+          router.push("/settings/backup-nsec");
+        }}
+      >
+        Add Nostr
+      </Button>
     </Center>
   );
 }

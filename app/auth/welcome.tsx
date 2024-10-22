@@ -14,14 +14,10 @@ export default function WelcomePage() {
     setSkipLogin();
   }, []);
 
-  const { createdRandomNpub, nostrOnlyLogin: nostrOnlyLoginString } =
-    useLocalSearchParams<{
-      createdRandomNpub: "true" | "false";
-      nostrOnlyLogin: "true" | "false";
-    }>();
+  const { nostrOnlyLogin: nostrOnlyLoginString } = useLocalSearchParams<{
+    nostrOnlyLogin: "true" | "false";
+  }>();
   const nostrOnlyLogin = nostrOnlyLoginString === "true";
-  // hiding this option for now
-  const showLoginWithNsec = false; //createdRandomNpub && !nostrOnlyLogin;
   const router = useRouter();
   const { catalogUser } = useUser();
   const { pubkey } = useAuth();
@@ -80,17 +76,6 @@ export default function WelcomePage() {
           Edit Profile
         </Text>
         <Button onPress={goToHomePage}>Start listening</Button>
-        {showLoginWithNsec && (
-          <Link
-            href={`/auth/nsec?createdRandomNpub=${
-              createdRandomNpub ?? "false"
-            }`}
-          >
-            <Text style={{ fontSize: 18 }} bold>
-              Nostr user? Click here
-            </Text>
-          </Link>
-        )}
       </View>
     </Center>
   );

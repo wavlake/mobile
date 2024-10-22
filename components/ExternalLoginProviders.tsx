@@ -49,30 +49,15 @@ export const ExternalLoginProviders = ({
           return;
         }
 
-        // if the user isn't pubkey-logged in via signInWithEmail above
-        // we need to collect their previously used nsec
-        if (!pubkey) {
-          router.push({
-            pathname: "/auth/nsec",
-            params: {
-              createdRandomNpub: result.createdRandomNpub ? "true" : "false",
-              userAssociatedPubkey: result.userAssociatedPubkey,
-            },
-          });
-        } else {
-          if (result.isEmailVerified && result.isRegionVerified) {
-            await connectWallet({
-              ...DEFAULT_CONNECTION_SETTINGS,
-              connectionName: DeviceInfo.getModel(),
-            });
-          }
-          router.replace({
-            pathname: "/auth/welcome",
-            params: {
-              createdRandomNpub: result.createdRandomNpub ? "true" : "false",
-            },
+        if (result.isEmailVerified && result.isRegionVerified) {
+          await connectWallet({
+            ...DEFAULT_CONNECTION_SETTINGS,
+            connectionName: DeviceInfo.getModel(),
           });
         }
+        router.replace({
+          pathname: "/auth/welcome",
+        });
       },
     },
     // TODO: implement these providers

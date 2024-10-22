@@ -145,14 +145,14 @@ interface URIResult {
 }
 export const intakeNwcURI = async ({
   uri,
-  pubkey,
+  userIdOrPubkey,
   onUpdate,
 }: {
   uri: string;
-  pubkey?: string;
+  userIdOrPubkey?: string;
   onUpdate?: Function;
 }): Promise<{ isSuccess: boolean; error?: string; fetchInfo?: Function }> => {
-  if (!pubkey) {
+  if (!userIdOrPubkey) {
     return { isSuccess: false, error: "please login to use NWC" };
   }
 
@@ -170,7 +170,7 @@ export const intakeNwcURI = async ({
     };
   }
   await Promise.all([
-    saveNwcSecret(secret, pubkey),
+    saveNwcSecret(secret, userIdOrPubkey),
     cacheSettings(
       {
         nwcRelay: relay,
@@ -180,7 +180,7 @@ export const intakeNwcURI = async ({
         enableNWC: true,
         nwcCommands: [payInvoiceCommand],
       },
-      pubkey,
+      userIdOrPubkey,
     ),
   ]);
 
@@ -188,7 +188,7 @@ export const intakeNwcURI = async ({
   return {
     isSuccess: true,
     fetchInfo: () =>
-      getWalletServiceCommands({ nwcPubkey, nwcRelay: relay, pubkey }),
+      getWalletServiceCommands({ nwcPubkey, nwcRelay: relay, userIdOrPubkey }),
   };
 };
 
@@ -256,10 +256,10 @@ const validateNwcURI = (uri?: string): URIResult => {
 const getWalletServiceCommands = async ({
   nwcPubkey,
   nwcRelay,
-  pubkey,
+  userIdOrPubkey,
 }: {
   nwcPubkey?: string;
-  pubkey?: string;
+  userIdOrPubkey?: string;
   nwcRelay?: string;
 }): Promise<string[] | undefined> => {
   if (!nwcPubkey) return;
@@ -287,14 +287,17 @@ const getWalletServiceCommands = async ({
   }
 
   const enableNWC = nwcCommands?.includes(payInvoiceCommand);
-  await cacheSettings({ enableNWC, nwcCommands: nwcCommands ?? [] }, pubkey);
+  await cacheSettings(
+    { enableNWC, nwcCommands: nwcCommands ?? [] },
+    userIdOrPubkey,
+  );
 };
 
-async function getNwcConnection(userPubkey: string): Promise<{
+async function getNwcConnection(userIdOrPubkey: string): Promise<{
   connectionSecret: string;
   connectionPubkey: string;
 }> {
-  const connectionSecret = await getNwcSecret(userPubkey);
+  const connectionSecret = await getNwcSecret(userIdOrPubkey);
   if (!connectionSecret) {
     throw new Error("Missing NWC secret");
   }
@@ -305,15 +308,15 @@ async function getNwcConnection(userPubkey: string): Promise<{
 }
 
 export async function getNwcBalance({
-  userPubkey,
+  userIdOrPubkey,
   walletPubkey,
   nwcRelay,
 }: {
-  userPubkey?: string;
+  userIdOrPubkey?: string;
   walletPubkey?: string;
   nwcRelay?: string;
 }) {
-  if (!userPubkey || !walletPubkey || !nwcRelay) {
+  if (!userIdOrPubkey || !walletPubkey || !nwcRelay) {
     const errorResponse: NWCResponseBase<"get_balance", undefined> = {
       result_type: "get_balance",
       error: {
@@ -325,7 +328,7 @@ export async function getNwcBalance({
   }
 
   try {
-    const { connectionSecret } = await getNwcConnection(userPubkey);
+    const { connectionSecret } = await getNwcConnection(userIdOrPubkey);
 
     const requestEvent = await makeNWCRequestEvent({
       walletPubkey,
@@ -346,7 +349,7 @@ export async function getNwcBalance({
       nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
     return fetchNWCResponse({
-      userPubkey,
+      userIdOrPubkey,
       requestEvent,
       relay,
     });
@@ -363,17 +366,17 @@ export async function getNwcBalance({
 }
 
 async function sendNwcPaymentRequest({
-  userPubkey,
+  userIdOrPubkey,
   invoice,
   walletPubkey,
   nwcRelay,
 }: {
-  userPubkey: string;
+  userIdOrPubkey: string;
   invoice: string;
   walletPubkey: string;
   nwcRelay: string;
 }) {
-  const { connectionSecret } = await getNwcConnection(userPubkey);
+  const { connectionSecret } = await getNwcConnection(userIdOrPubkey);
 
   const requestEvent = await makeNWCRequestEvent({
     walletPubkey,
@@ -393,7 +396,7 @@ async function sendNwcPaymentRequest({
     nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
   const response = await fetchNWCResponse({
-    userPubkey,
+    userIdOrPubkey,
     requestEvent,
     relay,
   });
@@ -402,17 +405,17 @@ async function sendNwcPaymentRequest({
 }
 
 async function sendNwcMakeInvoiceRequest({
-  userPubkey,
+  userIdOrPubkey,
   amount,
   walletPubkey,
   nwcRelay,
 }: {
-  userPubkey: string;
+  userIdOrPubkey: string;
   amount: number;
   walletPubkey: string;
   nwcRelay: string;
 }) {
-  const { connectionSecret } = await getNwcConnection(userPubkey);
+  const { connectionSecret } = await getNwcConnection(userIdOrPubkey);
 
   const requestEvent = await makeNWCRequestEvent({
     walletPubkey,
@@ -433,7 +436,7 @@ async function sendNwcMakeInvoiceRequest({
     nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
   const response = await fetchNWCResponse({
-    userPubkey,
+    userIdOrPubkey,
     requestEvent,
     relay,
   });
@@ -442,16 +445,16 @@ async function sendNwcMakeInvoiceRequest({
 }
 
 async function fetchNWCResponse({
-  userPubkey,
+  userIdOrPubkey,
   relay,
   requestEvent,
 }: {
-  userPubkey: string;
+  userIdOrPubkey: string;
   relay: string;
   requestEvent: Event;
 }): Promise<NWCResponse> {
   const { connectionSecret, connectionPubkey } =
-    await getNwcConnection(userPubkey);
+    await getNwcConnection(userIdOrPubkey);
 
   const [pTag, walletPubkey] =
     requestEvent.tags.find(([tag]) => tag === "p") ?? [];
@@ -492,19 +495,19 @@ async function fetchNWCResponse({
 }
 
 export const payWithNWC = async ({
-  userPubkey,
+  userIdOrPubkey,
   invoice,
   walletPubkey,
   nwcRelay,
 }: {
-  userPubkey: string;
+  userIdOrPubkey: string;
   invoice: string;
   walletPubkey: string;
   nwcRelay: string;
 }) => {
   try {
     return sendNwcPaymentRequest({
-      userPubkey,
+      userIdOrPubkey,
       invoice,
       walletPubkey,
       nwcRelay,
@@ -525,12 +528,12 @@ export const payWithNWC = async ({
 
 export const getNWCInvoice = async ({
   amount,
-  userPubkey,
+  userIdOrPubkey,
   walletPubkey,
   nwcRelay,
 }: {
   amount: number;
-  userPubkey: string;
+  userIdOrPubkey: string;
   walletPubkey: string;
   nwcRelay: string;
 }) => {
@@ -538,7 +541,7 @@ export const getNWCInvoice = async ({
     return sendNwcMakeInvoiceRequest({
       amount,
       walletPubkey,
-      userPubkey,
+      userIdOrPubkey,
       nwcRelay,
     });
   } catch (error) {
@@ -559,13 +562,13 @@ const WAIT_TIME_BETWEEN_CHECKS = 5000;
 const DEFAULT_ATTEMPTS = 30;
 // total time spent checking = 2.5 minutes
 export const listenForIncomingNWCPayment = async ({
-  userPubkey,
+  userIdOrPubkey,
   invoice,
   walletPubkey,
   nwcRelay,
   signal,
 }: {
-  userPubkey: string;
+  userIdOrPubkey: string;
   invoice: string;
   walletPubkey: string;
   nwcRelay: string;
@@ -582,7 +585,7 @@ export const listenForIncomingNWCPayment = async ({
       throw "Max attempts reached. Invoice not yet paid.";
     }
 
-    const { connectionSecret } = await getNwcConnection(userPubkey);
+    const { connectionSecret } = await getNwcConnection(userIdOrPubkey);
 
     const requestEvent = await makeNWCRequestEvent({
       walletPubkey,
@@ -604,7 +607,7 @@ export const listenForIncomingNWCPayment = async ({
       nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
     const response = (await fetchNWCResponse({
-      userPubkey,
+      userIdOrPubkey,
       requestEvent,
       relay,
     })) as LookupInvoiceResponse;
