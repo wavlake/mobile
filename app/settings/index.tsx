@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { BUILD_NUM, VERSION } from "@/app.config";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -26,7 +26,7 @@ import { cacheSettings } from "@/utils";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { pubkey } = useAuth();
+  const { userIsLoggedIn } = useAuth();
   const { catalogUser } = useUser();
   const { data: settings } = useSettings();
   const [lnurlInfoOpen, setLnurlInfoOpen] = useState(false);
@@ -56,7 +56,7 @@ export default function SettingsPage() {
               {VERSION} ({BUILD_NUM})
             </Text>
           </View>
-          {pubkey && (
+          {userIsLoggedIn && (
             <View
               style={{
                 display: "flex",

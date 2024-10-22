@@ -144,64 +144,47 @@ export default function AdvancedSettingsPage() {
         contentContainerStyle={{
           padding: 24,
           alignItems: "center",
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
         }}
       >
-        <View style={{ marginBottom: 24, width: "100%" }}>
-          <WalletChooser
-            selectedWallet={defaultZapWallet}
-            onSelectedWalletChange={setDefaultZapWallet}
+        <Text
+          style={{
+            fontSize: 20,
+            width: "100%",
+            textAlign: "left",
+          }}
+        >
+          Wallet
+        </Text>
+        <WalletChooser
+          selectedWallet={defaultZapWallet}
+          onSelectedWalletChange={setDefaultZapWallet}
+        />
+        {userIsLoggedIn && (
+          <NWCSettings
+            setEnableNWC={setEnableNWC}
+            onDeleteNWC={onDeleteNWC}
+            onAddNWC={onAddNWC}
           />
-          {userIsLoggedIn && (
-            <NWCSettings
-              setEnableNWC={setEnableNWC}
-              onDeleteNWC={onDeleteNWC}
-              onAddNWC={onAddNWC}
-            />
-          )}
-          {userIsLoggedIn && (
-            <View
-              style={{
-                marginTop: 24,
-                marginBottom: 4,
-                flexDirection: "row",
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <Text bold>Listening activity</Text>
-                <Text>
-                  Broadcast tracks you are listening to as a live status event
-                  to Nostr relays.
-                </Text>
-              </View>
-              <Switch
-                value={allowListeningActivity}
-                onValueChange={setAllowListeningActivity}
-                color={brandColors.pink.DEFAULT}
-                trackColor={{
-                  false: colors.border,
-                  true: brandColors.pink.DEFAULT,
-                }}
-                thumbColor={colors.text}
-              />
-            </View>
-          )}
+        )}
+        {userIsLoggedIn && (
           <View
             style={{
-              marginTop: 24,
-              marginBottom: 4,
               flexDirection: "row",
             }}
           >
             <View style={{ flex: 1 }}>
-              <Text bold>One tap zaps</Text>
+              <Text bold>Listening activity</Text>
               <Text>
-                Change the default behavior of the zap button to one tap zap
-                your default amount. Long press to open the comment form.
+                Broadcast tracks you are listening to as a live status event to
+                Nostr relays.
               </Text>
             </View>
             <Switch
-              value={oneTapZap}
-              onValueChange={setOneTapZap}
+              value={allowListeningActivity}
+              onValueChange={setAllowListeningActivity}
               color={brandColors.pink.DEFAULT}
               trackColor={{
                 false: colors.border,
@@ -210,52 +193,79 @@ export default function AdvancedSettingsPage() {
               thumbColor={colors.text}
             />
           </View>
-          {userIsLoggedIn && (
-            <View
-              style={{
-                marginTop: 24,
-                marginBottom: 4,
-                flexDirection: "row",
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <Text bold>Publish comments to nostr</Text>
-                <Text>
-                  Publish comments to your nostr feed. These comments will show
-                  up in other nostr clients as kind 1 events.
-                </Text>
-              </View>
-              <Switch
-                value={publishKind1}
-                onValueChange={setPublishKind1}
-                color={brandColors.pink.DEFAULT}
-                trackColor={{
-                  false: colors.border,
-                  true: brandColors.pink.DEFAULT,
-                }}
-                thumbColor={colors.text}
-              />
-            </View>
-          )}
+        )}
+        <View
+          style={{
+            flexDirection: "row",
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text bold>One tap zaps</Text>
+            <Text>
+              Change the default behavior of the zap button to one tap zap your
+              default amount. Long press to open the comment form.
+            </Text>
+          </View>
+          <Switch
+            value={oneTapZap}
+            onValueChange={setOneTapZap}
+            color={brandColors.pink.DEFAULT}
+            trackColor={{
+              false: colors.border,
+              true: brandColors.pink.DEFAULT,
+            }}
+            thumbColor={colors.text}
+          />
         </View>
+        {userIsLoggedIn && (
+          <Text
+            style={{
+              fontSize: 20,
+              width: "100%",
+              textAlign: "left",
+            }}
+          >
+            Nostr
+          </Text>
+        )}
         {userIsLoggedIn && (
           <View
             style={{
               flexDirection: "row",
             }}
           >
-            <TouchableOpacity
-              onPress={() => router.push({ pathname: "/settings/backup-nsec" })}
-            >
-              <View style={{ flex: 1 }}>
-                <Text bold>Export your nostr secret key</Text>
-                <Text>
-                  Tap here to view your account nsec and copy it to a safe
-                  place.
-                </Text>
-              </View>
-            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <Text bold>Publish comments to nostr</Text>
+              <Text>
+                Publish comments to your nostr feed. These comments will show up
+                in other nostr clients as kind 1 events.
+              </Text>
+            </View>
+            <Switch
+              value={publishKind1}
+              onValueChange={setPublishKind1}
+              color={brandColors.pink.DEFAULT}
+              trackColor={{
+                false: colors.border,
+                true: brandColors.pink.DEFAULT,
+              }}
+              thumbColor={colors.text}
+            />
           </View>
+        )}
+        {userIsLoggedIn && (
+          <TouchableOpacity
+            hitSlop={20}
+            onPress={() => router.push({ pathname: "/settings/backup-nsec" })}
+          >
+            <View style={{ flex: 1 }}>
+              <Text bold>Export or update your nostr secret key</Text>
+              <Text>
+                Tap here to view your account secret key and export it to a safe
+                place.
+              </Text>
+            </View>
+          </TouchableOpacity>
         )}
       </ScrollView>
     </TouchableWithoutFeedback>
@@ -278,11 +288,9 @@ const NWCSettings = ({
     !!settings?.nwcRelay && !settings?.nwcCommands.includes(payInvoiceCommand);
 
   return (
-    <View>
+    <>
       <View
         style={{
-          marginTop: 24,
-          marginBottom: 4,
           flexDirection: "row",
         }}
       >
@@ -328,8 +336,6 @@ const NWCSettings = ({
       {settings?.nwcRelay && (
         <View
           style={{
-            marginTop: 24,
-            marginBottom: 4,
             flexDirection: "row",
           }}
         >
@@ -354,6 +360,6 @@ const NWCSettings = ({
           />
         </View>
       )}
-    </View>
+    </>
   );
 };
