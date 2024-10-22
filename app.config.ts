@@ -102,6 +102,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           },
         },
       ],
+      [
+        "expo-image-picker",
+        {
+          photosPermission:
+            "The app accesses your photos to let you choose a profile picture.",
+        },
+      ],
     ],
     experiments: {
       tsconfigPaths: true,
