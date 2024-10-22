@@ -94,7 +94,7 @@ export interface PrivateUserData {
   nostrProfileData: NostrProfileData[];
 }
 
-export const usePrivateUserData = () => {
+export const usePrivateUserData = (enabled: boolean) => {
   return useQuery<PrivateUserData>(
     ["userData"],
     async () => {
@@ -108,8 +108,7 @@ export const usePrivateUserData = () => {
       return data.data;
     },
     {
-      enabled: false,
-      retry: false,
+      enabled,
     },
   );
 };
@@ -122,39 +121,48 @@ interface UserEditForm {
   uid: string;
 }
 
-export const useEditUser = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: () => void;
-  onError?: (error: string) => void;
-}) => {
+export const useEditUser = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (
-      user: Omit<UserEditForm, "ampSat"> & { ampMsat: number },
+      user: Partial<Omit<UserEditForm, "ampSat"> & { ampMsat: number }>,
     ) => {
+      const formIsEmpty = !Object.values(user).some(
+        (value) => value !== undefined && value !== null,
+      );
+      if (formIsEmpty) {
+        return;
+      }
+
       const requestFormData = new FormData();
-      requestFormData.append("name", user.name);
-      requestFormData.append("ampMsat", user.ampMsat.toString());
-      user.artwork &&
-        requestFormData.append(
-          "artwork",
-          user.artwork as any as Blob,
-          `${user.uid}.jpg`,
-        );
+
+      if (user.name) {
+        requestFormData.append("name", user.name);
+      }
+
+      if (user.ampMsat) {
+        requestFormData.append("ampMsat", user.ampMsat.toString());
+      }
+
+      if (user.artwork) {
+        requestFormData.append("artwork", user.artwork as any);
+      }
 
       const { data } = await catalogApiClient.put<
         ResponseObject<{ userId: string }>
-      >(`/accounts`, requestFormData);
+      >("/accounts", requestFormData, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "multipart/form-data",
+        },
+        transformRequest: (data) => data, // Prevent axios from trying to transform the FormData
+      });
+
       return data.data;
     },
-    onSuccess() {
+    onSuccess(data) {
       queryClient.invalidateQueries(["userData"]);
-      onSuccess?.();
-    },
-    onError(response: ResponseObject) {
-      onError?.(response.error ?? "Error editing user");
     },
   });
 };
