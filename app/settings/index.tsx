@@ -1,6 +1,11 @@
-import { Text, TextInput, Button, useUser, Center } from "@/components";
+import {
+  Text,
+  TextInput,
+  Button,
+  useUser,
+  ProfileImagePicker,
+} from "@/components";
 import { Dialog } from "@rneui/themed";
-
 import { useRouter } from "expo-router";
 import {
   Keyboard,
@@ -15,7 +20,6 @@ import { useState } from "react";
 import { useAuth, useToast } from "@/hooks";
 import { BUILD_NUM, VERSION } from "@/app.config";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
@@ -37,12 +41,12 @@ const VersionDisplay = () => (
 const ProfileSection = ({ onEditProfile }: { onEditProfile: () => void }) => (
   <View style={styles.sectionContainer}>
     <Text style={styles.centerText} bold>
-      Profile
+      Profile Picture
     </Text>
-    <LoggedInUserAvatar size={100} />
-    <Button color="white" onPress={onEditProfile} width={160}>
+    <ProfileImagePicker />
+    {/* <Button color="white" onPress={onEditProfile} width={160}>
       Update
-    </Button>
+    </Button> */}
   </View>
 );
 
