@@ -265,20 +265,22 @@ export default function AdvancedSettingsPage() {
               title="Publish comments to nostr"
               description="Publish comments to your nostr feed. These comments will show up in other nostr clients as kind 1 events."
             />
-            <TouchableOpacity
-              hitSlop={20}
-              onPress={() => router.push({ pathname: "/settings/backup-nsec" })}
-            >
-              <View style={styles.settingRow}>
-                <View style={styles.settingText}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingText}>
+                <TouchableOpacity
+                  hitSlop={20}
+                  onPress={() =>
+                    router.push({ pathname: "/settings/backup-nsec" })
+                  }
+                >
                   <Text bold>Export or update your nostr secret key</Text>
                   <Text>
                     Tap here to view your account secret key and export it to a
                     safe place.
                   </Text>
-                </View>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            </View>
           </>
         )}
       </ScrollView>
