@@ -30,7 +30,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
     settings?.enableNWC;
 
   const showTopUp = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
-
+  const userIsLoggedIn = !!pubkey || !!catalogUser;
   return (
     <DrawerContentScrollView
       contentContainerStyle={{
@@ -41,7 +41,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
       {...props}
     >
       <View>
-        {!pubkey && (
+        {!userIsLoggedIn && (
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Login</Text>}
             icon={({ color, size }) => (
@@ -102,7 +102,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
         )}
       </View>
       <View>
-        {pubkey && (
+        {userIsLoggedIn && (
           <View>
             <Divider
               style={{ marginHorizontal: 16 }}
