@@ -21,13 +21,13 @@ export default function WelcomePage() {
   const router = useRouter();
   const { catalogUser } = useUser();
   const { pubkey } = useAuth();
-  const { data: userProfile, isLoading } = useNostrProfileEvent(pubkey);
+  const { data: userProfile, isFetching } = useNostrProfileEvent(pubkey);
   const userName = nostrOnlyLogin ? userProfile?.name : catalogUser?.name;
   const goToHomePage = async () => {
     router.replace("/");
   };
 
-  if (isLoading) {
+  if (isFetching) {
     return (
       <Center>
         <ActivityIndicator />
