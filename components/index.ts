@@ -72,3 +72,5 @@ export * from "./ForYouSection";
 export * from "./FeaturedSection";
 export * from "./ProfilePicturePicker";
 export * from "./AddNostr";
+export * from "./NsecIntakePage";
+export * from "./EditNsecModal";

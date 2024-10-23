@@ -1,13 +1,25 @@
-import { Button, Text, TextInput } from "@/components";
-import { ScrollView, View } from "react-native";
+import { View, ScrollView, StyleSheet } from "react-native";
+import { useAuth } from "@/hooks";
+import {
+  Button,
+  Text,
+  TextInput,
+  NsecIntakePage,
+  EditNsecModal,
+  useUser,
+} from "@/components";
 import { useEffect, useState } from "react";
-import { encodeNsec, getSeckey } from "@/utils";
+import { encodeNsec, getSeckey, useAddPubkeyToUser } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useRouter } from "expo-router";
 
 export default function BackupNsec() {
+  const { pubkey, login } = useAuth();
   const [nsec, setNsec] = useState("");
   const router = useRouter();
+  const { catalogUser } = useUser();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
 
   useEffect(() => {
     (async () => {
@@ -20,7 +32,23 @@ export default function BackupNsec() {
     })();
   }, []);
 
-  return (
+  const handleSaveNsec = async (nsec: string) => {
+    try {
+      const success = await login(nsec);
+      if (!success) {
+        console.error("Failed to login with new nsec");
+        return;
+      }
+
+      if (catalogUser) {
+        await addPubkeyToAccount();
+      }
+    } catch (error) {
+      console.error("Failed to update nsec:", error);
+    }
+  };
+
+  return pubkey ? (
     <ScrollView
       contentContainerStyle={{
         paddingHorizontal: 24,
@@ -48,14 +76,23 @@ export default function BackupNsec() {
               never be shared with anyone.
             </Text>
             <Text style={{ fontSize: 18 }}>
-              Wavlake does not have access to your private key, so if log out of
-              the Wavlake app without backing up your nsec, you will lose access
-              to your nostr account.
+              Wavlake does not have access to your key, so if you change it now
+              without backing it up first you will lose access to your current
+              Nostr identity and history.
             </Text>
           </View>
+          <Button onPress={() => setIsEditModalOpen(true)}>Update</Button>
           <Button onPress={router.back}>back</Button>
+          <EditNsecModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            onSave={handleSaveNsec}
+            currentPubkey={pubkey}
+          />
         </>
       )}
     </ScrollView>
+  ) : (
+    <NsecIntakePage />
   );
 }

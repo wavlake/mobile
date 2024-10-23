@@ -255,35 +255,31 @@ export default function AdvancedSettingsPage() {
           title="One tap zaps"
           description="Change the default behavior of the zap button to one tap zap your default amount. Long press to open the comment form."
         />
+        <Text style={styles.sectionTitle}>Nostr</Text>
         {pubkeyLoggedIn && (
-          <>
-            <Text style={styles.sectionTitle}>Nostr</Text>
-            <SettingsSwitch
-              value={settings.publishKind1 ?? false}
-              onValueChange={(value) =>
-                handleSettingsUpdate({ publishKind1: value })
-              }
-              title="Publish comments to nostr"
-              description="Publish comments to your nostr feed. These comments will show up in other nostr clients as kind 1 events."
-            />
-            <View style={styles.settingRow}>
-              <View style={styles.settingText}>
-                <TouchableOpacity
-                  hitSlop={20}
-                  onPress={() =>
-                    router.push({ pathname: "/settings/backup-nsec" })
-                  }
-                >
-                  <Text bold>Export or update your nostr secret key</Text>
-                  <Text>
-                    Tap here to view your account secret key and export it to a
-                    safe place.
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </>
+          <SettingsSwitch
+            value={settings.publishKind1 ?? false}
+            onValueChange={(value) =>
+              handleSettingsUpdate({ publishKind1: value })
+            }
+            title="Publish comments to nostr"
+            description="Publish comments to your nostr feed. These comments will show up in other nostr clients as kind 1 events."
+          />
         )}
+        <View style={styles.settingRow}>
+          <View style={styles.settingText}>
+            <TouchableOpacity
+              hitSlop={20}
+              onPress={() => router.push({ pathname: "/settings/backup-nsec" })}
+            >
+              <Text bold>Export or update your nostr secret key</Text>
+              <Text>
+                Tap here to view your account secret key and export it to a safe
+                place.
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </TouchableWithoutFeedback>
   );
