@@ -2,7 +2,7 @@ import { Button, Center, Text } from "@/components";
 import { ActivityIndicator, View } from "react-native";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useUser } from "@/components/UserContextProvider";
-import { LoggedInUserAvater } from "@/components/LoggedInUserAvater";
+import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
 import { useEffect } from "react";
 import { setSkipLogin } from "@/utils";
 import { useAuth, useNostrProfileEvent } from "@/hooks";
@@ -51,7 +51,7 @@ export default function WelcomePage() {
           gap: 20,
         }}
       >
-        <LoggedInUserAvater size={100} />
+        <LoggedInUserAvatar size={100} />
         {userName && <Text style={{ fontSize: 18 }}>Hi, {userName}</Text>}
         <Text style={{ fontSize: 18 }}>Welcome to Wavlake!</Text>
       </View>

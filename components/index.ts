@@ -70,3 +70,4 @@ export * from "./NsecInfoDialog";
 export * from "./TopUpSection";
 export * from "./ForYouSection";
 export * from "./FeaturedSection";
+export * from "./ProfilePicturePicker";

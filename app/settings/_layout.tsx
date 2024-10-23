@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { Text, HeaderBackButton } from "@/components";
 
-export default function WalletLayout() {
+export default function SettingsLayout() {
   return (
     <Stack
       screenOptions={{
@@ -20,35 +20,28 @@ export default function WalletLayout() {
         name="index"
         options={{
           presentation: "card",
-          headerTitle: () => <Text>Wallet</Text>,
+          headerTitle: () => <Text>Settings</Text>,
         }}
       />
       <Stack.Screen
-        name="withdraw"
+        name="advanced"
         options={{
           presentation: "card",
-          headerTitle: () => <Text>Withdraw</Text>,
+          headerTitle: () => <Text>Advanced Settings</Text>,
         }}
       />
       <Stack.Screen
-        name="fund"
+        name="backup-nsec"
         options={{
           presentation: "card",
-          headerTitle: () => <Text>Fund</Text>,
+          headerTitle: () => <Text>Nostr Key</Text>,
         }}
       />
       <Stack.Screen
-        name="history"
+        name="edit-profile"
         options={{
           presentation: "card",
-          headerTitle: () => <Text>History</Text>,
-        }}
-      />
-      <Stack.Screen
-        name="success"
-        options={{
-          presentation: "card",
-          headerTitle: () => <Text>Success</Text>,
+          headerTitle: () => <Text>Update Profile</Text>,
         }}
       />
     </Stack>

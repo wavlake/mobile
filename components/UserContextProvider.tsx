@@ -63,10 +63,6 @@ const UserContext = createContext<UserContextProps>({
 export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: createUser } = useCreateNewUser();
 
-  const [catalogUser, setCatalogUser] = useState<PrivateUserData | undefined>(
-    undefined,
-  );
-
   const { pubkey, login } = useAuth();
   const createNewNostrAccount = useCreateNewNostrAccount();
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
@@ -74,12 +70,14 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<FirebaseUser>(null);
   const [initializingAuth, setInitializingAuth] = useState(true);
 
-  const { refetch: _refetchUser } = usePrivateUserData();
+  const enablePrivateUserData = Boolean(user);
+  const { refetch: _refetchUser, data: catalogUser } = usePrivateUserData(
+    enablePrivateUserData,
+  );
 
   const refetchUser = async () => {
     if (!user) return;
-    const { data: incomingCatalogUser } = await _refetchUser();
-    setCatalogUser(incomingCatalogUser);
+    await _refetchUser();
   };
 
   useEffect(() => {
@@ -89,19 +87,15 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
 
       if (user) {
         const { data: incomingCatalogUser } = await _refetchUser();
-        if (incomingCatalogUser?.id) {
-          setCatalogUser(incomingCatalogUser);
-        } else {
+        if (!incomingCatalogUser?.id) {
           // if id is not there, we need to refetch again to get the full user data from the db
           // when a new user is signing up, the client creates the firebase user and then makes a call to create the user in the db
           // we need to pause to let the db record be created before we try to fetch it
           await new Promise((resolve) => setTimeout(resolve, 3000));
-          const { data: refetchedCatalogUser } = await _refetchUser();
-          setCatalogUser(refetchedCatalogUser);
+          await _refetchUser();
         }
       } else {
-        // user has signed out, so we need to update the user context
-        setCatalogUser(undefined);
+        // user has signed out, so clear the user data
         setUser(null);
       }
     });
@@ -287,7 +281,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       value={{
         initializingAuth,
         user,
-        catalogUser,
+        catalogUser: user ? catalogUser : undefined,
         refetchUser,
         nostrMetadata: catalogUser?.nostrProfileData.find(
           (n) => n.publicHex === pubkey,
