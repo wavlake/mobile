@@ -269,12 +269,14 @@ export default function AdvancedSettingsPage() {
               hitSlop={20}
               onPress={() => router.push({ pathname: "/settings/backup-nsec" })}
             >
-              <View style={styles.settingText}>
-                <Text bold>Export or update your nostr secret key</Text>
-                <Text>
-                  Tap here to view your account secret key and export it to a
-                  safe place.
-                </Text>
+              <View style={styles.settingRow}>
+                <View style={styles.settingText}>
+                  <Text bold>Export or update your nostr secret key</Text>
+                  <Text>
+                    Tap here to view your account secret key and export it to a
+                    safe place.
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           </>
