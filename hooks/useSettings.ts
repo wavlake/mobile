@@ -5,19 +5,18 @@ import { useSettingsQueryKey } from "./useSettingsQueryKey";
 import { useUser } from "@/components";
 
 export const useSettings = () => {
-  const { pubkey: userPubkey } = useAuth();
+  const { pubkey } = useAuth();
   const { catalogUser } = useUser();
-  const queryKey = useSettingsQueryKey();
-  const enabled = Boolean(userPubkey);
+  const userId = catalogUser?.id ?? pubkey;
+  const queryKey = useSettingsQueryKey(userId);
+  const enabled = Boolean(pubkey || catalogUser);
 
-  const data = useQuery({
+  return useQuery({
     queryKey,
     queryFn: async () => {
-      const settings = await getSettings(catalogUser?.id ?? userPubkey);
+      const settings = await getSettings(userId);
       return settings;
     },
     enabled,
   });
-
-  return data;
 };

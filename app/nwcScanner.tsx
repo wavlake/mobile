@@ -2,13 +2,11 @@ import { Button, QRScanner, Text, TextInput, useUser } from "@/components";
 import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
-import { useAuth, useToast } from "@/hooks";
+import { useAuth, useSettingsManager, useToast } from "@/hooks";
 import { BarcodeScanningResult } from "expo-camera";
 
 import { intakeNwcURI } from "@/utils/nwc";
 import LoadingScreen from "@/components/LoadingScreen";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -17,8 +15,7 @@ export default function SettingsPage() {
   const [scanned, setScanned] = useState(false);
   const [newNwcURI, setNewNwcURI] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const settingsKey = useSettingsQueryKey();
-  const queryClient = useQueryClient();
+  const { refetch: refetchSettings } = useSettingsManager();
   const { catalogUser } = useUser();
   const userIdOrPubkey = catalogUser?.id ?? pubkey;
 
@@ -38,11 +35,11 @@ export default function SettingsPage() {
       userIdOrPubkey,
     });
     if (isSuccess) {
-      queryClient.invalidateQueries(settingsKey);
+      await refetchSettings();
       router.back();
       // fetch the info event and refresh settings after
       await fetchInfo?.();
-      queryClient.invalidateQueries(settingsKey);
+      await refetchSettings();
     } else {
       error && toast.show(error);
     }

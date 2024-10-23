@@ -17,17 +17,14 @@ import {
   StyleSheet,
 } from "react-native";
 import { useState } from "react";
-import { useAuth, useToast } from "@/hooks";
+import { useAuth, useToast, useSettingsManager } from "@/hooks";
 import { BUILD_NUM, VERSION } from "@/app.config";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useQueryClient } from "@tanstack/react-query";
-import { useSettings } from "@/hooks/useSettings";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import { brandColors } from "@/constants";
 import { Tooltip } from "@rneui/themed";
 import { useTheme } from "@react-navigation/native";
 
-import { cacheSettings, Settings, PrivateUserData } from "@/utils";
+import { PrivateUserData } from "@/utils";
 
 const VersionDisplay = () => (
   <View style={styles.centerContainer}>
@@ -195,36 +192,6 @@ const ZapAmountModal = ({
   );
 };
 
-// hooks/useSettingsManager.ts
-const useSettingsManager = (pubkey: string | null) => {
-  const queryClient = useQueryClient();
-  const settingsKey = useSettingsQueryKey();
-  const toast = useToast();
-  const { data: settings } = useSettings();
-
-  const updateSettings = async (newSettings: Partial<Settings>) => {
-    if (!pubkey) {
-      throw new Error("No pubkey available");
-    }
-
-    try {
-      toast.clearAll();
-      Keyboard.dismiss();
-      await cacheSettings(newSettings, pubkey);
-      queryClient.invalidateQueries(settingsKey);
-      toast.show("saved");
-    } catch (error) {
-      console.error("Failed to update settings:", error);
-      throw error;
-    }
-  };
-
-  return {
-    settings,
-    updateSettings,
-  };
-};
-
 // styles.ts
 const styles = StyleSheet.create({
   container: {
@@ -291,17 +258,20 @@ const styles = StyleSheet.create({
   },
 });
 
-// SettingsPage.tsx
 export default function SettingsPage() {
   const router = useRouter();
-  const { userIsLoggedIn, pubkey } = useAuth();
+  const toast = useToast();
+  const { userIsLoggedIn: pubkeyLoggedIn } = useAuth();
   const { catalogUser } = useUser();
   const [lnurlInfoOpen, setLnurlInfoOpen] = useState(false);
   const [isZapDefaultOpen, setIsZapDefaultOpen] = useState(false);
-  const { settings, updateSettings } = useSettingsManager(pubkey);
-
+  const { settings, updateSettings } = useSettingsManager();
+  const userIsLoggedIn = pubkeyLoggedIn || !!catalogUser;
   const handleSaveZapAmount = async (amount: string) => {
+    toast.clearAll();
+    Keyboard.dismiss();
     await updateSettings({ defaultZapAmount: amount });
+    toast.show("Saved");
   };
 
   return (

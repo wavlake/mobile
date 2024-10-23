@@ -2,6 +2,7 @@ import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 export type FirebaseUser = FirebaseAuthTypes.User | null;
+export type UserCredential = FirebaseAuthTypes.UserCredential;
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_FIREBASE_OAUTH_CLIENT_ID,

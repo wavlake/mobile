@@ -5,7 +5,7 @@ import React, {
   useEffect,
   PropsWithChildren,
 } from "react";
-import { FirebaseUser, firebaseService } from "@/services";
+import { FirebaseUser, firebaseService, UserCredential } from "@/services";
 import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import {
   NostrProfileData,
@@ -23,6 +23,12 @@ interface CreateEmailUserArgs {
   lastName?: string;
 }
 
+type SignedInUser = {
+  userAssociatedPubkey?: string | null;
+  isRegionVerified?: boolean;
+  isEmailVerified?: boolean;
+} & UserCredential;
+
 type UserContextProps = {
   user: FirebaseUser;
   initializingAuth: boolean;
@@ -32,19 +38,14 @@ type UserContextProps = {
   signInWithEmail: (
     email: string,
     password: string,
-  ) => Promise<{
-    error?: any;
-    userAssociatedPubkey?: string | null;
-    isRegionVerified?: boolean;
-    isEmailVerified?: boolean;
-  }>;
-  signInWithGoogle: () => Promise<{
-    error?: any;
-    userAssociatedPubkey?: string | null;
-    isRegionVerified?: boolean;
-    isEmailVerified?: boolean;
-  }>;
-  createUserWithEmail: (args: CreateEmailUserArgs) => Promise<any>;
+  ) => Promise<SignedInUser | { error: string }>;
+  signInWithGoogle: () => Promise<SignedInUser | { error: string }>;
+  createUserWithEmail: (args: CreateEmailUserArgs) => Promise<
+    | SignedInUser
+    | {
+        error: string;
+      }
+  >;
 } & typeof firebaseService;
 
 const UserContext = createContext<UserContextProps>({
@@ -226,7 +227,9 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       return user;
     } catch (error) {
       console.error("error creating user with email");
-      return { error };
+      return {
+        error: typeof error === "string" ? error : "Failed to create user",
+      };
     }
   };
 
@@ -271,8 +274,8 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         isEmailVerified: user.user.emailVerified,
       };
     } catch (error) {
-      console.error("error signing in with email");
-      return { error };
+      console.error("error signing in with email", error);
+      return { error: typeof error === "string" ? error : "Failed to sign in" };
     }
   };
 

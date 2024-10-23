@@ -6,14 +6,14 @@ import {
 } from "react-native";
 import { useProgress } from "react-native-track-player";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { Center, MarqueeText } from "@/components";
+import { Center, MarqueeText, useUser } from "@/components";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ZapIcon } from "@/components/ZapIcon";
 import { brandColors } from "@/constants";
-import { cacheSettings, validateWalletKey } from "@/utils";
-import { useAuth, useZap } from "@/hooks";
+import { validateWalletKey } from "@/utils";
+import { useAuth, useSettingsManager, useZap } from "@/hooks";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { useSettings } from "@/hooks/useSettings";
@@ -29,8 +29,7 @@ export const FullSizeMusicPlayer = () => {
   const router = useRouter();
   const { position } = useProgress();
   const { activeTrack } = useMusicPlayer();
-  const { data: settings, refetch: refetchSettings } = useSettings();
-  const { oneTapZap = false } = settings || {};
+  const { catalogUser } = useUser();
 
   const {
     id: trackId,
@@ -80,6 +79,12 @@ export const FullSizeMusicPlayer = () => {
       },
     });
   };
+  const {
+    updateSettings,
+    settings,
+    refetch: refetchSettings,
+  } = useSettingsManager();
+  const { oneTapZap = false } = settings || {};
 
   const { sendZap, isLoading } = useZap({
     isPodcast,
@@ -138,7 +143,7 @@ export const FullSizeMusicPlayer = () => {
   // const backgroundColor = backgroundIsNearBlack
   //   ? brandColors.black.light
   //   : background ?? brandColors.black.light;
-
+  const userIdOrPubkey = catalogUser?.id ?? pubkey;
   return (
     <>
       <View
@@ -232,7 +237,7 @@ export const FullSizeMusicPlayer = () => {
           setIsWalletChooserModalVisible(false);
         }}
         onCancel={async () => {
-          await cacheSettings({ defaultZapWallet: "default" }, pubkey);
+          await updateSettings({ defaultZapWallet: "default" });
           await refetchSettings();
           setIsWalletChooserModalVisible(false);
         }}

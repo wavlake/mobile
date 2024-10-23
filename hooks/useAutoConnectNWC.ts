@@ -1,7 +1,5 @@
-import { useAuth, useToast } from "@/hooks";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { useAuth, useSettingsManager, useToast } from "@/hooks";
 import { useUser } from "@/components";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   generateSecretKey,
   getPublicKey,
@@ -36,8 +34,7 @@ export const useAutoConnectNWC = () => {
   const { pubkey: userPubkey } = useAuth();
   const toast = useToast();
   const { mutate: createConnection } = useCreateConnection();
-  const queryClient = useQueryClient();
-  const settingsKey = useSettingsQueryKey();
+  const { refetch: refetchSettings } = useSettingsManager();
   const { refetch: fetchBalance } = useWalletBalance();
 
   const connectWallet = async (
@@ -79,7 +76,7 @@ export const useAutoConnectNWC = () => {
     if (isSuccess) {
       // Fetch the info event and refresh settings
       await fetchInfo?.();
-      queryClient.invalidateQueries(settingsKey);
+      await refetchSettings();
       fetchBalance();
       return { success: true };
     } else {

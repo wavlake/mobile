@@ -1,4 +1,4 @@
-import { Text, WalletChooser } from "@/components";
+import { Text, useUser, WalletChooser } from "@/components";
 import { useRouter } from "expo-router";
 import {
   Keyboard,
@@ -205,9 +205,10 @@ const styles = StyleSheet.create({
 export default function AdvancedSettingsPage() {
   const toast = useToast();
   const router = useRouter();
-  const { pubkey, userIsLoggedIn } = useAuth();
-  const { settings, updateSettings } = useSettingsManager(pubkey);
-
+  const { userIsLoggedIn: pubkeyLoggedIn } = useAuth();
+  const { settings, updateSettings } = useSettingsManager();
+  const { catalogUser } = useUser();
+  const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
   if (!settings) return null;
 
   const handleSettingsUpdate = async (newSettings: Partial<Settings>) => {
@@ -233,20 +234,20 @@ export default function AdvancedSettingsPage() {
           }
         />
         {userIsLoggedIn && (
-          <>
-            <NWCSettings
-              settings={settings}
-              onUpdateSettings={handleSettingsUpdate}
-            />
-            <SettingsSwitch
-              value={settings.allowListeningActivity ?? false}
-              onValueChange={(value) =>
-                handleSettingsUpdate({ allowListeningActivity: value })
-              }
-              title="Listening activity"
-              description="Broadcast tracks you are listening to as a live status event to Nostr relays."
-            />
-          </>
+          <NWCSettings
+            settings={settings}
+            onUpdateSettings={handleSettingsUpdate}
+          />
+        )}
+        {pubkeyLoggedIn && (
+          <SettingsSwitch
+            value={settings.allowListeningActivity ?? false}
+            onValueChange={(value) =>
+              handleSettingsUpdate({ allowListeningActivity: value })
+            }
+            title="Listening activity"
+            description="Broadcast tracks you are listening to as a live status event to Nostr relays."
+          />
         )}
         <SettingsSwitch
           value={settings.oneTapZap ?? false}
@@ -254,7 +255,7 @@ export default function AdvancedSettingsPage() {
           title="One tap zaps"
           description="Change the default behavior of the zap button to one tap zap your default amount. Long press to open the comment form."
         />
-        {userIsLoggedIn && (
+        {pubkeyLoggedIn && (
           <>
             <Text style={styles.sectionTitle}>Nostr</Text>
             <SettingsSwitch

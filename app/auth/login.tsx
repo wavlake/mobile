@@ -27,17 +27,20 @@ export default function Login() {
   const { connectWallet } = useAutoConnectNWC();
 
   const handleLogin = async (email: string, password: string) => {
-    const result = await signInWithEmail(email, password);
-    if ("error" in result) {
-      setErrorMessage(result.error);
+    const signedInUser = await signInWithEmail(email, password);
+    if ("error" in signedInUser) {
+      setErrorMessage(signedInUser.error);
       return;
     }
 
-    if (result.isEmailVerified && result.isRegionVerified) {
-      await connectWallet({
-        ...DEFAULT_CONNECTION_SETTINGS,
-        connectionName: DeviceInfo.getModel(),
-      });
+    if (signedInUser.isEmailVerified && signedInUser.isRegionVerified) {
+      await connectWallet(
+        {
+          ...DEFAULT_CONNECTION_SETTINGS,
+          connectionName: DeviceInfo.getModel(),
+        },
+        signedInUser.user.uid,
+      );
     }
     router.replace({
       pathname: "/auth/welcome",

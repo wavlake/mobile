@@ -10,14 +10,10 @@ import {
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { useAuth, useZap } from "@/hooks";
+import { useSettingsManager, useZap } from "@/hooks";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { useTheme } from "@react-navigation/native";
-import { useSettings } from "@/hooks/useSettings";
-import { useQueryClient } from "@tanstack/react-query";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
-import { cacheSettings } from "@/utils";
 
 export default function ZapPage() {
   const {
@@ -57,21 +53,15 @@ export default function ZapPage() {
     sendZap({ comment, amount: parseInt(zapAmount), useNavReplace: true });
   };
 
-  const { data: settings } = useSettings();
+  const { settings, updateSettings } = useSettingsManager();
   const { colors } = useTheme();
-  const { pubkey } = useAuth();
-  const queryClient = useQueryClient();
-  const settingsKey = useSettingsQueryKey();
+
   // this new setting will start as undefined for users
   const currentPublishKind1Setting = settings?.publishKind1 ?? false;
   const togglePublishKind1 = async (value: boolean) => {
-    await cacheSettings(
-      {
-        publishKind1: !currentPublishKind1Setting,
-      },
-      pubkey,
-    );
-    queryClient.invalidateQueries(settingsKey);
+    await updateSettings({
+      publishKind1: !currentPublishKind1Setting,
+    });
   };
   return (
     <KeyboardAvoidingView behavior="position">

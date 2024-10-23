@@ -28,7 +28,6 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
     catalogUser?.isRegionVerified &&
     !catalogUser?.isLocked &&
     settings?.enableNWC;
-
   const showTopUp = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
   const userIsLoggedIn = !!pubkey || !!catalogUser;
   return (

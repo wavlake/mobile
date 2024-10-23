@@ -287,6 +287,7 @@ const getWalletServiceCommands = async ({
   }
 
   const enableNWC = nwcCommands?.includes(payInvoiceCommand);
+
   await cacheSettings(
     { enableNWC, nwcCommands: nwcCommands ?? [] },
     userIdOrPubkey,

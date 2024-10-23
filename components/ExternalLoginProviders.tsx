@@ -33,7 +33,6 @@ export const ExternalLoginProviders = ({
 }) => {
   const { connectWallet } = useAutoConnectNWC();
   const router = useRouter();
-  const { pubkey } = useAuth();
   const { signInWithGoogle } = useUser();
   const { show } = useToast();
   const providers = [
@@ -42,18 +41,21 @@ export const ExternalLoginProviders = ({
       icon: GoogleIcon,
       onPress: async () => {
         setIsLoading(true);
-        const result = await signInWithGoogle();
-        if ("error" in result) {
-          show(result.error);
+        const signedInUser = await signInWithGoogle();
+        if ("error" in signedInUser) {
+          show(signedInUser.error);
           setIsLoading(false);
           return;
         }
 
-        if (result.isEmailVerified && result.isRegionVerified) {
-          await connectWallet({
-            ...DEFAULT_CONNECTION_SETTINGS,
-            connectionName: DeviceInfo.getModel(),
-          });
+        if (signedInUser.isEmailVerified && signedInUser.isRegionVerified) {
+          await connectWallet(
+            {
+              ...DEFAULT_CONNECTION_SETTINGS,
+              connectionName: DeviceInfo.getModel(),
+            },
+            signedInUser.user.uid,
+          );
         }
         router.replace({
           pathname: "/auth/welcome",

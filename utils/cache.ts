@@ -119,7 +119,6 @@ export interface Settings {
   publishKind1: boolean;
 }
 
-// TODO expose this call thru the settings hook
 export const cacheSettings = async (
   settings: Partial<Settings>,
   userIdOrPubkey?: string,
@@ -136,5 +135,6 @@ export const getSettings = async (
 ): Promise<Settings> => {
   const settingsKey = makeSettingsKey(userIdOrPubkey);
 
-  return (await getObjectData(settingsKey)) ?? {};
+  const settings = (await getObjectData(settingsKey)) ?? {};
+  return settings;
 };
