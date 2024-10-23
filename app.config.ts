@@ -2,7 +2,7 @@
 
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-export const BUILD_NUM = 57;
+export const BUILD_NUM = 58;
 export const VERSION = "1.1.0";
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
@@ -100,6 +100,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             targetSdkVersion: 34,
             buildToolsVersion: "34.0.0",
           },
+        },
+      ],
+      [
+        "expo-image-picker",
+        {
+          photosPermission:
+            "The app accesses your photos to let you choose a profile picture.",
         },
       ],
     ],

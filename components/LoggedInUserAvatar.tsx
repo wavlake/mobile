@@ -1,7 +1,7 @@
 import { useAuth, useNostrProfileEvent } from "@/hooks";
 import { Avatar } from "./Avatar";
 
-export const LoggedInUserAvater = ({ size }: { size: number }) => {
+export const LoggedInUserAvatar = ({ size }: { size: number }) => {
   const { pubkey } = useAuth();
   const { data: profile } = useNostrProfileEvent(pubkey);
   const imageUrl = profile?.picture ?? profile?.image;

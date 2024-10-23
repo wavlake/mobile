@@ -142,9 +142,7 @@ export default function Layout() {
                       <Stack.Screen
                         name="settings"
                         options={{
-                          headerBackVisible: false,
-                          headerLeft: () => <HeaderBackButton />,
-                          headerTitle: () => <Text>Settings</Text>,
+                          headerShown: false,
                         }}
                       />
                       <Stack.Screen
