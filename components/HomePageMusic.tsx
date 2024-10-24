@@ -10,6 +10,7 @@ import {
   TopUpSection,
   ForYouSection,
   FeaturedSection,
+  VercelImage,
 } from "@/components";
 import { useHomePage } from "@/hooks";
 
@@ -55,7 +56,7 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
         >
           {index + 1}
         </Text>
-        <SquareArtwork size={100} url={artworkUrl} />
+        <VercelImage size={100} url={artworkUrl} />
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
             {title}
@@ -95,6 +96,9 @@ export const HomePageMusic = () => {
         <TopMusicRow trackList={trending} track={item} index={index} />
       )}
       keyExtractor={(item) => item.id}
+      windowSize={5}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={3}
     />
   );
 };

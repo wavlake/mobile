@@ -76,3 +76,4 @@ export * from "./NsecIntakePage";
 export * from "./EditNsecModal";
 export * from "./DollarAmount";
 export * from "./BitcoinPriceProvider";
+export * from "./VercelImage";

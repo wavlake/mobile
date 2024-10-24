@@ -1,5 +1,5 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { Text, SquareArtwork } from "@/components";
+import { Text, SquareArtwork, VercelImage } from "@/components";
 import { brandColors } from "@/constants";
 
 interface HorizontalArtworkRowItem {
@@ -73,7 +73,7 @@ const RowItem: React.FC<{
         padding: 16,
       }}
     >
-      <SquareArtwork size={200} url={item.artworkUrl} />
+      <VercelImage size={200} url={item.artworkUrl} quality={100} />
       <Text
         style={{
           textAlign: "center",

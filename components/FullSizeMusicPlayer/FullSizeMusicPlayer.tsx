@@ -16,7 +16,6 @@ import { validateWalletKey } from "@/utils";
 import { useAuth, useSettingsManager, useZap } from "@/hooks";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
-import { useSettings } from "@/hooks/useSettings";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 import { NowPlayingCommentSection } from "./NowPlayingCommentSection";
 

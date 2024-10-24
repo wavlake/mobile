@@ -1,6 +1,7 @@
 import { Dimensions, View } from "react-native";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { VercelImage } from "../VercelImage";
 
 export const ArtworkCarousel = () => {
   const screenWidth = Dimensions.get("window").width;
@@ -16,7 +17,11 @@ export const ArtworkCarousel = () => {
       }}
     >
       {artworkUrl && (
-        <SquareArtwork size={screenWidth - padding * 2} url={artworkUrl} />
+        <VercelImage
+          size={screenWidth - padding * 2}
+          url={artworkUrl}
+          quality={100}
+        />
       )}
     </View>
   );
