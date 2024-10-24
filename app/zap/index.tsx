@@ -8,13 +8,19 @@ import {
   Text,
   DollarAmount,
 } from "@/components";
-import { KeyboardAvoidingView, ScrollView, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useState } from "react";
-import { useLocalSearchParams } from "expo-router";
-import { useSettingsManager, useZap } from "@/hooks";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useAuth, useSettingsManager, useZap } from "@/hooks";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { useTheme } from "@react-navigation/native";
+import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 
 export default function ZapPage() {
   const {
@@ -36,6 +42,8 @@ export default function ZapPage() {
     isPodcast: string;
     parentContentId: string;
   }>();
+  const router = useRouter();
+  const { pubkey } = useAuth();
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [comment, setComment] = useState("");
   const { sendZap, isLoading: isZapping } = useZap({
@@ -67,7 +75,10 @@ export default function ZapPage() {
     <KeyboardAvoidingView behavior="position">
       <ScrollView
         style={{ paddingHorizontal: 24, paddingVertical: 16 }}
-        contentContainerStyle={{ alignItems: "center", gap: 16 }}
+        contentContainerStyle={{
+          alignItems: "center",
+          gap: 12,
+        }}
       >
         {artworkUrl && <SquareArtwork size={150} url={artworkUrl} />}
         <Center>
@@ -131,6 +142,32 @@ export default function ZapPage() {
             thumbColor={colors.text}
           />
         </View>
+        {!pubkey && (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text>
+                You are not logged into nostr, zaps and comments will be
+                anonymous.
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                router.push("/settings");
+                router.push("/settings/advanced");
+                router.push("/settings/nsec");
+              }}
+            >
+              <View style={{ flexDirection: "row", gap: 4 }}>
+                <Text>Login</Text>
+                <ArrowTopRightOnSquareIcon
+                  color={brandColors.beige.dark}
+                  height={20}
+                  width={20}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
         <Button
           onPress={handleZap}
           disabled={isZapDisabled}
