@@ -35,10 +35,10 @@ export const PlaylistButton = ({
     if (!pubkey) {
       Alert.alert(
         "Nostr account required",
-        "You must be logged in to nostr to use playlists.",
+        "You must login to nostr to use playlists.",
         [
           {
-            text: "Log in to Nostr",
+            text: "Login to nostr",
             onPress: () => {
               router.push("/settings");
               router.push("/settings/advanced");

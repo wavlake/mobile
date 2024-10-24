@@ -35,10 +35,10 @@ export const LikeButton = ({
     if (!pubkey) {
       Alert.alert(
         "Nostr account required",
-        "You must be logged in to nostr to use playlists.",
+        "You must login to nostr to add content to your library.",
         [
           {
-            text: "Log in to Nostr",
+            text: "Login to nostr",
             onPress: () => {
               router.push("/settings");
               router.push("/settings/advanced");
