@@ -6,6 +6,7 @@ import {
   TextInput,
   Center,
   Text,
+  DollarAmount,
 } from "@/components";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
@@ -35,7 +36,6 @@ export default function ZapPage() {
     isPodcast: string;
     parentContentId: string;
   }>();
-
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [comment, setComment] = useState("");
   const { sendZap, isLoading: isZapping } = useZap({
@@ -99,6 +99,12 @@ export default function ZapPage() {
           value={zapAmount}
           keyboardType="numeric"
           includeErrorMessageSpace={false}
+          rightIcon={
+            <DollarAmount
+              style={{ textAlign: "right" }}
+              sats={parseInt(zapAmount)}
+            />
+          }
         />
         <TextInput
           label="message (optional)"
