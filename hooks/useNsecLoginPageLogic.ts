@@ -19,12 +19,11 @@ import { bytesToHex } from "@noble/hashes/utils";
 import DeviceInfo from "react-native-device-info";
 
 type NsecPageParams = {
-  userAssociatedPubkey: string;
   nostrOnlyLogin: "true" | "false";
 };
 
 export const useNsecLoginPageLogic = () => {
-  const { userAssociatedPubkey, nostrOnlyLogin: nostrOnlyLoginString } =
+  const { nostrOnlyLogin: nostrOnlyLoginString } =
     useLocalSearchParams<NsecPageParams>();
   const nostrOnlyLogin = nostrOnlyLoginString === "true";
   const [nsec, setNsec] = useState("");
@@ -35,6 +34,7 @@ export const useNsecLoginPageLogic = () => {
   const router = useRouter();
   const { login } = useAuth();
   const { user, catalogUser } = useUser();
+  const userAssociatedPubkey = catalogUser?.nostrProfileData?.[0].publicHex;
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
   const { connectWallet } = useAutoConnectNWC();
   const { pubkey: nsecInputPubkey } = getKeysFromNostrSecret(nsec) || {};
@@ -54,7 +54,6 @@ export const useNsecLoginPageLogic = () => {
     const savedSecKey = await getSeckey();
     const savedNsec = encodeNsec(savedSecKey ?? "");
     if (savedNsec === nsec) {
-      router.replace("/");
       return;
     }
 
@@ -119,12 +118,6 @@ export const useNsecLoginPageLogic = () => {
         );
       }
     }
-    router.replace({
-      pathname: "auth/welcome",
-      params: {
-        nostrOnlyLogin: nostrOnlyLogin ? "true" : "false",
-      },
-    });
     setIsLoggingIn(false);
   };
 

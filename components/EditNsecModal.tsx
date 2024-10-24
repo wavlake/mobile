@@ -36,8 +36,8 @@ export const EditNsecModal = ({
 
     if (keys.pubkey !== currentPubkey) {
       Alert.alert(
-        "Different Identity",
-        "This nsec belongs to a different Nostr identity. Continuing will change your identity and you'll lose access to your current account. Are you sure?",
+        "Did you backup your nsec?",
+        "You are about to replace your nostr secret. Please make sure you have saved it somewhere safe before proceeding.",
         [
           {
             text: "Cancel",

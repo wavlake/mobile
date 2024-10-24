@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { Text, Button, TextInput, NsecInfoDialog } from "@/components";
+import { Text, Button, TextInput, NsecInfoDialog, useUser } from "@/components";
 import { CopyButton } from "@/components/CopyButton";
 import { BasicAvatar } from "@/components/BasicAvatar";
 import { useNsecLoginPageLogic } from "@/hooks";
@@ -119,8 +119,9 @@ const AssociatedAccountInfo: React.FC<{
   return (
     <>
       <Text style={styles.associatedAccountInfo}>
-        You already have a nostr account associated with this login. Please
-        enter your nsec below to continue using your associated library.
+        There is a Nostr key already associated with this account. Please enter
+        your key (nsec) below to continue using your public identity and
+        history.
       </Text>
       <Text style={styles.associatedAccountSubInfo}>
         Most recently associated Nostr Profile
@@ -141,8 +142,8 @@ const AssociatedAccountInfo: React.FC<{
         </View>
       </View>
       <Text style={styles.associatedAccountInfo}>
-        Alternatively, you can generate a nsec by tapping the Random key button
-        below.
+        If you don't have a key, that's OK. You can generate a brand new key to
+        use by tapping the Random key button below.
       </Text>
     </>
   );
@@ -189,12 +190,17 @@ export function NsecIntakePage() {
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
       >
-        {userAssociatedPubkey && (
+        {userAssociatedPubkey ? (
           <AssociatedAccountInfo
             useAssoicatedPubkeyMetadata={assoicatedMetadata}
             userAssociatedPubkey={userAssociatedPubkey}
             isLoading={associatedMetadataLoading}
           />
+        ) : (
+          <Text style={styles.associatedAccountInfo}>
+            Let's set up your Nostr key, which creates a secure, public identity
+            for your activity.
+          </Text>
         )}
         <NsecInfoDialog />
         <View style={styles.content}>
@@ -205,12 +211,19 @@ export function NsecIntakePage() {
             setErrorMessage={setErrorMessage}
             setIsGeneratedNsec={setIsGeneratedNsec}
           />
-          <NsecInputMetadata
+          <TouchableOpacity
+            onPress={createRandomNsec}
+            style={styles.randomKeyButton}
+          >
+            <Text>Random key</Text>
+            <Ionicons name="dice-outline" size={30} color={colors.text} />
+          </TouchableOpacity>
+          {/* <NsecInputMetadata
             isLoading={nsecInputMetadataLoading}
             isGeneratedNsec={isGeneratedNsec}
             nsecInputPubkey={nsecInputPubkey}
             profileMetadata={nsecInputMetadata}
-          />
+          /> */}
           <Button
             onPress={handleNsecSubmit}
             disabled={isLoggingIn}
@@ -221,14 +234,7 @@ export function NsecIntakePage() {
           <Button color="lightgray" onPress={() => router.back()}>
             Cancel
           </Button>
-          <TouchableOpacity
-            onPress={createRandomNsec}
-            style={styles.randomKeyButton}
-          >
-            <Text>Random key</Text>
-            <Ionicons name="dice-outline" size={30} color={colors.text} />
-          </TouchableOpacity>
-          {isGeneratedNsec && <RandomNpubInfo />}
+          {/* {isGeneratedNsec && <RandomNpubInfo />} */}
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>
