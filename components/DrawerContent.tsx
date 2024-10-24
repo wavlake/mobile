@@ -41,17 +41,19 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
     >
       <View>
         {!userIsLoggedIn ? (
-          <DrawerItem
-            label={() => <Text style={{ fontSize: 24 }}>Login</Text>}
-            icon={({ color, size }) => (
-              <Ionicons name="log-in-outline" size={size} color={color} />
-            )}
-            onPress={() => {
-              router.canDismiss() && router.dismissAll();
-              router.replace("/auth");
-              props.navigation.closeDrawer();
-            }}
-          />
+          <>
+            <DrawerItem
+              label={() => <Text style={{ fontSize: 24 }}>Login</Text>}
+              icon={({ color, size }) => (
+                <Ionicons name="log-in-outline" size={size} color={color} />
+              )}
+              onPress={() => {
+                router.canDismiss() && router.dismissAll();
+                router.replace("/auth");
+                props.navigation.closeDrawer();
+              }}
+            />
+          </>
         ) : (
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Settings</Text>}
@@ -144,6 +146,16 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
                         await signOut();
                         router.canDismiss() && router.dismissAll();
                         router.replace("/auth");
+                        props.navigation.closeDrawer();
+                      },
+                    },
+                    {
+                      text: "Backup Key",
+                      style: "default",
+                      onPress: async () => {
+                        router.push("/settings");
+                        router.push("/settings/advanced");
+                        router.push("/settings/nsec");
                         props.navigation.closeDrawer();
                       },
                     },
