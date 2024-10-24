@@ -15,7 +15,7 @@ export const AddNostr = () => {
         onPress={() => {
           router.push("/settings");
           router.push("/settings/advanced");
-          router.push("/settings/backup-nsec");
+          router.push("/settings/nsec");
         }}
       >
         Add Nostr

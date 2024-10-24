@@ -4,6 +4,8 @@ import { brandColors } from "@/constants";
 import { useAuth } from "@/hooks";
 import { ReactNode } from "react";
 import { PressableIcon } from "./PressableIcon";
+import { Alert } from "react-native";
+import { useRouter } from "expo-router";
 
 interface LikeButtonProps {
   size: number;
@@ -26,15 +28,34 @@ export const LikeButton = ({
   isMusic = true,
   color,
 }: LikeButtonProps) => {
+  const router = useRouter();
   const { pubkey } = useAuth();
   const { colors } = useTheme();
   const handlePress = () => {
+    if (!pubkey) {
+      Alert.alert(
+        "Nostr account required",
+        "You must be logged in to nostr to use playlists.",
+        [
+          {
+            text: "Log in to Nostr",
+            onPress: () => {
+              router.push("/settings");
+              router.push("/settings/advanced");
+              router.push("/settings/nsec");
+            },
+          },
+          { text: "Cancel", style: "cancel" },
+        ],
+      );
+      return;
+    }
     if (!isLoading) {
       onPress();
     }
   };
 
-  if (!isMusic || !pubkey) return null;
+  if (!isMusic) return null;
 
   const unLikedColor = color ?? colors.text;
   return (
