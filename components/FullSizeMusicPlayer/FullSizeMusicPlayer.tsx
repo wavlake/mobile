@@ -159,7 +159,7 @@ export const FullSizeMusicPlayer = () => {
         <View
           style={{
             paddingHorizontal,
-            paddingVertical: isSmallScreen ? 6 : 24,
+            paddingVertical: 6,
             flexGrow: 1,
           }}
         >
