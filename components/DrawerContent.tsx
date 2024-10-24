@@ -1,4 +1,4 @@
-import { Alert, View } from "react-native";
+import { Alert, AlertButton, View } from "react-native";
 import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
@@ -29,7 +29,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
     !catalogUser?.isLocked &&
     settings?.enableNWC;
   const showTopUp = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
-  const userIsLoggedIn = !!pubkey || !!catalogUser;
+
   return (
     <DrawerContentScrollView
       contentContainerStyle={{
@@ -40,7 +40,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
       {...props}
     >
       <View>
-        {!userIsLoggedIn ? (
+        {!catalogUser && (
           <>
             <DrawerItem
               label={() => <Text style={{ fontSize: 24 }}>Login</Text>}
@@ -54,7 +54,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               }}
             />
           </>
-        ) : (
+        )}
+        {(catalogUser || pubkey) && (
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Settings</Text>}
             icon={({ color, size }) => (
@@ -62,6 +63,18 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             )}
             onPress={async () => {
               router.push({ pathname: "/settings" });
+              props.navigation.closeDrawer();
+            }}
+          />
+        )}
+        {!pubkey && (
+          <DrawerItem
+            label={() => <Text style={{ fontSize: 24 }}>Connect Nostr</Text>}
+            icon={({ color, size }) => (
+              <Ionicons name="log-in-outline" size={size} color={color} />
+            )}
+            onPress={async () => {
+              router.push("/nsec");
               props.navigation.closeDrawer();
             }}
           />
@@ -104,13 +117,13 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
         )}
       </View>
       <View>
-        {userIsLoggedIn && (
+        {catalogUser && (
           <View>
             <Divider
               style={{ marginHorizontal: 16 }}
               color={brandColors.black.light}
             />
-            {!user && (
+            {/* {!user && (
               <DrawerItem
                 label={() => (
                   <Text style={{ fontSize: 18 }}>Link Wavlake.com</Text>
@@ -123,46 +136,50 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
                   props.navigation.closeDrawer();
                 }}
               />
+            )} */}
+            {catalogUser && (
+              <DrawerItem
+                label={() => <Text style={{ fontSize: 18 }}>Logout</Text>}
+                icon={({ color, size }) => (
+                  <Ionicons name="log-out-outline" size={size} color={color} />
+                )}
+                onPress={() => {
+                  const nsecBackupButton: AlertButton = {
+                    text: "Backup Key",
+                    style: "default",
+                    onPress: async () => {
+                      router.push("/settings");
+                      router.push("/settings/advanced");
+                      router.push("/settings/nsec");
+                      props.navigation.closeDrawer();
+                    },
+                  };
+
+                  Alert.alert(
+                    "Confirm logout",
+                    "Wavlake does not have access to your private key (nsec) so be sure to have it backed up before logging out.",
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
+                      },
+                      {
+                        text: "OK",
+                        style: "destructive",
+                        onPress: async () => {
+                          await logout();
+                          await signOut();
+                          router.canDismiss() && router.dismissAll();
+                          router.replace("/auth");
+                          props.navigation.closeDrawer();
+                        },
+                      },
+                      ...(pubkey ? [nsecBackupButton] : []),
+                    ],
+                  );
+                }}
+              />
             )}
-            <DrawerItem
-              label={() => <Text style={{ fontSize: 18 }}>Logout</Text>}
-              icon={({ color, size }) => (
-                <Ionicons name="log-out-outline" size={size} color={color} />
-              )}
-              onPress={() => {
-                Alert.alert(
-                  "Confirm logout",
-                  "Wavlake does not have access to your private key (nsec) so be sure to have it backed up before logging out.",
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "OK",
-                      style: "destructive",
-                      onPress: async () => {
-                        await logout();
-                        await signOut();
-                        router.canDismiss() && router.dismissAll();
-                        router.replace("/auth");
-                        props.navigation.closeDrawer();
-                      },
-                    },
-                    {
-                      text: "Backup Key",
-                      style: "default",
-                      onPress: async () => {
-                        router.push("/settings");
-                        router.push("/settings/advanced");
-                        router.push("/settings/nsec");
-                        props.navigation.closeDrawer();
-                      },
-                    },
-                  ],
-                );
-              }}
-            />
           </View>
         )}
       </View>

@@ -77,18 +77,18 @@ export const ExternalLoginProviders = ({
     //     // router.push("/auth/nsec");
     //   },
     // },
-    {
-      name: "Nostr",
-      icon: NostrIcon,
-      onPress: () => {
-        setIsLoading(true);
-        router.push({
-          pathname: "/auth/nsec",
-          params: { nostrOnlyLogin: "true" },
-        });
-        setIsLoading(false);
-      },
-    },
+    // {
+    //   name: "Nostr",
+    //   icon: NostrIcon,
+    //   onPress: () => {
+    //     setIsLoading(true);
+    //     router.push({
+    //       pathname: "/auth/nsec",
+    //       params: { nostrOnlyLogin: "true" },
+    //     });
+    //     setIsLoading(false);
+    //   },
+    // },
   ];
 
   return (

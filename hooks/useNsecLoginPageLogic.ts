@@ -72,7 +72,6 @@ export const useNsecLoginPageLogic = () => {
     nsec,
     userAssociatedPubkey,
     nsecInputPubkey,
-    router,
     login,
     user,
     addPubkeyToAccount,
@@ -119,6 +118,7 @@ export const useNsecLoginPageLogic = () => {
       }
     }
     setIsLoggingIn(false);
+    router.back();
   };
 
   return {

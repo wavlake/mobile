@@ -1,4 +1,4 @@
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, Alert } from "react-native";
 import { useAuth } from "@/hooks";
 import {
   Button,
@@ -14,7 +14,7 @@ import { CopyButton } from "@/components/CopyButton";
 import { useRouter } from "expo-router";
 
 export default function BackupNsec() {
-  const { pubkey, login } = useAuth();
+  const { pubkey, login, logout } = useAuth();
   const [nsec, setNsec] = useState("");
   const router = useRouter();
   const { catalogUser } = useUser();
@@ -62,7 +62,7 @@ export default function BackupNsec() {
         <>
           <TextInput
             label="nostr nsec"
-            // secureTextEntry
+            secureTextEntry
             value={nsec}
             editable={false}
             rightIcon={<CopyButton value={nsec} />}
@@ -82,7 +82,33 @@ export default function BackupNsec() {
               Nostr identity and history.
             </Text>
           </View>
-          <Button onPress={() => setIsEditModalOpen(true)}>Update</Button>
+          <Button color="pink" onPress={() => setIsEditModalOpen(true)}>
+            Update
+          </Button>
+          <Button
+            color="red"
+            onPress={() => {
+              Alert.alert(
+                "Are you sure?",
+                "You are about to delete your nostr secret. Please make sure you have saved it somewhere safe before proceeding.",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Continue",
+                    style: "destructive",
+                    onPress: async () => {
+                      await logout();
+                    },
+                  },
+                ],
+              );
+            }}
+          >
+            Delete
+          </Button>
           <Button color="white" onPress={router.back}>
             Cancel
           </Button>
