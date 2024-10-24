@@ -40,6 +40,7 @@ export default function BackupNsec() {
         return;
       }
 
+      setNsec(nsec);
       if (catalogUser) {
         await addPubkeyToAccount();
       }
@@ -61,7 +62,7 @@ export default function BackupNsec() {
         <>
           <TextInput
             label="nostr nsec"
-            secureTextEntry
+            // secureTextEntry
             value={nsec}
             editable={false}
             rightIcon={<CopyButton value={nsec} />}
@@ -82,7 +83,9 @@ export default function BackupNsec() {
             </Text>
           </View>
           <Button onPress={() => setIsEditModalOpen(true)}>Update</Button>
-          <Button onPress={router.back}>back</Button>
+          <Button color="white" onPress={router.back}>
+            Cancel
+          </Button>
           <EditNsecModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}

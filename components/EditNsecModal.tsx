@@ -91,7 +91,6 @@ export const EditNsecModal = ({
         <Text style={styles.title} bold>
           Update Nostr Private Key
         </Text>
-
         <TextInput
           label="Enter your nsec"
           value={nsec}
@@ -103,21 +102,16 @@ export const EditNsecModal = ({
           placeholder="nsec1..."
           errorMessage={error}
         />
-
         <View style={styles.buttonContainer}>
-          <Button
-            color="secondary"
-            onPress={handleClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
           <Button
             onPress={handleSave}
             loading={isSubmitting}
             disabled={isSubmitting}
           >
-            Update
+            Save
+          </Button>
+          <Button color="white" onPress={handleClose} disabled={isSubmitting}>
+            Cancel
           </Button>
         </View>
       </View>
@@ -143,8 +137,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    display: "flex",
+    flexDirection: "column",
     gap: 16,
+    alignItems: "center",
   },
 });

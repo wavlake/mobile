@@ -210,7 +210,6 @@ export default function AdvancedSettingsPage() {
   const { catalogUser } = useUser();
   const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
   if (!settings) return null;
-
   const handleSettingsUpdate = async (newSettings: Partial<Settings>) => {
     try {
       toast.clearAll();
@@ -229,9 +228,9 @@ export default function AdvancedSettingsPage() {
         <Text style={styles.sectionTitle}>Wallet</Text>
         <WalletChooser
           selectedWallet={settings.defaultZapWallet ?? "default"}
-          onSelectedWalletChange={(wallet) =>
-            handleSettingsUpdate({ defaultZapWallet: wallet })
-          }
+          onSelectedWalletChange={(wallet) => {
+            handleSettingsUpdate({ defaultZapWallet: wallet });
+          }}
         />
         {userIsLoggedIn && (
           <NWCSettings
