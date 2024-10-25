@@ -146,7 +146,7 @@ export default function ZapPage() {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <View style={{ flex: 1, marginRight: 8 }}>
               <Text>
-                You are not logged into nostr, zaps and comments will be
+                You are not connected to nostr, zaps and comments will be
                 anonymous.
               </Text>
             </View>
@@ -158,7 +158,7 @@ export default function ZapPage() {
               }}
             >
               <View style={{ flexDirection: "row", gap: 4 }}>
-                <Text>Login</Text>
+                <Text>Connect</Text>
                 <ArrowTopRightOnSquareIcon
                   color={brandColors.beige.dark}
                   height={20}
