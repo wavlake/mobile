@@ -16,12 +16,13 @@ function getNearestImageSize(size: number) {
 }
 const VERCEL_IMAGE_URL = "https://wavlake.com/_next/image?url=";
 
+const REACT_NATIVE_UNIT_FACTOR = 1.5;
 export const VercelImage = memo(
   ({ size, url, quality }: SquereArtworkProps) => {
-    const imageSize = getNearestImageSize(size);
+    const imageSize = getNearestImageSize(size * REACT_NATIVE_UNIT_FACTOR);
     const uri = `${VERCEL_IMAGE_URL}${encodeURIComponent(
       url,
-    )}&w=${imageSize}&q=${quality ?? 75}`;
+    )}&w=${imageSize}&q=${quality ?? 100}`;
     const [loading, setLoading] = useState(true);
 
     return (
