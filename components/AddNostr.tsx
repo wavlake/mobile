@@ -8,7 +8,7 @@ export const AddNostr = () => {
     <Center>
       <View style={{ paddingHorizontal: 16, paddingBottom: 40 }}>
         <Text style={{ fontSize: 18 }}>
-          You must add a nostr account to create a library.
+          You must connect a nostr account to create a library.
         </Text>
       </View>
       <Button
