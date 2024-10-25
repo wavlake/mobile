@@ -1,4 +1,10 @@
-import { ActivityIndicator, Image, View, StyleSheet } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  View,
+  StyleSheet,
+  PixelRatio,
+} from "react-native";
 import { memo, useState } from "react";
 
 interface SquereArtworkProps {
@@ -7,19 +13,20 @@ interface SquereArtworkProps {
   quality?: number;
 }
 
-function getNearestImageSize(size: number) {
+// Convert dp to pixels by multiplying with pixel ratio
+function getNearestImageSize(dpSize: number) {
+  const pixelSize = PixelRatio.getPixelSizeForLayoutSize(dpSize);
   const imageSizes = [16, 32, 48, 64, 96, 128, 256, 384, 1920];
   return (
-    imageSizes.find((imageSize) => imageSize >= size) ||
+    imageSizes.find((imageSize) => imageSize >= pixelSize) ||
     imageSizes[imageSizes.length - 1]
   );
 }
 const VERCEL_IMAGE_URL = "https://wavlake.com/_next/image?url=";
 
-const REACT_NATIVE_UNIT_FACTOR = 1.5;
 export const VercelImage = memo(
   ({ size, url, quality }: SquereArtworkProps) => {
-    const imageSize = getNearestImageSize(size * REACT_NATIVE_UNIT_FACTOR);
+    const imageSize = getNearestImageSize(size);
     const uri = `${VERCEL_IMAGE_URL}${encodeURIComponent(
       url,
     )}&w=${imageSize}&q=${quality ?? 100}`;
