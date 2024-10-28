@@ -29,7 +29,7 @@ export const useWalletBalance = () => {
         return undefined;
       }
 
-      return response?.result?.balance ?? 0;
+      return response?.result?.balance;
     },
     enabled: !!enableNWC && !!userIdOrPubkey && !!nwcPubkey && !!nwcRelay,
     staleTime: 30 * 1000,
