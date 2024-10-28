@@ -46,12 +46,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               host: "*.wavlake.com",
               pathPrefix: "/album/",
             },
-            // TODO - uncomment and update android deeplink
-            // {
-            //   scheme: "https",
-            //   host: "*.wavlake.com",
-            //   pathPrefix: "/verification-link",
-            // },
+            {
+              scheme: "https",
+              host: "*.wavlake.com",
+              pathPrefix: "/verification-link",
+            },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
