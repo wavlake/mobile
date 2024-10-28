@@ -6,6 +6,7 @@ import {
 } from "@/components";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -75,8 +76,15 @@ export default function Wallet({}: {}) {
 }
 
 const BalanceInfo = () => {
-  const { data: balance, isLoading: balanceLoading } = useWalletBalance();
-
+  const {
+    data: balance,
+    isLoading: balanceLoading,
+    refetch,
+  } = useWalletBalance();
+  useEffect(() => {
+    // get a fresh wallet balance when the balance is rendered
+    refetch();
+  }, []);
   return (
     <View
       style={{
