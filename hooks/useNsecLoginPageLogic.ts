@@ -118,7 +118,7 @@ export const useNsecLoginPageLogic = () => {
       }
     }
     setIsLoggingIn(false);
-    router.back();
+    nostrOnlyLogin ? router.replace("/auth/welcome") : router.back();
   };
 
   return {
