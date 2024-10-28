@@ -12,7 +12,13 @@ import {
   PrivateUserData,
   usePrivateUserData,
 } from "@/utils/authTokenApi";
-import { useAddPubkeyToUser, useCreateNewUser } from "@/utils";
+import {
+  getKeysFromNostrSecret,
+  getSecretFromKeychain,
+  saveSecretToKeychain,
+  useAddPubkeyToUser,
+  useCreateNewUser,
+} from "@/utils";
 
 interface CreateEmailUserArgs {
   email: string;
@@ -24,7 +30,6 @@ interface CreateEmailUserArgs {
 }
 
 type SignedInUser = {
-  userAssociatedPubkey?: string | null;
   isRegionVerified?: boolean;
   isEmailVerified?: boolean;
 } & UserCredential;
@@ -112,58 +117,47 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       }
 
       if (user.additionalUserInfo?.isNewUser) {
-        // create a new nostr account for the new google user
-        const username = user.user.displayName;
-        const { nsec, pubkey } = await createNewNostrAccount(
-          username
-            ? {
-                name: username,
-              }
-            : {},
-        );
+        if (!pubkey) {
+          // create a new nostr account for the new google user
+          const username = user.user.displayName;
+          const { nsec, pubkey } = await createNewNostrAccount(
+            username
+              ? {
+                  name: username,
+                }
+              : {},
+          );
 
-        if (!pubkey || !nsec) {
-          throw "error creating new nostr account";
+          if (!pubkey || !nsec) {
+            throw "error creating new nostr account";
+          }
+          saveSecretToKeychain(
+            user.user.email ??
+              user.additionalUserInfo.username ??
+              user.user.displayName ??
+              "username",
+            nsec,
+          );
+          await login(nsec);
+          // create the wavlake db user using the new firebase userId
+          // catalog handles random username generation
+          await createUser({ pubkey });
+        } else {
+          // pubkey is already logged in, so associate it with the new db user
+          await createUser({ pubkey });
         }
-
-        login(nsec);
-        // create the wavlake db user using the new firebase userId
-        // catalog handles random username generation
-        await createUser({
-          pubkey,
-          // TODO - add profile image if available
-          // artworkUrl: user.user.photoURL ?? "",
-        });
-      }
-
-      // fetch user data
-      const { data: catalogUser } = await _refetchUser();
-
-      const userAssociatedPubkey =
-        catalogUser?.nostrProfileData?.[0]?.publicHex;
-
-      if (!pubkey && !userAssociatedPubkey) {
-        // this is an existing user but new app user, create a new npub for them
-        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-          name: catalogUser?.name,
-          // picture: user.user.photoURL ?? "",
-          // lud06: `${catalogUser?.profileUrl}@wavlake.com`,
-        });
-
-        nsec && (await login(nsec));
-        newPubkey && (await addPubkeyToAccount());
       } else {
-        const pubkeyAssocationExists = catalogUser?.nostrProfileData
-          .map((data) => data.publicHex)
-          .includes(pubkey);
-
-        // ensure pubkey association to the user
-        if (!pubkeyAssocationExists) await addPubkeyToAccount();
+        if (!pubkey) {
+          const secret = await getSecretFromKeychain();
+          secret?.password && (await login(secret.password));
+        }
       }
+
+      const { data: catalogUser } = await _refetchUser();
       const isRegionVerified = catalogUser?.isRegionVerified;
+
       return {
         ...user,
-        userAssociatedPubkey,
         isRegionVerified,
         isEmailVerified: user.user.emailVerified,
       };
@@ -217,6 +211,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
           // picture: newUser.artworkUrl,
         });
 
+        nsec && (await saveSecretToKeychain(email, nsec));
         nsec && (await login(nsec));
         newPubkey && (await addPubkeyToAccount());
       } else {
@@ -245,31 +240,34 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         throw "catalog user not found";
       }
 
-      const userAssociatedPubkey =
-        catalogUser?.nostrProfileData?.[0]?.publicHex;
-      if (!pubkey && !userAssociatedPubkey) {
-        // this is a new app user, create a new npub for them
-        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-          name: catalogUser.name,
-          image: catalogUser.artworkUrl,
-        });
+      if (!pubkey) {
+        const secret = await getSecretFromKeychain();
+        if (secret?.password) {
+          await login(secret.password);
+          const keys = await getKeysFromNostrSecret(secret.password);
 
-        nsec && (await login(nsec));
-        newPubkey && (await addPubkeyToAccount());
+          const pubkeyAssocationExists =
+            !!keys?.pubkey &&
+            catalogUser?.nostrProfileData
+              .map((data) => data.publicHex)
+              .includes(keys.pubkey);
+
+          // ensure pubkey association to the user
+          pubkeyAssocationExists && (await addPubkeyToAccount());
+        }
       } else {
         const pubkeyAssocationExists = catalogUser?.nostrProfileData
           .map((data) => data.publicHex)
           .includes(pubkey);
 
         // ensure pubkey association to the user
-        if (!pubkeyAssocationExists) await addPubkeyToAccount();
+        pubkeyAssocationExists && (await addPubkeyToAccount());
       }
 
       const isRegionVerified = catalogUser?.isRegionVerified;
 
       return {
         ...user,
-        userAssociatedPubkey,
         isRegionVerified,
         isEmailVerified: user.user.emailVerified,
       };

@@ -21,6 +21,7 @@ import { ScrollView } from "react-native";
 import { CheckBox } from "@rneui/base";
 import { brandColors } from "@/constants";
 import { useAuth, useCreateNewNostrAccount, useToast } from "@/hooks";
+import { saveSecretToKeychain } from "@/utils";
 
 const ZBD_TOS = "https://zbd.gg/z/terms";
 const WAVLAKE_TOS =
@@ -116,6 +117,7 @@ const SignUpPage = () => {
       return;
     }
 
+    saveSecretToKeychain(email, nsec);
     login(nsec);
     let firstName;
     let lastName;
@@ -134,7 +136,7 @@ const SignUpPage = () => {
       pubkey,
     });
 
-    if (typeof userResult?.error === "string") {
+    if ("error" in userResult && typeof userResult.error === "string") {
       setPasswordErrorMsg(userResult.error);
       return;
     }
