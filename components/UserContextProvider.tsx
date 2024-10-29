@@ -65,6 +65,10 @@ const UserContext = createContext<UserContextProps>({
   signInWithEmail: async () => ({ error: "not initialized" }),
 });
 
+type AuthState = {
+  user: FirebaseUser;
+  initializingAuth: boolean;
+};
 // this hook manages the user's firebase auth state
 export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: createUser } = useCreateNewUser();
@@ -73,8 +77,11 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const createNewNostrAccount = useCreateNewNostrAccount();
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
 
-  const [user, setUser] = useState<FirebaseUser>(null);
-  const [initializingAuth, setInitializingAuth] = useState(true);
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    initializingAuth: true,
+  });
+  const { user, initializingAuth } = authState;
 
   const enablePrivateUserData = Boolean(user);
   const { refetch: _refetchUser, data: catalogUser } = usePrivateUserData(
@@ -87,9 +94,9 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   };
 
   useEffect(() => {
+    // this will always fire on startup, even if the user is not logged in
     const unsubscribe = firebaseService.onAuthStateChange(async (user) => {
-      setUser(user);
-      if (initializingAuth) setInitializingAuth(false);
+      setAuthState({ user, initializingAuth: false });
 
       if (user) {
         const { data: incomingCatalogUser } = await _refetchUser();
@@ -102,7 +109,7 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         }
       } else {
         // user has signed out, so clear the user data
-        setUser(null);
+        setAuthState({ user: null, initializingAuth: false });
       }
     });
 

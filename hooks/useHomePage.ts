@@ -4,11 +4,12 @@ import { useUser } from "@/components";
 import { useAuth } from "./useAuth";
 
 export const useHomePage = () => {
-  const { user } = useUser();
+  const { user, initializingAuth } = useUser();
   const { pubkey } = useAuth();
 
   return useQuery<HomePageData>({
     queryKey: ["homePage", user, pubkey],
     queryFn: getHomePage,
+    enabled: !initializingAuth,
   });
 };
