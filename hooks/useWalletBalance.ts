@@ -33,7 +33,7 @@ export const useWalletBalance = () => {
         toast.show(`NWC: ${response.error.message}`);
       }
 
-      if (!response.result?.balance) {
+      if (typeof response.result?.balance !== "number") {
         throw "Unable to fetch balance";
       }
 
