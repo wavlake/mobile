@@ -6,7 +6,7 @@ import React, {
   PropsWithChildren,
 } from "react";
 import { FirebaseUser, firebaseService, UserCredential } from "@/services";
-import { useAuth, useCreateNewNostrAccount } from "@/hooks";
+import { useAuth, useCreateNewNostrAccount, useToast } from "@/hooks";
 import {
   NostrProfileData,
   PrivateUserData,
@@ -20,6 +20,7 @@ import {
   useCreateNewUser,
 } from "@/utils";
 
+// Types
 interface CreateEmailUserArgs {
   email: string;
   password: string;
@@ -29,31 +30,34 @@ interface CreateEmailUserArgs {
   lastName?: string;
 }
 
-type SignedInUser = {
+interface SignedInUser extends UserCredential {
   isRegionVerified?: boolean;
   isEmailVerified?: boolean;
-} & UserCredential;
+}
 
-type UserContextProps = {
+interface AuthState {
+  user: FirebaseUser;
+  initializingAuth: boolean;
+}
+
+interface UserContextValue {
   user: FirebaseUser;
   initializingAuth: boolean;
   catalogUser: PrivateUserData | undefined;
-  refetchUser: () => Promise<any>;
   nostrMetadata: NostrProfileData | undefined;
+  refetchUser: () => Promise<any>;
   signInWithEmail: (
     email: string,
     password: string,
   ) => Promise<SignedInUser | { error: string }>;
   signInWithGoogle: () => Promise<SignedInUser | { error: string }>;
-  createUserWithEmail: (args: CreateEmailUserArgs) => Promise<
-    | SignedInUser
-    | {
-        error: string;
-      }
-  >;
-} & typeof firebaseService;
+  createUserWithEmail: (
+    args: CreateEmailUserArgs,
+  ) => Promise<SignedInUser | { error: string }>;
+}
 
-const UserContext = createContext<UserContextProps>({
+// Create context with default values
+const UserContext = createContext<UserContextValue & typeof firebaseService>({
   user: null,
   initializingAuth: true,
   catalogUser: undefined,
@@ -65,14 +69,11 @@ const UserContext = createContext<UserContextProps>({
   signInWithEmail: async () => ({ error: "not initialized" }),
 });
 
-type AuthState = {
-  user: FirebaseUser;
-  initializingAuth: boolean;
-};
-// this hook manages the user's firebase auth state
-export const UserContextProvider = ({ children }: PropsWithChildren) => {
+export const UserContextProvider: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
   const { mutateAsync: createUser } = useCreateNewUser();
-
+  const toast = useToast();
   const { pubkey, login } = useAuth();
   const createNewNostrAccount = useCreateNewNostrAccount();
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
@@ -81,95 +82,112 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
     user: null,
     initializingAuth: true,
   });
-  const { user, initializingAuth } = authState;
 
-  const enablePrivateUserData = Boolean(user);
+  const { user, initializingAuth } = authState;
   const { refetch: _refetchUser, data: catalogUser } = usePrivateUserData(
-    enablePrivateUserData,
+    Boolean(user),
   );
 
   const refetchUser = async () => {
     if (!user) return;
-    await _refetchUser();
+    return _refetchUser();
   };
 
+  // Nostr account management
+  const createNostrAccountForUser = async (username?: string) => {
+    const { nsec, pubkey } = await createNewNostrAccount(
+      username ? { name: username } : {},
+    );
+
+    if (!pubkey || !nsec) {
+      toast.show("Failed to create nostr account");
+      throw new Error("Failed to create nostr account");
+    }
+
+    return { nsec, pubkey };
+  };
+
+  const handleExistingNostrAccount = async () => {
+    const secret = await getSecretFromKeychain();
+    if (!secret?.password) return null;
+
+    await login(secret.password);
+    return getKeysFromNostrSecret(secret.password);
+  };
+
+  // User creation and association
+  const associatePubkeyWithUser = async (keys: any, userEmail: string) => {
+    if (!keys?.pubkey || !catalogUser) return false;
+
+    const pubkeyExists = catalogUser.nostrProfileData
+      .map((data) => data.publicHex)
+      .includes(keys.pubkey);
+
+    if (pubkeyExists) {
+      await addPubkeyToAccount();
+    }
+
+    return pubkeyExists;
+  };
+
+  const handleNewUser = async (email: string, username?: string) => {
+    if (!pubkey) {
+      const { nsec, pubkey: newPubkey } =
+        await createNostrAccountForUser(username);
+      saveSecretToKeychain(email, nsec);
+      await login(nsec);
+      return newPubkey;
+    }
+    return pubkey;
+  };
+
+  // Auth state management
   useEffect(() => {
-    // this will always fire on startup, even if the user is not logged in
-    const unsubscribe = firebaseService.onAuthStateChange(async (user) => {
+    const handleAuthStateChange = async (user: FirebaseUser) => {
       setAuthState({ user, initializingAuth: false });
 
-      if (user) {
-        const { data: incomingCatalogUser } = await _refetchUser();
-        if (!incomingCatalogUser?.id) {
-          // if id is not there, we need to refetch again to get the full user data from the db
-          // when a new user is signing up, the client creates the firebase user and then makes a call to create the user in the db
-          // we need to pause to let the db record be created before we try to fetch it
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-          await _refetchUser();
-        }
-      } else {
-        // user has signed out, so clear the user data
-        setAuthState({ user: null, initializingAuth: false });
-      }
-    });
+      if (!user) return;
 
+      const { data: incomingCatalogUser } = await _refetchUser();
+
+      if (!incomingCatalogUser?.id) {
+        // Wait for DB record creation and retry
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await _refetchUser();
+      }
+    };
+
+    const unsubscribe = firebaseService.onAuthStateChange(
+      handleAuthStateChange,
+    );
     return unsubscribe;
   }, []);
 
   const signInWithGoogle = async () => {
     try {
       const user = await firebaseService.signInWithGoogle();
-      if ("error" in user) {
-        throw user.error;
-      }
+      if ("error" in user) throw user.error;
+
+      const { data: catalogUserData } = await _refetchUser();
 
       if (user.additionalUserInfo?.isNewUser) {
-        if (!pubkey) {
-          // create a new nostr account for the new google user
-          const username = user.user.displayName;
-          const { nsec, pubkey } = await createNewNostrAccount(
-            username
-              ? {
-                  name: username,
-                }
-              : {},
-          );
-
-          if (!pubkey || !nsec) {
-            throw "error creating new nostr account";
-          }
-          saveSecretToKeychain(
-            user.user.email ??
-              user.additionalUserInfo.username ??
-              user.user.displayName ??
-              "username",
-            nsec,
-          );
-          await login(nsec);
-          // create the wavlake db user using the new firebase userId
-          // catalog handles random username generation
-          await createUser({ pubkey });
-        } else {
-          // pubkey is already logged in, so associate it with the new db user
-          await createUser({ pubkey });
-        }
-      } else {
-        if (!pubkey) {
-          const secret = await getSecretFromKeychain();
-          secret?.password && (await login(secret.password));
+        const username = user.user.displayName ?? "";
+        const userPubkey = await handleNewUser(user.user.email ?? "", username);
+        await createUser({ pubkey: userPubkey, username });
+      } else if (!pubkey) {
+        const keys = await handleExistingNostrAccount();
+        if (keys) {
+          await associatePubkeyWithUser(keys, user.user.email ?? "");
         }
       }
-
-      const { data: catalogUser } = await _refetchUser();
-      const isRegionVerified = catalogUser?.isRegionVerified;
 
       return {
         ...user,
-        isRegionVerified,
+        isRegionVerified: catalogUserData?.isRegionVerified,
         isEmailVerified: user.user.emailVerified,
       };
     } catch (error) {
-      console.error("error signing in with google", error);
+      console.error("Google sign-in error:", error);
       return {
         error:
           typeof error === "string" ? error : "Failed to sign in with Google",
@@ -190,45 +208,25 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
         email,
         password,
       );
-      if ("error" in user) {
-        throw user.error;
-      }
+      if ("error" in user) throw user.error;
 
       await user.user.sendEmailVerification();
 
-      // create the wavlake db user using the new firebase userId
-      // catalog handles random username generation
       const newUser = await createUser({
         username,
         firstName,
         lastName,
         pubkey,
-        // todo - add profile image if available
-        // artworkUrl: user.user.photoURL ?? "",
       });
 
       if (!newUser) {
-        throw "error creating user in db";
-      }
-
-      if (!pubkey) {
-        // new mobile user, so create a new nostr account
-        const { nsec, pubkey: newPubkey } = await createNewNostrAccount({
-          name: newUser.username,
-          // picture: newUser.artworkUrl,
-        });
-
-        nsec && (await saveSecretToKeychain(email, nsec));
-        nsec && (await login(nsec));
-        newPubkey && (await addPubkeyToAccount());
-      } else {
-        // already logged in mobile user, associate pubkey to the new user
-        await addPubkeyToAccount();
+        toast.show("Failed to create user in database");
+        throw new Error("Failed to create user in database");
       }
 
       return user;
     } catch (error) {
-      console.error("error creating user with email");
+      console.error("Email user creation error:", error);
       return {
         error: typeof error === "string" ? error : "Failed to create user",
       };
@@ -238,84 +236,58 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       const user = await firebaseService.signInWithEmail(email, password);
-      if ("error" in user) {
-        throw user.error;
-      }
+      if ("error" in user) throw user.error;
 
-      const { data: catalogUser } = await _refetchUser();
-      if (!catalogUser) {
-        throw "catalog user not found";
+      const { data: catalogUserData } = await _refetchUser();
+      if (!catalogUserData) {
+        toast.show("Catalog user not found");
+        throw new Error("Catalog user not found");
       }
 
       if (!pubkey) {
-        const secret = await getSecretFromKeychain();
-        if (secret?.password) {
-          await login(secret.password);
-          const keys = await getKeysFromNostrSecret(secret.password);
-
-          const pubkeyAssocationExists =
-            !!keys?.pubkey &&
-            catalogUser?.nostrProfileData
-              .map((data) => data.publicHex)
-              .includes(keys.pubkey);
-
-          // ensure pubkey association to the user
-          pubkeyAssocationExists && (await addPubkeyToAccount());
+        const keys = await handleExistingNostrAccount();
+        if (keys) {
+          await associatePubkeyWithUser(keys, email);
         }
       } else {
-        const pubkeyAssocationExists = catalogUser?.nostrProfileData
-          .map((data) => data.publicHex)
-          .includes(pubkey);
-
-        // ensure pubkey association to the user
-        pubkeyAssocationExists && (await addPubkeyToAccount());
+        await associatePubkeyWithUser({ pubkey }, email);
       }
-
-      const isRegionVerified = catalogUser?.isRegionVerified;
 
       return {
         ...user,
-        isRegionVerified,
+        isRegionVerified: catalogUserData?.isRegionVerified,
         isEmailVerified: user.user.emailVerified,
       };
     } catch (error) {
-      console.error("error signing in with email", error);
-      return { error: typeof error === "string" ? error : "Failed to sign in" };
+      console.error("Email sign-in error:", error);
+      return {
+        error: typeof error === "string" ? error : "Failed to sign in",
+      };
     }
   };
 
+  const contextValue = {
+    initializingAuth,
+    user,
+    catalogUser: user ? catalogUser : undefined,
+    refetchUser,
+    nostrMetadata: catalogUser?.nostrProfileData.find(
+      (n) => n.publicHex === pubkey,
+    ),
+    ...firebaseService,
+    signInWithGoogle,
+    signInWithEmail,
+    createUserWithEmail,
+  };
+
   return (
-    <UserContext.Provider
-      value={{
-        initializingAuth,
-        user,
-        catalogUser: user ? catalogUser : undefined,
-        refetchUser,
-        nostrMetadata: catalogUser?.nostrProfileData.find(
-          (n) => n.publicHex === pubkey,
-        ),
-        ...firebaseService,
-        // signInAnonymously: firebaseService.signInAnonymously,
-        // signInWithToken: firebaseService.signInWithToken,
-        // signOut: firebaseService.signOut,
-        // onAuthStateChange: firebaseService.onAuthStateChange,
-        // verifyEmailLink: firebaseService.verifyEmailLink,
-        // resetPassword: firebaseService.resetPassword,
-        // checkIfEmailIsVerified: firebaseService.checkIfEmailIsVerified,
-        // resendVerificationEmail: firebaseService.resendVerificationEmail,
-        signInWithGoogle,
-        signInWithEmail,
-        createUserWithEmail,
-      }}
-    >
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 };
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (context === null) {
+  if (!context) {
     throw new Error("useUser must be used within a UserContextProvider");
   }
   return context;
