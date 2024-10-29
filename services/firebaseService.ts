@@ -104,12 +104,10 @@ const verifyEmailLink = async (url: string) => {
   return auth()
     .applyActionCode(actionCode)
     .then((res) => {
-      console.log("Email address has been verified");
       // Email address has been verified.
       return { success: true };
     })
     .catch((error) => {
-      console.log("Error verifying email address:", error.code);
       // Code is invalid or expired. Ask the user to verify their email address again.
       return { success: false, error: error.code };
     });
