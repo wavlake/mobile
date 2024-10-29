@@ -34,7 +34,7 @@ export const useNsecLoginPageLogic = () => {
   const router = useRouter();
   const { login } = useAuth();
   const { user, catalogUser } = useUser();
-  const userAssociatedPubkey = catalogUser?.nostrProfileData?.[0].publicHex;
+  const userAssociatedPubkey = catalogUser?.nostrProfileData?.[0]?.publicHex;
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
   const { connectWallet } = useAutoConnectNWC();
   const { pubkey: nsecInputPubkey } = getKeysFromNostrSecret(nsec) || {};
