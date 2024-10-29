@@ -25,6 +25,7 @@ const Amount: React.FC<AmountProps> = ({ sats, style, ...textProps }) => {
     fontSize: 18,
     color: "white",
     width: 70,
+    textAlign: "center" as const,
   };
 
   // Handle loading state
@@ -55,7 +56,7 @@ const Amount: React.FC<AmountProps> = ({ sats, style, ...textProps }) => {
 
   return (
     <Text style={[baseStyle, style]} {...textProps}>
-      {formattedUSD}
+      ~{formattedUSD}
     </Text>
   );
 };
