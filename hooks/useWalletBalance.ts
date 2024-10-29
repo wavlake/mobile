@@ -29,10 +29,19 @@ export const useWalletBalance = () => {
         return undefined;
       }
 
-      return response?.result?.balance;
+      if (response.error?.message) {
+        toast.show(`NWC: ${response.error.message}`);
+      }
+
+      if (!response.result?.balance) {
+        throw "Unable to fetch balance";
+      }
+
+      return response.result.balance;
     },
     enabled: !!enableNWC && !!userIdOrPubkey && !!nwcPubkey && !!nwcRelay,
     staleTime: 30 * 1000,
+    retry: 1,
   });
 
   const setBalance = (newBalance: number) => {
