@@ -1,5 +1,5 @@
 import { Drawer } from "expo-router/drawer";
-import { HeaderBackButton, HeaderTitleLogo, Text } from "@/components";
+import { HeaderBackButton, HeaderTitleLogo, Text, useUser } from "@/components";
 import {
   useTheme,
   DrawerActions,
@@ -37,6 +37,7 @@ export default function DrawerLayout() {
   const pathname = usePathname();
   const globalSearchParams = useGlobalSearchParams();
   const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
   const headerTitle =
     typeof globalSearchParams.headerTitle === "string"
       ? () => (
@@ -61,6 +62,9 @@ export default function DrawerLayout() {
       : () => <MenuButton />;
 
   const headerRight = () => {
+    if (!pubkey && !catalogUser) {
+      return null;
+    }
     return (
       <View style={{ marginRight: 16 }}>
         <Pressable
