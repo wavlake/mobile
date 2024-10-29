@@ -176,13 +176,19 @@ apiClient.interceptors.response.use(
         response.data.error,
       );
     } else {
-      enableResponseLogging &&
+      if (enableResponseLogging) {
+        const byteSizeOfResponse = new Blob([JSON.stringify(response.data)])
+          .size;
+
         console.log(
           `Catalog${
             response.headers["Authorization"] ? " (nostr auth):" : ":"
           }`,
           response?.request?.responseURL?.split(".com")[1],
+          byteSizeOfResponse,
+          "bytes",
         );
+      }
     }
 
     return response;
@@ -571,8 +577,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       userId: string;
       // artworkUrl?: string;
     }) => {
