@@ -19,6 +19,8 @@ export const useWalletBalance = () => {
   const queryResult = useQuery({
     queryKey,
     queryFn: async () => {
+      if (!userIdOrPubkey || !nwcPubkey || !nwcRelay) return;
+
       const response = await getNwcBalance({
         userIdOrPubkey,
         walletPubkey: nwcPubkey,
