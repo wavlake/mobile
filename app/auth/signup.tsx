@@ -22,6 +22,7 @@ import { CheckBox } from "@rneui/base";
 import { brandColors } from "@/constants";
 import { useAuth, useCreateNewNostrAccount, useToast } from "@/hooks";
 import { saveSecretToKeychain } from "@/utils";
+import { useValidateUsername } from "@/hooks/useValidateUsername";
 
 interface SignUpFormState {
   fullname: string;
@@ -68,6 +69,7 @@ export default function SignUpPage() {
   const toast = useToast();
 
   const [formState, setFormState] = useState<SignUpFormState>(initialFormState);
+  const { refetch: validateUsername } = useValidateUsername(formState.username);
 
   const updateFormField = <K extends keyof SignUpFormState>(
     field: K,
@@ -83,7 +85,7 @@ export default function SignUpPage() {
     }));
   };
 
-  const validateForm = (): boolean => {
+  const validateForm = async (): Promise<boolean> => {
     const errors: SignUpFormState["errors"] = {};
 
     if (isRegionVerified) {
@@ -93,10 +95,14 @@ export default function SignUpPage() {
         errors.name = "Please enter your full name separated by a space";
       }
     }
-
     if (formState.username && !formState.username.match(/^[a-zA-Z0-9-_]+$/)) {
       errors.user =
         "Username can only contain letters, numbers, hyphens, and underscores";
+    }
+    const data = await validateUsername();
+    const { success: usernameAvailable } = data.data || {};
+    if (!usernameAvailable) {
+      errors.user = "Username unavailable, please try another";
     }
 
     if (!formState.email) {
@@ -156,7 +162,8 @@ export default function SignUpPage() {
   };
 
   const handleSignUp = async () => {
-    if (!validateForm()) return;
+    const isValid = await validateForm();
+    if (!isValid) return;
 
     try {
       setFormState((prev) => ({ ...prev, isLoading: true }));

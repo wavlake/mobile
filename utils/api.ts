@@ -570,18 +570,11 @@ export const useCreateUser = ({
   onError?: (error: string) => void;
 }) => {
   return useMutation({
-    mutationFn: async ({
-      userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
-      userId: string;
-      // artworkUrl?: string;
-    }) => {
+    mutationFn: async ({ userId }: { userId: string }) => {
       const { data } = await apiClient.post<
         ResponseObject<{ userId: string; name: string }>
       >(`/accounts`, {
         userId,
-        // artworkUrl,
       });
       return data.data;
     },
@@ -785,4 +778,12 @@ export const checkIPRegion = async () => {
     `accounts/check-region`,
     {},
   );
+};
+
+export const validateUsername = async (username: string) => {
+  const { data } = await apiClient.get<ResponseObject<{ username: string }>>(
+    `accounts/user/check-username/${username}`,
+    {},
+  );
+  return data;
 };
