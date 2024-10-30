@@ -19,7 +19,7 @@ import {
   VercelImage,
   Center,
 } from "@/components";
-import { useHomePage } from "@/hooks";
+import { useHomePage, useToast } from "@/hooks";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -76,7 +76,16 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
 };
 
 export const HomePageMusic = () => {
-  const { data: homePageData, isLoading, refetch } = useHomePage();
+  const toast = useToast();
+  const {
+    data: homePageData,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } = useHomePage();
+
+  isError && toast.show(JSON.stringify(error));
   const {
     featured = [],
     newTracks = [],
