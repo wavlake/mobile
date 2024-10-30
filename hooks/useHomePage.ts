@@ -9,7 +9,7 @@ export const useHomePage = () => {
 
   return useQuery<HomePageData>({
     queryKey: ["homePage", user, pubkey],
-    queryFn: getHomePage,
+    queryFn: () => getHomePage(pubkey),
     enabled: !initializingAuth,
   });
 };

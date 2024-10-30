@@ -267,17 +267,7 @@ export type HomePageData = {
   forYou?: Track[];
 };
 
-export const getHomePage = async (): Promise<HomePageData> => {
-  const url = "/tracks/featured";
-
-  // the For You section is only available for nostr users
-  let optionalAuthHeader: string | undefined;
-  try {
-    optionalAuthHeader = await createAuthHeader(url);
-  } catch (e) {
-    console.error("Skipping For You section:", e);
-  }
-
+export const getHomePage = async (pubkey?: string): Promise<HomePageData> => {
   const { data } = await apiClient.get<
     ResponseObject<{
       featured: TrackResponse[];
@@ -285,16 +275,7 @@ export const getHomePage = async (): Promise<HomePageData> => {
       trending: TrackResponse[];
       forYou: TrackResponse[];
     }>
-  >(
-    url,
-    optionalAuthHeader
-      ? {
-          headers: {
-            Authorization: optionalAuthHeader,
-          },
-        }
-      : {},
-  );
+  >(pubkey ? `/tracks/featured/${pubkey}` : "/tracks/featured");
 
   return {
     featured: normalizeTrackResponse(data.data.featured),
