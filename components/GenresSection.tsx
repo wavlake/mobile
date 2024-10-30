@@ -12,6 +12,8 @@ export const GenresSection = () => {
   const { data = [] } = useQuery({
     queryKey: ["genres"],
     queryFn: () => getGenres(),
+    staleTime: 15 * 60 * 1000, // Keep data fresh for 15 minutes
+    cacheTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
   });
   const router = useRouter();
   const { height } = useMiniMusicPlayer();

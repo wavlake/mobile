@@ -29,6 +29,8 @@ export const PulseUserActivityFeed = ({
         lastPage.length === PAGE_SIZE ? allPages.length + 1 : undefined;
       return nextPage;
     },
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
   const { pages = [] } = data ?? {};
   const flattenedData = pages.flatMap((page) => page ?? []);
