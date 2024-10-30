@@ -1,4 +1,10 @@
-import { FlatList, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Track } from "@/utils";
 import { NewMusicSection } from "@/components/NewMusicSection";
 import {
@@ -11,6 +17,7 @@ import {
   ForYouSection,
   FeaturedSection,
   VercelImage,
+  Center,
 } from "@/components";
 import { useHomePage } from "@/hooks";
 
@@ -69,13 +76,22 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
 };
 
 export const HomePageMusic = () => {
-  const { data: homePageData, isLoading } = useHomePage();
+  const { data: homePageData, isLoading, refetch } = useHomePage();
   const {
     featured = [],
     newTracks = [],
     trending = [],
     forYou = [],
   } = homePageData || {};
+
+  if (isLoading) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
+
   return (
     <FlatList
       data={trending}
@@ -95,6 +111,9 @@ export const HomePageMusic = () => {
       renderItem={({ item, index }) => (
         <TopMusicRow trackList={trending} track={item} index={index} />
       )}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
       keyExtractor={(item) => item.id}
       windowSize={5}
       removeClippedSubviews={true}
