@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { SectionHeader } from "../SectionHeader";
-import { Text } from "../Text";
+import { Text } from "../shared/Text";
 import { useRouter } from "expo-router";
 import { memo, useCallback } from "react";
 

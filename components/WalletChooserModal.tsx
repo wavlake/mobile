@@ -6,15 +6,15 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Text } from "@/components/Text";
-import { WalletChooser } from "@/components/WalletChooser";
-import { Button } from "@/components/Button";
-import { CancelButton } from "@/components/CancelButton";
+import { Text } from "./shared/Text";
+import { WalletChooser } from "./WalletChooser";
+import { Button } from "./shared/Button";
+import { CancelButton } from "./CancelButton";
 import { useState } from "react";
 import { cacheSettings, WalletKey } from "@/utils";
 import { useAuth } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
-import { TextInput } from "./TextInput";
+import { TextInput } from "./shared/TextInput";
 import { useSettings } from "@/hooks/useSettings";
 
 const DismissKeyboard = ({ children }: any) => (

@@ -1,7 +1,7 @@
 import { LikeButton } from "../LikeButton";
 import { PlaylistButton } from "../Playlist/PlaylistButton";
 import { ShuffleButton } from "./ShuffleButton";
-import { ShareButton } from "../ShareButton";
+import { ShareButton } from "../shared/ShareButton";
 import { RepeatButton } from "./RepeatButton";
 import { OverflowMenu } from "./OverflowMenu";
 import {

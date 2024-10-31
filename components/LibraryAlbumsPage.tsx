@@ -1,13 +1,13 @@
 import { useGoToAlbumPage, useLibraryAlbums } from "@/hooks";
-import { LibraryRecentAlbumsSection } from "@/components/LibraryRecentAlbumsSection";
-import { Text } from "@/components/Text";
-import { Center } from "@/components/Center";
+import { LibraryRecentAlbumsSection } from "./LibraryRecentAlbumsSection";
+import { Text } from "./shared/Text";
+import { Center } from "./shared/Center";
 import { useMemo } from "react";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 import { Album } from "@/utils";
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { SectionHeader } from "@/components/SectionHeader";
-import { SquareArtwork } from "@/components/SquareArtwork";
+import { SectionHeader } from "./SectionHeader";
+import { SquareArtwork } from "./SquareArtwork";
 
 export const LibraryAlbumsPage = () => {
   const { data: albums = [] } = useLibraryAlbums();

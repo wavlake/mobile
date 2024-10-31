@@ -1,6 +1,6 @@
 import { TouchableOpacity, View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
-import { Text } from "@/components/Text";
+import { Text } from "../shared/Text";
 import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { useState } from "react";

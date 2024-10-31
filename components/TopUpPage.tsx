@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Center } from "./Center";
-import { SquareArtwork, Text, useMusicPlayer } from "@/components";
+import { Center } from "./shared/Center";
 import { Track } from "@/utils";
 import React from "react";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { SquareArtwork } from "./SquareArtwork";
+import { Text } from "./shared/Text";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 
 const ContentItem = ({
   contentMetadata,

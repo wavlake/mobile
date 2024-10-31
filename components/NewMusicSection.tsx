@@ -1,7 +1,8 @@
 import { View } from "react-native";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { HorizontalArtworkRow, SectionHeader } from "@/components";
 import { Track } from "@/utils";
+import { HorizontalArtworkRow } from "./HorizontalArtworkRow";
+import { SectionHeader } from "./SectionHeader";
 
 export const NewMusicSection = ({ data }: { data: Track[] }) => {
   const { loadTrackList } = useMusicPlayer();

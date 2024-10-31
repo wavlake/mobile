@@ -1,12 +1,12 @@
 import { ScrollView, TouchableOpacity, View } from "react-native";
-import { SectionHeader } from "@/components/SectionHeader";
+import { SectionHeader } from "./SectionHeader";
 import { Divider } from "@rneui/themed";
 import { useQuery } from "@tanstack/react-query";
 import { getGenres } from "@/utils";
 import { brandColors } from "@/constants";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 import { useRouter } from "expo-router";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 
 export const GenresSection = () => {
   const { data = [] } = useQuery({

@@ -1,4 +1,3 @@
-import { Text, Center, SlimButton, useMiniMusicPlayer } from "@/components";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ScrollView,
@@ -9,9 +8,12 @@ import {
 } from "react-native";
 import { ShowEvents } from "@/constants/events";
 import React from "react";
-import { UnsignedEvent } from "nostr-tools";
 import { EventSection, EventHeader } from "./common";
 import { brandColors } from "@/constants";
+import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
+import { Center } from "../shared/Center";
+import { Text } from "../shared/Text";
+import { SlimButton } from "../shared/SlimButton";
 
 interface ArtistMetadata {
   image: string;

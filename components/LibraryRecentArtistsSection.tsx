@@ -1,9 +1,9 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { useGoToArtistPage, useLibraryArtists } from "@/hooks";
-import { SectionHeader } from "@/components/SectionHeader";
-import { ArtistBanner } from "@/components/ArtistBanner";
+import { SectionHeader } from "./SectionHeader";
+import { ArtistBanner } from "./ArtistBanner";
 import { Artist } from "@/utils";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 
 export const LibraryRecentArtistsSection = () => {
   const { data: artists = [] } = useLibraryArtists();

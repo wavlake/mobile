@@ -1,7 +1,7 @@
 import { Pressable } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { PropsWithChildren, ReactNode } from "react";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 
 interface PressableIconProps {
   onPress: () => void;

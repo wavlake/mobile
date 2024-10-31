@@ -1,6 +1,5 @@
-import { useAuth, useToast } from "@/hooks";
+import { useAuth, useToast, useUser } from "@/hooks";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
-import { useUser } from "@/components";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   generateSecretKey,

@@ -1,6 +1,7 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { Text, SquareArtwork } from "@/components";
 import { brandColors } from "@/constants";
+import { SquareArtwork } from "./SquareArtwork";
+import { Text } from "./shared/Text";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;

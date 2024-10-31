@@ -1,20 +1,20 @@
 import { useTheme } from "@react-navigation/native";
 import { Pressable, View } from "react-native";
-import { Button } from "../Button";
-import { Text } from "@/components";
+import { Button } from "../shared/Button";
+import { Text } from "../shared/Text";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDeletePlaylist } from "@/hooks/playlist/useDeletePlaylist";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { ShareButtonWide } from "../ShareButtonWide";
+import { ShareButtonWide } from "../shared/ShareButtonWide";
 import { DialogWrapper } from "../DialogWrapper";
 import {
   useAddPlaylistToLibrary,
   useAuth,
   useDeletePlaylistFromLibrary,
   useIsPlaylistInLibrary,
+  useUser,
 } from "@/hooks";
-import { useUser } from "../UserContextProvider";
 import { Track } from "@/utils";
 import { LikeButton } from "../LikeButton";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";

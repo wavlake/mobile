@@ -1,8 +1,7 @@
 import React from "react";
 import { Pressable, View } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { PlayRoundIcon } from "@/components/PlayRoundIcon";
-import { PauseRoundIcon } from "@/components/PauseRoundIcon";
+import { PauseRoundIcon, PlayRoundIcon } from "./icons";
 
 interface PlayPauseTrackButtonProps {
   size: number;

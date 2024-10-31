@@ -1,14 +1,14 @@
-import { LibraryRecentArtistsSection } from "@/components/LibraryRecentArtistsSection";
+import { LibraryRecentArtistsSection } from "./LibraryRecentArtistsSection";
 import { useGoToArtistPage, useLibraryArtists } from "@/hooks";
-import { Center } from "@/components/Center";
-import { Text } from "@/components/Text";
+import { Center } from "./shared/Center";
+import { Text } from "./shared/Text";
 import { useMemo } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { SectionHeader } from "@/components/SectionHeader";
+import { SectionHeader } from "./SectionHeader";
 import { Artist } from "@/utils";
-import { BasicAvatar } from "@/components/BasicAvatar";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
-import { VerificationIcon } from "@/components/VerificationIcon";
+import { BasicAvatar } from "./BasicAvatar";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { VerificationIcon } from "./VerificationIcon";
 import { useTheme } from "@react-navigation/native";
 
 export const LibraryArtistsPage = () => {

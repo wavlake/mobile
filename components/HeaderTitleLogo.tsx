@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { LogoIcon } from "@/components/LogoIcon";
+import { LogoIcon } from "./icons";
 
 export const HeaderTitleLogo = () => {
   return (

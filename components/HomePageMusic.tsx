@@ -1,17 +1,15 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { Track } from "@/utils";
-import { NewMusicSection } from "@/components/NewMusicSection";
-import {
-  useMusicPlayer,
-  SquareArtwork,
-  useMiniMusicPlayer,
-  Text,
-  SectionHeader,
-  TopUpSection,
-  ForYouSection,
-  FeaturedSection,
-} from "@/components";
+import { NewMusicSection } from "./NewMusicSection";
 import { useHomePage } from "@/hooks";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { SquareArtwork } from "./SquareArtwork";
+import { ForYouSection } from "./ForYouSection";
+import { FeaturedSection } from "./FeaturedSection";
+import { TopUpSection } from "./TopUpSection";
+import { SectionHeader } from "./SectionHeader";
+import { Text } from "./shared/Text";
 
 interface TopMusicRowProps {
   trackList: Track[];

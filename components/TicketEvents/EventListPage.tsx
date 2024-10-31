@@ -1,4 +1,4 @@
-import { Text } from "@/components/Text";
+import { Text } from "../shared/Text";
 import { ShowEvents } from "@/constants/events";
 import { Event } from "nostr-tools";
 import { TouchableOpacity } from "react-native";
@@ -6,7 +6,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useRouter } from "expo-router";
 import { ItemRow } from "./common";
-import { Center } from "../Center";
+import { Center } from "../shared/Center";
 
 const EventRow = ({
   event,

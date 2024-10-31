@@ -4,8 +4,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { Text } from "@/components/Text";
+import { SquareArtwork } from "./SquareArtwork";
+import { Text } from "./shared/Text";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;

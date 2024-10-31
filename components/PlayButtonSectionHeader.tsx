@@ -1,7 +1,7 @@
-import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
+import { PlayPauseTrackButton } from "./PlayPauseTrackButton";
 import { brandColors } from "@/constants";
-import { SectionHeader } from "@/components/SectionHeader";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { SectionHeader } from "./SectionHeader";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 import { togglePlayPause, Track } from "@/utils";
 import { State, usePlaybackState } from "react-native-track-player";
 

@@ -1,13 +1,13 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getNewPodcasts, Track } from "@/utils";
-import { BadgeIcon } from "@/components/BadgeIcon";
+import { BadgeIcon } from "./icons/";
 import { brandColors } from "@/constants";
-import { SectionHeader } from "@/components/SectionHeader";
-import { Text } from "@/components/Text";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { SectionHeader } from "./SectionHeader";
+import { Text } from "./shared/Text";
+import { SquareArtwork } from "./SquareArtwork";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 
 interface FeaturedShowRowProps {
   episodeList: Track[];

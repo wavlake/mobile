@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { View } from "react-native";
 import { Link } from "expo-router";
-import { Text } from "./Text";
+import { Text } from "./shared/Text";
 
 interface SectionHeaderProps {
   title: string;

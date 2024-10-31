@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useContentComments } from "@/hooks/useContentComments";
-import { CommentRow, Text } from "@/components";
 import { brandColors } from "@/constants";
-import { ActivityIndicator, Pressable, View, Animated } from "react-native";
+import { Pressable, View, Animated } from "react-native";
 import { BottomSheet } from "@rneui/base";
 import { CommentList } from "../Comments/CommentList";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
+import { Text } from "../shared/Text";
+import { CommentRow } from "../Comments";
 
 const COMMENT_ROTATION_INTERVAL = 5000;
 

@@ -4,16 +4,15 @@ import {
   DrawerContentScrollView,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 import { Divider } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import { useAuth } from "@/hooks";
+import { useAuth, useUser } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { WalletLabel } from "./WalletLabel";
-import { useUser } from "./UserContextProvider";
+import {} from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Entypo from "@expo/vector-icons/Entypo";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {

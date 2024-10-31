@@ -1,6 +1,6 @@
 import { Dimensions, View } from "react-native";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { SquareArtwork } from "../SquareArtwork";
+import { useMusicPlayer } from "../MusicPlayerProvider";
 
 export const ArtworkCarousel = () => {
   const screenWidth = Dimensions.get("window").width;

@@ -1,6 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 import { ElementType, PropsWithChildren } from "react";
-import { Text } from "./Text";
+import { Text } from "./shared/Text";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 

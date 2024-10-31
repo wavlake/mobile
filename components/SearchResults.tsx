@@ -6,15 +6,15 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 import { useDebounce, useGoToAlbumPage, useGoToArtistPage } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { search, SearchResult } from "@/utils";
-import { SquareArtwork } from "@/components/SquareArtwork";
+import { SquareArtwork } from "./SquareArtwork";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 
 const SearchResultRow = ({
   artworkUrl,

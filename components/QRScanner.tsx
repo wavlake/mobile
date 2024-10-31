@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
-import { Button, Center, Text } from "@/components";
 import { DimensionValue, View } from "react-native";
 import {
   BarcodeScanningResult,
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import { Button } from "./shared/Button";
+import { Center } from "./shared/Center";
+import { Text } from "./shared/Text";
 
 export const QRScanner = ({
   onBarCodeScanned,

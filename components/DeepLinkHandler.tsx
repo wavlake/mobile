@@ -1,7 +1,6 @@
 import { PropsWithChildren, useEffect, useState } from "react";
 import * as Linking from "expo-linking";
-import { useUser } from "./UserContextProvider";
-import { useToast } from "@/hooks";
+import { useToast, useUser } from "@/hooks";
 import { RouteParams, useRouter } from "expo-router";
 
 export const ROUTE_MAPPING: Record<

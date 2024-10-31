@@ -1,5 +1,4 @@
 import { useTheme } from "@react-navigation/native";
-import { Button, TextInput, CommentRow } from "@/components";
 import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
@@ -8,6 +7,9 @@ import { Event } from "nostr-tools";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRepliesQueryKey } from "@/hooks/useReplies";
+import { TextInput } from "../shared/TextInput";
+import { CommentRow } from "./CommentRow";
+import { Button } from "../shared/Button";
 
 interface ReplyDialogProps {
   commentId: string;

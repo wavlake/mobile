@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import MosaicImage from "./Mosaic";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 import { BasicAvatar } from "./BasicAvatar";
 import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";
 import { useRouter } from "expo-router";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { Track, getAlbumTracks } from "@/utils";
-import { Event } from "nostr-tools";
 import {
   ActivityItem,
   generateOverflowMenuProps,

@@ -1,65 +1,13 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  PropsWithChildren,
-} from "react";
+import React, { useState, useEffect, PropsWithChildren } from "react";
 import { FirebaseUser, firebaseService } from "@/services";
-import { useAuth, useCreateNewNostrAccount } from "@/hooks";
 import {
-  NostrProfileData,
-  PrivateUserData,
-  usePrivateUserData,
-} from "@/utils/authTokenApi";
+  CreateEmailUserArgs,
+  useAuth,
+  useCreateNewNostrAccount,
+  UserContext,
+} from "@/hooks";
+import { usePrivateUserData } from "@/utils/authTokenApi";
 import { useAddPubkeyToUser, useCreateNewUser } from "@/utils";
-
-interface CreateEmailUserArgs {
-  email: string;
-  password: string;
-  pubkey: string;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
-}
-
-type UserContextProps = {
-  user: FirebaseUser;
-  initializingAuth: boolean;
-  catalogUser: PrivateUserData | undefined;
-  refetchUser: () => Promise<any>;
-  nostrMetadata: NostrProfileData | undefined;
-  signInWithEmail: (
-    email: string,
-    password: string,
-  ) => Promise<{
-    error?: any;
-    userAssociatedPubkey?: string | null;
-    isRegionVerified?: boolean;
-    isEmailVerified?: boolean;
-    createdRandomNpub?: boolean;
-  }>;
-  signInWithGoogle: () => Promise<{
-    error?: any;
-    userAssociatedPubkey?: string | null;
-    isRegionVerified?: boolean;
-    isEmailVerified?: boolean;
-    createdRandomNpub?: boolean;
-  }>;
-  createUserWithEmail: (args: CreateEmailUserArgs) => Promise<any>;
-} & typeof firebaseService;
-
-const UserContext = createContext<UserContextProps>({
-  user: null,
-  initializingAuth: true,
-  catalogUser: undefined,
-  nostrMetadata: undefined,
-  refetchUser: async () => {},
-  ...firebaseService,
-  createUserWithEmail: async () => ({ error: "not initialized" }),
-  signInWithGoogle: async () => ({ error: "not initialized" }),
-  signInWithEmail: async () => ({ error: "not initialized" }),
-});
 
 // this hook manages the user's firebase auth state
 export const UserContextProvider = ({ children }: PropsWithChildren) => {
@@ -326,12 +274,4 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
       {children}
     </UserContext.Provider>
   );
-};
-
-export const useUser = () => {
-  const context = useContext(UserContext);
-  if (context === null) {
-    throw new Error("useUser must be used within a UserContextProvider");
-  }
-  return context;
 };

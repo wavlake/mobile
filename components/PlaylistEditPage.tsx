@@ -1,10 +1,3 @@
-import {
-  Button,
-  Center,
-  SquareArtwork,
-  Text,
-  useMiniMusicPlayer,
-} from "@/components";
 import { getPlaylist } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -22,6 +15,11 @@ import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useReorderPlaylist } from "@/hooks/playlist/useReorderPlaylist";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { Center } from "./shared/Center";
+import { Button } from "./shared/Button";
+import { Text } from "./shared/Text";
+import { SquareArtwork } from "./SquareArtwork";
 
 export const PlaylistEditPage = () => {
   const basePath = useGetBasePathname();

@@ -1,8 +1,8 @@
 import { View } from "react-native";
 import { useLibraryTracks } from "@/hooks";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { HorizontalArtworkRow } from "@/components/HorizontalArtworkRow";
-import { PlayButtonSectionHeader } from "@/components/PlayButtonSectionHeader";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { HorizontalArtworkRow } from "./HorizontalArtworkRow";
+import { PlayButtonSectionHeader } from "./PlayButtonSectionHeader";
 
 export const LibraryRecentSongsSection = () => {
   const { data: tracks = [] } = useLibraryTracks();

@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
-import { Button } from "@/components";
+import { Button } from "../shared/Button";
 import { Playlist } from "@/utils";
 import { useEffect, useState } from "react";
 import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";

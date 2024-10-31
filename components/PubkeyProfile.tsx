@@ -1,15 +1,17 @@
 import { brandColors } from "@/constants";
 import { View, Image, TouchableOpacity } from "react-native";
-import { Avatar, SlimButton, useUser, Text } from "@/components";
 import { useState } from "react";
 import { openURL } from "expo-linking";
 import { NostrUserProfile, useAddFollower, useRemoveFollower } from "@/utils";
-import { useAuth } from "@/hooks";
+import { useAuth, useUser } from "@/hooks";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
+import { Text } from "./shared/Text";
+import { Avatar } from "./Avatar";
+import { SlimButton } from "./shared/SlimButton";
 
 const AVATAR_SIZE = 80;
 export const PubkeyProfile = ({

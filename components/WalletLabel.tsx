@@ -1,4 +1,4 @@
-import { Text } from "@/components";
+import { Text } from "./shared/Text";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { View } from "react-native";
 
