@@ -80,6 +80,17 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               props.navigation.closeDrawer();
             }}
           />
+        ) : (
+          <DrawerItem
+            label={() => <Text style={{ fontSize: 24 }}>Settings</Text>}
+            icon={({ color, size }) => (
+              <Ionicons name="settings-outline" size={size} color={color} />
+            )}
+            onPress={async () => {
+              router.push({ pathname: "/settings" });
+              props.navigation.closeDrawer();
+            }}
+          />
         )}
         {/* <DrawerItem
           label={() => <Text style={{ fontSize: 24 }}>Events</Text>}
