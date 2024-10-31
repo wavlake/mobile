@@ -2,13 +2,6 @@ import { useState, useCallback } from "react";
 import { Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  DEFAULT_CONNECTION_SETTINGS,
-  useAuth,
-  useAutoConnectNWC,
-  useNostrProfileEvent,
-  useUser,
-} from "@/hooks";
-import {
   encodeNsec,
   generateSecretKey,
   getKeysFromNostrSecret,
@@ -17,6 +10,13 @@ import {
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import DeviceInfo from "react-native-device-info";
+import { useAuth } from "./useAuth";
+import { useUser } from "./useUser";
+import {
+  DEFAULT_CONNECTION_SETTINGS,
+  useAutoConnectNWC,
+} from "./useAutoConnectNWC";
+import { useNostrProfileEvent } from "./nostrProfile";
 
 type NsecPageParams = {
   createdRandomNpub: "true" | "false";

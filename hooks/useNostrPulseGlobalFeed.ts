@@ -1,6 +1,6 @@
 import { ActivityItem } from "@/components";
 import { fetchPulseFeedEvents, getContentMetadataMap } from "@/utils";
-import { getLabeledEvents } from "@/utils/nostr/comments";
+import { getLabeledEvents } from "@/utils/comments";
 import { useQuery } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 

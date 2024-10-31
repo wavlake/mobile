@@ -1,5 +1,6 @@
-import { DEFAULT_READ_RELAY_URIS, pool, wavlakeFeedPubkey } from ".";
 import { Event, Filter, nip19 } from "nostr-tools";
+import { DEFAULT_READ_RELAY_URIS, wavlakeFeedPubkey } from "./shared";
+import { pool } from "./relay-pool";
 
 export const getAllCommentEvents = async (
   contentIds: string[],

@@ -1,16 +1,11 @@
 import { TouchableOpacity, View, ViewProps } from "react-native";
-import { BasicAvatar } from "../BasicAvatar";
-import { Text } from "../shared/Text";
-import { CommentRepliesLink } from "./CommentRepliesLink";
-import { ReplyDialog } from "./ReplyDialog";
-import { useState } from "react";
 import { Event } from "nostr-tools";
 import { useNostrProfileEvent } from "@/hooks";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
-import { NostrUserProfile } from "@/utils";
-import { msatsToSatsWithCommas } from "../WalletLabel";
-import { ParsedTextRender } from "./ParsedTextRenderer";
-import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
+import { useState } from "react";
+import { CommentRepliesLink } from "./CommentRepliesLink";
+import { ReplyDialog } from "./ReplyDialog";
+import { CommentContent } from "./CommentContent";
 
 interface CommentRowProps extends ViewProps {
   commentId: string;
@@ -19,31 +14,6 @@ interface CommentRowProps extends ViewProps {
   isPressable?: boolean;
   closeParent?: () => void;
 }
-
-export const getCommentText = (
-  event: Event,
-  npubMetadata?: NostrUserProfile | null,
-): string => {
-  if (event.content) {
-    return event.content;
-  }
-
-  if (event.kind === 9734) {
-    const amountTag = event.tags.find(([tag]) => tag === "amount");
-    if (amountTag) {
-      const msatsInt = parseInt(amountTag[1]);
-      return isNaN(msatsInt)
-        ? ""
-        : `Zapped ${msatsToSatsWithCommas(msatsInt)} sats`;
-    } else {
-      return "";
-    }
-  }
-
-  return npubMetadata?.name
-    ? `${npubMetadata.name} shared this artist's content`
-    : "";
-};
 
 export const CommentRow = ({
   commentId,
@@ -60,25 +30,12 @@ export const CommentRow = ({
   } = useNostrProfileEvent(comment?.pubkey);
   const metadataIsLoading = isFetching || isLoading;
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  if (!comment) return null;
+
   const onReplyPress = () => {
     setDialogOpen(true);
   };
-  if (!comment) return null;
-
-  const { picture, name } = npubMetadata || {};
-  const { id, content, pubkey, kind } = comment;
-
-  const isZap = kind === 9734;
-  // don't render empty comments that arent zaps
-  if (content.length === 0 && !isZap) {
-    return null;
-  }
-
-  const commentText = getCommentText(comment, npubMetadata);
-
-  if (!commentText) {
-    return null;
-  }
 
   return (
     <View
@@ -93,49 +50,37 @@ export const CommentRow = ({
         commentId={commentId}
         isOpen={dialogOpen}
       />
-      <BasicAvatar
-        uri={picture}
-        pubkey={pubkey}
-        npubMetadata={npubMetadata}
-        isLoading={metadataIsLoading}
-        closeParent={closeParent}
-      />
-      <View style={{ marginLeft: 10, flex: 1 }}>
-        {isPressable ? (
-          <TouchableOpacity onPress={onReplyPress} style={{}}>
-            {metadataIsLoading ? (
-              <PulsatingEllipsisLoader />
-            ) : (
-              <Text bold>{name ?? "anonymous"}</Text>
-            )}
-            <ParsedTextRender content={commentText} />
-          </TouchableOpacity>
-        ) : (
-          <View style={{}}>
-            {metadataIsLoading ? (
-              <PulsatingEllipsisLoader />
-            ) : (
-              <Text bold>{name ?? "anonymous"}</Text>
-            )}
-
-            <ParsedTextRender content={commentText} />
-          </View>
-        )}
-        {showReplyLinks && (
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              paddingTop: 20,
-              paddingBottom: 10,
-              gap: 8,
-            }}
-          >
-            <CommentRepliesLink replies={replies} parentcommentId={id} />
-          </View>
-        )}
-      </View>
+      {isPressable ? (
+        <TouchableOpacity onPress={onReplyPress} style={{ flex: 1 }}>
+          <CommentContent
+            comment={comment}
+            npubMetadata={npubMetadata}
+            metadataIsLoading={metadataIsLoading}
+            closeParent={closeParent}
+          />
+        </TouchableOpacity>
+      ) : (
+        <CommentContent
+          comment={comment}
+          npubMetadata={npubMetadata}
+          metadataIsLoading={metadataIsLoading}
+          closeParent={closeParent}
+        />
+      )}
+      {showReplyLinks && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            paddingTop: 20,
+            paddingBottom: 10,
+            gap: 8,
+          }}
+        >
+          <CommentRepliesLink replies={replies} parentcommentId={comment.id} />
+        </View>
+      )}
     </View>
   );
 };

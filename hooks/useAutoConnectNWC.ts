@@ -1,4 +1,3 @@
-import { useAuth, useToast, useUser } from "@/hooks";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -12,6 +11,9 @@ import {
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import { useWalletBalance } from "./useWalletBalance";
+import { useUser } from "./useUser";
+import { useAuth } from "./useAuth";
+import { useToast } from "./useToast";
 
 interface ConnectionSettings {
   connectionName: string;
