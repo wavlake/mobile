@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUserPromos } from "@/utils";
-import { useUser } from "@/components";
+import { useUser } from "./useUser";
 
 export const getUsePromoQueryKey = (uid?: string) => ["promos", uid];
 export const usePromos = () => {

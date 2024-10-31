@@ -6,7 +6,6 @@ import {
   OrSeparator,
   Text,
   ExternalLoginProviders,
-  useUser,
 } from "@/components";
 import {
   View,
@@ -20,7 +19,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import { CheckBox } from "@rneui/base";
 import { brandColors } from "@/constants";
-import { useAuth, useCreateNewNostrAccount, useToast } from "@/hooks";
+import { useAuth, useCreateNewNostrAccount, useToast, useUser } from "@/hooks";
 
 const ZBD_TOS = "https://zbd.gg/z/terms";
 const WAVLAKE_TOS =

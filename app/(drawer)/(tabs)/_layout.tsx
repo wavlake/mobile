@@ -18,9 +18,8 @@ import {
   shouldForceLogin,
   getRandomMusic,
 } from "@/utils";
-import { useAuth, useIsNavigationReady } from "@/hooks";
+import { useAuth, useIsNavigationReady, useUser } from "@/hooks";
 import { useEffect } from "react";
-import { useUser } from "@/components/UserContextProvider";
 import { Octicons } from "@expo/vector-icons";
 
 export default function TabLayout() {

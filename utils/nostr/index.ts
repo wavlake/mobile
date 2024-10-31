@@ -44,8 +44,7 @@ import {
 import { getSeckey } from "@/utils/secureStorage";
 import { ShowEvents } from "@/constants/events";
 import { useMutation } from "@tanstack/react-query";
-import { useUser } from "@/components";
-import { useAuth } from "@/hooks";
+import { useAuth, useUser } from "@/hooks";
 import { updatePubkeyMetadata } from "../api";
 import { getPodcastFeedGuid } from "../rss";
 import { NWCRequest } from "../nwc";

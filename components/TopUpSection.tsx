@@ -1,7 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 import { brandColors } from "@/constants";
 import { usePromos, useUser } from "@/hooks";
-import {} from "@/hooks";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 

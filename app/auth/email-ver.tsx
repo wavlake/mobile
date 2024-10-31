@@ -1,8 +1,9 @@
-import { Text, Button, Center, useUser } from "@/components";
+import { Text, Button, Center } from "@/components";
 import {
   DEFAULT_CONNECTION_SETTINGS,
   useAutoConnectNWC,
   useToast,
+  useUser,
 } from "@/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";

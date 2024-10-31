@@ -6,8 +6,8 @@ import {
   useAuth,
   useAutoConnectNWC,
   useNostrProfileEvent,
+  useUser,
 } from "@/hooks";
-import { useUser } from "@/components/UserContextProvider";
 import {
   encodeNsec,
   generateSecretKey,

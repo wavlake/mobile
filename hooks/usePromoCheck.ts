@@ -7,8 +7,8 @@ import {
 } from "@/utils";
 import { usePlaybackState } from "react-native-track-player";
 import { getUsePromoQueryKey } from "./usePromos";
-import { useUser } from "@/components";
 import { useRef, useEffect } from "react";
+import { useUser } from "./useUser";
 
 const CACHE_STALE_TIME = 5 * 1000; // 5 seconds
 

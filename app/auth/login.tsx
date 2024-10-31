@@ -13,11 +13,11 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useUser } from "@/components/UserContextProvider";
 import {
   DEFAULT_CONNECTION_SETTINGS,
   useAuth,
   useAutoConnectNWC,
+  useUser,
 } from "@/hooks";
 import DeviceInfo from "react-native-device-info";
 

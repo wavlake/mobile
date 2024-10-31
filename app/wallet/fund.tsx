@@ -1,6 +1,6 @@
-import { Button, OrSeparator, Text, TextInput, useUser } from "@/components";
+import { Button, OrSeparator, Text, TextInput } from "@/components";
 import { CopyButton } from "@/components/CopyButton";
-import { useAuth, useToast } from "@/hooks";
+import { useAuth, useToast, useUser } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
 import { listenForIncomingNWCPayment } from "@/utils";
 import { useRouter } from "expo-router";
