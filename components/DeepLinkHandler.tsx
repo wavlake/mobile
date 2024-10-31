@@ -60,7 +60,6 @@ const DeepLinkHandler: React.FC<PropsWithChildren> = ({ children }) => {
                 name: "/auth/email-ver",
                 params: {
                   navFromEmailVerLink: "true",
-                  createdRandomNpub: "true",
                 },
               },
             ],

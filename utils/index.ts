@@ -9,3 +9,4 @@ export * from "./authTokenApi";
 export * from "./authTokenAccountingApi";
 export * from "./rss";
 export * from "./general";
+export * from "./keychainStorage";

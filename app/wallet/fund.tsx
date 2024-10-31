@@ -31,6 +31,7 @@ export default function Fund({}: {}) {
   const { catalogUser } = useUser();
   const { data: settings } = useSettings();
   const { pubkey } = useAuth();
+  const userIdOrPubkey = catalogUser?.id ?? pubkey;
   const toast = useToast();
   const [invoice, setInvoice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +82,7 @@ export default function Fund({}: {}) {
 
     let abortController = new AbortController();
     listenForIncomingNWCPayment({
-      userPubkey: pubkey,
+      userIdOrPubkey,
       invoice,
       walletPubkey: settings?.nwcPubkey,
       nwcRelay: settings?.nwcRelay,

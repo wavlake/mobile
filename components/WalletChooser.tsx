@@ -20,7 +20,11 @@ export const WalletChooser = ({
       <View style={{ backgroundColor: "white", borderRadius: 8 }}>
         <Picker
           selectedValue={selectedWallet}
-          onValueChange={(itemValue) => onSelectedWalletChange(itemValue)}
+          onValueChange={(itemValue) => {
+            // this fixes a bug where onValueChange is called unexpectedly
+            if (itemValue === selectedWallet) return;
+            onSelectedWalletChange(itemValue);
+          }}
         >
           {Object.entries(WALLETS).map(([key, { displayName }]) => (
             <Picker.Item key={key} label={displayName} value={key} />

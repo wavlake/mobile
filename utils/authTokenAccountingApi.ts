@@ -21,11 +21,16 @@ const responseInterceptor = accountingApiClient.interceptors.response.use(
     if (!!response.data.error) {
       console.log("Accounting error:", response.data.error);
     } else {
-      enableResponseLogging &&
+      if (enableResponseLogging) {
+        const byteSizeOfResponse = new Blob([JSON.stringify(response.data)])
+          .size;
         console.log(
           "Accounting:",
           response?.request?.responseURL?.split(".com")[1],
+          byteSizeOfResponse,
+          "bytes",
         );
+      }
     }
     return response;
   },

@@ -2,7 +2,7 @@ import { Text, Button, TextInput } from "@/components";
 import { brandColors } from "@/constants";
 import DeviceInfo from "react-native-device-info";
 import { CheckBox } from "@rneui/base";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   TouchableWithoutFeedback,
@@ -32,9 +32,6 @@ const validateMaxZapAmount = (value?: string) => {
 export default function AddNWC() {
   const router = useRouter();
   const toast = useToast();
-  const { createdRandomNpub } = useLocalSearchParams<{
-    createdRandomNpub: "true" | "false";
-  }>();
   const { connectWallet } = useAutoConnectNWC();
   const [selectedBudget, setBudget] = useState(0);
   const [maxZapAmount, setMaxZapAmount] = useState<string | undefined>();
@@ -74,9 +71,6 @@ export default function AddNWC() {
       if (success) {
         router.replace({
           pathname: "/auth/welcome",
-          params: {
-            createdRandomNpub,
-          },
         });
       }
     } catch (error) {

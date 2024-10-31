@@ -1,4 +1,10 @@
-import { FlatList, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Track } from "@/utils";
 import { NewMusicSection } from "@/components/NewMusicSection";
 import {
@@ -10,8 +16,10 @@ import {
   TopUpSection,
   ForYouSection,
   FeaturedSection,
+  VercelImage,
+  Center,
 } from "@/components";
-import { useHomePage } from "@/hooks";
+import { useHomePage, useToast } from "@/hooks";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -55,7 +63,7 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
         >
           {index + 1}
         </Text>
-        <SquareArtwork size={100} url={artworkUrl} />
+        <VercelImage size={100} url={artworkUrl} />
         <View style={{ marginLeft: 10, flex: 1 }}>
           <Text style={{ fontSize: 18 }} numberOfLines={2} bold>
             {title}
@@ -68,13 +76,31 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
 };
 
 export const HomePageMusic = () => {
-  const { data: homePageData, isLoading } = useHomePage();
+  const toast = useToast();
+  const {
+    data: homePageData,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } = useHomePage();
+
+  isError && toast.show(JSON.stringify(error));
   const {
     featured = [],
     newTracks = [],
     trending = [],
     forYou = [],
   } = homePageData || {};
+
+  if (isLoading) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
+
   return (
     <FlatList
       data={trending}
@@ -94,7 +120,13 @@ export const HomePageMusic = () => {
       renderItem={({ item, index }) => (
         <TopMusicRow trackList={trending} track={item} index={index} />
       )}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
       keyExtractor={(item) => item.id}
+      windowSize={5}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={3}
     />
   );
 };

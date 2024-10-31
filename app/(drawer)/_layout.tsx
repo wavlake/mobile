@@ -1,5 +1,5 @@
 import { Drawer } from "expo-router/drawer";
-import { HeaderBackButton, HeaderTitleLogo, Text } from "@/components";
+import { HeaderBackButton, HeaderTitleLogo, Text, useUser } from "@/components";
 import {
   useTheme,
   DrawerActions,
@@ -7,7 +7,7 @@ import {
 } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams, usePathname } from "expo-router";
 import { useAuth } from "@/hooks";
-import { View, Pressable } from "react-native";
+import { View, Pressable, Alert } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
 import { VerificationIcon } from "@/components/VerificationIcon";
 import { Ionicons } from "@expo/vector-icons";
@@ -37,6 +37,7 @@ export default function DrawerLayout() {
   const pathname = usePathname();
   const globalSearchParams = useGlobalSearchParams();
   const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
   const headerTitle =
     typeof globalSearchParams.headerTitle === "string"
       ? () => (
@@ -61,25 +62,43 @@ export default function DrawerLayout() {
       : () => <MenuButton />;
 
   const headerRight = () => {
-    if (!pubkey) {
+    if (!pubkey && !catalogUser) {
       return null;
     }
-
     return (
       <View style={{ marginRight: 16 }}>
         <Pressable
           hitSlop={20}
-          onPress={() => {
-            // if the user is already on their profile page, don't let the user navigate to it again
-            if (pathname === `/profile/profile/${pubkey}`) {
-              return;
-            }
+          onPress={
+            pubkey
+              ? () => {
+                  // if the user is already on their profile page, don't let the user navigate to it again
+                  if (pathname === `/profile/profile/${pubkey}`) {
+                    return;
+                  }
 
-            router.push({
-              pathname: `/profile/profile/${pubkey}`,
-              params: { includeBackButton: "true" },
-            });
-          }}
+                  router.push({
+                    pathname: `/profile/profile/${pubkey}`,
+                    params: { includeBackButton: "true" },
+                  });
+                }
+              : () =>
+                  Alert.alert(
+                    "Nostr account required",
+                    "You must login to nostr to view your profile page.",
+                    [
+                      {
+                        text: "Login to nostr",
+                        onPress: () => {
+                          router.push("/settings");
+                          router.push("/settings/advanced");
+                          router.push("/settings/nsec");
+                        },
+                      },
+                      { text: "Cancel", style: "cancel" },
+                    ],
+                  )
+          }
         >
           <LoggedInUserAvatar size={24} />
         </Pressable>

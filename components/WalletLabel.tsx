@@ -1,5 +1,6 @@
 import { Text } from "@/components";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
+import { useEffect } from "react";
 import { View } from "react-native";
 
 export const satsFormatter = (mSats: number) => {
@@ -35,7 +36,11 @@ export const satsWithCommas = (sats: number) => {
 };
 
 export const WalletLabel: React.FC = () => {
-  const { data: balance } = useWalletBalance();
+  const { data: balance, refetch } = useWalletBalance();
+  useEffect(() => {
+    // get a fresh wallet balance when the label is rendered
+    refetch();
+  }, []);
   const userHasABalance = typeof balance === "number";
   return (
     <View

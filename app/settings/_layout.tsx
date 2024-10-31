@@ -31,7 +31,7 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen
-        name="backup-nsec"
+        name="nsec"
         options={{
           presentation: "card",
           headerTitle: () => <Text>Nostr Key</Text>,

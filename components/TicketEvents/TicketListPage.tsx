@@ -134,7 +134,7 @@ export const TicketListPage = () => {
   if (!pubkey) {
     return (
       <Center>
-        <Text>You must be logged in to view your event tickets</Text>
+        <Text>you must login to view your event tickets</Text>
       </Center>
     );
   }

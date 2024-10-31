@@ -6,6 +6,7 @@ import {
 } from "react-native";
 import { SquareArtwork } from "@/components/SquareArtwork";
 import { Text } from "@/components/Text";
+import { VercelImage } from "./VercelImage";
 
 interface HorizontalArtworkRowItem {
   artworkUrl: string;
@@ -36,7 +37,7 @@ export const HorizontalArtworkRow = ({
                 width: 124,
               }}
             >
-              <SquareArtwork size={124} url={item.artworkUrl} />
+              <VercelImage size={124} url={item.artworkUrl} />
               {willShowTitle && <Text numberOfLines={1}>{item.title}</Text>}
             </View>
           </TouchableOpacity>

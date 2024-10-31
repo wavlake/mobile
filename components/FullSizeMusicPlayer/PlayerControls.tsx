@@ -45,7 +45,7 @@ export const PlayerControls = ({
   return (
     <View
       style={{
-        paddingTop: isSmallScreen ? 12 : 24,
+        paddingTop: 10,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -83,6 +83,7 @@ export const PlayerControls = ({
       <View
         style={{
           flexGrow: 1,
+          paddingBottom: 12,
         }}
       >
         <View
@@ -90,7 +91,7 @@ export const PlayerControls = ({
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-evenly",
-            paddingTop: isSmallScreen ? 8 : 16,
+            paddingTop: 8,
           }}
         >
           <Pressable onPress={skipToPrevious}>

@@ -11,11 +11,10 @@ import { WalletChooser } from "@/components/WalletChooser";
 import { Button } from "@/components/Button";
 import { CancelButton } from "@/components/CancelButton";
 import { useState } from "react";
-import { cacheSettings, WalletKey } from "@/utils";
-import { useAuth } from "@/hooks";
+import { WalletKey } from "@/utils";
+import { useSettingsManager } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
 import { TextInput } from "./TextInput";
-import { useSettings } from "@/hooks/useSettings";
 
 const DismissKeyboard = ({ children }: any) => (
   <TouchableWithoutFeedback
@@ -37,14 +36,13 @@ export const WalletChooserModal = ({
   ...rest
 }: WalletChooserModalProps) => {
   const { colors } = useTheme();
-  const { pubkey } = useAuth();
-  const { data: settings } = useSettings();
+  const { settings, updateSettings } = useSettingsManager();
   const { enableNWC } = settings || {};
   const [defaultZapWallet, setDefaultZapWallet] =
     useState<WalletKey>("default");
   const [defaultZapAmount, setDefaultZapAmount] = useState("");
   const handleContinueClick = async () => {
-    await cacheSettings({ defaultZapWallet, defaultZapAmount }, pubkey);
+    await updateSettings({ defaultZapWallet, defaultZapAmount });
     onContinue();
   };
 

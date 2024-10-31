@@ -25,6 +25,8 @@ export const PulseGlobalActivityFeed = ({
   } = useQuery({
     queryKey: ["globalActivityFeed"],
     queryFn: ({ pageParam = 1 }) => getGlobalActivityFeed(pageParam, PAGE_SIZE),
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
   // Merge and sort both data sources
