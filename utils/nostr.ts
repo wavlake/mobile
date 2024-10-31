@@ -56,11 +56,11 @@ import { getSeckey } from "./secureStorage";
 import {
   DEFAULT_READ_RELAY_URIS,
   DEFAULT_WRITE_RELAY_URIS,
-  NostrUserProfile,
   wavlakeFeedPubkey,
 } from "./shared";
 import { pool } from "./relay-pool";
 import { updatePubkeyMetadata } from "./profile-service";
+import { NostrUserProfile } from "./types";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
