@@ -69,7 +69,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             }}
           />
         )}
-        {!pubkey && (
+        {!pubkey ? (
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Connect Nostr</Text>}
             icon={({ color, size }) => (
