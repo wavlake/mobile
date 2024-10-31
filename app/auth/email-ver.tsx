@@ -64,10 +64,13 @@ export default function EmailVer() {
     if (isVerified) {
       // auto connect NWC if user is region verified
       if (catalogUser?.isRegionVerified) {
-        await connectWallet({
-          ...DEFAULT_CONNECTION_SETTINGS,
-          connectionName: DeviceInfo.getModel(),
-        });
+        await connectWallet(
+          {
+            ...DEFAULT_CONNECTION_SETTINGS,
+            connectionName: DeviceInfo.getModel(),
+          },
+          catalogUser.id,
+        );
       }
       router.push({ pathname: "/auth/welcome" });
     } else if (success) {

@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useAuth, useToast, useSettingsManager } from "@/hooks";
+import { useAuth, useToast, useSettingsManager, WAVLAKE_RELAY } from "@/hooks";
 import { Settings, payInvoiceCommand } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
@@ -222,6 +222,12 @@ export default function AdvancedSettingsPage() {
     }
   };
 
+  const hasWavlakeWallet =
+    catalogUser?.isRegionVerified &&
+    !catalogUser?.isLocked &&
+    settings?.enableNWC &&
+    settings.nwcRelay === WAVLAKE_RELAY;
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -254,6 +260,21 @@ export default function AdvancedSettingsPage() {
           title="One tap zaps"
           description="Change the default behavior of the zap button to one tap zap your default amount. Long press to open the comment form."
         />
+        {hasWavlakeWallet && (
+          <View style={styles.settingRow}>
+            <View style={styles.settingText}>
+              <TouchableOpacity
+                hitSlop={20}
+                onPress={() => router.push({ pathname: "/settings/nwc" })}
+              >
+                <Text bold>Update Wallet Limits</Text>
+                <Text>
+                  Tap here to edit your Wavlake wallet budgets and limits.
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
         <Text style={styles.sectionTitle}>Nostr</Text>
         {pubkeyLoggedIn && (
           <SettingsSwitch

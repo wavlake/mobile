@@ -28,20 +28,22 @@ export const DEFAULT_CONNECTION_SETTINGS: Omit<
   requestMethods: ["get_balance", "pay_invoice"],
 };
 
+export const WAVLAKE_RELAY = "wss://relay.wavlake.com";
+
 // this hook auto connects the wavlake wallet to the app using NWC
 export const useAutoConnectNWC = () => {
   const { catalogUser } = useUser();
   const { pubkey: userPubkey } = useAuth();
   const toast = useToast();
   const { mutate: createConnection } = useCreateConnection();
-  const { refetch: refetchSettings } = useSettingsManager();
+  const { refetch: refetchSettings, updateSettings } = useSettingsManager();
   const { refetch: fetchBalance } = useWalletBalance();
 
   const connectWallet = async (
     settings: ConnectionSettings,
     // optional userPubkey to use for the NWC connection
     // to be used during login, when useAuth() is not up to date
-    overrideUserPubkey?: string | null,
+    overrideUserIdOrPubkey?: string | null,
   ) => {
     const { connectionName, msatBudget, maxMsatPaymentAmount, requestMethods } =
       settings;
@@ -59,7 +61,7 @@ export const useAutoConnectNWC = () => {
     });
 
     // Add the connection to the mobile app
-    const relay = "wss://relay.wavlake.com";
+    const relay = WAVLAKE_RELAY;
     const nwcUri = buildUri(`nostr+walletconnect://${walletServicePubkey}`, {
       relay: relay,
       secret: bytesToHex(pk),
@@ -70,10 +72,17 @@ export const useAutoConnectNWC = () => {
 
     const { isSuccess, error, fetchInfo } = await intakeNwcURI({
       uri: nwcUri,
-      userIdOrPubkey: overrideUserPubkey || catalogUser?.id || userPubkey,
+      userIdOrPubkey: overrideUserIdOrPubkey || catalogUser?.id || userPubkey,
     });
 
     if (isSuccess) {
+      await updateSettings(
+        {
+          weeklyNWCBudget: msatBudget,
+          maxNWCPayment: maxMsatPaymentAmount,
+        },
+        overrideUserIdOrPubkey,
+      );
       // Fetch the info event and refresh settings
       await fetchInfo?.();
       await refetchSettings();

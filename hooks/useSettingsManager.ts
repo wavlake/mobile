@@ -14,16 +14,20 @@ export const useSettingsManager = () => {
   const queryClient = useQueryClient();
   const settingsKey = useSettingsQueryKey(userId);
 
-  const updateSettings = async (newSettings: Partial<Settings>) => {
-    if (!userId) return;
-
+  const updateSettings = async (
+    newSettings: Partial<Settings>,
+    overrideUserId?: string | null,
+  ) => {
+    if (!userId && !overrideUserId) return;
+    const uid = overrideUserId ?? userId;
     // TODO - handle when a user logs in with only a pubkey, and then links to their wavlake account
-    // tranasfer their settings over tobecome oprhaned
+    // tranasfer their settings over to the new user id
 
     // for now, save settings to both the user and the pubkey
-    catalogUser?.id && (await cacheSettings(newSettings, catalogUser?.id));
+    uid && (await cacheSettings(newSettings, uid));
     pubkey && (await cacheSettings(newSettings, pubkey));
     queryClient.invalidateQueries(settingsKey);
+    refetch();
     return;
   };
 

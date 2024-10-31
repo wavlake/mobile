@@ -117,6 +117,8 @@ export interface Settings {
   nwcCommands: string[];
   oneTapZap: boolean;
   publishKind1: boolean;
+  weeklyNWCBudget: number;
+  maxNWCPayment: number;
 }
 
 export const cacheSettings = async (

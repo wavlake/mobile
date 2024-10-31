@@ -7,7 +7,7 @@ import {
 import { Text } from "@/components/Text";
 import { Divider } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import { useAuth } from "@/hooks";
+import { useAuth, WAVLAKE_RELAY } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { WalletLabel } from "./WalletLabel";
@@ -27,7 +27,9 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
   const showWallet =
     catalogUser?.isRegionVerified &&
     !catalogUser?.isLocked &&
-    settings?.enableNWC;
+    settings?.enableNWC &&
+    settings.nwcRelay === WAVLAKE_RELAY;
+
   const showTopUp = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
 
   return (

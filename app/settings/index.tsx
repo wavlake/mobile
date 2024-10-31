@@ -26,11 +26,6 @@ import { useTheme } from "@react-navigation/native";
 import { PrivateUserData, useEditUser } from "@/utils";
 import { useValidateUsername } from "@/hooks/useValidateUsername";
 
-// Types
-interface Settings {
-  defaultZapAmount?: string;
-}
-
 interface EditModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -206,6 +201,7 @@ const EditModal: React.FC<EditModalProps> = ({
         )}
         <TextInput
           label="Default zap amount"
+          placeholder="Enter amount in sats"
           value={amount}
           keyboardType="numeric"
           onChangeText={setAmount}
