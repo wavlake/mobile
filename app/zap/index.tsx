@@ -6,18 +6,21 @@ import {
   TextInput,
   Center,
   Text,
+  DollarAmount,
 } from "@/components";
-import { KeyboardAvoidingView, ScrollView, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useState } from "react";
-import { useLocalSearchParams } from "expo-router";
-import { useAuth, useZap } from "@/hooks";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useAuth, useSettingsManager, useZap } from "@/hooks";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { useTheme } from "@react-navigation/native";
-import { useSettings } from "@/hooks/useSettings";
-import { useQueryClient } from "@tanstack/react-query";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
-import { cacheSettings } from "@/utils";
+import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 
 export default function ZapPage() {
   const {
@@ -39,7 +42,8 @@ export default function ZapPage() {
     isPodcast: string;
     parentContentId: string;
   }>();
-
+  const router = useRouter();
+  const { pubkey } = useAuth();
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [comment, setComment] = useState("");
   const { sendZap, isLoading: isZapping } = useZap({
@@ -57,27 +61,24 @@ export default function ZapPage() {
     sendZap({ comment, amount: parseInt(zapAmount), useNavReplace: true });
   };
 
-  const { data: settings } = useSettings();
+  const { settings, updateSettings } = useSettingsManager();
   const { colors } = useTheme();
-  const { pubkey } = useAuth();
-  const queryClient = useQueryClient();
-  const settingsKey = useSettingsQueryKey();
+
   // this new setting will start as undefined for users
   const currentPublishKind1Setting = settings?.publishKind1 ?? false;
   const togglePublishKind1 = async (value: boolean) => {
-    await cacheSettings(
-      {
-        publishKind1: !currentPublishKind1Setting,
-      },
-      pubkey,
-    );
-    queryClient.invalidateQueries(settingsKey);
+    await updateSettings({
+      publishKind1: !currentPublishKind1Setting,
+    });
   };
   return (
     <KeyboardAvoidingView behavior="position">
       <ScrollView
         style={{ paddingHorizontal: 24, paddingVertical: 16 }}
-        contentContainerStyle={{ alignItems: "center", gap: 16 }}
+        contentContainerStyle={{
+          alignItems: "center",
+          gap: 12,
+        }}
       >
         {artworkUrl && <SquareArtwork size={150} url={artworkUrl} />}
         <Center>
@@ -109,6 +110,12 @@ export default function ZapPage() {
           value={zapAmount}
           keyboardType="numeric"
           includeErrorMessageSpace={false}
+          rightIcon={
+            <DollarAmount
+              style={{ textAlign: "right" }}
+              sats={parseInt(zapAmount)}
+            />
+          }
         />
         <TextInput
           label="message (optional)"
@@ -135,6 +142,32 @@ export default function ZapPage() {
             thumbColor={colors.text}
           />
         </View>
+        {!pubkey && (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text>
+                You are not connected to nostr, zaps and comments will be
+                anonymous.
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                router.push("/settings");
+                router.push("/settings/advanced");
+                router.push("/settings/nsec");
+              }}
+            >
+              <View style={{ flexDirection: "row", gap: 4 }}>
+                <Text>Connect</Text>
+                <ArrowTopRightOnSquareIcon
+                  color={brandColors.beige.dark}
+                  height={20}
+                  width={20}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
         <Button
           onPress={handleZap}
           disabled={isZapDisabled}

@@ -8,8 +8,8 @@ const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNWCInfoEventKey = (pubkey: string) => `${pubkey}.nwcInfoEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
-const makeSettingsKey = (pubkey?: string) =>
-  `${pubkey || "anonymous"}.defaultZapWallet`;
+const makeSettingsKey = (userIdOrPubkey?: string) =>
+  `${userIdOrPubkey || "anonymous"}.defaultZapWallet`;
 const makePromoKey = (trackId: string) => `promo-${trackId}`;
 
 const storeData = async (key: string, value: string) => {
@@ -117,22 +117,26 @@ export interface Settings {
   nwcCommands: string[];
   oneTapZap: boolean;
   publishKind1: boolean;
+  weeklyNWCBudget: number;
+  maxNWCPayment: number;
 }
 
-// TODO expose this call thru the settings hook
 export const cacheSettings = async (
   settings: Partial<Settings>,
-  pubkey?: string,
+  userIdOrPubkey?: string,
 ) => {
-  const settingsKey = makeSettingsKey(pubkey);
-  const currentSettings = await getSettings(pubkey);
+  const settingsKey = makeSettingsKey(userIdOrPubkey);
+  const currentSettings = await getSettings(userIdOrPubkey);
   const newSettings = { ...currentSettings, ...settings };
   await storeObjectData(settingsKey, newSettings);
   return newSettings;
 };
 
-export const getSettings = async (pubkey?: string): Promise<Settings> => {
-  const settingsKey = makeSettingsKey(pubkey);
+export const getSettings = async (
+  userIdOrPubkey?: string,
+): Promise<Settings> => {
+  const settingsKey = makeSettingsKey(userIdOrPubkey);
 
-  return (await getObjectData(settingsKey)) ?? {};
+  const settings = (await getObjectData(settingsKey)) ?? {};
+  return settings;
 };

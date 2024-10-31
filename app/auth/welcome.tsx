@@ -13,24 +13,20 @@ export default function WelcomePage() {
     setSkipLogin();
   }, []);
 
-  const { createdRandomNpub, nostrOnlyLogin: nostrOnlyLoginString } =
-    useLocalSearchParams<{
-      createdRandomNpub: "true" | "false";
-      nostrOnlyLogin: "true" | "false";
-    }>();
+  const { nostrOnlyLogin: nostrOnlyLoginString } = useLocalSearchParams<{
+    nostrOnlyLogin: "true" | "false";
+  }>();
   const nostrOnlyLogin = nostrOnlyLoginString === "true";
-  // hiding this option for now
-  const showLoginWithNsec = false; //createdRandomNpub && !nostrOnlyLogin;
   const router = useRouter();
   const { catalogUser } = useUser();
   const { pubkey } = useAuth();
-  const { data: userProfile, isLoading } = useNostrProfileEvent(pubkey);
+  const { data: userProfile, isFetching } = useNostrProfileEvent(pubkey);
   const userName = nostrOnlyLogin ? userProfile?.name : catalogUser?.name;
   const goToHomePage = async () => {
     router.replace("/");
   };
 
-  if (isLoading) {
+  if (isFetching) {
     return (
       <Center>
         <ActivityIndicator />
@@ -79,17 +75,6 @@ export default function WelcomePage() {
           Edit Profile
         </Text>
         <Button onPress={goToHomePage}>Start listening</Button>
-        {showLoginWithNsec && (
-          <Link
-            href={`/auth/nsec?createdRandomNpub=${
-              createdRandomNpub ?? "false"
-            }`}
-          >
-            <Text style={{ fontSize: 18 }} bold>
-              Nostr user? Click here
-            </Text>
-          </Link>
-        )}
       </View>
     </Center>
   );

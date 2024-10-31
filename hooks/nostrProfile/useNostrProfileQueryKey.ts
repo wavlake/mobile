@@ -1,4 +1,3 @@
-import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 
 export const useNostrProfileQueryKey = (pubkey: string) => {

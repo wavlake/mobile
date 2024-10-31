@@ -30,7 +30,6 @@ export const ExternalLoginProviders = ({
 }) => {
   const { connectWallet } = useAutoConnectNWC();
   const router = useRouter();
-  const { pubkey } = useAuth();
   const { signInWithGoogle } = useUser();
   const { show } = useToast();
   const providers = [
@@ -39,37 +38,25 @@ export const ExternalLoginProviders = ({
       icon: GoogleIcon,
       onPress: async () => {
         setIsLoading(true);
-        const result = await signInWithGoogle();
-        if ("error" in result) {
-          show(result.error);
+        const signedInUser = await signInWithGoogle();
+        if ("error" in signedInUser) {
+          show(signedInUser.error);
           setIsLoading(false);
           return;
         }
 
-        // if the user isn't pubkey-logged in via signInWithEmail above
-        // we need to collect their previously used nsec
-        if (!pubkey) {
-          router.push({
-            pathname: "/auth/nsec",
-            params: {
-              createdRandomNpub: result.createdRandomNpub ? "true" : "false",
-              userAssociatedPubkey: result.userAssociatedPubkey,
-            },
-          });
-        } else {
-          if (result.isEmailVerified && result.isRegionVerified) {
-            await connectWallet({
+        if (signedInUser.isEmailVerified && signedInUser.isRegionVerified) {
+          await connectWallet(
+            {
               ...DEFAULT_CONNECTION_SETTINGS,
               connectionName: DeviceInfo.getModel(),
-            });
-          }
-          router.replace({
-            pathname: "/auth/welcome",
-            params: {
-              createdRandomNpub: result.createdRandomNpub ? "true" : "false",
             },
-          });
+            signedInUser.user.uid,
+          );
         }
+        router.replace({
+          pathname: "/auth/welcome",
+        });
       },
     },
     // TODO: implement these providers
@@ -93,7 +80,7 @@ export const ExternalLoginProviders = ({
       onPress: () => {
         setIsLoading(true);
         router.push({
-          pathname: "/auth/nsec",
+          pathname: "/nsec",
           params: { nostrOnlyLogin: "true" },
         });
         setIsLoading(false);

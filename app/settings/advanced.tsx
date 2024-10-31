@@ -1,4 +1,4 @@
-import { Text, WalletChooser } from "@/components";
+import { Text, useUser, WalletChooser } from "@/components";
 import { useRouter } from "expo-router";
 import {
   Keyboard,
@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useAuth, useToast, useSettingsManager } from "@/hooks";
+import { useAuth, useToast, useSettingsManager, WAVLAKE_RELAY } from "@/hooks";
 import { Settings, payInvoiceCommand } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
@@ -205,11 +205,11 @@ const styles = StyleSheet.create({
 export default function AdvancedSettingsPage() {
   const toast = useToast();
   const router = useRouter();
-  const { pubkey, userIsLoggedIn } = useAuth();
-  const { settings, updateSettings } = useSettingsManager(pubkey);
-
+  const { userIsLoggedIn: pubkeyLoggedIn } = useAuth();
+  const { settings, updateSettings } = useSettingsManager();
+  const { catalogUser } = useUser();
+  const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
   if (!settings) return null;
-
   const handleSettingsUpdate = async (newSettings: Partial<Settings>) => {
     try {
       toast.clearAll();
@@ -222,31 +222,37 @@ export default function AdvancedSettingsPage() {
     }
   };
 
+  const hasWavlakeWallet =
+    catalogUser?.isRegionVerified &&
+    !catalogUser?.isLocked &&
+    settings?.enableNWC &&
+    settings.nwcRelay === WAVLAKE_RELAY;
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.sectionTitle}>Wallet</Text>
         <WalletChooser
           selectedWallet={settings.defaultZapWallet ?? "default"}
-          onSelectedWalletChange={(wallet) =>
-            handleSettingsUpdate({ defaultZapWallet: wallet })
-          }
+          onSelectedWalletChange={(wallet) => {
+            handleSettingsUpdate({ defaultZapWallet: wallet });
+          }}
         />
         {userIsLoggedIn && (
-          <>
-            <NWCSettings
-              settings={settings}
-              onUpdateSettings={handleSettingsUpdate}
-            />
-            <SettingsSwitch
-              value={settings.allowListeningActivity ?? false}
-              onValueChange={(value) =>
-                handleSettingsUpdate({ allowListeningActivity: value })
-              }
-              title="Listening activity"
-              description="Broadcast tracks you are listening to as a live status event to Nostr relays."
-            />
-          </>
+          <NWCSettings
+            settings={settings}
+            onUpdateSettings={handleSettingsUpdate}
+          />
+        )}
+        {pubkeyLoggedIn && (
+          <SettingsSwitch
+            value={settings.allowListeningActivity ?? false}
+            onValueChange={(value) =>
+              handleSettingsUpdate({ allowListeningActivity: value })
+            }
+            title="Listening activity"
+            description="Broadcast tracks you are listening to as a live status event to Nostr relays."
+          />
         )}
         <SettingsSwitch
           value={settings.oneTapZap ?? false}
@@ -254,35 +260,46 @@ export default function AdvancedSettingsPage() {
           title="One tap zaps"
           description="Change the default behavior of the zap button to one tap zap your default amount. Long press to open the comment form."
         />
-        {userIsLoggedIn && (
-          <>
-            <Text style={styles.sectionTitle}>Nostr</Text>
-            <SettingsSwitch
-              value={settings.publishKind1 ?? false}
-              onValueChange={(value) =>
-                handleSettingsUpdate({ publishKind1: value })
-              }
-              title="Publish comments to nostr"
-              description="Publish comments to your nostr feed. These comments will show up in other nostr clients as kind 1 events."
-            />
-            <View style={styles.settingRow}>
-              <View style={styles.settingText}>
-                <TouchableOpacity
-                  hitSlop={20}
-                  onPress={() =>
-                    router.push({ pathname: "/settings/backup-nsec" })
-                  }
-                >
-                  <Text bold>Export or update your nostr secret key</Text>
-                  <Text>
-                    Tap here to view your account secret key and export it to a
-                    safe place.
-                  </Text>
-                </TouchableOpacity>
-              </View>
+        {hasWavlakeWallet && (
+          <View style={styles.settingRow}>
+            <View style={styles.settingText}>
+              <TouchableOpacity
+                hitSlop={20}
+                onPress={() => router.push({ pathname: "/settings/nwc" })}
+              >
+                <Text bold>Update Wallet Limits</Text>
+                <Text>
+                  Tap here to edit your Wavlake wallet budgets and limits.
+                </Text>
+              </TouchableOpacity>
             </View>
-          </>
+          </View>
         )}
+        <Text style={styles.sectionTitle}>Nostr</Text>
+        {pubkeyLoggedIn && (
+          <SettingsSwitch
+            value={settings.publishKind1 ?? false}
+            onValueChange={(value) =>
+              handleSettingsUpdate({ publishKind1: value })
+            }
+            title="Publish comments to nostr"
+            description="Publish comments to your nostr feed. These comments will show up in other nostr clients as kind 1 events."
+          />
+        )}
+        <View style={styles.settingRow}>
+          <View style={styles.settingText}>
+            <TouchableOpacity
+              hitSlop={20}
+              onPress={() => router.push({ pathname: "/settings/nsec" })}
+            >
+              <Text bold>Export or update your nostr secret key</Text>
+              <Text>
+                Tap here to view your account secret key and export it to a safe
+                place.
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </TouchableWithoutFeedback>
   );

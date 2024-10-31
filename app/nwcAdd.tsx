@@ -1,19 +1,18 @@
-import { Text, Center, CancelButton } from "@/components";
-import { useAuth, useToast } from "@/hooks";
-import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
+import { Text, Center, CancelButton, useUser } from "@/components";
+import { useAuth, useSettingsManager, useToast } from "@/hooks";
 import { intakeNwcURI } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 
 export default function AddNWC() {
-  const queryClient = useQueryClient();
   const router = useRouter();
   const params = useLocalSearchParams();
   const toast = useToast();
   const { pubkey } = useAuth();
-  const settingsKey = useSettingsQueryKey();
+  const { catalogUser } = useUser();
+  const { refetch: refetchSettings } = useSettingsManager();
+  const userIdOrPubkey = catalogUser?.id ?? pubkey;
 
   useEffect(() => {
     const asyncFunction = async () => {
@@ -21,15 +20,15 @@ export default function AddNWC() {
       if (uri && pubkey) {
         const { isSuccess, error, fetchInfo } = await intakeNwcURI({
           uri: uri as string,
-          pubkey,
+          userIdOrPubkey,
         });
         if (isSuccess) {
-          queryClient.invalidateQueries(settingsKey);
+          await refetchSettings();
           router.replace("/");
 
           // fetch the info event and refresh settings after
           await fetchInfo?.();
-          queryClient.invalidateQueries(settingsKey);
+          await refetchSettings();
         } else {
           error && toast.show(error);
           router.replace("/");

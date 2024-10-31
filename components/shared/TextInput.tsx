@@ -48,6 +48,7 @@ export const TextInput = ({
               },
               style,
             ]}
+            placeholderTextColor="black"
           />
           {rightIcon && <View style={{ marginLeft: 8 }}>{rightIcon}</View>}
         </View>

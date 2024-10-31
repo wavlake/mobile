@@ -1,4 +1,4 @@
-import { Button, QRScanner, satsWithCommas, Text } from "@/components";
+import { Button, QRScanner, satsWithCommas, Text, useUser } from "@/components";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth, useToast } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
@@ -21,6 +21,8 @@ export default function Withdraw({}: {}) {
   const [scanned, setScanned] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { pubkey } = useAuth();
+  const { catalogUser } = useUser();
+  const userIdOrPubkey = catalogUser?.id ?? pubkey;
   const { data: settings } = useSettings();
   const toast = useToast();
   const { setBalance, refetch: refetchBalance } = useWalletBalance();
@@ -68,7 +70,7 @@ export default function Withdraw({}: {}) {
     setIsLoading(true);
     // use NWC, responds with preimage if successful
     const response = await payWithNWC({
-      userPubkey: pubkey,
+      userIdOrPubkey,
       invoice,
       walletPubkey: settings.nwcPubkey,
       nwcRelay: settings.nwcRelay,

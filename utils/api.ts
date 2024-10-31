@@ -78,8 +78,7 @@ export type HomePageData = {
   forYou?: Track[];
 };
 
-export const getHomePage = async (): Promise<HomePageData> => {
-  const url = "/tracks/featured";
+export const getHomePage = async (pubkey?: string): Promise<HomePageData> => {
   const { data } = await apiClient.get<
     ResponseObject<{
       featured: TrackResponse[];
@@ -87,11 +86,7 @@ export const getHomePage = async (): Promise<HomePageData> => {
       trending: TrackResponse[];
       forYou: TrackResponse[];
     }>
-  >(url, {
-    headers: {
-      Authorization: await createAuthHeader(url),
-    },
-  });
+  >(pubkey ? `/tracks/featured/${pubkey}` : "/tracks/featured");
 
   return {
     featured: normalizeTrackResponse(data.data.featured),
@@ -378,8 +373,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-    } // artworkUrl,
-    : {
+      // artworkUrl,
+    }: {
       userId: string;
       // artworkUrl?: string;
     }) => {
@@ -387,7 +382,6 @@ export const useCreateUser = ({
         ResponseObject<{ userId: string; name: string }>
       >(`/accounts`, {
         userId,
-        // artworkUrl,
       });
       return data.data;
     },
@@ -581,4 +575,12 @@ export const checkIPRegion = async () => {
     `accounts/check-region`,
     {},
   );
+};
+
+export const validateUsername = async (username: string) => {
+  const { data } = await apiClient.get<ResponseObject<{ username: string }>>(
+    `accounts/user/check-username/${username}`,
+    {},
+  );
+  return data;
 };

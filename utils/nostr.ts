@@ -293,7 +293,7 @@ export const makeNWCRequestEvent = async ({
   }
 };
 
-export const signEvent = async (eventTemplate: EventTemplate) => {
+export async function signEvent(eventTemplate: EventTemplate) {
   const loggedInUserSeckey = await getSeckey();
   const anonSeckey = generateSecretKey();
 
@@ -301,7 +301,7 @@ export const signEvent = async (eventTemplate: EventTemplate) => {
     eventTemplate,
     loggedInUserSeckey ? hexToBytes(loggedInUserSeckey) : anonSeckey,
   );
-};
+}
 
 export const makeRelayListEvent = (relayUris: string[]): EventTemplate => {
   return {

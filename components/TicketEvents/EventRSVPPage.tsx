@@ -73,7 +73,7 @@ export const EventRSVPPage = () => {
   if (!pubkey) {
     return (
       <Center>
-        <Text>You must be logged in to RSVP to events</Text>
+        <Text>you must login to RSVP to events</Text>
       </Center>
     );
   }

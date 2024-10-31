@@ -4,6 +4,8 @@ import { useAuth } from "@/hooks";
 import { useState } from "react";
 import { PlaylistDialog } from "./PlaylistDialog";
 import { PressableIcon } from "../PressableIcon";
+import { Alert } from "react-native";
+import { useRouter } from "expo-router";
 
 interface PlaylistButtonProps {
   size?: number;
@@ -20,15 +22,34 @@ export const PlaylistButton = ({
   isMusic,
   color,
 }: PlaylistButtonProps) => {
+  const router = useRouter();
   const { pubkey } = useAuth();
   const { colors } = useTheme();
   const [selectedContentId, setSelectedContentId] = useState("");
   const [selectedContentTitle, setSelectedContentTitle] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  if (!pubkey || !isMusic || !contentId) return;
+  if (!isMusic || !contentId) return;
 
   const onPress = () => {
+    if (!pubkey) {
+      Alert.alert(
+        "Nostr account required",
+        "You must login to nostr to use playlists.",
+        [
+          {
+            text: "Login to nostr",
+            onPress: () => {
+              router.push("/settings");
+              router.push("/settings/advanced");
+              router.push("/settings/nsec");
+            },
+          },
+          { text: "Cancel", style: "cancel" },
+        ],
+      );
+      return;
+    }
     // grab the contentId (it may change if the next track plays)
     setSelectedContentId(contentId);
     setSelectedContentTitle(contentTitle);

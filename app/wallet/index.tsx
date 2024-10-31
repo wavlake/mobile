@@ -1,22 +1,18 @@
-import { Button, msatsToSatsWithCommas, Text } from "@/components";
-import useBitcoinPrice from "@/hooks/useBitcoinPrice";
+import {
+  Button,
+  msatsToSatsWithCommas,
+  Text,
+  DollarAmount,
+} from "@/components";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
   TouchableOpacity,
   View,
 } from "react-native";
-
-export const getDollarAmount = (msats?: number, price?: number | null) => {
-  if (typeof price !== "number" || typeof msats !== "number") return;
-  if (msats === 0) return "0";
-
-  const sats = Math.floor(msats / 1000);
-  const USD = (sats / 100000000) * price;
-  return USD.toFixed(2);
-};
 
 export default function Wallet({}: {}) {
   const router = useRouter();
@@ -80,10 +76,15 @@ export default function Wallet({}: {}) {
 }
 
 const BalanceInfo = () => {
-  const { data: balance, isLoading: balanceLoading } = useWalletBalance();
-  const { bitcoinPrice, isLoading: priceLoading } = useBitcoinPrice();
-  const usdValue = getDollarAmount(balance, bitcoinPrice);
-
+  const {
+    data: balance,
+    isLoading: balanceLoading,
+    refetch,
+  } = useWalletBalance();
+  useEffect(() => {
+    // get a fresh wallet balance when the balance is rendered
+    refetch();
+  }, []);
   return (
     <View
       style={{
@@ -118,17 +119,7 @@ const BalanceInfo = () => {
           height: 40,
         }}
       >
-        {priceLoading ? (
-          <ActivityIndicator animating={true} size="small" />
-        ) : (
-          <Text
-            style={{
-              fontSize: 18,
-            }}
-          >
-            {typeof usdValue === "string" ? `~$${usdValue}` : ""}
-          </Text>
-        )}
+        <DollarAmount sats={balance ? balance / 1000 : 0} />
       </View>
     </View>
   );

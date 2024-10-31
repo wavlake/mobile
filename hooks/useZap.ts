@@ -17,6 +17,7 @@ import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 import { usePublishComment } from "./usePublishComment";
 import { Event, nip19 } from "nostr-tools";
+import { useUser } from "@/components";
 
 type SendZap = (
   props: Partial<{
@@ -52,6 +53,8 @@ export const useZap = ({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { pubkey, userIsLoggedIn } = useAuth();
+  const { catalogUser } = useUser();
+  const userIdOrPubkey = catalogUser?.id ?? pubkey;
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
   const { setBalance, refetch: refetchBalance } = useWalletBalance();
@@ -142,7 +145,7 @@ export const useZap = ({
       ) {
         // use NWC, responds with preimage if successful
         const response = await payWithNWC({
-          userPubkey: pubkey,
+          userIdOrPubkey,
           invoice,
           walletPubkey: settings.nwcPubkey,
           nwcRelay: settings.nwcRelay,

@@ -19,18 +19,12 @@ import {
 import { useNostrProfileEvent } from "./nostrProfile";
 
 type NsecPageParams = {
-  createdRandomNpub: "true" | "false";
-  userAssociatedPubkey: string;
   nostrOnlyLogin: "true" | "false";
 };
 
 export const useNsecLoginPageLogic = () => {
-  const {
-    createdRandomNpub: createdNpubString,
-    userAssociatedPubkey,
-    nostrOnlyLogin: nostrOnlyLoginString,
-  } = useLocalSearchParams<NsecPageParams>();
-  const createdRandomNpub = createdNpubString === "true";
+  const { nostrOnlyLogin: nostrOnlyLoginString } =
+    useLocalSearchParams<NsecPageParams>();
   const nostrOnlyLogin = nostrOnlyLoginString === "true";
   const [nsec, setNsec] = useState("");
   const [isGeneratedNsec, setIsGeneratedNsec] = useState(false);
@@ -40,6 +34,7 @@ export const useNsecLoginPageLogic = () => {
   const router = useRouter();
   const { login } = useAuth();
   const { user, catalogUser } = useUser();
+  const userAssociatedPubkey = catalogUser?.nostrProfileData?.[0]?.publicHex;
   const { mutateAsync: addPubkeyToAccount } = useAddPubkeyToUser({});
   const { connectWallet } = useAutoConnectNWC();
   const { pubkey: nsecInputPubkey } = getKeysFromNostrSecret(nsec) || {};
@@ -59,7 +54,6 @@ export const useNsecLoginPageLogic = () => {
     const savedSecKey = await getSeckey();
     const savedNsec = encodeNsec(savedSecKey ?? "");
     if (savedNsec === nsec) {
-      router.replace("/");
       return;
     }
 
@@ -78,7 +72,6 @@ export const useNsecLoginPageLogic = () => {
     nsec,
     userAssociatedPubkey,
     nsecInputPubkey,
-    router,
     login,
     user,
     addPubkeyToAccount,
@@ -124,17 +117,11 @@ export const useNsecLoginPageLogic = () => {
         );
       }
     }
-    router.replace({
-      pathname: "auth/welcome",
-      params: {
-        nostrOnlyLogin: nostrOnlyLogin ? "true" : "false",
-      },
-    });
     setIsLoggingIn(false);
+    nostrOnlyLogin ? router.replace("/auth/welcome") : router.back();
   };
 
   return {
-    createdRandomNpub,
     userAssociatedPubkey,
     nsec,
     setNsec,
