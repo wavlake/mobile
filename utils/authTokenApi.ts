@@ -1,9 +1,8 @@
-import { ContentType } from "./../components/ActivityItemRow";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
-import { normalizeTrackResponse, ResponseObject, TrackResponse } from "./api";
-import { NostrUserProfile } from "./nostr";
+import { normalizeTrackResponse } from "./api";
+import { PrivateUserData, ResponseObject, TrackResponse } from "./types";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const enableResponseLogging = Boolean(
@@ -56,43 +55,6 @@ const requestInterceptor = catalogApiClient.interceptors.request.use(
     return config;
   },
 );
-
-export interface NostrProfileData {
-  publicHex: string;
-  metadata: {
-    name: string;
-    npub: string;
-    about?: string;
-    lud16?: string;
-    nip05?: string;
-    banner?: string;
-    pubkey: string;
-    picture?: string;
-    created_at: number;
-    nip05valid?: boolean;
-    display_name?: string;
-    displayName?: string;
-    username?: string;
-  } & NostrUserProfile;
-  followerCount: number;
-  follows: { pubkey: string; relay?: string; petname?: string }[];
-}
-export interface PrivateUserData {
-  id: string;
-  name: string;
-  msatBalance: string;
-  ampMsat: number;
-  artworkUrl?: string;
-  profileUrl: string;
-  isLocked: boolean;
-  userFavoritesId: string;
-  userFavorites: string[];
-  emailVerified: boolean;
-  isRegionVerified: boolean;
-  providerId: string;
-  lightningAddress?: string;
-  nostrProfileData: NostrProfileData[];
-}
 
 export const usePrivateUserData = (enabled: boolean) => {
   return useQuery<PrivateUserData>(

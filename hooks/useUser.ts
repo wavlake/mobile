@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { FirebaseUser, firebaseService } from "@/services";
-import { NostrProfileData, PrivateUserData } from "@/utils/authTokenApi";
+import { NostrProfileData, PrivateUserData } from "@/utils";
 
 export interface CreateEmailUserArgs {
   email: string;

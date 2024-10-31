@@ -1,7 +1,7 @@
 // this is needed to polyfill TextDecoder which nostr-tools uses
 import "fast-text-encoding";
 
-// this is needed to polyfill crypto.getRandomValues which nostr-tools uses
+// // this is needed to polyfill crypto.getRandomValues which nostr-tools uses
 import "react-native-get-random-values";
 
 // this is needed to polyfill crypto.subtle which nostr-tools uses
@@ -34,7 +34,6 @@ import axios from "axios";
 import { ShowEvents } from "@/constants/events";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth, useUser } from "@/hooks";
-import { updatePubkeyMetadata } from "./api";
 import { getPodcastFeedGuid } from "./rss";
 import { NWCRequest } from "./nwc";
 import {
@@ -61,6 +60,7 @@ import {
   wavlakeFeedPubkey,
 } from "./shared";
 import { pool } from "./relay-pool";
+import { updatePubkeyMetadata } from "./profile-service";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 

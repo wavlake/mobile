@@ -1,20 +1,3 @@
-export interface NostrUserProfile {
-  name?: string;
-  banner?: string;
-  about?: string;
-  website?: string;
-  lud16?: string;
-  nip05?: string;
-  picture?: string;
-  // non standard fields below
-  [key: string]: string | undefined; // allows custom fields
-  displayName?: string;
-  bio?: string;
-  lud06?: string;
-  zapService?: string;
-  publicHex?: string;
-}
-
 export const DEFAULT_READ_RELAY_URIS = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",

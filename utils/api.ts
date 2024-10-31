@@ -1,203 +1,20 @@
-import axios from "axios";
-import { getAuthToken, signEvent } from "./nostr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
-import { NostrProfileData } from "./authTokenApi";
 import { ActivityItem } from "@/components";
-
-// response.data should have this shape
-export interface ResponseObject<T = any> {
-  error?: string;
-  success: boolean;
-  data: T;
-}
-export interface Track {
-  id: string;
-  title: string;
-  artistId: string;
-  artist: string;
-  artistUrl?: string;
-  avatarUrl: string;
-  artworkUrl: string;
-  albumId: string;
-  albumTitle: string;
-  liveUrl: string;
-  duration: number;
-  msatTotal?: number;
-  msatTotal30Days?: number;
-  podcast?: Podcast;
-  podcastUrl?: string;
-  podcastId?: string;
-  hasPromo?: boolean;
-  colorInfo?: {
-    darkMuted: string;
-    darkVibrant: string;
-    lightMuted: string;
-    lightVibrant: string;
-    muted: string;
-    vibrant: string;
-  };
-  genre?: {
-    id: number;
-    name: string;
-  };
-}
-export interface Episode {
-  id: string;
-  title: string;
-  description?: string;
-  order: number;
-  playCount?: number;
-  createdAt: string;
-  publishedAt: string;
-  liveUrl: string;
-  duration: number;
-  podcastId: string;
-  podcast: Podcast | string;
-  podcastUrl: string;
-  artworkUrl: string;
-}
-
-export interface Podcast {
-  id: string;
-  name: string;
-  description?: string;
-  artworkUrl: string;
-  podcastUrl: string;
-}
-
-export interface TrackResponse extends Track {
-  [key: string]: unknown;
-}
-
-export interface SearchResult {
-  id: string;
-  type: "artist" | "album" | "track";
-  name: string;
-  avatarUrl: string;
-  artworkUrl?: string;
-  liveUrl?: string;
-  duration?: number;
-  albumId?: string;
-  albumTitle?: string;
-  artistId?: string;
-  artist?: string;
-}
-
-export interface ContentComment {
-  id: number;
-  contentId: string;
-  title: string;
-  content?: string;
-  createdAt: string;
-  msatAmount: number;
-  userId: string;
-  name: string | null;
-  commenterArtworkUrl: string | null;
-  artworkUrl: string | null;
-  isNostr: boolean;
-  // this houses legacy comment replies that have no nostr event ids
-  replies: ContentComment[];
-  // kind 1 event id
-  // may not exist, depends on user's preference
-  eventId?: string;
-  // zap receipt event id
-  zapEventId?: string;
-}
-
-export interface Artist {
-  id: string;
-  userId: string;
-  name: string;
-  artworkUrl: string;
-  artistUrl: string;
-  createdAt: string;
-  updatedAt: string;
-  bio: string;
-  twitter: string | null;
-  instagram: string | null;
-  youtube: string | null;
-  website: string | null;
-  deleted: boolean;
-  verified: boolean;
-  npub: string | null;
-  topAlbums?: Album[];
-  topTracks?: TrackResponse[];
-  topMessages?: ContentComment[];
-}
-
-export interface Album {
-  id: string;
-  artistId: string;
-  artist?: string;
-  title: string;
-  artworkUrl: string;
-  createdAt: string;
-  updatedAt: string;
-  description: string;
-  deleted: boolean;
-  genreId: number | null;
-  subgenreId: number | null;
-  isDraft: boolean;
-  publishedAt: string;
-  topMessages?: ContentComment[];
-}
-export interface Playlist {
-  id: string;
-  userId: string;
-  title: string;
-  isFavorites: boolean;
-  createdAt: string;
-  updatedAt: string;
-  tracks: Pick<Track, "artworkUrl" | "id" | "duration" | "title" | "artist">[];
-}
-
-interface Genre {
-  id: number;
-  name: string;
-  count: number;
-}
-
-const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
-const enableResponseLogging = Boolean(
-  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
-);
-const apiClient = axios.create({
-  baseURL,
-});
-
-apiClient.interceptors.response.use(
-  (response) => {
-    if (!!response.data.error) {
-      console.log(
-        `Catalog error${
-          response.headers["Authorization"] ? " (nostr auth):" : ":"
-        }`,
-        response.data.error,
-      );
-    } else {
-      enableResponseLogging &&
-        console.log(
-          `Catalog${
-            response.headers["Authorization"] ? " (nostr auth):" : ":"
-          }`,
-          response?.request?.responseURL?.split(".com")[1],
-        );
-    }
-
-    return response;
-  },
-  (error) => {
-    if (typeof error.response.data.error === "string") {
-      const apiErrorMessage = error.response.data.error;
-      return Promise.reject(apiErrorMessage);
-    } else {
-      console.log("Catalog error:", error);
-      console.error(error);
-      return Promise.reject("An error occurred");
-    }
-  },
-);
+import { apiClient, createAuthHeader } from "./create-api-client";
+import {
+  Album,
+  Artist,
+  ContentComment,
+  Genre,
+  NostrProfileData,
+  Playlist,
+  Podcast,
+  ResponseObject,
+  SearchResult,
+  Track,
+  TrackResponse,
+} from "./types";
 
 // Function to normalize the response from the API
 // TODO: Make responses from API consistent
@@ -394,16 +211,6 @@ export const getRandomGenreTracks = async (
   return normalizeTrackResponse(data);
 };
 
-const createAuthHeader = (
-  relativeUrl: string,
-  htttpMethod: "get" | "post" | "delete" | "put" = "get",
-  payload?: Record<string, any>,
-) => {
-  const url = `${baseURL}${relativeUrl}`;
-
-  return getAuthToken(url, htttpMethod, signEvent, true, payload);
-};
-
 export const getLibraryArtists = async (): Promise<Artist[]> => {
   const url = "/library/artists";
   const { data } = await apiClient.get(url, {
@@ -571,8 +378,8 @@ export const useCreateUser = ({
   return useMutation({
     mutationFn: async ({
       userId, // TODO - add artworkUrl
-      // artworkUrl,
-    }: {
+    } // artworkUrl,
+    : {
       userId: string;
       // artworkUrl?: string;
     }) => {
@@ -631,16 +438,6 @@ export const useAddPubkeyToUser = ({
 export const getPubkeyMetadata = async (pubkey?: string | null) => {
   if (!pubkey) return null;
   const { data } = await apiClient.get<ResponseObject<NostrProfileData>>(
-    `/accounts/pubkey/${pubkey}`,
-    {},
-  );
-
-  return data?.data;
-};
-
-export const updatePubkeyMetadata = async (pubkey?: string | null) => {
-  if (!pubkey) return null;
-  const { data } = await apiClient.put<ResponseObject<NostrProfileData>>(
     `/accounts/pubkey/${pubkey}`,
     {},
   );
