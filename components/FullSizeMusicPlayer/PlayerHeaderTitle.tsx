@@ -6,7 +6,7 @@ import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
 
-const TopUpGreen = "#15f38c";
+const EarnGreen = "#15f38c";
 
 // Helper function to darken a hex color
 const darkenColor = (color: string, percent: number) => {
@@ -69,21 +69,23 @@ export const PlayerHeaderTitle = () => {
   const backgroundColor = pulseAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [
-      TopUpGreen,
-      darkenColor(TopUpGreen, 20), // Darken TopUpGreen by 20%
+      EarnGreen,
+      darkenColor(EarnGreen, 20), // Darken EarnGreen by 20%
     ],
   });
 
   if (!showEarnings) {
     return <Text>{playerTitle}</Text>;
   }
-
+  const earningActive = isPlaying && canEarnToday;
+  const earningVerb = earningActive ? "Earning" : "Earned";
   return (
     <Animated.View
       style={{
         borderRadius: 20,
-        backgroundColor:
-          isPlaying && canEarnToday ? backgroundColor : brandColors.beige.dark,
+        backgroundColor: earningActive
+          ? backgroundColor
+          : brandColors.beige.dark,
         padding: 6,
         width: 200,
       }}
@@ -95,7 +97,9 @@ export const PlayerHeaderTitle = () => {
           color: "black",
         }}
         bold
-      >{`Top Up (${earnedToday / 1000}/${earnableToday / 1000} sats)`}</Text>
+      >{`${earningVerb} (${earnedToday / 1000}/${
+        earnableToday / 1000
+      } sats)`}</Text>
     </Animated.View>
   );
 };

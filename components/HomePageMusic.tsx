@@ -9,11 +9,10 @@ import { Track } from "@/utils";
 import { NewMusicSection } from "@/components/NewMusicSection";
 import {
   useMusicPlayer,
-  SquareArtwork,
   useMiniMusicPlayer,
   Text,
   SectionHeader,
-  TopUpSection,
+  EarnSection,
   ForYouSection,
   FeaturedSection,
   VercelImage,
@@ -109,7 +108,7 @@ export const HomePageMusic = () => {
           ? null
           : () => (
               <View>
-                <TopUpSection />
+                <EarnSection />
                 <FeaturedSection data={featured} />
                 <ForYouSection data={forYou} />
                 <NewMusicSection data={newTracks} />

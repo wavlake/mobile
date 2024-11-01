@@ -13,8 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { WalletLabel } from "./WalletLabel";
 import { useUser } from "./UserContextProvider";
 import { useSettings } from "@/hooks/useSettings";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import Entypo from "@expo/vector-icons/Entypo";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
@@ -30,7 +29,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
     settings?.enableNWC &&
     settings.nwcRelay === WAVLAKE_RELAY;
 
-  const showTopUp = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
+  const showEarn = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
 
   return (
     <DrawerContentScrollView
@@ -104,14 +103,14 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             }}
           />
         )}
-        {showTopUp && (
+        {showEarn && (
           <DrawerItem
-            label={() => <Text style={{ fontSize: 24 }}>Top Up</Text>}
+            label={() => <Text style={{ fontSize: 24 }}>Earn</Text>}
             icon={({ color, size }) => (
-              <Entypo name="sound" size={size} color={color} />
+              <FontAwesome5 name="coins" size={size} color={color} />
             )}
             onPress={async () => {
-              router.push({ pathname: "/topup" });
+              router.push({ pathname: "/earn" });
               props.navigation.closeDrawer();
             }}
           />
