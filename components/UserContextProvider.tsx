@@ -21,8 +21,9 @@ interface AuthState {
   initializingAuth: boolean;
 }
 
-// this hook manages the user's firebase auth state
-export const UserContextProvider = ({ children }: PropsWithChildren) => {
+export const UserContextProvider: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
   const { mutateAsync: createUser } = useCreateNewUser();
   const toast = useToast();
   const { pubkey, login } = useAuth();
