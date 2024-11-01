@@ -36,7 +36,9 @@ export const satsWithCommas = (sats: number) => {
 };
 
 export const WalletLabel: React.FC = () => {
-  const { data: balance, refetch } = useWalletBalance();
+  const { data, refetch } = useWalletBalance();
+  const { balance } = data || {};
+
   useEffect(() => {
     // get a fresh wallet balance when the label is rendered
     refetch();

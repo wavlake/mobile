@@ -7,10 +7,10 @@ import { useState } from "react";
 import { Event } from "nostr-tools";
 import { useNostrProfileEvent } from "@/hooks";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
-import { NostrUserProfile } from "@/utils";
 import { msatsToSatsWithCommas } from "../WalletLabel";
 import { ParsedTextRender } from "./ParsedTextRenderer";
 import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
+import { NostrUserProfile } from "@/utils/types";
 
 interface CommentRowProps extends ViewProps {
   commentId: string;

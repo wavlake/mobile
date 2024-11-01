@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  DEFAULT_READ_RELAY_URIS,
-  NostrUserProfile,
   encodeNpub,
   getCachedNostrProfileEvent,
   getMostRecentEvent,
@@ -11,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useMemo } from "react";
+import { NostrUserProfile } from "@/utils/types";
 
 export const useNostrProfileEvent = (
   pubkey?: string | null,

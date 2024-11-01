@@ -15,6 +15,7 @@ import {
 import { useTheme } from "@react-navigation/native";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import DeviceInfo from "react-native-device-info";
+import { useWalletBalance } from "@/hooks/useWalletBalance";
 
 // Constants
 const MIN_AMOUNT = 1;
@@ -60,6 +61,9 @@ export default function WalletConnectionSettingsPage() {
   const { settings, updateSettings } = useSettingsManager();
   const { connectWallet } = useAutoConnectNWC();
 
+  const { data } = useWalletBalance();
+  const { budget: weeklyNWCBudget, max_payment: maxNWCPayment } = data || {};
+
   // Form state
   const [formData, setFormData] = useState<WalletSettings>({
     weeklyBudget: "",
@@ -76,13 +80,13 @@ export default function WalletConnectionSettingsPage() {
 
   // Initialize form data from settings
   useEffect(() => {
-    if (settings) {
+    if (weeklyNWCBudget && maxNWCPayment) {
       setFormData({
-        weeklyBudget: msatsToSats(settings.weeklyNWCBudget),
-        maxZapAmount: msatsToSats(settings.maxNWCPayment),
+        weeklyBudget: msatsToSats(weeklyNWCBudget),
+        maxZapAmount: msatsToSats(maxNWCPayment),
       });
     }
-  }, [settings]);
+  }, [weeklyNWCBudget, maxNWCPayment]);
 
   // Validate form and return errors
   const validateForm = useCallback((): ValidationErrors => {
@@ -182,7 +186,7 @@ export default function WalletConnectionSettingsPage() {
 
   if (!settings) return null;
 
-  const constraintsText = `Must be between ${defaultZapSats} sats and your weekly budget`;
+  const constraintsText = `Must be between your default zap amount (${defaultZapSats} sats) and your weekly budget`;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>

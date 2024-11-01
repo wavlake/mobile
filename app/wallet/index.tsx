@@ -76,11 +76,8 @@ export default function Wallet({}: {}) {
 }
 
 const BalanceInfo = () => {
-  const {
-    data: balance,
-    isLoading: balanceLoading,
-    refetch,
-  } = useWalletBalance();
+  const { data, isLoading: balanceLoading, refetch } = useWalletBalance();
+  const { balance } = data || {};
   useEffect(() => {
     // get a fresh wallet balance when the balance is rendered
     refetch();
