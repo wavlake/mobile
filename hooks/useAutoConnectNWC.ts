@@ -6,11 +6,11 @@ import {
   intakeNwcURI,
   useCreateConnection,
   buildUri,
-  walletServicePubkey,
   WalletConnectionMethods,
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import { useWalletBalance } from "./useWalletBalance";
+import { walletServicePubkey } from "@/utils/shared";
 
 interface ConnectionSettings {
   connectionName: string;

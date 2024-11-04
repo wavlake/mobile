@@ -152,7 +152,7 @@ export default function Layout() {
                           }}
                         />
                         <Stack.Screen
-                          name="topup"
+                          name="earn"
                           options={{
                             headerBackVisible: false,
                             headerLeft: () => <HeaderBackButton />,
