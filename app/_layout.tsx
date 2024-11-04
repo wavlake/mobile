@@ -152,14 +152,6 @@ export default function Layout() {
                           }}
                         />
                         <Stack.Screen
-                          name="earn"
-                          options={{
-                            headerBackVisible: false,
-                            headerLeft: () => <HeaderBackButton />,
-                            headerTitle: () => <Text>Earn</Text>,
-                          }}
-                        />
-                        <Stack.Screen
                           name="nwcScanner"
                           options={{
                             headerTitle: () => (
