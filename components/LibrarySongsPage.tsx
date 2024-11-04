@@ -1,13 +1,13 @@
-import { LibraryRecentSongsSection } from "@/components/LibraryRecentSongsSection";
+import { LibraryRecentSongsSection } from "./LibraryRecentSongsSection";
 import { useLibraryTracks } from "@/hooks";
 import { FlatList, View } from "react-native";
-import { PlayButtonSectionHeader } from "@/components/PlayButtonSectionHeader";
-import { TrackRow } from "@/components/TrackRow";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { PlayButtonSectionHeader } from "./PlayButtonSectionHeader";
+import { TrackRow } from "./TrackRow";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useMemo } from "react";
-import { Center } from "@/components/Center";
-import { Text } from "@/components/Text";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { Center } from "./shared/Center";
+import { Text } from "./shared/Text";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 export const LibrarySongsPage = () => {
   const { loadTrackList } = useMusicPlayer();
   const { data: tracks = [] } = useLibraryTracks();

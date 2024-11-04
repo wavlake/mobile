@@ -1,7 +1,7 @@
 import { Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { Text } from "@/components";
+import { Text } from "../shared/Text";
 
 export const ChoosePlaylistButton = ({
   handlePress,

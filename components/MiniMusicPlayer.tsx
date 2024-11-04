@@ -3,7 +3,7 @@ import { SquareArtwork } from "./SquareArtwork";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { MarqueeText } from "@/components/MarqueeText";
+import { MarqueeText } from "./shared/MarqueeText";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import {
   State,
@@ -11,7 +11,7 @@ import {
   useProgress,
 } from "react-native-track-player";
 import { togglePlayPause } from "@/utils";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 
 interface PlayerButtonProps {
   onPress: () => void;

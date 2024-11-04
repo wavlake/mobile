@@ -1,8 +1,8 @@
 import { Dialog } from "@rneui/themed";
 import { Dimensions, View } from "react-native";
-import { Text } from "@/components/Text";
-import { LikeButton } from "@/components/LikeButton";
-import { Button } from "@/components/Button";
+import { Text } from "../shared/Text";
+import { LikeButton } from "../LikeButton";
+import { Button } from "../shared/Button";
 import {
   useAddAlbumToLibrary,
   useAddArtistToLibrary,

@@ -14,8 +14,11 @@ import {
   StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useUser } from "@/components/UserContextProvider";
-import { DEFAULT_CONNECTION_SETTINGS, useAutoConnectNWC } from "@/hooks";
+import {
+  DEFAULT_CONNECTION_SETTINGS,
+  useAutoConnectNWC,
+  useUser,
+} from "@/hooks";
 import DeviceInfo from "react-native-device-info";
 
 // Separate interfaces for form data and form state

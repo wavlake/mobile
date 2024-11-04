@@ -1,5 +1,5 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from "react";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 
 interface MiniMusicPlayerContextProps {
   height: number;

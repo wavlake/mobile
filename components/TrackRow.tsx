@@ -1,7 +1,7 @@
 import { Pressable, TouchableOpacity, View } from "react-native";
-import { Text } from "@/components/Text";
-import { SatsEarned } from "@/components/SatsEarned";
-import { SquareArtwork } from "@/components/SquareArtwork";
+import { Text } from "./shared/Text";
+import { SatsEarned } from "./SatsEarned";
+import { SquareArtwork } from "./SquareArtwork";
 import { Track } from "@/utils";
 import React from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

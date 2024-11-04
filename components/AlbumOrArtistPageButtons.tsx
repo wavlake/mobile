@@ -1,8 +1,8 @@
 import { View } from "react-native";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { ShareButton } from "@/components/ShareButton";
-import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
-import { LikeButton } from "@/components/LikeButton";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { ShareButton } from "./shared/ShareButton";
+import { PlayPauseTrackButton } from "./PlayPauseTrackButton";
+import { LikeButton } from "./LikeButton";
 import {
   useAddAlbumToLibrary,
   useAddArtistToLibrary,

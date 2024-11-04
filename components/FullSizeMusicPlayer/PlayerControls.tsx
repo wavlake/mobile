@@ -9,9 +9,9 @@ import {
 } from "@/utils";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme } from "@react-navigation/native";
-import { Text } from "@/components/Text";
+import { Text } from "../shared/Text";
 import { useEffect, useState } from "react";
-import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
+import { PlayPauseTrackButton } from "../PlayPauseTrackButton";
 import {
   State,
   usePlaybackState,

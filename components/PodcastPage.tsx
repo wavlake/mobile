@@ -2,13 +2,12 @@ import { useLocalSearchParams } from "expo-router";
 import { Dimensions, FlatList, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Podcast, getPodcast, getPodcastEpisodes } from "@/utils";
-import { Text } from "@/components/Text";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
-import { TrackRow } from "@/components/TrackRow";
-import { SectionHeader } from "@/components/SectionHeader";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { Text } from "./shared/Text";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { AlbumOrArtistPageButtons } from "./AlbumOrArtistPageButtons";
+import { TrackRow } from "./TrackRow";
+import { SectionHeader } from "./SectionHeader";
+import { SquareArtwork } from "./SquareArtwork";
 
 interface PodcastPageFooterProps {
   podcast: Podcast;

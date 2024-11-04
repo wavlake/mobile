@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
 import { SearchBar } from "./SearchBar";
-import { SearchResults } from "@/components/SearchResults";
+import { SearchResults } from "./SearchResults";
 
 interface PillTabViewProps {
   searchShown?: boolean;

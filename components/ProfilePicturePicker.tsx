@@ -1,14 +1,14 @@
 import { TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { View, ActivityIndicator, Image, StyleSheet } from "react-native";
-import { Text, useUser } from "@/components/";
-import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
+import { Text } from "./shared/Text";
+import { LoggedInUserAvatar } from "./LoggedInUserAvatar";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { brandColors } from "@/constants";
 import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
 import { useEditUser } from "@/utils";
-import { useToast } from "@/hooks";
+import { useToast, useUser } from "@/hooks";
 
 export const ProfileImagePicker = () => {
   const refreshWithKey = () => {

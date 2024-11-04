@@ -4,14 +4,14 @@ import {
   DrawerContentScrollView,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 import { Divider } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import { useAuth, WAVLAKE_RELAY } from "@/hooks";
+import { useAuth, useUser, WAVLAKE_RELAY } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { WalletLabel } from "./WalletLabel";
-import { useUser } from "./UserContextProvider";
+import {} from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 

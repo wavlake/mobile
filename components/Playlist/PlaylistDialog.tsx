@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { useState } from "react";
-import { Button } from "../";
+import { Button } from "../shared/Button";
 import { CreatePlaylistButton } from "./CreatePlaylistButton";
 import { usePlaylists } from "@/hooks/playlist/usePlaylists";
 import { ChoosePlaylistForm } from "./ChoosePlaylistForm";

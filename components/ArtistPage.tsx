@@ -7,29 +7,24 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AlbumOrArtistPageButtons } from "@/components/AlbumOrArtistPageButtons";
-import { Center } from "@/components/Center";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { FireIcon } from "@/components/FireIcon";
+import { AlbumOrArtistPageButtons } from "./AlbumOrArtistPageButtons";
+import { Center } from "./shared/Center";
+import { Text } from "./shared/Text";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 import { brandColors } from "@/constants";
-import {
-  Text,
-  HorizontalArtworkRow,
-  SectionHeader,
-  TrackRow,
-} from "@/components";
-import { WebsiteIcon } from "@/components/WebsiteIcon";
+import { WebsiteIcon } from "./icons/WebsiteIcon";
 import * as Linking from "expo-linking";
 import { useTheme } from "@react-navigation/native";
 import { ElementType, useEffect } from "react";
-import { TwitterIcon } from "@/components/TwitterIcon";
-import { NostrIcon } from "@/components/NostrIcon";
-import { InstagramIcon } from "@/components/InstagramIcon";
+import { NostrIcon, TwitterIcon, InstagramIcon, FireIcon } from "./icons/";
 import { useGoToAlbumPage } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
-import { ArtistBanner } from "@/components/ArtistBanner";
+import { ArtistBanner } from "./ArtistBanner";
 import { CommentList } from "./Comments/CommentList";
 import { useArtistComments } from "@/hooks/useArtistComments";
+import { SectionHeader } from "./SectionHeader";
+import { TrackRow } from "./TrackRow";
+import { HorizontalArtworkRow } from "./HorizontalArtworkRow";
 
 interface SocialIconLinkProps {
   url: string;

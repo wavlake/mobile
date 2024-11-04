@@ -1,8 +1,10 @@
-import { ActivityItemRow, Center, Text } from "@/components";
 import { getPubkeyActivity } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { FlatList, RefreshControl } from "react-native";
+import { Text } from "./shared/Text";
+import { ActivityItemRow } from "./ActivityItemRow";
+import { Center } from "./shared/Center";
 
 const PAGE_SIZE = 10;
 export const ProfileActivityPage = () => {

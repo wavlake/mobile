@@ -1,7 +1,8 @@
 import { View } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { Button, Text } from "../";
 import { useEffect } from "react";
+import { Button } from "../shared/Button";
+import { Text } from "../shared/Text";
 
 const SHOW_SUCCESS_DURATION = 4000;
 

@@ -1,10 +1,12 @@
-import { ActivityItemRow, Center, NostrActivityItemRow } from "@/components";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 import { FlatList, RefreshControl } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getGlobalActivityFeed } from "@/utils";
 import { useNostrPulseGlobalFeed } from "@/hooks/useNostrPulseGlobalFeed";
 import { useEffect, useMemo } from "react";
+import { ActivityItemRow } from "./ActivityItemRow";
+import { NostrActivityItemRow } from "./NostrActivityItemRow";
+import { Center } from "./shared/Center";
 
 const PAGE_SIZE = 120;
 export const PulseGlobalActivityFeed = ({

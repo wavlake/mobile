@@ -1,9 +1,10 @@
-import { ActivityItemRow, Center } from "@/components";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 import { ActivityIndicator, FlatList, RefreshControl } from "react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks";
 import { getActivityFeed } from "@/utils";
+import { ActivityItemRow } from "./ActivityItemRow";
+import { Center } from "./shared/Center";
 
 const PAGE_SIZE = 10;
 export const PulseUserActivityFeed = ({

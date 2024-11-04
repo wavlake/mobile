@@ -1,7 +1,7 @@
 import { TouchableOpacity, View } from "react-native";
 import { DialogWrapper } from "./DialogWrapper";
-import { Button } from "./Button";
-import { Text } from "./Text";
+import { Button } from "./shared/Button";
+import { Text } from "./shared/Text";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
@@ -59,9 +59,9 @@ const Dialog = ({
         <Text style={{ fontSize: 18 }}>
           You can access your private key from your profile page and back it up
           later if you are unable to back it up securely right now. Just keep in
-          mind that Wavlake does not have access to your private key, so if you log
-          out of Wavlake without backing up your nsec first, you will lose your
-          Nostr identity. Your Wavlake account will remain intact.
+          mind that Wavlake does not have access to your private key, so if you
+          log out of Wavlake without backing up your nsec first, you will lose
+          your Nostr identity. Your Wavlake account will remain intact.
         </Text>
 
         <Button

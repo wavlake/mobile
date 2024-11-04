@@ -1,16 +1,14 @@
 import { ScrollView, View, RefreshControl } from "react-native";
-import { SectionHeader } from "@/components/SectionHeader";
+import { SectionHeader } from "./SectionHeader";
 import { useLocalSearchParams } from "expo-router";
-import {
-  PubkeyPlaylists,
-  PubkeyProfile,
-  Center,
-  Text,
-  ActivityItemRow,
-} from "@/components/";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
 import { useAuth, useNostrProfileEvent } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { Text } from "./shared/Text";
+import { PubkeyProfile } from "./PubkeyProfile";
+import { Center } from "./shared/Center";
+import { PubkeyPlaylists } from "./PubkeyPlaylists";
+import { ActivityItemRow } from "./ActivityItemRow";
 
 export const PulseProfilePage = () => {
   const { pubkey } = useLocalSearchParams();

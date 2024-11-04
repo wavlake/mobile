@@ -6,7 +6,7 @@ import { RepeatMode } from "react-native-track-player";
 import React, { ReactNode } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
 import { View } from "react-native";
-import { Text } from "../Text";
+import { Text } from "../shared/Text";
 interface RepeatButtonProps {
   size?: number;
 }

@@ -1,16 +1,13 @@
 import { View, TouchableOpacity } from "react-native";
 import { ElementType } from "react";
 import { useRouter } from "expo-router";
-import { useUser } from "@/components/UserContextProvider";
-import { ZBDIcon } from "@/components/ZBDIcon";
-import { TwitterIcon } from "@/components/TwitterIcon";
-import { GoogleIcon } from "@/components/GoogleIcon";
-import { NostrIcon } from "@/components/NostrIcon";
+import { ZBDIcon, TwitterIcon, GoogleIcon, NostrIcon } from "./icons/";
 import {
   DEFAULT_CONNECTION_SETTINGS,
   useAuth,
   useAutoConnectNWC,
   useToast,
+  useUser,
 } from "@/hooks";
 import DeviceInfo from "react-native-device-info";
 

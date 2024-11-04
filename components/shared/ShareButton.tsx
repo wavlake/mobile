@@ -1,7 +1,7 @@
-import { Pressable, Share } from "react-native";
-import { ShareIcon } from "@/components/ShareIcon";
+import { Share } from "react-native";
+import { ShareIcon } from "../icons/ShareIcon";
 import { useTheme } from "@react-navigation/native";
-import { PressableIcon } from "./PressableIcon";
+import { PressableIcon } from "../PressableIcon";
 
 interface ShareButtonProps {
   url: string;

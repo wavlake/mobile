@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@/components/Button";
+import { Button, ButtonProps } from "./shared/Button";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 

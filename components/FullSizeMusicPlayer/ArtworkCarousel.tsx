@@ -1,6 +1,5 @@
 import { Dimensions, View } from "react-native";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { useMusicPlayer } from "../MusicPlayerProvider";
 import { VercelImage } from "../VercelImage";
 
 export const ArtworkCarousel = () => {

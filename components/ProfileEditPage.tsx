@@ -1,4 +1,3 @@
-import { Button, TextInput, Text } from "@/components";
 import { Alert, ScrollView, View } from "react-native";
 import { useState } from "react";
 import {
@@ -8,9 +7,12 @@ import {
   useToast,
 } from "@/hooks";
 import { encodeNsec, encodeNpub, getSeckey } from "@/utils";
-import { CopyButton } from "@/components/CopyButton";
+import { CopyButton } from "./CopyButton";
 import { useTheme } from "@react-navigation/native";
 import { LoggedInUserAvatar } from "./LoggedInUserAvatar";
+import { TextInput } from "./shared/TextInput";
+import { Button } from "./shared/Button";
+import { Text } from "./shared/Text";
 
 export const ProfileEditPage = () => {
   const { colors } = useTheme();

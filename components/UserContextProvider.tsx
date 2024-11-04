@@ -1,17 +1,13 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  PropsWithChildren,
-} from "react";
-import { FirebaseUser, firebaseService, UserCredential } from "@/services";
-import { useAuth, useCreateNewNostrAccount, useToast } from "@/hooks";
+import React, { useState, useEffect, PropsWithChildren } from "react";
+import { FirebaseUser, firebaseService } from "@/services";
 import {
-  NostrProfileData,
-  PrivateUserData,
-  usePrivateUserData,
-} from "@/utils/authTokenApi";
+  CreateEmailUserArgs,
+  useAuth,
+  useCreateNewNostrAccount,
+  UserContext,
+  useToast,
+} from "@/hooks";
+import { usePrivateUserData } from "@/utils/authTokenApi";
 import {
   getKeysFromNostrSecret,
   getSecretFromKeychain,
@@ -20,54 +16,10 @@ import {
   useCreateNewUser,
 } from "@/utils";
 
-// Types
-interface CreateEmailUserArgs {
-  email: string;
-  password: string;
-  pubkey: string;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
-}
-
-interface SignedInUser extends UserCredential {
-  isRegionVerified?: boolean;
-  isEmailVerified?: boolean;
-}
-
 interface AuthState {
-  user: FirebaseUser;
+  user: FirebaseUser | null;
   initializingAuth: boolean;
 }
-
-interface UserContextValue {
-  user: FirebaseUser;
-  initializingAuth: boolean;
-  catalogUser: PrivateUserData | undefined;
-  nostrMetadata: NostrProfileData | undefined;
-  refetchUser: () => Promise<any>;
-  signInWithEmail: (
-    email: string,
-    password: string,
-  ) => Promise<SignedInUser | { error: string }>;
-  signInWithGoogle: () => Promise<SignedInUser | { error: string }>;
-  createUserWithEmail: (
-    args: CreateEmailUserArgs,
-  ) => Promise<SignedInUser | { error: string }>;
-}
-
-// Create context with default values
-const UserContext = createContext<UserContextValue & typeof firebaseService>({
-  user: null,
-  initializingAuth: true,
-  catalogUser: undefined,
-  nostrMetadata: undefined,
-  refetchUser: async () => {},
-  ...firebaseService,
-  createUserWithEmail: async () => ({ error: "not initialized" }),
-  signInWithGoogle: async () => ({ error: "not initialized" }),
-  signInWithEmail: async () => ({ error: "not initialized" }),
-});
 
 export const UserContextProvider: React.FC<PropsWithChildren> = ({
   children,
@@ -283,12 +235,4 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
-};
-
-export const useUser = () => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserContextProvider");
-  }
-  return context;
 };

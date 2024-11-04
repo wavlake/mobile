@@ -1,5 +1,3 @@
-import { useAuth, useSettingsManager, useToast } from "@/hooks";
-import { useUser } from "@/components";
 import {
   generateSecretKey,
   getPublicKey,
@@ -10,6 +8,10 @@ import {
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import { useWalletBalance } from "./useWalletBalance";
+import { useUser } from "./useUser";
+import { useAuth } from "./useAuth";
+import { useToast } from "./useToast";
+import { useSettingsManager } from "./useSettingsManager";
 import { walletServicePubkey } from "@/utils/shared";
 
 interface ConnectionSettings {

@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { Ticket } from "@/hooks";
 import QRCode from "react-native-qrcode-svg";
 import { brandColors } from "@/constants";
-import { LogoIcon } from "../LogoIcon";
+import { LogoIcon } from "../icons/LogoIcon";
 
 export const TicketQR = ({ ticket }: { ticket: Ticket }) => {
   return (

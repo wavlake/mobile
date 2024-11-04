@@ -1,10 +1,10 @@
 import React, { PropsWithChildren } from "react";
 import { View, ViewProps, Image } from "react-native";
-import { Text } from "@/components";
+import { Text } from "../shared/Text";
 import { Ionicons } from "@expo/vector-icons";
 import { ShowEvents } from "@/constants/events";
 import { useLocalSearchParams } from "expo-router";
-import { LogoIcon } from "../LogoIcon";
+import { LogoIcon } from "../icons/";
 import { openURL } from "expo-linking";
 
 export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
