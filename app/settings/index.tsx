@@ -200,7 +200,7 @@ const EditModal: React.FC<EditModalProps> = ({
           />
         )}
         <TextInput
-          label="Default zap amount"
+          label="Default zap amount (sats)"
           placeholder="Enter amount in sats"
           value={amount}
           keyboardType="numeric"

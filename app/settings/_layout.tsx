@@ -44,6 +44,13 @@ export default function SettingsLayout() {
           headerTitle: () => <Text>Update Profile</Text>,
         }}
       />
+      <Stack.Screen
+        name="nwc"
+        options={{
+          presentation: "card",
+          headerTitle: () => <Text>Wallet Limits</Text>,
+        }}
+      />
     </Stack>
   );
 }
