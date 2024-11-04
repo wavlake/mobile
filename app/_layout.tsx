@@ -156,7 +156,7 @@ export default function Layout() {
                           options={{
                             headerBackVisible: false,
                             headerLeft: () => <HeaderBackButton />,
-                            headerTitle: () => <Text>Top Up</Text>,
+                            headerTitle: () => <Text>Earn</Text>,
                           }}
                         />
                         <Stack.Screen
