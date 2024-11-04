@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, TouchableOpacity } from "react-native";
 import { useMusicPlayer } from "../MusicPlayerProvider";
-import { Text } from "@/components";
+import { Text } from "../shared/Text";
 import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";

@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { Text } from "@/components";
+import { Text } from "./shared/Text";
 
 export const OrSeparator = () => (
   <View

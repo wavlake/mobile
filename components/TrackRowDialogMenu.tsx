@@ -1,4 +1,4 @@
-import { LikeButton } from "@/components/LikeButton";
+import { LikeButton } from "./LikeButton";
 import { Pressable, View } from "react-native";
 import {
   useAddArtistToLibrary,
@@ -11,7 +11,7 @@ import {
 import { Track } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Text } from "@/components";
+import { Text } from "./shared/Text";
 import { useState } from "react";
 import { PlaylistDialogContents } from "./Playlist/PlaylistDialog";
 import { DialogWrapper } from "./DialogWrapper";

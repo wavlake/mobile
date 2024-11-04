@@ -1,7 +1,8 @@
 import { View } from "react-native";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { HorizontalArtworkRowLarge, SectionHeader } from "@/components";
 import { Track } from "@/utils";
+import { SectionHeader } from "./SectionHeader";
+import { HorizontalArtworkRowLarge } from "./HorizontalArtworkRowLarge";
 
 export const FeaturedSection = ({ data }: { data: Track[] }) => {
   const { loadTrackList } = useMusicPlayer();

@@ -1,5 +1,4 @@
 import { useTheme } from "@react-navigation/native";
-import { Button, TextInput, CommentRow } from "@/components";
 import { BottomSheet } from "@rneui/themed";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { useState } from "react";
@@ -8,6 +7,10 @@ import { Event } from "nostr-tools";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRepliesQueryKey } from "@/hooks/useReplies";
+import { TextInput } from "../shared/TextInput";
+import { CommentContent } from "./CommentContent";
+import { Button } from "../shared/Button";
+import { useNostrProfileEvent } from "@/hooks";
 
 interface ReplyDialogProps {
   commentId: string;
@@ -51,13 +54,19 @@ const ReplyDialogContents = ({
   const queryClient = useQueryClient();
   const replyQueryKey = useRepliesQueryKey(parentComment.id);
   const [comment, setComment] = useState("");
+  const {
+    data: npubMetadata,
+    isFetching,
+    isLoading,
+  } = useNostrProfileEvent(parentComment?.pubkey);
+  const metadataIsLoading = isFetching || isLoading;
+
   const handleReply = async () => {
     const tags = [
       ["e", parentComment.id, "wss://relay.wavlake.com", "root"],
       ["p", parentComment.pubkey],
     ];
     const replyEvent = await publishReply(comment, tags);
-    // update the app cache with the new reply
     queryClient.setQueryData(
       replyQueryKey,
       (oldReplies: Event[] | undefined) => {
@@ -83,7 +92,11 @@ const ReplyDialogContents = ({
           gap: 10,
         }}
       >
-        <CommentRow commentId={parentComment.id} showReplyLinks={false} />
+        <CommentContent
+          comment={parentComment}
+          npubMetadata={npubMetadata}
+          metadataIsLoading={metadataIsLoading}
+        />
         <TextInput
           label="reply"
           autoFocus

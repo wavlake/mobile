@@ -1,9 +1,9 @@
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
+import { useMusicPlayer } from "./MusicPlayerProvider";
 import { Track } from "@/utils";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { Text } from "@/components/Text";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { SquareArtwork } from "./SquareArtwork";
+import { Text } from "./shared/Text";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 
 interface TrackListProps {
   data: Track[];

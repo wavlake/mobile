@@ -1,7 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
 import { WalletKey, WALLETS } from "@/utils";
 import { View } from "react-native";
-import { Text } from "@/components/Text";
+import { Text } from "./shared/Text";
 
 interface WalletChooserProps {
   selectedWallet: WalletKey;

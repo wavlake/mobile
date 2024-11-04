@@ -22,3 +22,4 @@ export * from "./useCheckIfUsernameExists";
 export * from "./useAutoConnectNWC";
 export * from "./useNsecLoginPageLogic";
 export * from "./useSettingsManager";
+export * from "./useUser";

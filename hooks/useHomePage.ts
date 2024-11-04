@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getHomePage, HomePageData } from "@/utils";
-import { useUser } from "@/components";
+import { useUser } from "./useUser";
 import { useAuth } from "./useAuth";
 
 export const useHomePage = () => {

@@ -1,9 +1,10 @@
 import { View } from "react-native";
-import { Button, Text, TextInput } from "@/components";
-import { useState } from "react";
 import { useCreatePlaylist } from "@/hooks";
 import { useAddToPlaylist } from "@/hooks/playlist/useAddToPlaylist";
 import { useTheme } from "@react-navigation/native";
+import { TextInput } from "../shared/TextInput";
+import { Button } from "../shared/Button";
+import { Text } from "../shared/Text";
 
 interface CreatePlaylistFormProps {
   back: () => void;

@@ -1,7 +1,7 @@
 // this is needed to polyfill TextDecoder which nostr-tools uses
 import "fast-text-encoding";
 
-// this is needed to polyfill crypto.getRandomValues which nostr-tools uses
+// // this is needed to polyfill crypto.getRandomValues which nostr-tools uses
 import "react-native-get-random-values";
 
 // this is needed to polyfill crypto.subtle which nostr-tools uses
@@ -23,7 +23,6 @@ import {
   generateSecretKey,
   utils,
   nip04,
-  SimplePool,
   getPublicKey,
 } from "nostr-tools";
 
@@ -32,23 +31,11 @@ import { base64 } from "@scure/base";
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import axios from "axios";
-import {
-  cacheNWCInfoEvent,
-  cacheNostrProfileEvent,
-  cacheNostrRelayListEvent,
-  getCachedNWCInfoEvent,
-  getCachedNostrProfileEvent,
-  getCachedNostrRelayListEvent,
-  getSettings,
-} from "@/utils/cache";
-import { getSeckey } from "@/utils/secureStorage";
 import { ShowEvents } from "@/constants/events";
 import { useMutation } from "@tanstack/react-query";
-import { useUser } from "@/components";
-import { useAuth } from "@/hooks";
-import { updatePubkeyMetadata } from "../api";
-import { getPodcastFeedGuid } from "../rss";
-import { NWCRequest } from "../nwc";
+import { useAuth, useUser } from "@/hooks";
+import { getPodcastFeedGuid } from "./rss";
+import { NWCRequest } from "./nwc";
 import {
   deduplicateEvents,
   getAllCommentEvents,
@@ -56,15 +43,26 @@ import {
   isNotCensoredAuthor,
   removeCensoredContent,
 } from "./comments";
+import {
+  cacheNostrProfileEvent,
+  cacheNostrRelayListEvent,
+  cacheNWCInfoEvent,
+  getCachedNostrProfileEvent,
+  getCachedNostrRelayListEvent,
+  getCachedNWCInfoEvent,
+  getSettings,
+} from "./cache";
+import { getSeckey } from "./secureStorage";
+import {
+  DEFAULT_READ_RELAY_URIS,
+  DEFAULT_WRITE_RELAY_URIS,
+  wavlakeFeedPubkey,
+} from "./shared";
+import { pool } from "./relay-pool";
+import { updatePubkeyMetadata } from "./profile-service";
+import { NostrUserProfile } from "./types";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
-
-// this npub published zap receipts and label events
-export const wavlakeFeedPubkey =
-  process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY ?? "";
-// this npub is used by the NWC wallet service
-export const walletServicePubkey =
-  process.env.EXPO_PUBLIC_WALLET_SERVICE_PUBKEY ?? "";
 
 const wavlakeRelayUri = "wss://relay.wavlake.com/";
 const wavlakeTrackKind = 32123;
@@ -73,25 +71,6 @@ const ticketBotPublicKey =
   "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397";
 const Contacts = 3;
 const HTTPAuth = 27235;
-export const DEFAULT_READ_RELAY_URIS = [
-  "wss://purplepag.es",
-  "wss://relay.nostr.band",
-  "wss://relay.damus.io",
-  "wss://nostr.wine",
-  "wss://relay.snort.social",
-  "wss://relay.wavlake.com",
-  "wss://relay.fountain.fm",
-];
-
-export const DEFAULT_WRITE_RELAY_URIS = [
-  "wss://purplepag.es",
-  "wss://relay.nostr.band",
-  "wss://relay.damus.io",
-  "wss://relay.wavlake.com",
-  "wss://nostr.mutinywallet.com",
-];
-
-export const pool = new SimplePool();
 
 export const encodeNpub = (pubkey: string) => {
   try {
@@ -264,23 +243,6 @@ export const getRelayListMetadata = async (pubkey: string) => {
 export const publishEvent = async (relayUris: string[], event: Event) => {
   return Promise.any(pool.publish(relayUris, event));
 };
-
-export interface NostrUserProfile {
-  name?: string;
-  banner?: string;
-  about?: string;
-  website?: string;
-  lud16?: string;
-  nip05?: string;
-  picture?: string;
-  // non standard fields below
-  [key: string]: string | undefined; // allows custom fields
-  displayName?: string;
-  bio?: string;
-  lud06?: string;
-  zapService?: string;
-  publicHex?: string;
-}
 
 export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
   return {

@@ -1,9 +1,9 @@
 import { View, ActivityIndicator } from "react-native";
-import { SectionHeader } from "@/components/SectionHeader";
+import { SectionHeader } from "./SectionHeader";
 import { useRouter } from "expo-router";
-import { Center } from "@/components";
+import { Center } from "./shared/Center";
 import { usePubkeyPlaylists } from "@/hooks/playlist/usePubkeyPlaylists";
-import { PlaylistRow } from "@/components/PlaylistRow";
+import { PlaylistRow } from "./PlaylistRow";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const PubkeyPlaylists = ({

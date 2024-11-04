@@ -1,5 +1,5 @@
-import { Text } from "@/components";
-import MosaicImage from "@/components/Mosaic";
+import { Text } from "./shared/Text";
+import MosaicImage from "./Mosaic";
 import { Playlist } from "@/utils";
 import { TouchableOpacity, View } from "react-native";
 import { OverflowMenuDialog } from "./FullSizeMusicPlayer/OverflowMenuDialog";

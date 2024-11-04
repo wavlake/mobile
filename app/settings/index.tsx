@@ -1,10 +1,4 @@
-import {
-  Text,
-  TextInput,
-  Button,
-  useUser,
-  ProfileImagePicker,
-} from "@/components";
+import { Text, TextInput, Button, ProfileImagePicker } from "@/components";
 import { Dialog } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import {
@@ -17,7 +11,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useAuth, useToast, useSettingsManager, useDebounce } from "@/hooks";
+import { useAuth, useToast, useUser, useSettingsManager } from "@/hooks";
 import { BUILD_NUM, VERSION } from "@/app.config";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { brandColors } from "@/constants";

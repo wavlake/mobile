@@ -5,15 +5,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useProgress } from "react-native-track-player";
-import { useMusicPlayer } from "@/components/MusicPlayerProvider";
-import { Center, MarqueeText, useUser } from "@/components";
+import { useMusicPlayer } from "../MusicPlayerProvider";
+import { Center } from "../shared/Center";
+import { MarqueeText } from "../shared/MarqueeText";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ZapIcon } from "@/components/ZapIcon";
+import { ZapIcon } from "../icons";
 import { brandColors } from "@/constants";
 import { validateWalletKey } from "@/utils";
-import { useAuth, useSettingsManager, useZap } from "@/hooks";
+import { useAuth, useSettingsManager, useUser, useZap } from "@/hooks";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";

@@ -1,6 +1,6 @@
 import { View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
-import { Text } from "@/components/Text";
+import { Text } from "../shared/Text";
 import { Event, UnsignedEvent } from "nostr-tools";
 import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 import { encodeNpub } from "@/utils";

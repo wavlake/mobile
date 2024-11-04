@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Image } from "react-native";
 import Svg, { Image as SvgImage } from "react-native-svg";
-import { LogoIcon } from "./LogoIcon";
+import { LogoIcon } from "./icons/";
 
 const MosaicImage = ({
   imageUrls,

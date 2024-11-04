@@ -1,9 +1,11 @@
-import { Center, Text, useMiniMusicPlayer } from "@/components";
-import { PlaylistRow } from "@/components/PlaylistRow";
+import { PlaylistRow } from "./PlaylistRow";
 import { usePubkeyPlaylists } from "@/hooks/playlist/usePubkeyPlaylists";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, FlatList, RefreshControl } from "react-native";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { Center } from "./shared/Center";
+import { Text } from "./shared/Text";
 
 export const ProfilePlaylistsPage = () => {
   const { height } = useMiniMusicPlayer();

@@ -1,7 +1,8 @@
 import { getTransactionHistory } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { FlatList, View, RefreshControl } from "react-native";
-import { Text, useUser, satsFormatter } from "@/components";
+import { Text, satsFormatter } from "@/components";
+import { useUser } from "@/hooks";
 
 const GREEN = "#49DE80";
 const INCOMING_TYPES = ["Zap", "Deposit", "Earnings", "Top Up"];

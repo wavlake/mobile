@@ -9,4 +9,5 @@ export * from "./authTokenApi";
 export * from "./authTokenAccountingApi";
 export * from "./rss";
 export * from "./general";
+export * from "./types";
 export * from "./keychainStorage";

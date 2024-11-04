@@ -2,9 +2,9 @@ import { FlatList, TouchableOpacity, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { getArtistAlbums } from "@/utils";
-import { SquareArtwork } from "@/components/SquareArtwork";
-import { Text } from "@/components/Text";
-import { useMiniMusicPlayer } from "@/components/MiniMusicPlayerProvider";
+import { SquareArtwork } from "./SquareArtwork";
+import { Text } from "./shared/Text";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 import { useGoToAlbumPage } from "@/hooks";
 
 export const ArtistAlbumsPage = () => {

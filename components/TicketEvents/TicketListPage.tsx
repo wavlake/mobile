@@ -1,4 +1,4 @@
-import { Text } from "@/components/Text";
+import { Text } from "../shared/Text";
 import { View, TouchableOpacity, FlatList, RefreshControl } from "react-native";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useState } from "react";
@@ -8,8 +8,8 @@ import { ShowEvents } from "@/constants/events";
 import { brandColors } from "@/constants";
 import { EventHeader, ItemRow } from "./common";
 import { TicketQR } from "./TicketQR";
-import { Button } from "../Button";
-import { Center } from "../Center";
+import { Button } from "../shared/Button";
+import { Center } from "../shared/Center";
 
 const Ticketrow = ({
   ticket,

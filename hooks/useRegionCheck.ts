@@ -1,6 +1,6 @@
-import { useUser } from "@/components";
 import { checkIPRegion } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useUser } from "./useUser";
 
 // checks request IP against region block list
 export const useRegionCheck = ({ enabled = true }) => {

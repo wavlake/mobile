@@ -3,10 +3,9 @@ import {
   ButtonProps as BaseButtonProps,
 } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import { Text } from "@/components/Text";
+import { Text } from "./Text";
 import { PropsWithChildren } from "react";
 import { DimensionValue } from "react-native";
-import { ActivityIndicator } from "react-native";
 
 export interface ButtonProps extends BaseButtonProps {
   color?: string;

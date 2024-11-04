@@ -1,5 +1,5 @@
-import { Text } from "@/components/Text";
-import { LightningIcon } from "@/components/LightningIcon";
+import { Text } from "./shared/Text";
+import { LightningIcon } from "./icons/";
 import { View } from "react-native";
 import { brandColors } from "@/constants";
 import { useTheme } from "@react-navigation/native";

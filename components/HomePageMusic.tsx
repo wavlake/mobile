@@ -6,19 +6,17 @@ import {
   View,
 } from "react-native";
 import { Track } from "@/utils";
-import { NewMusicSection } from "@/components/NewMusicSection";
-import {
-  useMusicPlayer,
-  useMiniMusicPlayer,
-  Text,
-  SectionHeader,
-  EarnSection,
-  ForYouSection,
-  FeaturedSection,
-  VercelImage,
-  Center,
-} from "@/components";
+import { NewMusicSection } from "./NewMusicSection";
 import { useHomePage, useToast } from "@/hooks";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { ForYouSection } from "./ForYouSection";
+import { FeaturedSection } from "./FeaturedSection";
+import { SectionHeader } from "./SectionHeader";
+import { Text } from "./shared/Text";
+import { VercelImage } from "./VercelImage";
+import { Center } from "./shared/Center";
+import { EarnSection } from "./EarnSection";
 
 interface TopMusicRowProps {
   trackList: Track[];

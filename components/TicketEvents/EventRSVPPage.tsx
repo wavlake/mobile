@@ -1,4 +1,3 @@
-import { Center, TextInput, Text, useMiniMusicPlayer } from "@/components";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   TouchableWithoutFeedback,
@@ -7,13 +6,17 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from "react-native";
-import { Button } from "../Button";
+import { Button } from "../shared/Button";
 import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
 import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
 import { useAuth, useTicketZap, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
+import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
+import { Center } from "../shared/Center";
+import { Text } from "../shared/Text";
+import { TextInput } from "../shared/TextInput";
 
 export const EventRSVPPage = () => {
   const { pubkey } = useAuth();

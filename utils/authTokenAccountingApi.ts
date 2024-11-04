@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
-import { ResponseObject } from "./api";
 import { Event } from "nostr-tools";
 import { Promo } from "./authTokenApi";
+import { ResponseObject } from "./types";
 
 const accountingApi = process.env.EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL;
 const enableResponseLogging = Boolean(

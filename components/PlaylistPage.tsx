@@ -1,12 +1,5 @@
-import {
-  Center,
-  ShareIcon,
-  SquareArtwork,
-  Text,
-  useMiniMusicPlayer,
-  useMusicPlayer,
-} from "@/components";
-import { PlayPauseTrackButton } from "@/components/PlayPauseTrackButton";
+import { Text } from "./shared/Text";
+import { PlayPauseTrackButton } from "./PlayPauseTrackButton";
 import { brandColors } from "@/constants";
 import { getPlaylist, togglePlayPause } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -22,10 +15,12 @@ import {
 import { State, usePlaybackState } from "react-native-track-player";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { EditPlaylistDialog } from "@/components/Playlist/EditPlaylistDialog";
+import { EditPlaylistDialog } from "./Playlist/EditPlaylistDialog";
 import { useTheme } from "@react-navigation/native";
-import { useAuth } from "@/hooks";
-import { ShareButton } from "./ShareButton";
+import { useMusicPlayer } from "./MusicPlayerProvider";
+import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
+import { SquareArtwork } from "./SquareArtwork";
+import { Center } from "./shared/Center";
 
 export const PlaylistPage = () => {
   const { colors } = useTheme();

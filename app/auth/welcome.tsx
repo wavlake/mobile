@@ -1,11 +1,10 @@
 import { Button, Center, Text } from "@/components";
 import { ActivityIndicator, View } from "react-native";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { useUser } from "@/components/UserContextProvider";
 import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
 import { useEffect } from "react";
 import { setSkipLogin } from "@/utils";
-import { useAuth, useNostrProfileEvent } from "@/hooks";
+import { useAuth, useNostrProfileEvent, useUser } from "@/hooks";
 
 export default function WelcomePage() {
   // the user has successfully logged in
