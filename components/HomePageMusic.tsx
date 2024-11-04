@@ -5,13 +5,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  cacheHasNotSeenWelcomePopup,
-  getHasNotSeenWelcomePopup,
-  Track,
-} from "@/utils";
+import { Track } from "@/utils";
 import { NewMusicSection } from "./NewMusicSection";
-import { useHomePage, useToast, useUser } from "@/hooks";
+import { useHomePage, useToast } from "@/hooks";
 import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 import { ForYouSection } from "./ForYouSection";
@@ -21,8 +17,6 @@ import { Text } from "./shared/Text";
 import { VercelImage } from "./VercelImage";
 import { Center } from "./shared/Center";
 import { EarnSection } from "./EarnSection";
-import { useEffect, useState } from "react";
-import { WelcomeDialog } from "./WelcomeDialog";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -80,8 +74,6 @@ const TopMusicRow = ({ trackList, track, index }: TopMusicRowProps) => {
 
 export const HomePageMusic = () => {
   const toast = useToast();
-  const { catalogUser } = useUser();
-  const [welcomePopupVisible, setWelcomePopupVisible] = useState(false);
   const {
     data: homePageData,
     isLoading,
@@ -97,22 +89,6 @@ export const HomePageMusic = () => {
     trending = [],
     forYou = [],
   } = homePageData || {};
-
-  useEffect(() => {
-    (async () => {
-      if (!catalogUser?.id) return;
-      const canEarn = catalogUser.emailVerified && catalogUser.isRegionVerified;
-      if (!canEarn) return;
-
-      const userHasNotSeenWelcomePopup = await getHasNotSeenWelcomePopup(
-        catalogUser.id,
-      );
-      if (userHasNotSeenWelcomePopup) {
-        setWelcomePopupVisible(true);
-        cacheHasNotSeenWelcomePopup(catalogUser.id);
-      }
-    })();
-  }, [catalogUser]);
 
   if (isLoading) {
     return (
@@ -135,12 +111,6 @@ export const HomePageMusic = () => {
                 <ForYouSection data={forYou} />
                 <NewMusicSection data={newTracks} />
                 <SectionHeader title="Trending" />
-                {welcomePopupVisible && (
-                  <WelcomeDialog
-                    isOpen={welcomePopupVisible}
-                    setIsOpen={setWelcomePopupVisible}
-                  />
-                )}
               </View>
             )
       }

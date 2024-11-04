@@ -3,6 +3,7 @@ import { brandColors } from "@/constants";
 import { usePromos, useUser } from "@/hooks";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import { WelcomeDialog } from "./WelcomeDialog";
 
 const IMAGE_HEIGHT = 143;
 export const EarnSection = () => {
@@ -20,25 +21,28 @@ export const EarnSection = () => {
   }
 
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View
-        style={{
-          backgroundColor: brandColors.purple.DEFAULT,
-          borderRadius: 10,
-          height: IMAGE_HEIGHT,
-          flexDirection: "row",
-          gap: 10,
-          justifyContent: "center",
-        }}
-      >
-        <Image
+    <>
+      <TouchableOpacity onPress={onPress}>
+        <View
           style={{
-            width: "100%",
+            backgroundColor: brandColors.purple.DEFAULT,
+            borderRadius: 10,
             height: IMAGE_HEIGHT,
+            flexDirection: "row",
+            gap: 10,
+            justifyContent: "center",
           }}
-          source={require("@/assets/TOPUPMUSIC6.png")}
-        />
-      </View>
-    </TouchableOpacity>
+        >
+          <Image
+            style={{
+              width: "100%",
+              height: IMAGE_HEIGHT,
+            }}
+            source={require("@/assets/TOPUPMUSIC6.png")}
+          />
+        </View>
+      </TouchableOpacity>
+      <WelcomeDialog />
+    </>
   );
 };
