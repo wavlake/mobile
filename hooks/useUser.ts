@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { FirebaseUser, firebaseService } from "@/services";
+import { FirebaseUser, UserCredential, firebaseService } from "@/services";
 import { NostrProfileData, PrivateUserData } from "@/utils";
 
 export interface CreateEmailUserArgs {
@@ -10,34 +10,30 @@ export interface CreateEmailUserArgs {
   firstName?: string;
   lastName?: string;
 }
-
-export type UserContextProps = {
-  user: FirebaseUser;
+interface SignedInUser extends UserCredential {
+  isRegionVerified?: boolean;
+  isEmailVerified?: boolean;
+}
+export interface UserContextValue {
+  user: FirebaseUser | null;
   initializingAuth: boolean;
   catalogUser: PrivateUserData | undefined;
-  refetchUser: () => Promise<any>;
   nostrMetadata: NostrProfileData | undefined;
+  refetchUser: () => Promise<any>;
   signInWithEmail: (
     email: string,
     password: string,
-  ) => Promise<{
-    error?: any;
-    userAssociatedPubkey?: string | null;
-    isRegionVerified?: boolean;
-    isEmailVerified?: boolean;
-    createdRandomNpub?: boolean;
-  }>;
-  signInWithGoogle: () => Promise<{
-    error?: any;
-    userAssociatedPubkey?: string | null;
-    isRegionVerified?: boolean;
-    isEmailVerified?: boolean;
-    createdRandomNpub?: boolean;
-  }>;
-  createUserWithEmail: (args: CreateEmailUserArgs) => Promise<any>;
-} & typeof firebaseService;
+  ) => Promise<SignedInUser | { error: string }>;
+  signInWithGoogle: () => Promise<SignedInUser | { error: string }>;
+  createUserWithEmail: (
+    args: CreateEmailUserArgs,
+  ) => Promise<SignedInUser | { error: string }>;
+}
 
-export const UserContext = createContext<UserContextProps>({
+// Create context with default values
+export const UserContext = createContext<
+  UserContextValue & typeof firebaseService
+>({
   user: null,
   initializingAuth: true,
   catalogUser: undefined,

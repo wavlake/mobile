@@ -14,8 +14,7 @@ import {
 } from "@/utils";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
-import { useWavlakeWalletZap } from "@/utils";
-import { useUser } from "@/components";
+import { useUser } from "./useUser";
 
 type SendZap = (props: {
   comment: string;
