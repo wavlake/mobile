@@ -52,7 +52,6 @@ export const CommentContent = ({
   if (content.length === 0 && !isZap) {
     return null;
   }
-
   const commentText = getCommentText(comment, npubMetadata);
 
   if (!commentText) {
@@ -60,7 +59,12 @@ export const CommentContent = ({
   }
 
   return (
-    <View style={{ flexDirection: "row" }}>
+    <View
+      style={{
+        width: "100%",
+        flexDirection: "row",
+      }}
+    >
       <BasicAvatar
         uri={picture}
         pubkey={pubkey}
