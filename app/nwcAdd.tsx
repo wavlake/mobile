@@ -1,5 +1,5 @@
-import { Text, Center, CancelButton, useUser } from "@/components";
-import { useAuth, useSettingsManager, useToast } from "@/hooks";
+import { Text, Center, CancelButton } from "@/components";
+import { useAuth, useSettingsManager, useToast, useUser } from "@/hooks";
 import { intakeNwcURI } from "@/utils";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";

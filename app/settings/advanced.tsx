@@ -1,4 +1,4 @@
-import { Text, useUser, WalletChooser } from "@/components";
+import { Text, WalletChooser } from "@/components";
 import { useRouter } from "expo-router";
 import {
   Keyboard,
@@ -9,7 +9,13 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useAuth, useToast, useSettingsManager, WAVLAKE_RELAY } from "@/hooks";
+import {
+  useAuth,
+  useToast,
+  useSettingsManager,
+  WAVLAKE_RELAY,
+  useUser,
+} from "@/hooks";
 import { Settings, payInvoiceCommand } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";

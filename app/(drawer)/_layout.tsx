@@ -1,12 +1,12 @@
 import { Drawer } from "expo-router/drawer";
-import { HeaderBackButton, HeaderTitleLogo, Text, useUser } from "@/components";
+import { HeaderBackButton, HeaderTitleLogo, Text } from "@/components";
 import {
   useTheme,
   DrawerActions,
   useNavigation,
 } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams, usePathname } from "expo-router";
-import { useAuth } from "@/hooks";
+import { useAuth, useUser } from "@/hooks";
 import { View, Pressable, Alert } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
 import { VerificationIcon } from "@/components/VerificationIcon";

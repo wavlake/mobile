@@ -1,12 +1,11 @@
-import { View, ScrollView, StyleSheet, Alert } from "react-native";
-import { useAuth } from "@/hooks";
+import { View, ScrollView, Alert } from "react-native";
+import { useAuth, useUser } from "@/hooks";
 import {
   Button,
   Text,
   TextInput,
   NsecIntakePage,
   EditNsecModal,
-  useUser,
 } from "@/components";
 import { useEffect, useState } from "react";
 import { encodeNsec, getSeckey, useAddPubkeyToUser } from "@/utils";

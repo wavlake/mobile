@@ -4,8 +4,8 @@ import { Event } from "nostr-tools";
 import { msatsToSatsWithCommas } from "../WalletLabel";
 import { ParsedTextRender } from "./ParsedTextRenderer";
 import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
-import { NostrUserProfile } from "@/utils/shared";
 import { BasicAvatar } from "../BasicAvatar";
+import { NostrUserProfile } from "@/utils";
 
 interface CommentContentProps extends ViewProps {
   comment: Event;

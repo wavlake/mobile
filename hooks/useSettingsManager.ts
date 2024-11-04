@@ -2,8 +2,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsQueryKey } from "@/hooks/useSettingsQueryKey";
 import { cacheSettings, Settings } from "@/utils";
-import { useUser } from "@/components";
 import { useAuth } from "./useAuth";
+import { useUser } from "./useUser";
 
 export const useSettingsManager = () => {
   const { pubkey } = useAuth();

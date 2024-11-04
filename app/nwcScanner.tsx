@@ -1,8 +1,8 @@
-import { Button, QRScanner, Text, TextInput, useUser } from "@/components";
+import { Button, QRScanner, Text, TextInput } from "@/components";
 import { useRouter } from "expo-router";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useState } from "react";
-import { useAuth, useSettingsManager, useToast } from "@/hooks";
+import { useAuth, useSettingsManager, useToast, useUser } from "@/hooks";
 import { BarcodeScanningResult } from "expo-camera";
 
 import { intakeNwcURI } from "@/utils/nwc";
