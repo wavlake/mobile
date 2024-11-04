@@ -57,7 +57,8 @@ export const useZap = ({
   const userIdOrPubkey = catalogUser?.id ?? pubkey;
   const { writeRelayList } = useNostrRelayList();
   const { data: settings } = useSettings();
-  const { setBalance, refetch: refetchBalance } = useWalletBalance();
+  const { data, setBalance, refetch: refetchBalance } = useWalletBalance();
+  const { max_payment: maxNWCPayment } = data || {};
   const { enableNWC, defaultZapAmount } = settings || {};
 
   const sendZap: SendZap = async (props) => {
@@ -71,6 +72,12 @@ export const useZap = ({
       useNavReplace = false,
     } = props || {};
     const amountInSats = Number(amount);
+    if (enableNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
+      toast.show(
+        `Your wallet's zap limit is ${maxNWCPayment} sats. Please try a lower amount or adjust your wallet limits.`,
+      );
+      return;
+    }
 
     const zapRequest = await makeZapRequest({
       amountInSats,

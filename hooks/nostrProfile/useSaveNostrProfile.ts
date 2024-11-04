@@ -1,7 +1,6 @@
 import {
   makeProfileEvent,
   signEvent,
-  NostrUserProfile,
   publishEvent,
   cacheNostrProfileEvent,
 } from "@/utils";
@@ -10,6 +9,7 @@ import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileEvent } from "./useNostrProfile";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
+import { NostrUserProfile } from "@/utils/types";
 
 export const useSaveNostrProfile = () => {
   const { data: profile } = useNostrProfileEvent();

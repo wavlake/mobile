@@ -39,7 +39,7 @@ export const useWalletBalance = () => {
         throw "Unable to fetch balance";
       }
 
-      return response.result.balance;
+      return response.result;
     },
     enabled: !!enableNWC && !!userIdOrPubkey && !!nwcPubkey && !!nwcRelay,
     staleTime: 30 * 1000,

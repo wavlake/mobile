@@ -1,9 +1,10 @@
-import { generateSecretKey, getPublicKey, NostrUserProfile } from "@/utils";
+import { generateSecretKey, getPublicKey } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { useSaveNostrProfile } from "@/hooks/nostrProfile";
 import { useSaveNostrRelayList } from "@/hooks/nostrRelayList/useSaveNostrRelayList";
 import { nip19 } from "nostr-tools";
+import { NostrUserProfile } from "@/utils/types";
 
 export const useCreateNewNostrAccount = () => {
   const toast = useToast();

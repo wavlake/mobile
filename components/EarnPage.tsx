@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const TopUpPage = () => {
+export const EarnPage = () => {
   const router = useRouter();
   const basePathname = useGetBasePathname();
   const { data: promos = [], isLoading, refetch } = usePromos();

@@ -19,6 +19,7 @@ import { Tooltip } from "@rneui/themed";
 import { useTheme } from "@react-navigation/native";
 import { PrivateUserData, useEditUser } from "@/utils";
 import { useValidateUsername } from "@/hooks/useValidateUsername";
+import { useWalletBalance } from "@/hooks/useWalletBalance";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -122,7 +123,8 @@ const EditModal: React.FC<EditModalProps> = ({
   const { colors } = useTheme();
   const { refetch: checkUsername } = useValidateUsername(name);
   const screenWidth = Dimensions.get("window").width;
-
+  const { data } = useWalletBalance();
+  const { max_payment: maxNWCPayment } = data || {};
   useEffect(() => {
     setAmount(defaultZapAmount ?? "21");
     setName(catalogUser?.name ?? "");
@@ -147,8 +149,12 @@ const EditModal: React.FC<EditModalProps> = ({
     }
 
     const parsedAmount = parseInt(amount);
+    console.log("parsedAmount", parsedAmount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       newErrors.amount = "Please enter a valid positive number";
+      isValid = false;
+    } else if (maxNWCPayment && parsedAmount > maxNWCPayment) {
+      newErrors.amount = `Amount must not be greater than your max wallet payment budget of ${maxNWCPayment} sats`;
       isValid = false;
     }
 

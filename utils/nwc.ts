@@ -45,7 +45,10 @@ type InvoiceResult = {
 
 type MakeInvoiceResponse = NWCResponseBase<"make_invoice", InvoiceResult>;
 
-type GetBalanceResponse = NWCResponseBase<"get_balance", { balance: number }>;
+type GetBalanceResponse = NWCResponseBase<
+  "get_balance",
+  { balance: number; max_payment: number; budget: number }
+>;
 
 type LookupInvoiceRequest = {
   method: "lookup_invoice";
