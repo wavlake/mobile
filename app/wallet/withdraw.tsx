@@ -1,6 +1,6 @@
-import { Button, QRScanner, satsWithCommas, Text, useUser } from "@/components";
+import { Button, QRScanner, satsWithCommas, Text } from "@/components";
 import LoadingScreen from "@/components/LoadingScreen";
-import { useAuth, useToast } from "@/hooks";
+import { useAuth, useToast, useUser } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { payWithNWC } from "@/utils";

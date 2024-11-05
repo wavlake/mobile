@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from "react";
-import { Animated } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, TouchableOpacity } from "react-native";
 import { useMusicPlayer } from "../MusicPlayerProvider";
 import { Text } from "../shared/Text";
 import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
+import { DialogWrapper } from "../DialogWrapper";
 
 const EarnGreen = "#15f38c";
 
@@ -26,6 +27,7 @@ const darkenColor = (color: string, percent: number) => {
 };
 
 export const PlayerHeaderTitle = () => {
+  const [showPopup, setShowPopup] = useState(false);
   const { activeTrack, playerTitle } = useMusicPlayer();
   const { state: playbackState } = usePlaybackState();
   const promoCheckResult = usePromoCheck(
@@ -79,27 +81,72 @@ export const PlayerHeaderTitle = () => {
   }
   const earningActive = isPlaying && canEarnToday;
   const earningVerb = earningActive ? "Earning" : "Earned";
+  const onPress = () => {
+    setShowPopup(true);
+  };
   return (
-    <Animated.View
-      style={{
-        borderRadius: 20,
-        backgroundColor: earningActive
-          ? backgroundColor
-          : brandColors.beige.dark,
-        padding: 6,
-        width: 200,
-      }}
-    >
-      <Text
-        style={{
-          width: "100%",
-          textAlign: "center",
-          color: "black",
-        }}
-        bold
-      >{`${earningVerb} (${earnedToday / 1000}/${
-        earnableToday / 1000
-      } sats)`}</Text>
-    </Animated.View>
+    <>
+      <PopUp
+        isOpen={showPopup}
+        setIsOpen={setShowPopup}
+        canEarnToday={canEarnToday}
+        earnedToday={earnedToday}
+        earnableToday={earnableToday}
+      />
+      <TouchableOpacity onPress={onPress}>
+        <Animated.View
+          style={{
+            borderRadius: 20,
+            backgroundColor: earningActive
+              ? backgroundColor
+              : brandColors.beige.dark,
+            padding: 6,
+            width: 200,
+          }}
+        >
+          <Text
+            style={{
+              width: "100%",
+              textAlign: "center",
+              color: "black",
+            }}
+            bold
+          >{`${earningVerb} (${earnedToday / 1000}/${
+            earnableToday / 1000
+          } sats)`}</Text>
+        </Animated.View>
+      </TouchableOpacity>
+    </>
+  );
+};
+
+const PopUp = ({
+  isOpen,
+  setIsOpen,
+  canEarnToday,
+  earnedToday,
+  earnableToday,
+}: {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  canEarnToday?: boolean;
+  earnedToday: number;
+  earnableToday: number;
+}) => {
+  return (
+    <DialogWrapper isOpen={isOpen} setIsOpen={setIsOpen}>
+      {canEarnToday ? (
+        <Text>
+          Listen to earn. Every day you can listen to promoted tracks and earn
+          10 sats for each ~60 seconds of listening. Today, you have earned{" "}
+          {earnedToday / 1000} out of {earnableToday / 1000} sats
+        </Text>
+      ) : (
+        <Text>
+          You have reached the maximum amount of sats you can earn today. Come
+          back tomorrow to earn more.
+        </Text>
+      )}
+    </DialogWrapper>
   );
 };

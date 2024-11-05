@@ -192,7 +192,7 @@ export default function WalletConnectionSettingsPage() {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
         <View style={styles.inputContainer}>
-          <Text bold>Weekly Budget</Text>
+          <Text bold>Weekly Budget (sats)</Text>
           <Text>Set your maximum weekly spending limit for this wallet</Text>
           <TextInput
             keyboardType="numeric"
@@ -205,7 +205,7 @@ export default function WalletConnectionSettingsPage() {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text bold>Maximum Zap Payment</Text>
+          <Text bold>Maximum Zap Payment (sats)</Text>
           <Text>Set the maximum amount allowed for a single zap</Text>
           <Text style={styles.constraintText}>{constraintsText}</Text>
           <TextInput

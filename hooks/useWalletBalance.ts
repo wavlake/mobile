@@ -3,7 +3,7 @@ import { useAuth } from "./useAuth";
 import { useSettings } from "./useSettings";
 import { getNwcBalance } from "@/utils";
 import { useToast } from "./useToast";
-import { useUser } from "@/components";
+import { useUser } from "./useUser";
 
 export const useWalletBalance = () => {
   const { data: settings } = useSettings();

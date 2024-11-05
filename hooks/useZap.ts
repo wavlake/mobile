@@ -17,7 +17,7 @@ import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 import { usePublishComment } from "./usePublishComment";
 import { Event, nip19 } from "nostr-tools";
-import { useUser } from "@/components";
+import { useUser } from "./useUser";
 
 type SendZap = (
   props: Partial<{

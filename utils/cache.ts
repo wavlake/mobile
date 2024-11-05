@@ -3,6 +3,8 @@ import { Event } from "nostr-tools";
 import { Promo, WalletKey } from "@/utils";
 
 const isFirstAppLaunchKey = "isFirstAppLaunch";
+const userHasSeenWelcomePopupKey = (userId: string) =>
+  "hasSeenWelcomePopup1" + userId;
 const isSkipLoginKey = "skipLogin";
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNWCInfoEventKey = (pubkey: string) => `${pubkey}.nwcInfoEvent`;
@@ -31,6 +33,13 @@ const getObjectData = async (cacheKey: string) => {
   } catch {
     return null;
   }
+};
+
+export const cacheHasNotSeenWelcomePopup = async (userId: string) =>
+  storeData(userHasSeenWelcomePopupKey(userId), "1");
+
+export const getHasNotSeenWelcomePopup = async (userId: string) => {
+  return (await getData(userHasSeenWelcomePopupKey(userId))) === null;
 };
 
 export const cacheIsFirstAppLaunch = async () =>

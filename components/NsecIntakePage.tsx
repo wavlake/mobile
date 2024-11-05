@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { Text, Button, TextInput, NsecInfoDialog, useUser } from "@/components";
+import { Text, Button, TextInput, NsecInfoDialog } from "@/components";
 import { CopyButton } from "@/components/CopyButton";
 import { BasicAvatar } from "@/components/BasicAvatar";
 import { useNsecLoginPageLogic } from "@/hooks";

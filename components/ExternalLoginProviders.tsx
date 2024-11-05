@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { ZBDIcon, TwitterIcon, GoogleIcon, NostrIcon } from "./icons/";
 import {
   DEFAULT_CONNECTION_SETTINGS,
-  useAuth,
   useAutoConnectNWC,
   useToast,
   useUser,

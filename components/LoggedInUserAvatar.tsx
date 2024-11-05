@@ -1,6 +1,5 @@
-import { useAuth, useNostrProfileEvent } from "@/hooks";
+import { useAuth, useNostrProfileEvent, useUser } from "@/hooks";
 import { Avatar } from "./Avatar";
-import { useUser } from "./UserContextProvider";
 
 export const LoggedInUserAvatar = ({ size }: { size: number }) => {
   const { pubkey } = useAuth();

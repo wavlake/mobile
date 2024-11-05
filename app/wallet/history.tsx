@@ -5,6 +5,9 @@ import { Text, satsFormatter } from "@/components";
 import { useUser } from "@/hooks";
 
 const GREEN = "#49DE80";
+const UI_TYPE_OVERRIDE: Record<string, string> = {
+  "Top Up": "Listen to Earn",
+};
 const INCOMING_TYPES = ["Zap", "Deposit", "Earnings", "Top Up"];
 type DateTxMap<T> = {
   [date: string]: T[];
@@ -119,7 +122,9 @@ export default function HistoryPage() {
                             numberOfLines={1}
                             bold
                           >
-                            {`${tx.type}${tx.title ? `: ${tx.title}` : ""}`}
+                            {`${UI_TYPE_OVERRIDE[tx.type] ?? tx.type}${
+                              tx.title ? `: ${tx.title}` : ""
+                            }`}
                           </Text>
                           {isIncoming ? (
                             <Text

@@ -4,8 +4,8 @@ import { Event } from "nostr-tools";
 import { msatsToSatsWithCommas } from "../WalletLabel";
 import { ParsedTextRender } from "./ParsedTextRenderer";
 import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
-import { NostrUserProfile } from "@/utils/shared";
 import { BasicAvatar } from "../BasicAvatar";
+import { NostrUserProfile } from "@/utils";
 
 interface CommentContentProps extends ViewProps {
   comment: Event;
@@ -52,7 +52,6 @@ export const CommentContent = ({
   if (content.length === 0 && !isZap) {
     return null;
   }
-
   const commentText = getCommentText(comment, npubMetadata);
 
   if (!commentText) {
@@ -60,7 +59,12 @@ export const CommentContent = ({
   }
 
   return (
-    <View style={{ flexDirection: "row" }}>
+    <View
+      style={{
+        width: "100%",
+        flexDirection: "row",
+      }}
+    >
       <BasicAvatar
         uri={picture}
         pubkey={pubkey}

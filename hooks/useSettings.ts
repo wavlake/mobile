@@ -2,7 +2,7 @@ import { useAuth } from "./useAuth";
 import { getSettings } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useSettingsQueryKey } from "./useSettingsQueryKey";
-import { useUser } from "@/components";
+import { useUser } from "./useUser";
 
 export const useSettings = () => {
   const { pubkey } = useAuth();
