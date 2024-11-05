@@ -4,7 +4,7 @@ import { Promo, WalletKey } from "@/utils";
 
 const isFirstAppLaunchKey = "isFirstAppLaunch";
 const userHasSeenWelcomePopupKey = (userId: string) =>
-  "hasSeenWelcomePopup" + userId;
+  "hasSeenWelcomePopup1" + userId;
 const isSkipLoginKey = "skipLogin";
 const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNWCInfoEventKey = (pubkey: string) => `${pubkey}.nwcInfoEvent`;
