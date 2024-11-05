@@ -5,7 +5,8 @@ export const formatTime = (totalSeconds: number) => {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   const normalizedHours = hours > 0 ? `${hours}:` : "";
-  const normalizedMinutes = minutes > 0 ? `${minutes}:` : "0:";
+  const normalizedMinutes =
+    minutes > 0 ? `${minutes}:`.padStart(2, "0") : "00:";
   const normalizedSeconds = `${seconds}`.padStart(2, "0");
 
   return `${normalizedHours}${normalizedMinutes}${normalizedSeconds}`;
