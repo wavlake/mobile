@@ -108,6 +108,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             "The app accesses your photos to let you choose a profile picture.",
         },
       ],
+      [
+        "@sentry/react-native/expo",
+        {
+          url: "https://sentry.io/",
+          project: "mobile",
+          organization: "wavlake",
+        },
+      ],
     ],
     experiments: {
       tsconfigPaths: true,
