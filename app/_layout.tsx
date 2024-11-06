@@ -39,9 +39,10 @@ import { BUILD_NUM, VERSION } from "@/app.config";
 
 const release = `${VERSION}-${BUILD_NUM}`;
 const NODE_ENV = process.env.NODE_ENV;
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
 Sentry.init({
-  dsn: "https://9db870f812038a214bd1b294204009e2@o4505014339371008.ingest.us.sentry.io/4508252110520320",
+  dsn: SENTRY_DSN,
   tracesSampleRate: 0.3,
   profilesSampleRate: 0.3,
   environment: NODE_ENV,
