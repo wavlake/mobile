@@ -38,8 +38,8 @@ import * as Sentry from "@sentry/react-native";
 
 Sentry.init({
   dsn: "https://9db870f812038a214bd1b294204009e2@o4505014339371008.ingest.us.sentry.io/4508252110520320",
-  tracesSampleRate: 1.0,
-  profilesSampleRate: 1.0,
+  tracesSampleRate: 0.3,
+  profilesSampleRate: 0.3,
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // enableSpotlight: __DEV__,
 });
