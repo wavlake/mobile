@@ -35,13 +35,18 @@ import DeepLinkHandler from "@/components/DeepLinkHandler";
 import { UserContextProvider } from "@/components/UserContextProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "@sentry/react-native";
+import { BUILD_NUM, VERSION } from "@/app.config";
+
+const release = `${VERSION}-${BUILD_NUM}`;
+const NODE_ENV = process.env.NODE_ENV;
 
 Sentry.init({
   dsn: "https://9db870f812038a214bd1b294204009e2@o4505014339371008.ingest.us.sentry.io/4508252110520320",
   tracesSampleRate: 0.3,
   profilesSampleRate: 0.3,
-  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
-  // enableSpotlight: __DEV__,
+  environment: NODE_ENV,
+  release,
+  enabled: NODE_ENV !== "development",
 });
 
 // Catch any errors thrown by the Layout component.
