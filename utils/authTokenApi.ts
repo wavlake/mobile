@@ -248,6 +248,24 @@ export const saveUserIdentity = async (data: {
 
 export const useCreateNewUser = () => {
   return useMutation({
+    mutationFn: async (body: { username?: string; pubkey: string }) => {
+      const { data } = await catalogApiClient.post<
+        ResponseObject<{
+          username: string;
+          profileUrl: string;
+          pubkey: string;
+          loginToken: string;
+        }>
+      >(`/accounts/user`, body);
+
+      return data.data;
+    },
+  });
+};
+
+// this API endpoint is gaurded by an IP region check
+export const useCreateNewVerifiedUser = () => {
+  return useMutation({
     mutationFn: async (body: {
       username?: string;
       firstName?: string;
@@ -261,7 +279,7 @@ export const useCreateNewUser = () => {
           pubkey: string;
           loginToken: string;
         }>
-      >(`/accounts/user`, body);
+      >(`/accounts/user/verified`, body);
 
       return data.data;
     },

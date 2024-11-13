@@ -7,7 +7,10 @@ import {
   UserContext,
   useToast,
 } from "@/hooks";
-import { usePrivateUserData } from "@/utils/authTokenApi";
+import {
+  useCreateNewVerifiedUser,
+  usePrivateUserData,
+} from "@/utils/authTokenApi";
 import {
   getKeysFromNostrSecret,
   getSecretFromKeychain,
@@ -25,6 +28,7 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const { mutateAsync: createUser } = useCreateNewUser();
+  const { mutateAsync: createVerifiedUser } = useCreateNewVerifiedUser();
   const toast = useToast();
   const { pubkey, login } = useAuth();
   const createNewNostrAccount = useCreateNewNostrAccount();
@@ -154,6 +158,7 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
     firstName,
     lastName,
     pubkey,
+    isRegionVerified,
   }: CreateEmailUserArgs) => {
     try {
       const user = await firebaseService.createUserWithEmailFirebase(
@@ -164,12 +169,14 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
 
       await user.user.sendEmailVerification();
 
-      const newUser = await createUser({
-        username,
-        firstName,
-        lastName,
-        pubkey,
-      });
+      const newUser = isRegionVerified
+        ? await createVerifiedUser({
+            username,
+            firstName,
+            lastName,
+            pubkey,
+          })
+        : await createUser({ username, pubkey });
 
       if (!newUser) {
         toast.show("Failed to create user in database");
