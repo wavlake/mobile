@@ -34,6 +34,21 @@ import { musicService } from "@/services";
 import DeepLinkHandler from "@/components/DeepLinkHandler";
 import { UserContextProvider } from "@/components/UserContextProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import * as Sentry from "@sentry/react-native";
+import { BUILD_NUM, VERSION } from "@/app.config";
+
+const release = `${VERSION}-${BUILD_NUM}`;
+const NODE_ENV = process.env.NODE_ENV;
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+Sentry.init({
+  dsn: SENTRY_DSN,
+  tracesSampleRate: 0.3,
+  profilesSampleRate: 0.3,
+  environment: NODE_ENV,
+  release,
+  enabled: NODE_ENV !== "development",
+});
 
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
@@ -43,7 +58,7 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-export default function Layout() {
+function Layout() {
   const [loaded, error] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
@@ -193,3 +208,5 @@ export default function Layout() {
     </SafeAreaProvider>
   ) : null;
 }
+
+export default Sentry.wrap(Layout);
