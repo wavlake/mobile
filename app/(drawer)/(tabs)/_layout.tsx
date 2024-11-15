@@ -81,6 +81,22 @@ export default function TabLayout() {
               title: "Home",
               tabBarIcon: ({ color }) => <HomeIcon color={color} />,
             }}
+            listeners={() => ({
+              tabPress: async (e) => {
+                // Prevent default navigation behavior
+                e.preventDefault();
+
+                // If we're already on the home screen, do nothing
+                if (pathname === "/") {
+                  return;
+                } else {
+                  // If we're on a different tab, navigate to home and reset the stack
+                  router.replace({
+                    pathname: "/(home)",
+                  });
+                }
+              },
+            })}
           />
           <Tabs.Screen
             name="pulse"

@@ -9,6 +9,7 @@ export interface CreateEmailUserArgs {
   username?: string;
   firstName?: string;
   lastName?: string;
+  isRegionVerified: boolean;
 }
 interface SignedInUser extends UserCredential {
   isRegionVerified?: boolean;

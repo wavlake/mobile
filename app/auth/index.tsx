@@ -14,7 +14,7 @@ export default function InitialPage() {
 
   const handleSignUp = async () => {
     setIsLoading(true);
-    const isAllowed = await refetch();
+    const { data: isAllowed = false } = await refetch();
     await router.push({
       pathname: "/auth/signup",
       params: {

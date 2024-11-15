@@ -151,6 +151,7 @@ export default function SignUpPage() {
       lastName,
       username: formState.username,
       pubkey,
+      isRegionVerified,
     });
 
     if ("error" in userResult) {
