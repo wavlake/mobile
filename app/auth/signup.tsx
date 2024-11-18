@@ -162,6 +162,11 @@ export default function SignUpPage() {
   };
 
   const handleSignUp = async () => {
+    // remove leading/trailing whitespace
+    updateFormField("username", formState.username.trim());
+    updateFormField("email", formState.email.trim());
+    updateFormField("fullname", formState.fullname.trim());
+
     const isValid = await validateForm();
     if (!isValid) return;
 
