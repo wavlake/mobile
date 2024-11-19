@@ -6,6 +6,7 @@ import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
 import { DialogWrapper } from "../DialogWrapper";
+import { AnimatedGlowingBorder } from "./EarningBadge";
 
 const EarnGreen = "#15f38c";
 
@@ -72,7 +73,7 @@ export const PlayerHeaderTitle = () => {
     inputRange: [0, 1],
     outputRange: [
       EarnGreen,
-      darkenColor(EarnGreen, 20), // Darken EarnGreen by 20%
+      darkenColor(EarnGreen, 50), // Darken EarnGreen by 20%
     ],
   });
 
@@ -94,27 +95,34 @@ export const PlayerHeaderTitle = () => {
         earnableToday={earnableToday}
       />
       <TouchableOpacity onPress={onPress}>
-        <Animated.View
-          style={{
-            borderRadius: 20,
-            backgroundColor: earningActive
-              ? backgroundColor
-              : brandColors.beige.dark,
-            padding: 6,
-            width: 200,
-          }}
+        <AnimatedGlowingBorder
+          backgroundColor={EarnGreen}
+          borderColor={brandColors.beige.dark}
+          containerStyle={{ borderRadius: 20 }}
+          glowIntensity={0.5}
         >
-          <Text
+          <Animated.View
             style={{
-              width: "100%",
-              textAlign: "center",
-              color: "black",
+              borderRadius: 20,
+              backgroundColor: earningActive
+                ? backgroundColor
+                : brandColors.beige.dark,
+              padding: 6,
+              width: 200,
             }}
-            bold
-          >{`${earningVerb} (${earnedToday / 1000}/${
-            earnableToday / 1000
-          } sats)`}</Text>
-        </Animated.View>
+          >
+            <Text
+              style={{
+                width: "100%",
+                textAlign: "center",
+                color: "black",
+              }}
+              bold
+            >{`${earningVerb} (${earnedToday / 1000}/${
+              earnableToday / 1000
+            } sats)`}</Text>
+          </Animated.View>
+        </AnimatedGlowingBorder>
       </TouchableOpacity>
     </>
   );
