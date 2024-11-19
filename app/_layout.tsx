@@ -1,9 +1,10 @@
 // https://docs.expo.dev/develop/development-builds/use-development-builds/
 import "expo-dev-client";
 
+// promise.any polyfill for react native
+import "core-js/features/promise/any";
 // this is needed to polyfill crypto.subtle which nostr-tools uses
 import PolyfillCrypto from "react-native-webview-crypto";
-
 import { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
