@@ -16,6 +16,8 @@ export const useNostrProfileEvent = (
   // when a new user is logged in, the readRelayList is updated, which causes this query to refetch
   shouldUpdateOnRelayListChange: boolean = true,
 ) => {
+  const { pubkey: loggedInPubkey } = useAuth();
+  const finalPubkey = pubkey ?? loggedInPubkey;
   const { readRelayList } = useNostrRelayList();
 
   const memoizedReadRelayList = useMemo(() => {
@@ -29,13 +31,17 @@ export const useNostrProfileEvent = (
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const isValid = pubkey && pubkey.length === 64 && !!encodeNpub(pubkey);
+      const isValid =
+        finalPubkey && finalPubkey.length === 64 && !!encodeNpub(finalPubkey);
 
       if (!isValid) {
         return null;
       }
 
-      const event = await getProfileMetadata(pubkey, memoizedReadRelayList);
+      const event = await getProfileMetadata(
+        finalPubkey,
+        memoizedReadRelayList,
+      );
       if (!event) {
         return null;
       }
@@ -46,7 +52,7 @@ export const useNostrProfileEvent = (
         return null;
       }
     },
-    enabled: Boolean(pubkey),
+    enabled: Boolean(finalPubkey),
     staleTime: Infinity,
   });
 };
