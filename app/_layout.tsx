@@ -48,6 +48,12 @@ Sentry.init({
   environment: NODE_ENV,
   release,
   enabled: NODE_ENV !== "development",
+  // https://docs.sentry.io/platforms/react-native/session-replay/
+  _experiments: {
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 0.3,
+  },
+  integrations: [Sentry.mobileReplayIntegration()],
 });
 
 // Catch any errors thrown by the Layout component.
