@@ -17,6 +17,7 @@ import {
   useAutoConnectNWC,
 } from "./useAutoConnectNWC";
 import { useNostrProfileEvent } from "./nostrProfile";
+import { useCreateNewNostrAccount } from "./useCreateNewNostrAccount";
 
 type NsecPageParams = {
   nostrOnlyLogin: "true" | "false";
@@ -96,13 +97,20 @@ export const useNsecLoginPageLogic = () => {
       ],
     );
   };
+  const createNostrAccount = useCreateNewNostrAccount();
 
   const performLogin = async () => {
-    const success = await login(nsec);
-    if (!success) {
-      setErrorMessage("Invalid nostr nsec");
-      setIsLoggingIn(false);
-      return;
+    if (isGeneratedNsec) {
+      const newUserData = {};
+      // this custom hook will call login(nsec) and save the profile
+      createNostrAccount(newUserData, nsec);
+    } else {
+      const success = await login(nsec);
+      if (!success) {
+        setErrorMessage("Invalid nostr nsec");
+        setIsLoggingIn(false);
+        return;
+      }
     }
 
     if (user) {
