@@ -241,7 +241,17 @@ export const getRelayListMetadata = async (pubkey: string) => {
 };
 
 export const publishEvent = async (relayUris: string[], event: Event) => {
-  return Promise.any(pool.publish(relayUris, event));
+  const promises = pool.publish(relayUris, event);
+
+  // Mimic Promise.any behavior using Promise.race
+  const wrappedPromises = promises.map((p) =>
+    p.catch((error) => Promise.reject(error)),
+  );
+
+  return Promise.race(wrappedPromises).catch((error) => {
+    // Handle the case where all promises reject
+    throw new Error("All publish attempts failed");
+  });
 };
 
 export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {
