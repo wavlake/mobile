@@ -1,4 +1,5 @@
 import React, { useState, useEffect, PropsWithChildren } from "react";
+import * as Sentry from "@sentry/react-native";
 import { FirebaseUser, firebaseService } from "@/services";
 import {
   CreateEmailUserArgs,
@@ -143,6 +144,11 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
         isEmailVerified: user.user.emailVerified,
       };
     } catch (error) {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signInWithGoogle",
+        },
+      });
       console.error("Google sign-in error:", error);
       return {
         error:
@@ -218,6 +224,11 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
         isEmailVerified: user.user.emailVerified,
       };
     } catch (error) {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signInWithEmail",
+        },
+      });
       console.error("Email sign-in error:", error);
       return {
         error: typeof error === "string" ? error : "Failed to sign in",
