@@ -6,7 +6,6 @@ import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
 import { brandColors } from "@/constants";
 import { DialogWrapper } from "../DialogWrapper";
-import { AnimatedGlowingBorder } from "./EarningBadge";
 
 const EarnGreen = "#15f38c";
 
@@ -95,34 +94,27 @@ export const PlayerHeaderTitle = () => {
         earnableToday={earnableToday}
       />
       <TouchableOpacity onPress={onPress}>
-        <AnimatedGlowingBorder
-          backgroundColor={EarnGreen}
-          borderColor={brandColors.beige.dark}
-          containerStyle={{ borderRadius: 20 }}
-          glowIntensity={0.5}
+        <Animated.View
+          style={{
+            borderRadius: 20,
+            backgroundColor: earningActive
+              ? backgroundColor
+              : brandColors.beige.dark,
+            padding: 6,
+            width: 200,
+          }}
         >
-          <Animated.View
+          <Text
             style={{
-              borderRadius: 20,
-              backgroundColor: earningActive
-                ? backgroundColor
-                : brandColors.beige.dark,
-              padding: 6,
-              width: 200,
+              width: "100%",
+              textAlign: "center",
+              color: "black",
             }}
-          >
-            <Text
-              style={{
-                width: "100%",
-                textAlign: "center",
-                color: "black",
-              }}
-              bold
-            >{`${earningVerb} (${earnedToday / 1000}/${
-              earnableToday / 1000
-            } sats)`}</Text>
-          </Animated.View>
-        </AnimatedGlowingBorder>
+            bold
+          >{`${earningVerb} (${earnedToday / 1000}/${
+            earnableToday / 1000
+          } sats)`}</Text>
+        </Animated.View>
       </TouchableOpacity>
     </>
   );
