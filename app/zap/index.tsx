@@ -21,6 +21,7 @@ import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { useTheme } from "@react-navigation/native";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
+import { WalletBalance } from "@/components/WalletBalance";
 
 export default function ZapPage() {
   const {
@@ -87,23 +88,7 @@ export default function ZapPage() {
           </MarqueeText>
           <MarqueeText style={{ fontSize: 18 }}>by {artist}</MarqueeText>
         </Center>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          {["21", "100", "1000"].map((amount) => (
-            <Button
-              key={amount}
-              width={100}
-              onPress={() => setZapAmount(amount)}
-            >
-              {amount} ⚡️
-            </Button>
-          ))}
-        </View>
+        <WalletBalance />
         <TextInput
           label="amount (sats)"
           onChangeText={setZapAmount}
@@ -126,7 +111,7 @@ export default function ZapPage() {
           value={comment}
           inputHeight={96}
         />
-        <View style={{ flexDirection: "row" }}>
+        <View style={{ flexDirection: "row", marginTop: -16 }}>
           <View style={{ flex: 1, marginRight: 8 }}>
             <Text bold>Publish comments to nostr</Text>
             <Text>Comments will show up in other clients.</Text>
