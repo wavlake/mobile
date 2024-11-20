@@ -72,7 +72,7 @@ export const PlayerHeaderTitle = () => {
     inputRange: [0, 1],
     outputRange: [
       EarnGreen,
-      darkenColor(EarnGreen, 50), // Darken EarnGreen by 20%
+      darkenColor(EarnGreen, 50), // Darken EarnGreen by 50%
     ],
   });
 
