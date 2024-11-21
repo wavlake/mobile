@@ -22,6 +22,7 @@ import { brandColors } from "@/constants";
 import { useAuth, useCreateNewNostrAccount, useToast, useUser } from "@/hooks";
 import { saveSecretToKeychain } from "@/utils";
 import { useValidateUsername } from "@/hooks/useValidateUsername";
+import * as Sentry from "@sentry/react-native";
 
 interface SignUpFormState {
   fullname: string;
@@ -59,7 +60,7 @@ export default function SignUpPage() {
   const { isRegionVerified: isVerifiedString } = useLocalSearchParams<{
     isRegionVerified: "true" | "false";
   }>();
-  const isRegionVerified = isVerifiedString === "true";
+  const isRegionVerified = false; //isVerifiedString === "true";
 
   const router = useRouter();
   const { login, pubkey } = useAuth();
@@ -98,8 +99,10 @@ export default function SignUpPage() {
       errors.user =
         "Username can only contain letters, numbers, hyphens, and underscores";
     }
-    const data = await validateUsername();
-    const { success: usernameAvailable } = data.data || {};
+
+    const { data } = await validateUsername();
+    const { success: usernameAvailable } = data || { success: false };
+
     if (!usernameAvailable) {
       errors.user = "Username unavailable, please try another";
     }
@@ -176,13 +179,45 @@ export default function SignUpPage() {
       let currentPubkey = pubkey;
 
       if (!currentPubkey) {
-        currentPubkey = await handleNostrAccountCreation(formState.username);
+        currentPubkey = await handleNostrAccountCreation(
+          formState.username,
+        ).catch((err) => {
+          Sentry.addBreadcrumb({
+            message: "Error during nostr account creation",
+            category: "error",
+            data: {
+              err,
+              formState,
+            },
+          });
+          throw new Error(err);
+        });
       }
 
-      await createUserAccount(currentPubkey);
+      await createUserAccount(currentPubkey).catch((err) => {
+        Sentry.addBreadcrumb({
+          message: "Error during user account creation",
+          category: "error",
+          data: {
+            err,
+            currentPubkey,
+          },
+        });
+        throw new Error(err);
+      });
 
       router.replace({ pathname: "/auth/email-ver" });
     } catch (error) {
+      Sentry.addBreadcrumb({
+        message: "Error during sign up",
+        category: "error",
+        data: {
+          error,
+          formState,
+        },
+      });
+
+      Sentry.captureException(error);
       const errorMessage =
         error instanceof Error ? error.message : "Something went wrong";
       toast.show(errorMessage);
