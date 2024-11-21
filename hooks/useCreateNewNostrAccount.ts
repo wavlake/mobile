@@ -41,10 +41,12 @@ export const useCreateNewNostrAccount = () => {
       };
     }
 
-    await Promise.allSettled([
-      saveRelayList(bootstrapRelays),
-      saveProfile(profile),
-    ]);
+    try {
+      await saveRelayList(bootstrapRelays);
+      await saveProfile(profile);
+    } catch (error) {
+      console.error("Error saving relay list or profile:", error);
+    }
 
     return { nsec, pubkey };
   };
