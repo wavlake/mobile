@@ -42,8 +42,8 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
 Sentry.init({
   dsn: SENTRY_DSN,
-  tracesSampleRate: 1,
-  profilesSampleRate: 1,
+  tracesSampleRate: 0.1,
+  profilesSampleRate: 0.1,
   environment: NODE_ENV,
   release,
   enabled: NODE_ENV !== "development",
