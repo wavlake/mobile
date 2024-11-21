@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { DollarAmount } from "./DollarAmount";
+import { useSettingsManager } from "@/hooks";
 
 interface AmountProps extends TextProps {
   style?: any;
@@ -18,7 +19,12 @@ const MSATS_PER_SAT = 1000;
 
 const Balance: React.FC<AmountProps> = ({ style, ...textProps }) => {
   const [showSats, setShowSats] = useState(false);
+  const { settings } = useSettingsManager();
   const { data: nwcBalance, isLoading } = useWalletBalance();
+
+  if (settings?.enableNWC !== true) {
+    return null;
+  }
 
   // Handle loading state
   if (isLoading) {
@@ -34,7 +40,7 @@ const Balance: React.FC<AmountProps> = ({ style, ...textProps }) => {
     nwcBalance === undefined ||
     !Number.isFinite(nwcBalance?.balance)
   ) {
-    return;
+    return null;
   }
 
   const sats = nwcBalance.balance / MSATS_PER_SAT;
