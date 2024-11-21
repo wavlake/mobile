@@ -14,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth, useSettingsManager, useZap } from "@/hooks";
 import { Switch } from "@rneui/themed";
@@ -46,6 +46,7 @@ export default function ZapPage() {
   const router = useRouter();
   const { pubkey } = useAuth();
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
+  const [zapError, setZapError] = useState<string>("");
   const [comment, setComment] = useState("");
   const { sendZap, isLoading: isZapping } = useZap({
     trackId,
@@ -56,22 +57,55 @@ export default function ZapPage() {
     isPodcast: isPodcast === "true",
     parentContentId,
   });
+
+  const validateAndSetZapAmount = useCallback((value: string) => {
+    // Remove any non-numeric characters and decimal points
+    const cleanValue = value.replace(/[^\d]/g, "");
+    setZapAmount(cleanValue);
+
+    if (cleanValue === "") {
+      setZapError("Amount is required");
+      return;
+    }
+
+    const numericValue = parseInt(cleanValue, 10);
+
+    if (isNaN(numericValue)) {
+      setZapError("Please enter a valid number");
+      return;
+    }
+
+    if (numericValue < 1 || numericValue > 100000) {
+      setZapError("Amount must be between 1 and 100,000 sats");
+      return;
+    }
+
+    setZapError("");
+  }, []);
+
   const isZapDisabled =
-    zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
+    zapAmount.length === 0 ||
+    Number(zapAmount) <= 0 ||
+    isZapping ||
+    zapError !== "";
+
   const handleZap = async () => {
-    sendZap({ comment, amount: parseInt(zapAmount), useNavReplace: true });
+    const numericAmount = parseInt(zapAmount, 10);
+    if (numericAmount >= 1 && numericAmount <= 100000) {
+      sendZap({ comment, amount: numericAmount, useNavReplace: true });
+    }
   };
 
   const { settings, updateSettings } = useSettingsManager();
   const { colors } = useTheme();
 
-  // this new setting will start as undefined for users
   const currentPublishKind1Setting = settings?.publishKind1 ?? false;
   const togglePublishKind1 = async (value: boolean) => {
     await updateSettings({
       publishKind1: !currentPublishKind1Setting,
     });
   };
+
   return (
     <KeyboardAvoidingView behavior="position">
       <ScrollView
@@ -91,14 +125,14 @@ export default function ZapPage() {
         <WalletBalance />
         <TextInput
           label="amount (sats)"
-          onChangeText={setZapAmount}
+          onChangeText={validateAndSetZapAmount}
           value={zapAmount}
           keyboardType="numeric"
-          includeErrorMessageSpace={false}
+          errorMessage={zapError}
           rightIcon={
             <DollarAmount
               style={{ textAlign: "right" }}
-              sats={parseInt(zapAmount)}
+              sats={parseInt(zapAmount) || 0}
             />
           }
         />
