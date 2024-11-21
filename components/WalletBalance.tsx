@@ -24,7 +24,7 @@ const Balance: React.FC<AmountProps> = ({ style, ...textProps }) => {
   if (isLoading) {
     return (
       <View style={[styles.loading]}>
-        <ActivityIndicator animating={true} size="small" />;
+        <ActivityIndicator animating={true} size="small" />
       </View>
     );
   }
