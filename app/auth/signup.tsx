@@ -60,7 +60,7 @@ export default function SignUpPage() {
   const { isRegionVerified: isVerifiedString } = useLocalSearchParams<{
     isRegionVerified: "true" | "false";
   }>();
-  const isRegionVerified = false; //isVerifiedString === "true";
+  const isRegionVerified = isVerifiedString === "true";
 
   const router = useRouter();
   const { login, pubkey } = useAuth();
