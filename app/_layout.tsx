@@ -3,7 +3,6 @@ import "expo-dev-client";
 
 // this is needed to polyfill crypto.subtle which nostr-tools uses
 import PolyfillCrypto from "react-native-webview-crypto";
-
 import { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
@@ -43,11 +42,17 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
 Sentry.init({
   dsn: SENTRY_DSN,
-  tracesSampleRate: 0.3,
-  profilesSampleRate: 0.3,
+  tracesSampleRate: 0.1,
+  profilesSampleRate: 0.1,
   environment: NODE_ENV,
   release,
   enabled: NODE_ENV !== "development",
+  // https://docs.sentry.io/platforms/react-native/session-replay/
+  _experiments: {
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 0.3,
+  },
+  integrations: [Sentry.mobileReplayIntegration()],
 });
 
 // Catch any errors thrown by the Layout component.

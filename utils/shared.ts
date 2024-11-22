@@ -13,7 +13,6 @@ export const DEFAULT_WRITE_RELAY_URIS = [
   "wss://relay.nostr.band",
   "wss://relay.damus.io",
   "wss://relay.wavlake.com",
-  "wss://nostr.mutinywallet.com",
 ];
 
 // this npub published zap receipts and label events

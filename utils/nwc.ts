@@ -9,7 +9,6 @@ import {
 import { getNwcSecret, saveNwcSecret } from "./secureStorage";
 import { cacheSettings } from "./cache";
 
-export const MUTINY_RELAY = "wss://relay.mutinywallet.com";
 type NWCError = {
   code: string;
   message: string;
@@ -314,13 +313,13 @@ async function getNwcConnection(userIdOrPubkey: string): Promise<{
 export async function getNwcBalance({
   userIdOrPubkey,
   walletPubkey,
-  nwcRelay,
+  nwcRelay: relay,
 }: {
   userIdOrPubkey?: string;
   walletPubkey?: string;
   nwcRelay?: string;
 }) {
-  if (!userIdOrPubkey || !walletPubkey || !nwcRelay) {
+  if (!userIdOrPubkey || !walletPubkey || !relay) {
     const errorResponse: NWCResponseBase<"get_balance", undefined> = {
       result_type: "get_balance",
       error: {
@@ -336,7 +335,7 @@ export async function getNwcBalance({
 
     const requestEvent = await makeNWCRequestEvent({
       walletPubkey,
-      relay: nwcRelay,
+      relay,
       request: {
         method: getBalanceCommand,
         params: {},
@@ -347,10 +346,6 @@ export async function getNwcBalance({
     if (!requestEvent) {
       throw new Error("Failed to send NWC get balance request");
     }
-
-    // Because mutiny's relay is not readable
-    const relay =
-      nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
     return fetchNWCResponse({
       userIdOrPubkey,
@@ -373,7 +368,7 @@ async function sendNwcPaymentRequest({
   userIdOrPubkey,
   invoice,
   walletPubkey,
-  nwcRelay,
+  nwcRelay: relay,
 }: {
   userIdOrPubkey: string;
   invoice: string;
@@ -384,7 +379,7 @@ async function sendNwcPaymentRequest({
 
   const requestEvent = await makeNWCRequestEvent({
     walletPubkey,
-    relay: nwcRelay,
+    relay,
     request: {
       method: "pay_invoice",
       params: { invoice },
@@ -395,9 +390,6 @@ async function sendNwcPaymentRequest({
   if (!requestEvent) {
     throw new Error("Failed to send NWC request");
   }
-
-  const relay =
-    nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
   const response = await fetchNWCResponse({
     userIdOrPubkey,
@@ -412,7 +404,7 @@ async function sendNwcMakeInvoiceRequest({
   userIdOrPubkey,
   amount,
   walletPubkey,
-  nwcRelay,
+  nwcRelay: relay,
 }: {
   userIdOrPubkey: string;
   amount: number;
@@ -423,7 +415,7 @@ async function sendNwcMakeInvoiceRequest({
 
   const requestEvent = await makeNWCRequestEvent({
     walletPubkey,
-    relay: nwcRelay,
+    relay,
     request: {
       method: "make_invoice",
       params: {
@@ -435,9 +427,6 @@ async function sendNwcMakeInvoiceRequest({
   if (!requestEvent) {
     throw new Error("Failed to send NWC request");
   }
-
-  const relay =
-    nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
   const response = await fetchNWCResponse({
     userIdOrPubkey,
@@ -569,7 +558,7 @@ export const listenForIncomingNWCPayment = async ({
   userIdOrPubkey,
   invoice,
   walletPubkey,
-  nwcRelay,
+  nwcRelay: relay,
   signal,
 }: {
   userIdOrPubkey: string;
@@ -593,7 +582,7 @@ export const listenForIncomingNWCPayment = async ({
 
     const requestEvent = await makeNWCRequestEvent({
       walletPubkey,
-      relay: nwcRelay,
+      relay,
       request: {
         method: "lookup_invoice",
         params: {
@@ -606,9 +595,6 @@ export const listenForIncomingNWCPayment = async ({
     if (!requestEvent) {
       throw "Failed to send NWC request";
     }
-
-    const relay =
-      nwcRelay === MUTINY_RELAY ? "wss://relay.wavlake.com" : nwcRelay;
 
     const response = (await fetchNWCResponse({
       userIdOrPubkey,

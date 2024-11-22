@@ -1,32 +1,32 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, TouchableOpacity } from "react-native";
+import { Animated, TouchableOpacity, View, StyleSheet } from "react-native";
 import { useMusicPlayer } from "../MusicPlayerProvider";
 import { Text } from "../shared/Text";
 import { usePromoCheck } from "@/hooks";
 import { State, usePlaybackState } from "react-native-track-player";
-import { brandColors } from "@/constants";
 import { DialogWrapper } from "../DialogWrapper";
+import LottieView from "lottie-react-native";
 
-const EarnGreen = "#15f38c";
-
+// const EarnGreen = "#15f38c";
 // Helper function to darken a hex color
-const darkenColor = (color: string, percent: number) => {
-  const num = parseInt(color.replace("#", ""), 16);
-  const amt = Math.round(2.55 * percent);
-  const R = (num >> 16) - amt;
-  const G = ((num >> 8) & 0x00ff) - amt;
-  const B = (num & 0x0000ff) - amt;
-  return `#${(
-    (1 << 24) |
-    ((R < 255 ? (R < 1 ? 0 : R) : 255) << 16) |
-    ((G < 255 ? (G < 1 ? 0 : G) : 255) << 8) |
-    (B < 255 ? (B < 1 ? 0 : B) : 255)
-  )
-    .toString(16)
-    .slice(1)}`;
-};
+// const darkenColor = (color: string, percent: number) => {
+//   const num = parseInt(color.replace("#", ""), 16);
+//   const amt = Math.round(2.55 * percent);
+//   const R = (num >> 16) - amt;
+//   const G = ((num >> 8) & 0x00ff) - amt;
+//   const B = (num & 0x0000ff) - amt;
+//   return `#${(
+//     (1 << 24) |
+//     ((R < 255 ? (R < 1 ? 0 : R) : 255) << 16) |
+//     ((G < 255 ? (G < 1 ? 0 : G) : 255) << 8) |
+//     (B < 255 ? (B < 1 ? 0 : B) : 255)
+//   )
+//     .toString(16)
+//     .slice(1)}`;
+// };
 
 export const PlayerHeaderTitle = () => {
+  const animation = useRef<LottieView>(null);
   const [showPopup, setShowPopup] = useState(false);
   const { activeTrack, playerTitle } = useMusicPlayer();
   const { state: playbackState } = usePlaybackState();
@@ -68,22 +68,38 @@ export const PlayerHeaderTitle = () => {
     }
   }, [isPlaying, canEarnToday, pulseAnim]);
 
-  const backgroundColor = pulseAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [
-      EarnGreen,
-      darkenColor(EarnGreen, 20), // Darken EarnGreen by 20%
-    ],
-  });
+  const earningActive = isPlaying && canEarnToday;
+  // Control Lottie animation based on earningActive state
+  useEffect(() => {
+    if (animation.current) {
+      if (earningActive) {
+        animation.current.play();
+      } else {
+        animation.current.pause();
+        // Optional: Reset to first frame when inactive
+        animation.current.reset();
+      }
+    }
+  }, [earningActive]);
+
+  // using Lottie animation instead of background color pulse
+  // const backgroundColor = pulseAnim.interpolate({
+  //   inputRange: [0, 1],
+  //   outputRange: [
+  //     EarnGreen,
+  //     darkenColor(EarnGreen, 50), // Darken EarnGreen by 50%
+  //   ],
+  // });
 
   if (!showEarnings) {
     return <Text>{playerTitle}</Text>;
   }
-  const earningActive = isPlaying && canEarnToday;
+
   const earningVerb = earningActive ? "Earning" : "Earned";
   const onPress = () => {
     setShowPopup(true);
   };
+
   return (
     <>
       <PopUp
@@ -93,28 +109,27 @@ export const PlayerHeaderTitle = () => {
         earnedToday={earnedToday}
         earnableToday={earnableToday}
       />
-      <TouchableOpacity onPress={onPress}>
-        <Animated.View
-          style={{
-            borderRadius: 20,
-            backgroundColor: earningActive
-              ? backgroundColor
-              : brandColors.beige.dark,
-            padding: 6,
-            width: 200,
-          }}
-        >
-          <Text
-            style={{
-              width: "100%",
-              textAlign: "center",
-              color: "black",
-            }}
-            bold
-          >{`${earningVerb} (${earnedToday / 1000}/${
-            earnableToday / 1000
-          } sats)`}</Text>
-        </Animated.View>
+      <TouchableOpacity onPress={onPress} style={styles.container}>
+        <View style={styles.animationContainer}>
+          <View style={styles.lottieWrapper}>
+            <LottieView
+              ref={animation}
+              style={styles.lottieAnimation}
+              source={
+                earningActive
+                  ? require("@/assets/earningBadge.json")
+                  : require("@/assets/earningBadgeInactive.json")
+              }
+              loop={true}
+              speed={1.0}
+            />
+          </View>
+          <View style={[styles.textContainer]}>
+            <Text style={styles.text} bold>{`${earningVerb} (${
+              earnedToday / 1000
+            }/${earnableToday / 1000} sats)`}</Text>
+          </View>
+        </View>
       </TouchableOpacity>
     </>
   );
@@ -150,3 +165,47 @@ const PopUp = ({
     </DialogWrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  animationContainer: {
+    width: 220,
+    height: 50,
+    position: "relative",
+  },
+  lottieAnimation: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    transform: [{ scale: 0.8 }],
+  },
+  lottieWrapper: {
+    position: "absolute",
+    width: 300,
+    height: 80,
+    left: -40,
+    top: -15,
+  },
+  textContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -100 }, { translateY: -19 }], // Half of width and height to center
+    borderRadius: 20,
+    padding: 6,
+    width: 200,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  text: {
+    width: "100%",
+    textAlign: "center",
+    color: "black",
+  },
+});

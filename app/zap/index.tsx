@@ -14,13 +14,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth, useSettingsManager, useZap } from "@/hooks";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { useTheme } from "@react-navigation/native";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
+import { WalletBalance } from "@/components/WalletBalance";
 
 export default function ZapPage() {
   const {
@@ -45,6 +46,7 @@ export default function ZapPage() {
   const router = useRouter();
   const { pubkey } = useAuth();
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
+  const [zapError, setZapError] = useState<string>("");
   const [comment, setComment] = useState("");
   const { sendZap, isLoading: isZapping } = useZap({
     trackId,
@@ -55,22 +57,55 @@ export default function ZapPage() {
     isPodcast: isPodcast === "true",
     parentContentId,
   });
+
+  const validateAndSetZapAmount = useCallback((value: string) => {
+    // Remove any non-numeric characters and decimal points
+    const cleanValue = value.replace(/[^\d]/g, "");
+    setZapAmount(cleanValue);
+
+    if (cleanValue === "") {
+      setZapError("Amount is required");
+      return;
+    }
+
+    const numericValue = parseInt(cleanValue, 10);
+
+    if (isNaN(numericValue)) {
+      setZapError("Please enter a valid number");
+      return;
+    }
+
+    if (numericValue < 1 || numericValue > 100000) {
+      setZapError("Amount must be between 1 and 100,000 sats");
+      return;
+    }
+
+    setZapError("");
+  }, []);
+
   const isZapDisabled =
-    zapAmount.length === 0 || Number(zapAmount) <= 0 || isZapping;
+    zapAmount.length === 0 ||
+    Number(zapAmount) <= 0 ||
+    isZapping ||
+    zapError !== "";
+
   const handleZap = async () => {
-    sendZap({ comment, amount: parseInt(zapAmount), useNavReplace: true });
+    const numericAmount = parseInt(zapAmount, 10);
+    if (numericAmount >= 1 && numericAmount <= 100000) {
+      sendZap({ comment, amount: numericAmount, useNavReplace: true });
+    }
   };
 
   const { settings, updateSettings } = useSettingsManager();
   const { colors } = useTheme();
 
-  // this new setting will start as undefined for users
   const currentPublishKind1Setting = settings?.publishKind1 ?? false;
   const togglePublishKind1 = async (value: boolean) => {
     await updateSettings({
       publishKind1: !currentPublishKind1Setting,
     });
   };
+
   return (
     <KeyboardAvoidingView behavior="position">
       <ScrollView
@@ -87,33 +122,17 @@ export default function ZapPage() {
           </MarqueeText>
           <MarqueeText style={{ fontSize: 18 }}>by {artist}</MarqueeText>
         </Center>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          {["21", "100", "1000"].map((amount) => (
-            <Button
-              key={amount}
-              width={100}
-              onPress={() => setZapAmount(amount)}
-            >
-              {amount} ⚡️
-            </Button>
-          ))}
-        </View>
+        <WalletBalance />
         <TextInput
           label="amount (sats)"
-          onChangeText={setZapAmount}
+          onChangeText={validateAndSetZapAmount}
           value={zapAmount}
           keyboardType="numeric"
-          includeErrorMessageSpace={false}
+          errorMessage={zapError}
           rightIcon={
             <DollarAmount
               style={{ textAlign: "right" }}
-              sats={parseInt(zapAmount)}
+              sats={parseInt(zapAmount) || 0}
             />
           }
         />
@@ -126,7 +145,7 @@ export default function ZapPage() {
           value={comment}
           inputHeight={96}
         />
-        <View style={{ flexDirection: "row" }}>
+        <View style={{ flexDirection: "row", marginTop: -16 }}>
           <View style={{ flex: 1, marginRight: 8 }}>
             <Text bold>Publish comments to nostr</Text>
             <Text>Comments will show up in other clients.</Text>

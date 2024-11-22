@@ -45,5 +45,9 @@ export const getSecretFromKeychain = async () => {
 };
 
 export const deleteSecretFromKeychain = async () => {
-  await Keychain.resetGenericPassword();
+  try {
+    await Keychain.resetGenericPassword();
+  } catch (error) {
+    console.error("Keychain could not be accessed!", error);
+  }
 };

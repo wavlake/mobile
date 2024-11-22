@@ -101,8 +101,14 @@ class EarningManager {
   }
 
   public async startEarning(trackId: string) {
+    // Instead of calling resumeEarning, handle the resume logic directly
     if (this.currentTrackId === trackId && this.currentPromoDetails) {
-      this.resumeEarning();
+      if (this.currentPromoDetails.promoUser.canEarnToday) {
+        const { position } = await TrackPlayer.getProgress();
+        this.lastPlayerPosition = position;
+        this.isPlaying = true;
+        this.ensureInterval();
+      }
       return;
     }
 
@@ -148,8 +154,18 @@ class EarningManager {
       this.isPlaying = true;
       this.ensureInterval();
     } else {
+      // Instead of calling startEarning, handle the refresh directly
       if (this.currentTrackId) {
-        this.startEarning(this.currentTrackId);
+        const promoDetails = await getPromoByContentId(this.currentTrackId);
+        if (promoDetails && promoDetails.promoUser.canEarnToday) {
+          this.currentPromoDetails = promoDetails;
+          const { position } = await TrackPlayer.getProgress();
+          this.lastPlayerPosition = position;
+          this.isPlaying = true;
+          this.ensureInterval();
+        } else {
+          this.stopEarning();
+        }
       }
     }
   }
@@ -160,7 +176,6 @@ class EarningManager {
         if (this.isPlaying) {
           this.elapsedTime += CHECK_INTERVAL;
           this.attemptReward();
-        } else {
         }
       }, CHECK_INTERVAL * 1000);
     }

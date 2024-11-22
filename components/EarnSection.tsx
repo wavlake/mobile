@@ -11,6 +11,8 @@ export const EarnSection = () => {
   const { data: promos = [] } = usePromos();
   const router = useRouter();
   const { showWelcomePopup } = usePopup();
+  const userNotEligible =
+    !catalogUser?.isRegionVerified || catalogUser?.isLocked;
 
   useEffect(() => {
     if (catalogUser) {
@@ -23,7 +25,7 @@ export const EarnSection = () => {
       pathname: "/earn",
     });
 
-  if ((!initializingAuth && !user) || !promos.length) {
+  if ((!initializingAuth && !user) || !promos.length || userNotEligible) {
     return null;
   }
 

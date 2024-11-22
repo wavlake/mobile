@@ -1,5 +1,6 @@
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import * as Sentry from "@sentry/react-native";
 
 export type FirebaseUser = FirebaseAuthTypes.User | null;
 export type UserCredential = FirebaseAuthTypes.UserCredential;
@@ -12,6 +13,11 @@ const createUserWithEmailFirebase = (email: string, password: string) =>
   auth()
     .createUserWithEmailAndPassword(email, password)
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.createUserWithEmailFirebase",
+        },
+      });
       return { error: error.code };
     });
 
@@ -19,6 +25,11 @@ const signInWithEmail = (email: string, password: string) =>
   auth()
     .signInWithEmailAndPassword(email, password)
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signInWithEmail",
+        },
+      });
       return { error: error.code };
     });
 
@@ -26,6 +37,11 @@ const signInAnonymously = () =>
   auth()
     .signInAnonymously()
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signInAnonymously",
+        },
+      });
       return { error: error.code };
     });
 
@@ -40,6 +56,11 @@ const signInWithToken = (token: string) =>
       return user;
     })
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signInWithToken",
+        },
+      });
       return { error: error.code };
     });
 
@@ -47,6 +68,11 @@ const signOut = () =>
   auth()
     .signOut()
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signOut",
+        },
+      });
       return { error: error.code };
     });
 
@@ -62,6 +88,11 @@ const signInWithGoogle = async () => {
   return auth()
     .signInWithCredential(googleCredential)
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signInWithGoogle",
+        },
+      });
       return { error: error.code };
     });
 };
@@ -108,6 +139,11 @@ const verifyEmailLink = async (url: string) => {
       return { success: true };
     })
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.verifyEmailLink",
+        },
+      });
       // Code is invalid or expired. Ask the user to verify their email address again.
       return { success: false, error: error.code };
     });
@@ -127,6 +163,11 @@ const resetPassword = async (
       return { success: true };
     })
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.resetPassword",
+        },
+      });
       return { success: false, error: error.code };
     });
 };
@@ -144,6 +185,11 @@ const resendVerificationEmail = async () => {
       return { success: true };
     })
     .catch((error) => {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.resendVerificationEmail",
+        },
+      });
       return { success: false, error: error.code };
     });
 };
