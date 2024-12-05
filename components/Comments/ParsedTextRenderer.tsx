@@ -1,7 +1,62 @@
 import { brandColors } from "@/constants";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { nip19 } from "nostr-tools";
 import { Linking, View } from "react-native";
 import ParsedText from "react-native-parsed-text";
+import { NostrUserProfile } from "@/utils";
+import { useMemo } from "react";
+import { useNostrProfileEvent } from "@/hooks";
+interface ParsedTextWrapperProps {
+  content?: string;
+}
+
+export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
+  // Extract mentions from the content
+  const mentions = useMemo(() => {
+    const mentionRegex =
+      /nostr:(n(?:profile|pub)1[a-zA-Z0-9]+)(?:@([a-zA-Z0-9_]+))?/g;
+    const matches = [...content.matchAll(mentionRegex)];
+    return matches
+      .map((match) => {
+        try {
+          const npub = match[1];
+          const { type, data } = nip19.decode(npub);
+          return {
+            pubkey:
+              type === "npub" ? data : type === "nprofile" ? data.pubkey : "",
+            relays: type === "nprofile" ? data.relays ?? [] : [],
+          };
+        } catch (e) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }, [content]);
+
+  // Fetch profile data for all mentions
+  const mentionProfiles = new Map<string, NostrUserProfile>();
+  mentions.forEach((mention) => {
+    if (mention) {
+      const { data: profile } = useNostrProfileEvent(
+        mention.pubkey,
+        false,
+        mention.relays,
+      );
+      if (profile) {
+        mentionProfiles.set(mention.pubkey, profile);
+      }
+    }
+  });
+
+  return (
+    <InternalParsedTextRender
+      content={content}
+      mentionProfiles={mentionProfiles}
+    />
+  );
+};
 
 const handleUrlPress = (url: string) => {
   Linking.openURL(url);
@@ -14,9 +69,6 @@ const renderImage = (matchingString: string, matches: string[]): any => {
     <View>
       <Image
         source={{ uri: urlParamsRemoved }}
-        // TODO - figure out some placeholder image to show while loading
-        // investigate using react-native-animated
-        // placeholder={}
         style={{ width: 200, height: 200, marginVertical: 10 }}
         cachePolicy="memory-disk"
       />
@@ -24,7 +76,71 @@ const renderImage = (matchingString: string, matches: string[]): any => {
   );
 };
 
-export const ParsedTextRender = ({ content }: { content?: string }) => {
+interface InternalParsedTextRenderProps {
+  content?: string;
+  mentionProfiles: Map<string, NostrUserProfile>;
+}
+
+const InternalParsedTextRender = ({
+  content,
+  mentionProfiles,
+}: InternalParsedTextRenderProps) => {
+  const router = useRouter();
+  const basePathname = useGetBasePathname();
+
+  const handleMentionPress = (matchingString: string) => {
+    try {
+      const npub = matchingString.split(":")[1];
+      const { type, data } = nip19.decode(npub);
+      const pubkey =
+        type === "npub" ? data : type === "nprofile" ? data.pubkey : "";
+
+      if (pubkey) {
+        const metadata = mentionProfiles.get(pubkey);
+        router.push({
+          pathname: `${basePathname}/profile/${pubkey}`,
+          params: {
+            includeBackButton: "true",
+            headerTitle: metadata?.name
+              ? `${metadata.name}'s Profile`
+              : "Profile",
+            includeHeaderTitleVerifiedBadge: "0",
+          },
+        });
+      }
+    } catch (e) {
+      console.error("Error handling mention press:", e);
+    }
+  };
+
+  const parseMention = (matchingString: string, matches: string[]): string => {
+    try {
+      const npub = matches[1];
+      const { type, data } = nip19.decode(npub);
+      const pubkey =
+        type === "npub" ? data : type === "nprofile" ? data.pubkey : "";
+
+      if (!pubkey) {
+        return matchingString;
+      }
+
+      const metadata = mentionProfiles.get(pubkey);
+      if (metadata) {
+        return (
+          metadata.displayName ??
+          metadata.name ??
+          metadata.display_name ??
+          matchingString
+        );
+      }
+
+      return matchingString;
+    } catch (e) {
+      console.error("Error parsing mention:", e);
+      return matchingString;
+    }
+  };
+
   return (
     <ParsedText
       style={{ color: "white" }}
@@ -39,9 +155,21 @@ export const ParsedTextRender = ({ content }: { content?: string }) => {
           style: { color: brandColors.purple.DEFAULT },
           onPress: handleUrlPress,
         },
+        {
+          pattern: /nostr:(n(?:profile|pub)1[a-zA-Z0-9]+)(?:@([a-zA-Z0-9_]+))?/,
+          style: {
+            color: brandColors.purple.DEFAULT,
+            fontWeight: "600",
+          },
+          onPress: handleMentionPress,
+          renderText: parseMention,
+        },
       ]}
     >
       {content}
     </ParsedText>
   );
 };
+
+export const ParsedTextRender: React.FC<ParsedTextWrapperProps> =
+  ParsedTextWrapper;
