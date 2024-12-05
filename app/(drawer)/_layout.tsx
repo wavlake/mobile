@@ -6,27 +6,44 @@ import {
   useNavigation,
 } from "@react-navigation/native";
 import { useRouter, useGlobalSearchParams, usePathname } from "expo-router";
-import { useAuth, useUser } from "@/hooks";
+import { useAuth, useInbox, useUser } from "@/hooks";
 import { View, Pressable, Alert } from "react-native";
 import { DrawerContent } from "@/components/DrawerContent";
 import { VerificationIcon } from "@/components/VerificationIcon";
 import { Ionicons } from "@expo/vector-icons";
 import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
+import { brandColors } from "@/constants";
 
 const MenuButton = () => {
+  const { hasUnreadMessages } = useInbox();
   const { colors } = useTheme();
   const navigation = useNavigation();
   const onPress = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
+
   return (
     <Pressable
       onPress={onPress}
       style={{
         paddingLeft: 15,
+        position: "relative",
       }}
     >
       <Ionicons name="menu-sharp" size={24} color={colors.text} />
+      {hasUnreadMessages && (
+        <View
+          style={{
+            position: "absolute",
+            top: -4,
+            right: -4,
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: brandColors.pink.DEFAULT,
+          }}
+        />
+      )}
     </Pressable>
   );
 };
