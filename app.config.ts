@@ -60,6 +60,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     ios: {
       supportsTablet: true,
+      usesAppleSignIn: true,
       infoPlist: {
         UIBackgroundModes: ["audio"],
         NSLocationWhenInUseUsageDescription:
@@ -81,6 +82,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "@react-native-google-signin/google-signin",
       "expo-font",
       "expo-secure-store",
+      "expo-apple-authentication",
       [
         "expo-camera",
         {
