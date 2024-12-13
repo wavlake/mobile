@@ -157,6 +157,42 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
     }
   };
 
+  const signInWithApple = async () => {
+    try {
+      const user = await firebaseService.signInWithApple();
+      if ("error" in user) throw user.error;
+
+      const { data: catalogUserData } = await _refetchUser();
+      if (user.additionalUserInfo?.isNewUser) {
+        const username = user.user.displayName ?? "";
+        const userPubkey = await handleNewUser(user.user.email ?? "", username);
+        await createUser({ pubkey: userPubkey, username });
+      } else if (!pubkey) {
+        const keys = await handleExistingNostrAccount();
+        if (keys) {
+          await associatePubkeyWithUser(keys, user.user.email ?? "");
+        }
+      }
+
+      return {
+        ...user,
+        isRegionVerified: catalogUserData?.isRegionVerified,
+        isEmailVerified: user.user.emailVerified,
+      };
+    } catch (error) {
+      Sentry.captureException(error, {
+        extra: {
+          method: "firebase.signInWithApple",
+        },
+      });
+      console.error("Apple sign-in error:", error);
+      return {
+        error:
+          typeof error === "string" ? error : "Failed to sign in with Apple",
+      };
+    }
+  };
+
   const createUserWithEmail = async ({
     email,
     password,
@@ -245,6 +281,7 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
       (n) => n.publicHex === pubkey,
     ),
     ...firebaseService,
+    signInWithApple,
     signInWithGoogle,
     signInWithEmail,
     createUserWithEmail,

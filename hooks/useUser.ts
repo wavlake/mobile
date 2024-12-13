@@ -29,6 +29,7 @@ export interface UserContextValue {
   createUserWithEmail: (
     args: CreateEmailUserArgs,
   ) => Promise<SignedInUser | { error: string }>;
+  signInWithApple: () => Promise<SignedInUser | { error: string }>;
 }
 
 // Create context with default values
@@ -41,9 +42,13 @@ export const UserContext = createContext<
   nostrMetadata: undefined,
   refetchUser: async () => {},
   ...firebaseService,
-  createUserWithEmail: async () => ({ error: "not initialized" }),
-  signInWithGoogle: async () => ({ error: "not initialized" }),
-  signInWithEmail: async () => ({ error: "not initialized" }),
+  createUserWithEmail: async () => ({
+    success: false,
+    error: "not initialized",
+  }),
+  signInWithGoogle: async () => ({ success: false, error: "not initialized" }),
+  signInWithEmail: async () => ({ success: false, error: "not initialized" }),
+  signInWithApple: async () => ({ success: false, error: "not initialized" }),
 });
 
 export const useUser = () => {
