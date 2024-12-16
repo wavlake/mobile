@@ -134,6 +134,24 @@ export const useEditUser = () => {
   });
 };
 
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data } =
+        await catalogApiClient.delete<ResponseObject<never>>(
+          "/accounts/disable",
+        );
+
+      return data;
+    },
+    onSuccess(data) {
+      queryClient.invalidateQueries(["userData"]);
+    },
+  });
+};
+
 export interface WalletConnection {
   name: string;
   pubkey: string;
