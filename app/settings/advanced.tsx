@@ -16,7 +16,7 @@ import {
   WAVLAKE_RELAY,
   useUser,
 } from "@/hooks";
-import { Settings, payInvoiceCommand } from "@/utils";
+import { Settings, payInvoiceCommand, useDeleteUser } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
@@ -211,9 +211,9 @@ const styles = StyleSheet.create({
 export default function AdvancedSettingsPage() {
   const toast = useToast();
   const router = useRouter();
-  const { userIsLoggedIn: pubkeyLoggedIn } = useAuth();
+  const { userIsLoggedIn: pubkeyLoggedIn, logout } = useAuth();
   const { settings, updateSettings } = useSettingsManager();
-  const { catalogUser } = useUser();
+  const { catalogUser, signOut } = useUser();
   const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
   if (!settings) return null;
   const handleSettingsUpdate = async (newSettings: Partial<Settings>) => {
@@ -225,6 +225,27 @@ export default function AdvancedSettingsPage() {
     } catch (error) {
       toast.show("Failed to save settings");
       console.error("Failed to save settings:", error);
+    }
+  };
+
+  const { mutateAsync: deleteUser } = useDeleteUser();
+
+  const handleDeleteUser = async () => {
+    try {
+      const { success } = await deleteUser();
+      if (success) {
+        // nostr logout
+        await logout();
+        // firebase logout
+        await signOut();
+        router.replace({ pathname: "/" });
+        toast.show("User deleted");
+      } else {
+        throw new Error("Failed to delete user");
+      }
+    } catch (error) {
+      toast.show("Failed to delete user, please contact suppport@wavlake.com");
+      console.error("Failed to delete user:", error);
     }
   };
 
@@ -302,6 +323,33 @@ export default function AdvancedSettingsPage() {
               <Text>
                 Tap here to view your account secret key and export it to a safe
                 place.
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.settingRow}>
+          <View style={styles.settingText}>
+            <TouchableOpacity
+              hitSlop={20}
+              onPress={() => {
+                Alert.alert(
+                  "Are you sure you want to delete your account and logout?",
+                  "This action is irreversible and will delete your account and all associated data.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Delete Account",
+                      style: "destructive",
+                      onPress: handleDeleteUser,
+                    },
+                  ],
+                );
+              }}
+            >
+              <Text bold>Delete user account</Text>
+              <Text>
+                This will delete your user account and you will no longer be
+                able to login.
               </Text>
             </TouchableOpacity>
           </View>
