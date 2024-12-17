@@ -211,9 +211,9 @@ const styles = StyleSheet.create({
 export default function AdvancedSettingsPage() {
   const toast = useToast();
   const router = useRouter();
-  const { userIsLoggedIn: pubkeyLoggedIn, logout } = useAuth();
+  const { userIsLoggedIn: pubkeyLoggedIn } = useAuth();
   const { settings, updateSettings } = useSettingsManager();
-  const { catalogUser, signOut } = useUser();
+  const { catalogUser } = useUser();
   const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
   if (!settings) return null;
   const handleSettingsUpdate = async (newSettings: Partial<Settings>) => {
@@ -234,12 +234,8 @@ export default function AdvancedSettingsPage() {
     try {
       const { success } = await deleteUser();
       if (success) {
-        // nostr logout
-        await logout();
-        // firebase logout
-        await signOut();
-        router.replace({ pathname: "/" });
-        toast.show("User deleted");
+        router.canDismiss() && router.dismissAll();
+        router.replace("/auth");
       } else {
         throw new Error("Failed to delete user");
       }
