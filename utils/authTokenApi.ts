@@ -140,9 +140,7 @@ export const useDeleteUser = () => {
   return useMutation({
     mutationFn: async () => {
       const { data } =
-        await catalogApiClient.delete<ResponseObject<never>>(
-          "/accounts/disable",
-        );
+        await catalogApiClient.put<ResponseObject<never>>("/accounts/disable");
 
       return data;
     },
