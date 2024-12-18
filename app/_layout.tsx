@@ -30,7 +30,6 @@ import TrackPlayer, {
   AppKilledPlaybackBehavior,
 } from "react-native-track-player";
 import { musicService } from "@/services";
-import DeepLinkHandler from "@/components/DeepLinkHandler";
 import { UserContextProvider } from "@/components/UserContextProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "@sentry/react-native";
@@ -135,73 +134,71 @@ function Layout() {
                   <RootSiblingParent>
                     <View style={{ flex: 1, backgroundColor: "black" }}>
                       <PolyfillCrypto />
-                      <DeepLinkHandler>
-                        <Stack
-                          screenOptions={{
-                            headerStyle: {
-                              backgroundColor: "black",
-                            },
-                            headerShadowVisible: false,
-                            headerTintColor: "white",
-                            headerBackTitleVisible: false,
-                            headerTitleAlign: "center",
+                      <Stack
+                        screenOptions={{
+                          headerStyle: {
+                            backgroundColor: "black",
+                          },
+                          headerShadowVisible: false,
+                          headerTintColor: "white",
+                          headerBackTitleVisible: false,
+                          headerTitleAlign: "center",
+                        }}
+                      >
+                        <Stack.Screen
+                          name="(drawer)"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="auth"
+                          options={{
+                            headerShown: false,
+                            gestureDirection: "vertical",
+                            gestureEnabled: false,
                           }}
-                        >
-                          <Stack.Screen
-                            name="(drawer)"
-                            options={{ headerShown: false }}
-                          />
-                          <Stack.Screen
-                            name="auth"
-                            options={{
-                              headerShown: false,
-                              gestureDirection: "vertical",
-                              gestureEnabled: false,
-                            }}
-                          />
-                          <Stack.Screen
-                            name="zap"
-                            options={{
-                              headerShown: false,
-                              gestureEnabled: false,
-                              gestureDirection: "vertical",
-                            }}
-                          />
-                          <Stack.Screen
-                            name="settings"
-                            options={{
-                              headerShown: false,
-                            }}
-                          />
-                          <Stack.Screen
-                            name="nwcScanner"
-                            options={{
-                              headerTitle: () => (
-                                <Text>Nostr Wallet Connect</Text>
-                              ),
-                            }}
-                          />
-                          <Stack.Screen name="notification.click" />
-                          <Stack.Screen
-                            name="nwcAdd"
-                            options={{
-                              headerTitle: () => <Text>Connecting wallet</Text>,
-                            }}
-                          />
-                          <Stack.Screen
-                            name="wallet"
-                            options={{
-                              headerShown: false,
-                            }}
-                          />
-                          <Stack.Screen
-                            name="+not-found"
-                            options={{
-                              headerShown: false,
-                            }}
-                          />
-                        </Stack>
-                      </DeepLinkHandler>
+                        />
+                        <Stack.Screen
+                          name="zap"
+                          options={{
+                            headerShown: false,
+                            gestureEnabled: false,
+                            gestureDirection: "vertical",
+                          }}
+                        />
+                        <Stack.Screen
+                          name="settings"
+                          options={{
+                            headerShown: false,
+                          }}
+                        />
+                        <Stack.Screen
+                          name="nwcScanner"
+                          options={{
+                            headerTitle: () => (
+                              <Text>Nostr Wallet Connect</Text>
+                            ),
+                          }}
+                        />
+                        <Stack.Screen name="notification.click" />
+                        <Stack.Screen
+                          name="nwcAdd"
+                          options={{
+                            headerTitle: () => <Text>Connecting wallet</Text>,
+                          }}
+                        />
+                        <Stack.Screen
+                          name="wallet"
+                          options={{
+                            headerShown: false,
+                          }}
+                        />
+                        <Stack.Screen
+                          name="+not-found"
+                          options={{
+                            headerShown: false,
+                          }}
+                        />
+                      </Stack>
                     </View>
                   </RootSiblingParent>
                 </BitcoinPriceProvider>
