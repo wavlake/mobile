@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { normalizeTrackResponse } from "./api";
 import { PrivateUserData, ResponseObject, TrackResponse } from "./types";
+import { useAuth, useUser } from "@/hooks";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const enableResponseLogging = Boolean(
@@ -129,6 +130,27 @@ export const useEditUser = () => {
       return data.data;
     },
     onSuccess(data) {
+      queryClient.invalidateQueries(["userData"]);
+    },
+  });
+};
+
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+  const { logout } = useAuth();
+  const { signOut } = useUser();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } =
+        await catalogApiClient.put<ResponseObject<never>>("/accounts/disable");
+
+      return data;
+    },
+    onSuccess(data) {
+      // nostr logout
+      logout();
+      // firebase logout
+      signOut();
       queryClient.invalidateQueries(["userData"]);
     },
   });
