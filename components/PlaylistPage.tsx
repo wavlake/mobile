@@ -21,6 +21,7 @@ import { useMusicPlayer } from "./MusicPlayerProvider";
 import { useMiniMusicPlayer } from "./MiniMusicPlayerProvider";
 import { SquareArtwork } from "./SquareArtwork";
 import { Center } from "./shared/Center";
+import LoadingScreen from "./LoadingScreen";
 
 export const PlaylistPage = () => {
   const { colors } = useTheme();
@@ -66,7 +67,20 @@ export const PlaylistPage = () => {
   const handleMorePress = () => {
     setMoreIsOpen(true);
   };
-  return tracks ? (
+
+  if (isLoading) {
+    return <LoadingScreen loading />;
+  }
+
+  if (!playlistData) {
+    return (
+      <Center>
+        <Text>Playlist not found</Text>
+      </Center>
+    );
+  }
+
+  return (
     <View style={{ height: "100%", padding: 16, gap: 8 }}>
       <View
         style={{
@@ -158,9 +172,5 @@ export const PlaylistPage = () => {
         />
       )}
     </View>
-  ) : (
-    <Center>
-      <ActivityIndicator />
-    </Center>
   );
 };
