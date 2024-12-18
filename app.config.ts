@@ -51,6 +51,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               host: "*.wavlake.com",
               pathPrefix: "/verification-link",
             },
+            {
+              scheme: "https",
+              host: "*.wavlake.com",
+              pathPrefix: "/track/",
+            },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
