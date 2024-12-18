@@ -1,13 +1,10 @@
 import { useGetBasePathname } from "./useGetBasePathname";
 import { useRouter } from "expo-router";
 
-export const useGoToAlbumPage = ({
-  replace = false,
-}: {
-  replace?: boolean;
-}) => {
+export const useGoToAlbumPage = (options?: { replace?: boolean }) => {
   const router = useRouter();
   const basePathname = useGetBasePathname();
+  const { replace = false } = options || {};
 
   return (albumId: string, albumName: string) => {
     const nextPage = {
