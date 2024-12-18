@@ -20,7 +20,6 @@ const LoadingScreen = ({ loading }: { loading: boolean }) => {
       >
         <View
           style={{
-            backgroundColor: "#FFFFFF",
             height: 100,
             width: 100,
             borderRadius: 10,
