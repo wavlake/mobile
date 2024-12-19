@@ -1,23 +1,23 @@
 // Enhanced route configuration with more robust typing
 interface RouteConfig {
-  getPath: (params?: Record<string, string>) => string;
+  getPath: () => string;
   includeBackButton: boolean; // Use boolean instead of string
 }
 
-// More comprehensive route mapping
+// route mapping that maps the website path to the app path
+// this is used to redirect users to the correct page in the app
+// most of the paths are the same, but some paths have different routes in the app
 const ROUTE_MAPPING: Record<string, RouteConfig> = {
   "/playlist/": {
-    getPath: (params) => {
-      const playlistId = params?.playlistId ? `${params.playlistId}/` : "";
-      return `/playlist/${playlistId}`;
-    },
+    getPath: () => `/playlist/`,
     includeBackButton: true,
   },
   "/album/": {
-    getPath: (params) => {
-      const albumId = params?.albumId ? `${params.albumId}/` : "";
-      return `/album/${albumId}`;
-    },
+    getPath: () => `/album/`,
+    includeBackButton: true,
+  },
+  "/track/": {
+    getPath: () => `/track/`,
     includeBackButton: true,
   },
   "/verification-link": {
@@ -42,11 +42,8 @@ export function redirectSystemPath({
     if (matchedRoute) {
       const [routeKey, routeConfig] = matchedRoute;
 
-      // Extract parameters
-      const params = extractPathParams(path, routeKey);
-
       // Generate new path
-      const newPathSegment = routeConfig.getPath(params);
+      const newPathSegment = routeConfig.getPath();
       const finalPath = path.replace(routeKey, newPathSegment);
 
       // Convert includeBackButton to string for URL param
@@ -65,24 +62,4 @@ export function redirectSystemPath({
     console.error("Deep link routing error:", error);
     return "/unexpected-error";
   }
-}
-
-/**
- * Helper function to extract path parameters
- */
-function extractPathParams(
-  path: string,
-  routeKey: string,
-): Record<string, string> {
-  const params: Record<string, string> = {};
-  const pathSegments = path.split("/").filter(Boolean);
-  const routeSegments = routeKey.split("/").filter(Boolean);
-
-  pathSegments.forEach((segment, index) => {
-    if (index >= routeSegments.length) {
-      params[`param${index - routeSegments.length + 1}`] = segment;
-    }
-  });
-
-  return params;
 }
