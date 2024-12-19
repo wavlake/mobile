@@ -131,7 +131,8 @@ export const getAlbum = async (albumId: string): Promise<Album> => {
 };
 
 export const getTrack = async (trackId: string): Promise<Track> => {
-  const { data } = await apiClient.get(`/track/${trackId}`);
+  console.log("trackId", trackId);
+  const { data } = await apiClient.get(`/tracks/${trackId}`);
 
   return data.data;
 };
