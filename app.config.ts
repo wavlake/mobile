@@ -2,7 +2,7 @@
 
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-export const BUILD_NUM = 81;
+export const BUILD_NUM = 83;
 export const VERSION = "1.1.0";
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
@@ -50,6 +50,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               scheme: "https",
               host: "*.wavlake.com",
               pathPrefix: "/verification-link",
+            },
+            {
+              scheme: "https",
+              host: "*.wavlake.com",
+              pathPrefix: "/track/",
             },
           ],
           category: ["BROWSABLE", "DEFAULT"],

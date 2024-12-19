@@ -130,6 +130,12 @@ export const getAlbum = async (albumId: string): Promise<Album> => {
   return data.data;
 };
 
+export const getTrack = async (trackId: string): Promise<Track> => {
+  const { data } = await apiClient.get(`/tracks/${trackId}`);
+
+  return data.data;
+};
+
 export const getArtistComments = async (
   artistId: string,
   page: number,
