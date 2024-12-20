@@ -323,33 +323,35 @@ export default function AdvancedSettingsPage() {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.settingRow}>
-          <View style={styles.settingText}>
-            <TouchableOpacity
-              hitSlop={20}
-              onPress={() => {
-                Alert.alert(
-                  "Are you sure you want to delete your account and logout?",
-                  "This action is irreversible and will delete your account and all associated data.",
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete Account",
-                      style: "destructive",
-                      onPress: handleDeleteUser,
-                    },
-                  ],
-                );
-              }}
-            >
-              <Text bold>Delete user account</Text>
-              <Text>
-                This will delete your user account and you will no longer be
-                able to login.
-              </Text>
-            </TouchableOpacity>
+        {!!catalogUser && (
+          <View style={styles.settingRow}>
+            <View style={styles.settingText}>
+              <TouchableOpacity
+                hitSlop={20}
+                onPress={() => {
+                  Alert.alert(
+                    "Are you sure you want to delete your account and logout?",
+                    "This action is irreversible and will delete your account and all associated data.",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Delete Account",
+                        style: "destructive",
+                        onPress: handleDeleteUser,
+                      },
+                    ],
+                  );
+                }}
+              >
+                <Text bold>Delete user account</Text>
+                <Text>
+                  This will delete your user account and you will no longer be
+                  able to login.
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
     </TouchableWithoutFeedback>
   );

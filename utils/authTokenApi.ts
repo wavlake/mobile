@@ -4,6 +4,7 @@ import auth from "@react-native-firebase/auth";
 import { normalizeTrackResponse } from "./api";
 import { PrivateUserData, ResponseObject, TrackResponse } from "./types";
 import { useAuth, useUser } from "@/hooks";
+import { deleteSecretFromKeychain } from "./keychainStorage";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const enableResponseLogging = Boolean(
@@ -151,6 +152,8 @@ export const useDeleteUser = () => {
       logout();
       // firebase logout
       signOut();
+      // delete user's nostr secret
+      deleteSecretFromKeychain();
       queryClient.invalidateQueries(["userData"]);
     },
   });
