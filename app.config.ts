@@ -91,7 +91,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "expo-camera",
         {
-          cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+          cameraPermission:
+            "Allow $(PRODUCT_NAME) to use your camera to scan QR codes for wallet connections.",
         },
       ],
       [
