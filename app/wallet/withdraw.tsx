@@ -195,6 +195,7 @@ export default function Withdraw({}: {}) {
 }
 
 export function parseInvoice(x: string) {
+  const SATS_PER_BTC = 100_000_000;
   const re = new RegExp(`(lnbc)([1234567890]{1,})(\\w)1\\w+`);
   const [zero, first, second, third] = x.match(re) || [];
   const secondInt = Number(second);
@@ -204,13 +205,13 @@ export function parseInvoice(x: string) {
     }
     switch (third) {
       case "m":
-        return secondInt * 100000;
+        return (secondInt * SATS_PER_BTC) / 1000; // milli (0.001 BTC)
       case "u":
-        return secondInt * 100;
+        return (secondInt * SATS_PER_BTC) / 1_000_000; // micro (0.000001 BTC)
       case "n":
-        return secondInt * 0.1;
+        return (secondInt * SATS_PER_BTC) / 1_000_000_000; // nano (0.000000001 BTC)
       case "p":
-        return secondInt * 0.0001;
+        return (secondInt * SATS_PER_BTC) / 1_000_000_000_000; // pico (0.000000000001 BTC)
       default:
         return "Invalid invoice";
     }
