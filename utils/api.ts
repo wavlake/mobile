@@ -584,3 +584,11 @@ export const validateUsername = async (username: string) => {
   );
   return data;
 };
+
+export const getArtistByName = async (artistName: string) => {
+  const { data } = await apiClient.get<ResponseObject<Artist>>(
+    `artists/${artistName}/url`,
+  );
+
+  return data?.data;
+};
