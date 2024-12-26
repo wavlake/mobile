@@ -56,6 +56,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               host: "*.wavlake.com",
               pathPrefix: "/track/",
             },
+            {
+              scheme: "https",
+              host: "*.wavlake.com",
+              pathPattern: "/:artistName",
+            },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
