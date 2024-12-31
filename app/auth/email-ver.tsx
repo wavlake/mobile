@@ -4,9 +4,9 @@ import {
   useAutoConnectNWC,
   useToast,
   useUser,
+  useFirebaseDeepLink,
 } from "@/hooks";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect } from "react";
 import {
   View,
   TouchableWithoutFeedback,
@@ -17,11 +17,10 @@ import {
 import DeviceInfo from "react-native-device-info";
 
 export default function EmailVer() {
-  const { navFromEmailVerLink, errorMessage } = useLocalSearchParams<{
-    navFromEmailVerLink: "true" | "false";
+  const { errorMessage } = useLocalSearchParams<{
     errorMessage: string;
   }>();
-  const userCameFromEmailLink = navFromEmailVerLink === "true";
+
   const { resendVerificationEmail, checkIfEmailIsVerified, catalogUser } =
     useUser();
   const { connectWallet } = useAutoConnectNWC();
@@ -81,12 +80,7 @@ export default function EmailVer() {
     }
   };
 
-  // trigger a check if the user came from an email link
-  useEffect(() => {
-    if (userCameFromEmailLink) {
-      handleCheckAgain();
-    }
-  }, [userCameFromEmailLink]);
+  useFirebaseDeepLink({ onDone: handleCheckAgain });
 
   const handleResend = async () => {
     const { success, isVerified, error } = await checkIfEmailIsVerified();
