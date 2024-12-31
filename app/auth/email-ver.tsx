@@ -21,7 +21,7 @@ export default function EmailVer() {
     errorMessage: string;
   }>();
 
-  const { resendVerificationEmail, checkIfEmailIsVerified, catalogUser } =
+  const { resendVerificationEmail, checkIfEmailIsVerified, refetchUser } =
     useUser();
   const { connectWallet } = useAutoConnectNWC();
   const router = useRouter();
@@ -62,6 +62,7 @@ export default function EmailVer() {
   const handleCheckAgain = async () => {
     const { success, isVerified, error } = await checkIfEmailIsVerified();
     if (isVerified) {
+      const catalogUser = await refetchUser();
       // auto connect NWC if user is region verified
       if (catalogUser?.isRegionVerified) {
         await connectWallet(
