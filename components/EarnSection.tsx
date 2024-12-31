@@ -12,7 +12,9 @@ export const EarnSection = () => {
   const router = useRouter();
   const { showWelcomePopup } = usePopup();
   const userNotEligible =
-    !catalogUser?.isRegionVerified || catalogUser?.isLocked;
+    !catalogUser?.isRegionVerified ||
+    catalogUser?.isLocked ||
+    !catalogUser?.emailVerified;
 
   useEffect(() => {
     if (catalogUser) {
