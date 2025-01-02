@@ -11,6 +11,8 @@ import { SquareArtwork } from "./SquareArtwork";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { CommentList } from "./Comments/CommentList";
 import { useAlbumComments } from "@/hooks/useAlbumComments";
+import LoadingScreen from "./LoadingScreen";
+import { Center } from "./shared/Center";
 
 interface AlbumPageFooterProps {
   album: Album;
@@ -58,7 +60,7 @@ export const AlbumPage = () => {
     queryFn: () => getAlbum(albumId as string),
   });
 
-  const { data: tracks = [] } = useQuery({
+  const { data: tracks = [], isLoading } = useQuery({
     queryKey: ["albums", albumId],
     queryFn: () => getAlbumTracks(albumId as string),
   });
@@ -71,6 +73,18 @@ export const AlbumPage = () => {
       playerTitle,
     });
   };
+
+  if (isLoading) {
+    return <LoadingScreen loading />;
+  }
+
+  if (!album) {
+    return (
+      <Center>
+        <Text>Album not found</Text>
+      </Center>
+    );
+  }
 
   return (
     <FlatList

@@ -1,10 +1,10 @@
 import { Button, Center, Text } from "@/components";
 import { ActivityIndicator, View } from "react-native";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
 import { useEffect } from "react";
 import { setSkipLogin } from "@/utils";
-import { useAuth, useNostrProfileEvent, useUser } from "@/hooks";
+import { useAuth, useNostrProfileEvent, usePopup, useUser } from "@/hooks";
 
 export default function WelcomePage() {
   // the user has successfully logged in
@@ -13,6 +13,7 @@ export default function WelcomePage() {
     setSkipLogin();
   }, []);
 
+  const { showWelcomePopup } = usePopup();
   const { nostrOnlyLogin: nostrOnlyLoginString } = useLocalSearchParams<{
     nostrOnlyLogin: "true" | "false";
   }>();
@@ -24,6 +25,7 @@ export default function WelcomePage() {
   const userName = nostrOnlyLogin ? userProfile?.name : catalogUser?.name;
   const goToHomePage = async () => {
     router.replace("/");
+    catalogUser && showWelcomePopup(catalogUser);
   };
 
   if (isFetching) {

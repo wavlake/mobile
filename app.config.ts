@@ -2,8 +2,8 @@
 
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-export const BUILD_NUM = 78;
-export const VERSION = "1.1.0";
+export const BUILD_NUM = 1;
+export const VERSION = "1.1.2";
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
 export default ({ config }: ConfigContext): ExpoConfig => {
@@ -51,6 +51,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               host: "*.wavlake.com",
               pathPrefix: "/verification-link",
             },
+            {
+              scheme: "https",
+              host: "*.wavlake.com",
+              pathPrefix: "/track/",
+            },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
@@ -60,6 +65,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     ios: {
       supportsTablet: true,
+      usesAppleSignIn: true,
       infoPlist: {
         UIBackgroundModes: ["audio"],
         NSLocationWhenInUseUsageDescription:
@@ -81,10 +87,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "@react-native-google-signin/google-signin",
       "expo-font",
       "expo-secure-store",
+      "expo-apple-authentication",
       [
         "expo-camera",
         {
-          cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+          cameraPermission:
+            "Allow $(PRODUCT_NAME) to use your camera to scan QR codes for wallet connections.",
         },
       ],
       [

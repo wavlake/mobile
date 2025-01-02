@@ -74,3 +74,4 @@ export * from "./VercelImage";
 export * from "./WelcomeDialog";
 export * from "./PopupProvider";
 export * from "./InboxPage";
+export * from "./TrackPage";

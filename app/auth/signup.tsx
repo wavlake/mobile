@@ -365,7 +365,8 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 50,
     gap: 20,
   },
   logoContainer: {

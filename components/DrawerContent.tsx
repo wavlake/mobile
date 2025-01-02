@@ -31,7 +31,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
     settings.nwcRelay === WAVLAKE_RELAY;
 
   const showEarn = catalogUser?.isRegionVerified && !catalogUser?.isLocked;
-
+  const showSettings = pubkey || catalogUser;
   return (
     <DrawerContentScrollView
       contentContainerStyle={{
@@ -57,7 +57,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             />
           </>
         )}
-        {!pubkey ? (
+        {!pubkey && (
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Connect Nostr</Text>}
             icon={({ color, size }) => (
@@ -68,7 +68,8 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               props.navigation.closeDrawer();
             }}
           />
-        ) : (
+        )}
+        {showSettings && (
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Settings</Text>}
             icon={({ color, size }) => (
