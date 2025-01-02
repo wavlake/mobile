@@ -125,7 +125,7 @@ export default function EmailVer() {
               Please check your email for a verification link
             </Text>
             <Button color="white" onPress={handleCheckAgain}>
-              Check Again
+              Verify
             </Button>
             <TouchableOpacity onPress={openEmailClient}>
               <Text style={{ fontSize: 18 }} bold>
