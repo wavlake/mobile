@@ -1,26 +1,18 @@
 import { TouchableOpacity, View } from "react-native";
 import { brandColors } from "@/constants";
-import { usePopup, usePromos, useUser } from "@/hooks";
+import { usePromos, useUser } from "@/hooks";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
 
 const IMAGE_HEIGHT = 143;
 export const EarnSection = () => {
   const { catalogUser, user, initializingAuth } = useUser();
   const { data: promos = [] } = usePromos();
   const router = useRouter();
-  const { showWelcomePopup } = usePopup();
   const userNotEligible =
     !catalogUser?.isRegionVerified ||
     catalogUser?.isLocked ||
     !catalogUser?.emailVerified;
-
-  useEffect(() => {
-    if (catalogUser) {
-      showWelcomePopup(catalogUser);
-    }
-  }, [catalogUser?.id]);
 
   const onPress = () =>
     router.push({
