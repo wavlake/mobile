@@ -1,12 +1,12 @@
-// Enhanced route configuration with more robust typing
+// Types for route configuration
 interface RouteConfig {
   getPath: () => string;
-  includeBackButton: boolean; // Use boolean instead of string
+  includeBackButton: boolean;
+  preserveParams?: boolean; // Flag to indicate if URL params should be preserved
+  paramMapping?: Record<string, string>; // Optional mapping of param names
 }
 
-// route mapping that maps the website path to the app path
-// this is used to redirect users to the correct page in the app
-// most of the paths are the same, but some paths have different routes in the app
+// Enhanced route mapping with param handling configuration
 const ROUTE_MAPPING: Record<string, RouteConfig> = {
   "/playlist/": {
     getPath: () => `/playlist/`,
@@ -23,42 +23,67 @@ const ROUTE_MAPPING: Record<string, RouteConfig> = {
   "/verification-link": {
     getPath: () => `/auth/email-ver`,
     includeBackButton: false,
+    preserveParams: true, // Preserve URL params for email verification
+    paramMapping: {
+      mode: "mode",
+      oobCode: "oobCode",
+      apiKey: "apiKey",
+      lang: "lang",
+    },
   },
 };
+
+interface RedirectOptions {
+  path: string;
+  initial?: boolean;
+  fullUrl?: string; // Optional full URL for param extraction
+}
 
 export function redirectSystemPath({
   path,
   initial = false,
-}: {
-  path: string;
-  initial?: boolean;
-}): string {
+  fullUrl,
+}: RedirectOptions): string {
   try {
-    // More comprehensive route matching
+    // Find matching route
     const matchedRoute = Object.entries(ROUTE_MAPPING).find(([routeKey]) =>
       path.includes(routeKey),
     );
 
     if (matchedRoute) {
       const [routeKey, routeConfig] = matchedRoute;
-
-      // Generate new path
       const newPathSegment = routeConfig.getPath();
       const finalPath = path.replace(routeKey, newPathSegment);
 
-      // Convert includeBackButton to string for URL param
+      // Initialize params with includeBackButton
       const finalParams = new URLSearchParams({
         includeBackButton: String(routeConfig.includeBackButton),
       });
 
+      // If preserveParams is true and we have a full URL, preserve specified parameters
+      if (routeConfig.preserveParams && fullUrl) {
+        const sourceUrl = new URL(fullUrl);
+        const sourceParams = sourceUrl.searchParams;
+
+        // Copy over mapped parameters if they exist
+        if (routeConfig.paramMapping) {
+          Object.entries(routeConfig.paramMapping).forEach(
+            ([sourceParam, targetParam]) => {
+              const value = sourceParams.get(sourceParam);
+              if (value) {
+                finalParams.set(targetParam, value);
+              }
+            },
+          );
+        }
+      }
+
       return `${finalPath}?${finalParams.toString()}`;
     }
 
-    // If no route matches, return original path or a default route
+    // Return default path if no match
     return initial ? "/" : path;
   } catch (error) {
-    // Do not crash inside this function! Instead you should redirect users
-    // to a custom route to handle unexpected errors, where they are able to report the incident
     console.error("Deep link routing error:", error);
     return "/unexpected-error";
   }

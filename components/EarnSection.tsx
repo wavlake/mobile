@@ -10,7 +10,9 @@ export const EarnSection = () => {
   const { data: promos = [] } = usePromos();
   const router = useRouter();
   const userNotEligible =
-    !catalogUser?.isRegionVerified || catalogUser?.isLocked;
+    !catalogUser?.isRegionVerified ||
+    catalogUser?.isLocked ||
+    !catalogUser?.emailVerified;
 
   const onPress = () =>
     router.push({

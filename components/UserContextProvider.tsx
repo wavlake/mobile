@@ -47,7 +47,8 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
 
   const refetchUser = async () => {
     if (!user) return;
-    return _refetchUser();
+    const { data } = await _refetchUser();
+    return data;
   };
 
   // Nostr account management

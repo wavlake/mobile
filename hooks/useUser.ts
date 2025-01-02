@@ -20,7 +20,7 @@ export interface UserContextValue {
   initializingAuth: boolean;
   catalogUser: PrivateUserData | undefined;
   nostrMetadata: NostrProfileData | undefined;
-  refetchUser: () => Promise<any>;
+  refetchUser: () => Promise<PrivateUserData | undefined | void>;
   signInWithEmail: (
     email: string,
     password: string,
