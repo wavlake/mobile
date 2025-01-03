@@ -223,5 +223,8 @@ export const useInbox = (
     formatContentId: (id: string) => `${CONTENT_ID_PREFIX}${id}`,
     // Expose mention validation helper
     validateMentions,
+    refetch: () => {
+      queries.forEach((query) => query.refetch());
+    },
   };
 };
