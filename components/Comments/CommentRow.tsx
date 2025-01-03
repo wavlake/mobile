@@ -13,6 +13,7 @@ interface CommentRowProps extends ViewProps {
   showReplyLinks?: boolean;
   isPressable?: boolean;
   closeParent?: () => void;
+  onPress?: (comment: Event) => void;
 }
 
 export const CommentRow = ({
@@ -21,6 +22,7 @@ export const CommentRow = ({
   showReplyLinks = true,
   isPressable = true,
   closeParent,
+  onPress,
 }: CommentRowProps) => {
   const { data: comment } = useNostrEvent(commentId);
   const {
@@ -34,7 +36,11 @@ export const CommentRow = ({
   if (!comment) return null;
 
   const onReplyPress = () => {
-    setDialogOpen(true);
+    if (onPress) {
+      onPress(comment);
+    } else {
+      setDialogOpen(true);
+    }
   };
 
   return (
