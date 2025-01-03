@@ -4,6 +4,17 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 
 export const BUILD_NUM = 1;
 export const VERSION = "1.1.2";
+// Android version code must always be higher than the previous version
+const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
+  try {
+    const [major, minor, patch] = version.split(".").map(Number);
+    return major * 10000 + minor * 100 + patch + buildNum;
+  } catch (e) {
+    console.error("error calculating Android versionCode", e);
+    return 1;
+  }
+};
+
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
 export default ({ config }: ConfigContext): ExpoConfig => {
@@ -25,7 +36,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     assetBundlePatterns: ["**/*"],
     android: {
       package: "com.wavlake.mobile",
-      versionCode: BUILD_NUM,
+      versionCode: calcNumberBasedOnVersion(VERSION, BUILD_NUM),
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         monochromeImage: "./assets/adaptive-icon.png",
