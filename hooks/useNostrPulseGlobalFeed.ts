@@ -1,10 +1,13 @@
 import { ActivityItem } from "@/components";
-import { fetchPulseFeedEvents, getContentMetadataMap } from "@/utils";
+import {
+  fetchPulseFeedEvents,
+  getContentMetadataMap,
+  getITagFromEvent,
+} from "@/utils";
 import { getLabeledEvents } from "@/utils/comments";
 import { useQuery } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 
-const itemIdPrefix = "podcast:item:guid:";
 export const useNostrPulseGlobalFeed = (limit: number = 100) => {
   return useQuery({
     queryKey: ["pulse-global-nostr-events", limit],
@@ -27,21 +30,17 @@ export const useNostrPulseGlobalFeed = (limit: number = 100) => {
 
       [...zapRequests, ...labelEvents].forEach((event) => {
         // get the contentId from the right iTag
-        const iTags = event.tags.filter((tag) => tag[0] === "i") || [];
-        const [_iTag, contentId] =
-          iTags.find((tag) => tag[1].startsWith(itemIdPrefix)) || [];
+        const contentId = getITagFromEvent(event);
         // get the event id pointer
         const [_eTag, eventId] = event.tags.find((tag) => tag[0] === "e") || [];
         if (event.kind === 1985 && eventId && contentId) {
-          const id = contentId.replace(itemIdPrefix, "");
-          contentIds.push(id);
+          contentIds.push(contentId);
           // map the label event id pointer to the content id
-          labeledEventIdMap[eventId] = id;
+          labeledEventIdMap[eventId] = contentId;
         } else if (event.kind === 9734 && contentId) {
-          const id = contentId.replace(itemIdPrefix, "");
-          contentIds.push(id);
+          contentIds.push(contentId);
           // map the zap request event id to the content id
-          labeledEventIdMap[event.id] = id;
+          labeledEventIdMap[event.id] = contentId;
         }
       });
 

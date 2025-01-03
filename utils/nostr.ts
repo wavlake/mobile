@@ -745,3 +745,19 @@ export const fetchPulseFeedEvents = async (limit = 100) => {
 
   return { zapReceipts, labelEvents };
 };
+
+const itemIdPrefix = "podcast:item:guid:";
+export const getITagFromEvent = (
+  event: Event,
+  prefix: string = itemIdPrefix,
+) => {
+  const iTags = event.tags.filter((tag) => tag[0] === "i") || [];
+  const [_iTag, contentId] =
+    iTags.find((tag) => tag[1].startsWith(prefix)) || [];
+
+  if (!contentId) {
+    return null;
+  }
+
+  return contentId.replace(prefix, "");
+};
