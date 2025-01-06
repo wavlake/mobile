@@ -3,7 +3,7 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 
 export const BUILD_NUM = 1;
-export const VERSION = "1.1.2";
+export const VERSION = "1.1.3";
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
 export default ({ config }: ConfigContext): ExpoConfig => {
