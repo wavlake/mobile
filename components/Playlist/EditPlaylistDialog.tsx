@@ -18,6 +18,8 @@ import {
 import { Track } from "@/utils";
 import { LikeButton } from "../LikeButton";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { PressableDialogRow } from "../PressableDialogRow";
+import { handleSharePress, ShareIcon } from "../shared/ShareButton";
 
 interface EditPlaylistDialogProps {
   playlistId: string;
@@ -116,67 +118,37 @@ export const EditPlaylistDialog = ({
           </>
         ) : (
           <>
-            <ShareButtonWide
-              url={`https://wavlake.com/playlist/${playlistId}`}
+            <PressableDialogRow
+              onPress={() =>
+                handleSharePress(`https://wavlake.com/playlist/${playlistId}`)
+              }
+              text="Share"
+              icon={<ShareIcon size={24} />}
             />
             {isOwner ? (
               <>
-                <Pressable
+                <PressableDialogRow
                   onPress={() => handleEdit()}
-                  style={({ pressed }) => ({
-                    width: "100%",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    height: 50,
-                    paddingHorizontal: 8,
-                    borderRadius: 8,
-                    backgroundColor: pressed ? colors.card : colors.background,
-                  })}
-                >
-                  <Text
-                    style={{
-                      fontSize: 20,
-                    }}
-                    numberOfLines={1}
-                    bold
-                  >
-                    Edit
-                  </Text>
-                  <MaterialCommunityIcons
-                    name="pencil"
-                    size={24}
-                    color={colors.text}
-                  />
-                </Pressable>
-                <Pressable
+                  text="Edit"
+                  icon={
+                    <MaterialCommunityIcons
+                      name="pencil"
+                      size={24}
+                      color={colors.text}
+                    />
+                  }
+                />
+                <PressableDialogRow
                   onPress={() => setShowDeleteConfirm(true)}
-                  style={({ pressed }) => ({
-                    width: "100%",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    height: 50,
-                    paddingHorizontal: 8,
-                    borderRadius: 8,
-                    backgroundColor: pressed ? colors.card : colors.background,
-                  })}
-                >
-                  <Text
-                    style={{
-                      fontSize: 20,
-                    }}
-                    numberOfLines={1}
-                    bold
-                  >
-                    Delete
-                  </Text>
-                  <MaterialCommunityIcons
-                    name="trash-can-outline"
-                    size={24}
-                    color={colors.text}
-                  />
-                </Pressable>
+                  text="Delete"
+                  icon={
+                    <MaterialCommunityIcons
+                      name="trash-can-outline"
+                      size={24}
+                      color={colors.text}
+                    />
+                  }
+                />
               </>
             ) : (
               <View
