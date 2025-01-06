@@ -35,7 +35,7 @@ export const ContentTab = ({
       const { type, metadata } = await getContentType(contentId);
 
       router.push({
-        pathname: `/${type}/${contentId}`,
+        pathname: `/inbox/${type}/${contentId}`,
         params: {
           includeBackButton: "true",
           headerTitle: metadata.title,
