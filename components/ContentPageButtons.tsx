@@ -21,7 +21,7 @@ import { brandColors } from "@/constants";
 import { OverflowMenu } from "./FullSizeMusicPlayer/OverflowMenu";
 
 interface ContentPageButtonsProps {
-  type: "album" | "artist" | "podcast" | "track";
+  contentType: "album" | "artist" | "podcast" | "track";
   content: Album | Artist | Podcast | Track;
   shareUrl: string;
   trackListId: string;
@@ -30,7 +30,7 @@ interface ContentPageButtonsProps {
 }
 
 export const ContentPageButtons = ({
-  type,
+  contentType,
   content,
   shareUrl,
   trackListId,
@@ -43,10 +43,10 @@ export const ContentPageButtons = ({
   const isThisTrackListLoaded = currentTrackListId === trackListId;
   const isThisTrackListPlaying =
     isThisTrackListLoaded && playbackState !== State.Paused;
-  const isAlbum = type === "album";
-  const isPodcast = type === "podcast";
-  const isArtist = type === "artist";
-  const isTrack = type === "track";
+  const isAlbum = contentType === "album";
+  const isPodcast = contentType === "podcast";
+  const isArtist = contentType === "artist";
+  const isTrack = contentType === "track";
   const isAlbumInLibrary = useIsAlbumInLibrary(trackListId);
   const addAlbumToLibraryMutation = useAddAlbumToLibrary();
   const deleteAlbumFromLibraryMutation = useDeleteAlbumFromLibrary();
@@ -92,9 +92,15 @@ export const ContentPageButtons = ({
         addTrackToLibraryMutation.mutate(content);
       }
     } else {
-      toast.show(`Invalid type: ${type}`);
+      toast.show(`Invalid type: ${contentType}`);
     }
   };
+  const showOverflowMenu =
+    isTrack &&
+    "artist" in content &&
+    "artistId" in content &&
+    "albumTitle" in content &&
+    "albumId" in content;
 
   return (
     <View
@@ -116,19 +122,19 @@ export const ContentPageButtons = ({
           />
         ) : null}
         <ShareButton url={shareUrl} />
-        {type === "track" &&
-          "artist" in content &&
-          "artistId" in content &&
-          "albumTitle" in content &&
-          "albumId" in content && (
-            <OverflowMenu
-              size={20}
-              artist={content.artist}
-              artistId={content.artistId}
-              albumTitle={content.albumTitle}
-              albumId={content.albumId}
-            />
-          )}
+        {showOverflowMenu && (
+          <OverflowMenu
+            size={20}
+            trackId={content.id}
+            trackTitle={content.title}
+            artist={content.artist}
+            artistId={content.artistId}
+            albumTitle={content.albumTitle}
+            albumId={content.albumId}
+            contentType={contentType}
+            contentId={content.id}
+          />
+        )}
       </View>
       <PlayPauseTrackButton
         size={40}

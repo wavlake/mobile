@@ -46,7 +46,7 @@ export const TrackPage = () => {
     <ScrollView style={{ marginBottom: 36 }}>
       <SquareArtwork size={screenWidth} url={track.artworkUrl} />
       <ContentPageButtons
-        type="track"
+        contentType="track"
         shareUrl={`https://wavlake.com/track/${trackId}`}
         content={track}
         trackListId={track.id}

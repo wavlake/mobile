@@ -5,7 +5,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 
 interface ShareButtonProps {
-  url: string;
+  url?: string;
   size?: number;
 }
 
@@ -30,7 +30,7 @@ export const handleSharePress = async (url: string) => {
 
 export const ShareButton = ({ url, size = 30 }: ShareButtonProps) => {
   return (
-    <PressableIcon onPress={() => handleSharePress(url)}>
+    <PressableIcon onPress={url ? () => handleSharePress(url) : undefined}>
       <ShareIcon size={size} />
     </PressableIcon>
   );

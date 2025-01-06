@@ -180,6 +180,8 @@ export const NostrActivityItemRow = ({
           {...generateOverflowMenuProps(item)}
           setIsOpen={setOverflowDialogIsOpen}
           isOpen={overflowDialogIsOpen}
+          contentType={contentType}
+          contentId={contentId}
         />
       </TouchableOpacity>
     </View>

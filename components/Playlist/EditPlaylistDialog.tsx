@@ -6,7 +6,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDeletePlaylist } from "@/hooks/playlist/useDeletePlaylist";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { ShareButtonWide } from "../shared/ShareButtonWide";
 import { DialogWrapper } from "../DialogWrapper";
 import {
   useAddPlaylistToLibrary,
@@ -19,7 +18,7 @@ import { Track } from "@/utils";
 import { LikeButton } from "../LikeButton";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { PressableDialogRow } from "../PressableDialogRow";
-import { handleSharePress, ShareIcon } from "../shared/ShareButton";
+import { handleSharePress, ShareButton } from "../shared/ShareButton";
 
 interface EditPlaylistDialogProps {
   playlistId: string;
@@ -123,7 +122,7 @@ export const EditPlaylistDialog = ({
                 handleSharePress(`https://wavlake.com/playlist/${playlistId}`)
               }
               text="Share"
-              icon={<ShareIcon size={24} />}
+              icon={<ShareButton />}
             />
             {isOwner ? (
               <>
@@ -151,35 +150,33 @@ export const EditPlaylistDialog = ({
                 />
               </>
             ) : (
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text>Playlist</Text>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                    }}
-                    numberOfLines={1}
-                    bold
-                  >
-                    {playlistData.title}
-                  </Text>
-                </View>
-                <LikeButton
-                  onPress={handlePlaylistLikePress}
-                  size={32}
-                  isLiked={isPlaylistInLibrary}
-                  isLoading={
-                    addPlaylistToLibraryMutation.isLoading ||
-                    deletePlaylistFromLibraryMutation.isLoading
-                  }
-                />
-              </View>
+              <PressableDialogRow
+                onPress={handlePlaylistLikePress}
+                text={
+                  <View style={{ flex: 1 }}>
+                    <Text>Playlist</Text>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                      }}
+                      numberOfLines={1}
+                      bold
+                    >
+                      {playlistData.title}
+                    </Text>
+                  </View>
+                }
+                icon={
+                  <LikeButton
+                    size={32}
+                    isLiked={isPlaylistInLibrary}
+                    isLoading={
+                      addPlaylistToLibraryMutation.isLoading ||
+                      deletePlaylistFromLibraryMutation.isLoading
+                    }
+                  />
+                }
+              />
             )}
             <Button
               color={colors.border}

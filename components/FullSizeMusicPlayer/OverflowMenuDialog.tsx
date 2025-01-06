@@ -20,6 +20,9 @@ import {
 } from "@/hooks";
 import { useTheme } from "@react-navigation/native";
 import { brandColors } from "@/constants";
+import { handleSharePress, ShareButton } from "../shared/ShareButton";
+import { PressableDialogRow } from "../PressableDialogRow";
+import { ContentType } from "../ActivityItemRow";
 
 export interface OverflowMenuProps {
   artist?: string;
@@ -31,6 +34,8 @@ export interface OverflowMenuProps {
   playlistId?: string;
   playlistTitle?: string;
   isOpen: boolean;
+  contentType?: ContentType;
+  contentId?: string;
   setIsOpen: (isOpen: boolean) => void;
 }
 
@@ -44,6 +49,8 @@ export const OverflowMenuDialog = ({
   playlistId,
   playlistTitle,
   isOpen,
+  contentType,
+  contentId,
   setIsOpen,
 }: OverflowMenuProps) => {
   const { pubkey } = useAuth();
@@ -84,6 +91,16 @@ export const OverflowMenuDialog = ({
             playlistTitle={playlistTitle}
           />
         )}
+        {contentType && contentId && (
+          <PressableDialogRow
+            onPress={() => {
+              const shareUrl = `https://wavlake.com/${contentType}/${contentId}`;
+              handleSharePress(shareUrl);
+            }}
+            text="Share"
+            icon={<ShareButton />}
+          />
+        )}
         <Button
           color={colors.border}
           titleStyle={{ color: colors.text }}
@@ -117,35 +134,34 @@ const ArtistSection = ({
     }
   };
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <View style={{ flex: 1 }}>
-        <Text>Artist</Text>
-        <Text
-          style={{
-            fontSize: 18,
-          }}
-          numberOfLines={1}
-          bold
-        >
-          {artist}
-        </Text>
-      </View>
-      <LikeButton
-        onPress={handleArtistLikePress}
-        size={32}
-        isLiked={isArtistInLibrary}
-        isLoading={
-          addArtistToLibraryMutation.isLoading ||
-          deleteArtistFromLibraryMutation.isLoading
-        }
-      />
-    </View>
+    <PressableDialogRow
+      nostrRequired
+      onPress={handleArtistLikePress}
+      text={
+        <View style={{ flex: 1 }}>
+          <Text>Artist</Text>
+          <Text
+            style={{
+              fontSize: 18,
+            }}
+            numberOfLines={1}
+            bold
+          >
+            {artist}
+          </Text>
+        </View>
+      }
+      icon={
+        <LikeButton
+          size={32}
+          isLiked={isArtistInLibrary}
+          isLoading={
+            addArtistToLibraryMutation.isLoading ||
+            deleteArtistFromLibraryMutation.isLoading
+          }
+        />
+      }
+    />
   );
 };
 
@@ -173,37 +189,35 @@ const AlbumSection = ({
       });
     }
   };
-
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <View style={{ flex: 1 }}>
-        <Text>Album</Text>
-        <Text
-          style={{
-            fontSize: 18,
-          }}
-          numberOfLines={1}
-          bold
-        >
-          {albumTitle}
-        </Text>
-      </View>
-      <LikeButton
-        onPress={handleAlbumLikePress}
-        size={32}
-        isLiked={isAlbumInLibrary}
-        isLoading={
-          addAlbumToLibraryMutation.isLoading ||
-          deleteAlbumFromLibraryMutation.isLoading
-        }
-      />
-    </View>
+    <PressableDialogRow
+      nostrRequired
+      onPress={handleAlbumLikePress}
+      text={
+        <View style={{ flex: 1 }}>
+          <Text>Album</Text>
+          <Text
+            style={{
+              fontSize: 18,
+            }}
+            numberOfLines={1}
+            bold
+          >
+            {albumTitle}
+          </Text>
+        </View>
+      }
+      icon={
+        <LikeButton
+          size={32}
+          isLiked={isAlbumInLibrary}
+          isLoading={
+            addAlbumToLibraryMutation.isLoading ||
+            deleteAlbumFromLibraryMutation.isLoading
+          }
+        />
+      }
+    />
   );
 };
 
@@ -229,37 +243,37 @@ const TrackSection = ({
   };
 
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <View style={{ flex: 1 }}>
-        <Text>Track</Text>
-        <Text
-          style={{
-            fontSize: 18,
-          }}
-          numberOfLines={1}
-          bold
-        >
-          {trackTitle}
-        </Text>
-      </View>
-      <LikeButton
-        onPress={handleTrackLikePress}
-        size={32}
-        isLiked={isTrackInLibrary}
-        isLoading={
-          addTrackToLibraryMutation.isLoading ||
-          deleteTrackFromLibraryMutation.isLoading
-        }
-      />
-    </View>
+    <PressableDialogRow
+      nostrRequired
+      onPress={handleTrackLikePress}
+      text={
+        <View style={{ flex: 1 }}>
+          <Text>Track</Text>
+          <Text
+            style={{
+              fontSize: 18,
+            }}
+            numberOfLines={1}
+            bold
+          >
+            {trackTitle}
+          </Text>
+        </View>
+      }
+      icon={
+        <LikeButton
+          size={32}
+          isLiked={isTrackInLibrary}
+          isLoading={
+            addTrackToLibraryMutation.isLoading ||
+            deleteTrackFromLibraryMutation.isLoading
+          }
+        />
+      }
+    />
   );
 };
+
 const PlaylistSection = ({
   playlistId,
   playlistTitle,
@@ -282,34 +296,33 @@ const PlaylistSection = ({
   };
 
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <View style={{ flex: 1 }}>
-        <Text>Playlist</Text>
-        <Text
-          style={{
-            fontSize: 18,
-          }}
-          numberOfLines={1}
-          bold
-        >
-          {playlistTitle}
-        </Text>
-      </View>
-      <LikeButton
-        onPress={handlePlaylistLikePress}
-        size={32}
-        isLiked={isPlaylistInLibrary}
-        isLoading={
-          addPlaylistToLibraryMutation.isLoading ||
-          deletePlaylistFromLibraryMutation.isLoading
-        }
-      />
-    </View>
+    <PressableDialogRow
+      nostrRequired
+      onPress={handlePlaylistLikePress}
+      text={
+        <View style={{ flex: 1 }}>
+          <Text>Playlist</Text>
+          <Text
+            style={{
+              fontSize: 18,
+            }}
+            numberOfLines={1}
+            bold
+          >
+            {playlistTitle}
+          </Text>
+        </View>
+      }
+      icon={
+        <LikeButton
+          size={32}
+          isLiked={isPlaylistInLibrary}
+          isLoading={
+            addPlaylistToLibraryMutation.isLoading ||
+            deletePlaylistFromLibraryMutation.isLoading
+          }
+        />
+      }
+    />
   );
 };

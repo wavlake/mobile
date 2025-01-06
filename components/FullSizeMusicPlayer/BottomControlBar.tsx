@@ -97,6 +97,8 @@ export const BottomControlBar = ({}: {}) => {
               artistId={artistId}
               albumTitle={albumTitle}
               albumId={albumId}
+              contentType={"track"}
+              contentId={trackId}
             />
           </View>
         )}
