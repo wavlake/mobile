@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: VERSION,
     orientation: "portrait",
     icon: "./assets/icon.png",
-    scheme: ["wavlake", "nostr+walletconnect"],
+    scheme: ["wavlake"],
     userInterfaceStyle: "dark",
     backgroundColor: "#000000",
     splash: {
