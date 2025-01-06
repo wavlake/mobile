@@ -5,6 +5,7 @@ import { useAuth } from "./useAuth";
 import { pool } from "@/utils/relay-pool";
 import { useNostrRelayList } from "./nostrRelayList";
 import { useCacheNostrEvent } from "./useNostrEvent";
+import { useAccountTracks } from "@/utils";
 
 interface RelatedEventsQueries {
   directReplies: Array<Event>;
@@ -46,14 +47,17 @@ const updateLastInboxDate = async (timestamp: number): Promise<void> => {
 
 // contentIds is a list of content owned by the logged in user
 export const useInbox = (
-  contentIds: string[] = [],
   options = {
     enabled: true,
     staleTime: 1000 * 60 * 5, // 5 minutes
   },
 ) => {
-  // TODO - Remove this line
-  contentIds.push("a8711b80-979d-4a02-8d04-37dc6b49c708");
+  const {
+    data: tracks = [],
+    isLoading: isLoadingAccountTracks,
+    isError: isErrorAccountTracks,
+  } = useAccountTracks();
+  const contentIds = tracks.map((track) => track.id);
 
   const cacheEvent = useCacheNostrEvent();
   const { readRelayList } = useNostrRelayList();
@@ -205,8 +209,10 @@ export const useInbox = (
   );
 
   // Aggregate loading and error states
-  const isLoading = queries.some((query) => query.isLoading);
-  const isError = queries.some((query) => query.isError);
+  const isLoading =
+    queries.some((query) => query.isLoading) || isLoadingAccountTracks;
+  const isError =
+    queries.some((query) => query.isError) || isErrorAccountTracks;
   const errors = queries
     .filter((query) => query.error)
     .map((query) => query.error);
