@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AlbumOrArtistPageButtons } from "./AlbumOrArtistPageButtons";
+import { ContentPageButtons } from "./ContentPageButtons";
 import { Center } from "./shared/Center";
 import { Text } from "./shared/Text";
 import { useMusicPlayer } from "./MusicPlayerProvider";
@@ -92,7 +92,7 @@ export const ArtistPage = () => {
   return artist ? (
     <ScrollView>
       <ArtistBanner uri={artist.artworkUrl} />
-      <AlbumOrArtistPageButtons
+      <ContentPageButtons
         type="artist"
         shareUrl={`https://wavlake.com/${artist.artistUrl}`}
         content={artist}

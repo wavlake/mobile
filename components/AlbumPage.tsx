@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Album, getAlbum, getAlbumTracks, Track } from "@/utils";
 import { Text } from "./shared/Text";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { AlbumOrArtistPageButtons } from "./AlbumOrArtistPageButtons";
+import { ContentPageButtons } from "./ContentPageButtons";
 import { TrackRow } from "./TrackRow";
 import { SectionHeader } from "./SectionHeader";
 import { SquareArtwork } from "./SquareArtwork";
@@ -99,7 +99,7 @@ export const AlbumPage = () => {
         return (
           <View style={{ marginBottom: 36 }}>
             <SquareArtwork size={screenWidth} url={artworkUrl} />
-            <AlbumOrArtistPageButtons
+            <ContentPageButtons
               type="album"
               shareUrl={`https://wavlake.com/album/${albumId}`}
               content={album}

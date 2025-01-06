@@ -52,6 +52,9 @@ export const useInbox = (
     staleTime: 1000 * 60 * 5, // 5 minutes
   },
 ) => {
+  // TODO - Remove this line
+  contentIds.push("a8711b80-979d-4a02-8d04-37dc6b49c708");
+
   const cacheEvent = useCacheNostrEvent();
   const { readRelayList } = useNostrRelayList();
   const { userIsLoggedIn, pubkey } = useAuth();
