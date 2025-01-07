@@ -6,12 +6,15 @@ import { useState } from "react";
 import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { CommentContent } from "./CommentContent";
+import { useContentDetails } from "@/hooks/useContentDetails";
+import { getITagFromEvent } from "@/utils";
 
 interface CommentRowProps extends ViewProps {
   commentId: string;
   replies?: Event[];
   showReplyLinks?: boolean;
   isPressable?: boolean;
+  associatedContentId?: string;
   closeParent?: () => void;
   onPress?: (comment: Event) => void;
 }
@@ -25,6 +28,8 @@ export const CommentRow = ({
   onPress,
 }: CommentRowProps) => {
   const { data: comment } = useNostrEvent(commentId);
+  const contentId = comment ? getITagFromEvent(comment) : undefined;
+  const { data: contentDetails } = useContentDetails(contentId);
   const {
     data: npubMetadata,
     isFetching,
@@ -59,6 +64,7 @@ export const CommentRow = ({
       {isPressable ? (
         <TouchableOpacity onPress={onReplyPress} style={{ flex: 1 }}>
           <CommentContent
+            associatedContentId={contentDetails?.metadata?.id}
             comment={comment}
             npubMetadata={npubMetadata}
             metadataIsLoading={metadataIsLoading}
@@ -67,6 +73,7 @@ export const CommentRow = ({
         </TouchableOpacity>
       ) : (
         <CommentContent
+          associatedContentId={contentDetails?.metadata?.id}
           comment={comment}
           npubMetadata={npubMetadata}
           metadataIsLoading={metadataIsLoading}

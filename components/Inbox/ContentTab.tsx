@@ -9,9 +9,10 @@ import { memo, useCallback } from "react";
 import { SectionHeader } from "../SectionHeader";
 import { CommentRow } from "../Comments";
 import { Event } from "nostr-tools";
-import { getContentType, getITagFromEvent } from "@/utils";
+import { getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useToast } from "@/hooks";
+import { useContentDetails } from "@/hooks/useContentDetails";
 
 export const ContentTab = ({
   isLoading,
@@ -25,6 +26,7 @@ export const ContentTab = ({
   const toast = useToast();
   const router = useRouter();
   const MemoizedCommentRow = memo(CommentRow);
+  const { fetchContentDetails } = useContentDetails();
   const renderItem = useCallback(({ item: commentId }: { item: string }) => {
     const onPress = async (event: Event) => {
       const contentId = getITagFromEvent(event);
@@ -32,7 +34,7 @@ export const ContentTab = ({
         toast.show("Content tag not found");
         return;
       }
-      const { type, metadata } = await getContentType(contentId);
+      const { type, metadata } = await fetchContentDetails(contentId);
 
       router.push({
         pathname: `/inbox/${type}/${contentId}`,
