@@ -13,7 +13,7 @@ interface CommentContentProps extends ViewProps {
   comment: Event;
   npubMetadata?: NostrUserProfile | null;
   metadataIsLoading: boolean;
-  associatedContentId?: string;
+  associatedContentId?: string | null;
   closeParent?: () => void;
 }
 
@@ -88,17 +88,15 @@ export const CommentContent = ({
         >
           <MosaicImage imageUrls={[artworkUrl]} />
           <View>
-            {title && (
-              <Text
-                bold
-                style={{
-                  fontSize: 18,
-                  lineHeight: 20,
-                }}
-              >
-                {title}
-              </Text>
-            )}
+            <View style={{ flexDirection: "row", gap: 4 }}>
+              <Text>Comment by</Text>
+              {metadataIsLoading ? (
+                <PulsatingEllipsisLoader />
+              ) : (
+                <Text bold>{name ?? "anonymous"}</Text>
+              )}
+            </View>
+            {title && <Text bold>{title}</Text>}
             <View
               style={{
                 width: "100%",
@@ -118,21 +116,29 @@ export const CommentContent = ({
           flexDirection: "row",
         }}
       >
-        <BasicAvatar
-          uri={picture}
-          pubkey={pubkey}
-          npubMetadata={npubMetadata}
-          isLoading={metadataIsLoading}
-          closeParent={closeParent}
-        />
-        <View style={{ marginLeft: 10, flex: 1 }}>
-          {metadataIsLoading ? (
-            <PulsatingEllipsisLoader />
-          ) : (
-            <Text bold>{name ?? "anonymous"}</Text>
-          )}
-          <ParsedTextRender content={commentText} />
-        </View>
+        {!associatedContentId && (
+          <BasicAvatar
+            uri={picture}
+            pubkey={pubkey}
+            npubMetadata={npubMetadata}
+            isLoading={metadataIsLoading}
+            closeParent={closeParent}
+          />
+        )}
+        {associatedContentId ? (
+          <View style={{ marginLeft: 10, flex: 1 }}>
+            <ParsedTextRender content={commentText} />
+          </View>
+        ) : (
+          <View style={{ marginLeft: 10, flex: 1 }}>
+            {metadataIsLoading ? (
+              <PulsatingEllipsisLoader />
+            ) : (
+              <Text bold>{name ?? "anonymous"}</Text>
+            )}
+            <ParsedTextRender content={commentText} />
+          </View>
+        )}
       </View>
     </View>
   );

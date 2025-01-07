@@ -48,6 +48,7 @@ export const ContentTab = ({
     return (
       <MemoizedCommentRow
         commentId={commentId}
+        showContentDetails
         key={commentId}
         showReplyLinks={true}
         onPress={onPress}
