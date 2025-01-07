@@ -761,3 +761,80 @@ export const getITagFromEvent = (
 
   return contentId.replace(prefix, "");
 };
+
+interface MarkedETag {
+  eventId: string;
+  relayUrl: string;
+  marker?: "reply" | "root" | "mention";
+  pubkey?: string;
+}
+
+export const parseETags = (event: Event): MarkedETag[] => {
+  return event.tags
+    .filter((tag) => tag[0] === "e")
+    .map((tag) => ({
+      eventId: tag[1],
+      relayUrl: tag[2] || "",
+      marker: tag[3] as "reply" | "root" | "mention" | undefined,
+      pubkey: tag[4],
+    }));
+};
+
+export const findReplyToEvent = (
+  event: Event,
+  userPubkey: string,
+): string | null => {
+  const eTags = parseETags(event);
+
+  // First check marked e tags (preferred method)
+  for (const tag of eTags) {
+    // If it's a reply tag and the pubkey matches our user, this is a reply to our event
+    if (tag.marker === "reply" && tag.pubkey === userPubkey) {
+      return tag.eventId;
+    }
+  }
+
+  // If no marked tags found, fall back to deprecated positional e tags
+  if (eTags.length > 0 && !eTags[0].marker) {
+    // In deprecated format, if there's only one e tag, it's the reply-to event
+    if (eTags.length === 1) {
+      return eTags[0].eventId;
+    }
+    // If there are two or more e tags, the last one is the reply-to event
+    return eTags[eTags.length - 1].eventId;
+  }
+
+  return null;
+};
+
+/**
+ * Gets the parent event ID that this event is replying to.
+ * Handles both marked e tags (preferred) and deprecated positional e tags.
+ *
+ * @param event The nostr event to check
+ * @returns The parent event ID if this is a reply, or null if it's not a reply
+ */
+export const getParentEventId = (event: Event): string | null => {
+  // First check for marked e tags (preferred method)
+  const replyTag = event.tags.find(
+    (tag) => tag[0] === "e" && tag[3] === "reply",
+  );
+
+  if (replyTag) {
+    return replyTag[1]; // The event ID is the second element
+  }
+
+  // If no marked reply tag was found, check for deprecated positional e tags
+  const eTags = event.tags.filter((tag) => tag[0] === "e");
+
+  if (eTags.length === 0) {
+    return null; // Not a reply
+  }
+
+  if (eTags.length === 1) {
+    return eTags[0][1]; // Single e tag indicates reply to this event
+  }
+
+  // Multiple positional e tags - last one is the reply-to event
+  return eTags[eTags.length - 1][1];
+};

@@ -1,12 +1,14 @@
 import { TouchableOpacity, View, ViewProps } from "react-native";
 import { Event } from "nostr-tools";
-import { useNostrProfileEvent } from "@/hooks";
+import { useAuth, useNostrProfileEvent } from "@/hooks";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import { useState } from "react";
 import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { CommentContent } from "./CommentContent";
-import { getITagFromEvent } from "@/utils";
+import { getParentEventId, getITagFromEvent } from "@/utils";
+import { useRouter } from "expo-router";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 interface CommentRowProps extends ViewProps {
   commentId: string;
@@ -27,6 +29,8 @@ export const CommentRow = ({
   closeParent,
   onPress,
 }: CommentRowProps) => {
+  const router = useRouter();
+  const basePathname = useGetBasePathname();
   const { data: comment } = useNostrEvent(commentId);
   const contentId = comment ? getITagFromEvent(comment) : undefined;
   const {
@@ -43,7 +47,10 @@ export const CommentRow = ({
     if (onPress) {
       onPress(comment);
     } else {
-      setDialogOpen(true);
+      const parentEventId = getParentEventId(comment);
+      if (parentEventId) {
+        router.push(`${basePathname}/comment/${parentEventId}`);
+      }
     }
   };
 
@@ -61,7 +68,13 @@ export const CommentRow = ({
         isOpen={dialogOpen}
       />
       {isPressable ? (
-        <TouchableOpacity onPress={onReplyPress} style={{ flex: 1 }}>
+        <TouchableOpacity
+          onPress={onReplyPress}
+          onLongPress={() => {
+            setDialogOpen(true);
+          }}
+          style={{ flex: 1 }}
+        >
           <CommentContent
             associatedContentId={showContentDetails ? contentId : undefined}
             comment={comment}
