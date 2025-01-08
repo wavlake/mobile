@@ -769,44 +769,6 @@ interface MarkedETag {
   pubkey?: string;
 }
 
-export const parseETags = (event: Event): MarkedETag[] => {
-  return event.tags
-    .filter((tag) => tag[0] === "e")
-    .map((tag) => ({
-      eventId: tag[1],
-      relayUrl: tag[2] || "",
-      marker: tag[3] as "reply" | "root" | "mention" | undefined,
-      pubkey: tag[4],
-    }));
-};
-
-export const findReplyToEvent = (
-  event: Event,
-  userPubkey: string,
-): string | null => {
-  const eTags = parseETags(event);
-
-  // First check marked e tags (preferred method)
-  for (const tag of eTags) {
-    // If it's a reply tag and the pubkey matches our user, this is a reply to our event
-    if (tag.marker === "reply" && tag.pubkey === userPubkey) {
-      return tag.eventId;
-    }
-  }
-
-  // If no marked tags found, fall back to deprecated positional e tags
-  if (eTags.length > 0 && !eTags[0].marker) {
-    // In deprecated format, if there's only one e tag, it's the reply-to event
-    if (eTags.length === 1) {
-      return eTags[0].eventId;
-    }
-    // If there are two or more e tags, the last one is the reply-to event
-    return eTags[eTags.length - 1].eventId;
-  }
-
-  return null;
-};
-
 /**
  * Gets the parent event ID that this event is replying to.
  * Handles both marked e tags (preferred) and deprecated positional e tags.
