@@ -550,7 +550,6 @@ export const getContentMetadataMap = async (
   const { data } = await apiClient.get<ResponseObject<Metadata[]>>(
     `/meta/content?${queryParams.toString()}`,
   );
-  console.log(data);
   // transform data into a map
   const map: Record<string, Metadata> = {};
   data.data.forEach((item) => {
