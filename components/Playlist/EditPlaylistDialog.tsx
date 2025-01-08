@@ -6,7 +6,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDeletePlaylist } from "@/hooks/playlist/useDeletePlaylist";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { ShareButtonWide } from "../shared/ShareButtonWide";
 import { DialogWrapper } from "../DialogWrapper";
 import {
   useAddPlaylistToLibrary,
@@ -18,6 +17,8 @@ import {
 import { Track } from "@/utils";
 import { LikeButton } from "../LikeButton";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { PressableDialogRow } from "../PressableDialogRow";
+import { handleSharePress, ShareButton } from "../shared/ShareButton";
 
 interface EditPlaylistDialogProps {
   playlistId: string;
@@ -116,98 +117,66 @@ export const EditPlaylistDialog = ({
           </>
         ) : (
           <>
-            <ShareButtonWide
-              url={`https://wavlake.com/playlist/${playlistId}`}
+            <PressableDialogRow
+              onPress={() =>
+                handleSharePress(`https://wavlake.com/playlist/${playlistId}`)
+              }
+              text="Share"
+              icon={<ShareButton />}
             />
             {isOwner ? (
               <>
-                <Pressable
+                <PressableDialogRow
                   onPress={() => handleEdit()}
-                  style={({ pressed }) => ({
-                    width: "100%",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    height: 50,
-                    paddingHorizontal: 8,
-                    borderRadius: 8,
-                    backgroundColor: pressed ? colors.card : colors.background,
-                  })}
-                >
-                  <Text
-                    style={{
-                      fontSize: 20,
-                    }}
-                    numberOfLines={1}
-                    bold
-                  >
-                    Edit
-                  </Text>
-                  <MaterialCommunityIcons
-                    name="pencil"
-                    size={24}
-                    color={colors.text}
-                  />
-                </Pressable>
-                <Pressable
-                  onPress={() => setShowDeleteConfirm(true)}
-                  style={({ pressed }) => ({
-                    width: "100%",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    height: 50,
-                    paddingHorizontal: 8,
-                    borderRadius: 8,
-                    backgroundColor: pressed ? colors.card : colors.background,
-                  })}
-                >
-                  <Text
-                    style={{
-                      fontSize: 20,
-                    }}
-                    numberOfLines={1}
-                    bold
-                  >
-                    Delete
-                  </Text>
-                  <MaterialCommunityIcons
-                    name="trash-can-outline"
-                    size={24}
-                    color={colors.text}
-                  />
-                </Pressable>
-              </>
-            ) : (
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text>Playlist</Text>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                    }}
-                    numberOfLines={1}
-                    bold
-                  >
-                    {playlistData.title}
-                  </Text>
-                </View>
-                <LikeButton
-                  onPress={handlePlaylistLikePress}
-                  size={32}
-                  isLiked={isPlaylistInLibrary}
-                  isLoading={
-                    addPlaylistToLibraryMutation.isLoading ||
-                    deletePlaylistFromLibraryMutation.isLoading
+                  text="Edit"
+                  icon={
+                    <MaterialCommunityIcons
+                      name="pencil"
+                      size={24}
+                      color={colors.text}
+                    />
                   }
                 />
-              </View>
+                <PressableDialogRow
+                  onPress={() => setShowDeleteConfirm(true)}
+                  text="Delete"
+                  icon={
+                    <MaterialCommunityIcons
+                      name="trash-can-outline"
+                      size={24}
+                      color={colors.text}
+                    />
+                  }
+                />
+              </>
+            ) : (
+              <PressableDialogRow
+                onPress={handlePlaylistLikePress}
+                text={
+                  <View style={{ flex: 1 }}>
+                    <Text>Playlist</Text>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                      }}
+                      numberOfLines={1}
+                      bold
+                    >
+                      {playlistData.title}
+                    </Text>
+                  </View>
+                }
+                icon={
+                  <LikeButton
+                    size={32}
+                    isLiked={isPlaylistInLibrary}
+                    isLoading={
+                      addPlaylistToLibraryMutation.isLoading ||
+                      deletePlaylistFromLibraryMutation.isLoading
+                    }
+                  />
+                }
+              />
             )}
             <Button
               color={colors.border}

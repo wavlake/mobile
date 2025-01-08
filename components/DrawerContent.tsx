@@ -7,19 +7,20 @@ import {
 import { Text } from "./shared/Text";
 import { Divider } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import { useAuth, useUser, WAVLAKE_RELAY } from "@/hooks";
+import { useAuth, useInbox, useUser, WAVLAKE_RELAY } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { WalletLabel } from "./WalletLabel";
-import {} from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import Feather from "@expo/vector-icons/Feather";
 
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
   const { signOut, user, catalogUser } = useUser();
   const { data: settings } = useSettings();
+  const { hasUnreadMessages } = useInbox();
 
   // TODO - support any nwc wallet
   // implment make_invoice on nwc server (currently using lnurl in mobile client)
@@ -76,6 +77,36 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             )}
             onPress={async () => {
               router.push({ pathname: "/settings" });
+              props.navigation.closeDrawer();
+            }}
+          />
+        )}
+        {pubkey && (
+          <DrawerItem
+            label={() => <Text style={{ fontSize: 24 }}>Inbox</Text>}
+            icon={({ color, size }) => (
+              <View style={{ position: "relative", width: size, height: size }}>
+                <Feather name="inbox" size={size} color={color} />
+                {hasUnreadMessages && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -4,
+                      right: -4,
+                      width: 8,
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: brandColors.pink.DEFAULT,
+                    }}
+                  />
+                )}
+              </View>
+            )}
+            onPress={async () => {
+              router.push({
+                pathname: `/inbox`,
+                params: { includeBackButton: "true" },
+              });
               props.navigation.closeDrawer();
             }}
           />

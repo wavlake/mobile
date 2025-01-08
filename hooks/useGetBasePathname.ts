@@ -19,5 +19,9 @@ export const useGetBasePathname = () => {
     return "/profile";
   }
 
+  if (pathname.startsWith("/inbox")) {
+    return "/inbox";
+  }
+
   return "";
 };

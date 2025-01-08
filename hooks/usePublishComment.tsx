@@ -1,4 +1,9 @@
-import { signEvent, publishEvent, saveCommentEventId } from "@/utils";
+import {
+  signEvent,
+  publishEvent,
+  saveCommentEventId,
+  getITagFromEvent,
+} from "@/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
@@ -51,10 +56,8 @@ export const usePublishComment = () => {
           .then(async () => {
             // save the event to the cache so we dont need to fetch it
             cacheEventData([event]);
-            const iTags = event.tags.filter((tag) => tag[0] === "i");
-            const contentId = iTags
-              .find((tag) => tag[1].startsWith(contentIdPrefix))?.[1]
-              .replace(contentIdPrefix, "");
+            const contentId = getITagFromEvent(event);
+
             if (contentId) {
               const queryKey = getContentCommentsQueryKey(contentId);
               // manually add this new event ID to the cache

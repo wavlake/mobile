@@ -3,7 +3,7 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 
 export const BUILD_NUM = 1;
-export const VERSION = "1.1.2";
+export const VERSION = "1.1.3";
 // Android version code must always be higher than the previous version
 const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
   try {
@@ -25,7 +25,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: VERSION,
     orientation: "portrait",
     icon: "./assets/icon.png",
-    scheme: ["wavlake", "nostr+walletconnect"],
+    scheme: ["wavlake"],
     userInterfaceStyle: "dark",
     backgroundColor: "#000000",
     splash: {

@@ -52,6 +52,8 @@ export const PlaylistRow = ({
         playlistId={playlist.id}
         setIsOpen={setOverflowDialogIsOpen}
         isOpen={overflowDialogIsOpen}
+        contentType="playlist"
+        contentId={playlist.id}
       />
     </TouchableOpacity>
   );

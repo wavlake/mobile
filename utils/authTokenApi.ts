@@ -310,3 +310,14 @@ export const useCreateNewVerifiedUser = () => {
     },
   });
 };
+
+export const useAccountTracks = () => {
+  return useQuery(["accountTracks"], async () => {
+    const { data } =
+      await catalogApiClient.get<ResponseObject<TrackResponse[]>>(
+        `/tracks/account`,
+      );
+
+    return data.data;
+  });
+};

@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
-import { ActivityItem } from "@/components";
+import { ActivityItem, ContentType } from "@/components";
 import { apiClient, createAuthHeader } from "./create-api-client";
 import {
   Album,
   Artist,
   ContentComment,
+  Episode,
   Genre,
   NostrProfileData,
   Playlist,
@@ -549,7 +550,6 @@ export const getContentMetadataMap = async (
   const { data } = await apiClient.get<ResponseObject<Metadata[]>>(
     `/meta/content?${queryParams.toString()}`,
   );
-
   // transform data into a map
   const map: Record<string, Metadata> = {};
   data.data.forEach((item) => {
@@ -583,4 +583,14 @@ export const validateUsername = async (username: string) => {
     {},
   );
   return data;
+};
+
+export const getContentType = async (contentId: string) => {
+  const { data } = await apiClient.get<
+    ResponseObject<{
+      type: ContentType;
+      metadata: any;
+    }>
+  >(`meta/content/${contentId}`, {});
+  return data.data;
 };

@@ -1,5 +1,5 @@
 import { Event } from "nostr-tools";
-import { getNostrEventQueryKey } from "./useNostrEvent";
+import { useCacheNostrEvent } from "./useNostrEvent";
 import { batchGetProfileMetadata, NostrUserProfile } from "@/utils";
 import { useNostrProfileQueryKey } from "./nostrProfile/useNostrProfileQueryKey";
 import { useQueryClient } from "@tanstack/react-query";
@@ -8,13 +8,10 @@ import { useNostrRelayList } from "./nostrRelayList";
 export const useCacheEventsAndPubkeys = () => {
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
+  const cacheEvent = useCacheNostrEvent();
 
   return (events: Event[]) => {
-    // save each event to the cache
-    events.forEach((event) => {
-      const queryKey = getNostrEventQueryKey(event.id);
-      queryClient.setQueryData(queryKey, event);
-    });
+    events.forEach(cacheEvent);
 
     // eagerly fetch the profile metadata for each author, no need to block on this
     const setOfPubkeys = new Set(events.map((event) => event.pubkey));

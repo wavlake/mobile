@@ -4,12 +4,17 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTheme } from "@react-navigation/native";
 import { PressableIcon } from "../PressableIcon";
 import { OverflowMenuDialog, OverflowMenuProps } from "./OverflowMenuDialog";
+import { ContentType } from "../ActivityItemRow";
 
 export const OverflowMenu = ({
   size = 24,
   color,
+  contentType,
+  contentId,
   ...dialogProps
 }: Omit<OverflowMenuProps, "isOpen" | "setIsOpen"> & {
+  contentType: ContentType;
+  contentId: string;
   size?: number;
   color?: string;
 }) => {
@@ -31,6 +36,8 @@ export const OverflowMenu = ({
         {...dialogProps}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        contentType={contentType}
+        contentId={contentId}
       />
     </>
   );

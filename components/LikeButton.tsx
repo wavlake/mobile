@@ -9,7 +9,7 @@ import { useRouter } from "expo-router";
 
 interface LikeButtonProps {
   size: number;
-  onPress: () => void;
+  onPress?: () => void;
   fullWidth?: boolean;
   label?: ReactNode;
   isLiked?: boolean;
@@ -51,7 +51,7 @@ export const LikeButton = ({
       return;
     }
     if (!isLoading) {
-      onPress();
+      onPress?.();
     }
   };
 
@@ -59,7 +59,11 @@ export const LikeButton = ({
 
   const unLikedColor = color ?? colors.text;
   return (
-    <PressableIcon onPress={handlePress} label={label} fullWidth={fullWidth}>
+    <PressableIcon
+      onPress={onPress ? handlePress : undefined}
+      label={label}
+      fullWidth={fullWidth}
+    >
       <MaterialCommunityIcons
         name={isLiked ? "cards-heart" : "cards-heart-outline"}
         size={size}

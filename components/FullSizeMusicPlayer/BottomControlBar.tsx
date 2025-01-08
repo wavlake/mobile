@@ -88,7 +88,7 @@ export const BottomControlBar = ({}: {}) => {
         >
           <RepeatButton size={20} />
         </View>
-        <ShareButton size={30} url={shareUrl} />
+        <ShareButton size={20} url={shareUrl} />
         {isMusic && (
           <View>
             <OverflowMenu
@@ -97,6 +97,8 @@ export const BottomControlBar = ({}: {}) => {
               artistId={artistId}
               albumTitle={albumTitle}
               albumId={albumId}
+              contentType={"track"}
+              contentId={trackId}
             />
           </View>
         )}

@@ -745,3 +745,58 @@ export const fetchPulseFeedEvents = async (limit = 100) => {
 
   return { zapReceipts, labelEvents };
 };
+
+const itemIdPrefix = "podcast:item:guid:";
+export const getITagFromEvent = (
+  event: Event,
+  prefix: string = itemIdPrefix,
+) => {
+  const iTags = event.tags.filter((tag) => tag[0] === "i") || [];
+  const [_iTag, contentId] =
+    iTags.find((tag) => tag[1].startsWith(prefix)) || [];
+
+  if (!contentId) {
+    return null;
+  }
+
+  return contentId.replace(prefix, "");
+};
+
+interface MarkedETag {
+  eventId: string;
+  relayUrl: string;
+  marker?: "reply" | "root" | "mention";
+  pubkey?: string;
+}
+
+/**
+ * Gets the parent event ID that this event is replying to.
+ * Handles both marked e tags (preferred) and deprecated positional e tags.
+ *
+ * @param event The nostr event to check
+ * @returns The parent event ID if this is a reply, or null if it's not a reply
+ */
+export const getParentEventId = (event: Event): string | null => {
+  // First check for marked e tags (preferred method)
+  const replyTag = event.tags.find(
+    (tag) => tag[0] === "e" && tag[3] === "reply",
+  );
+
+  if (replyTag) {
+    return replyTag[1]; // The event ID is the second element
+  }
+
+  // If no marked reply tag was found, check for deprecated positional e tags
+  const eTags = event.tags.filter((tag) => tag[0] === "e");
+
+  if (eTags.length === 0) {
+    return null; // Not a reply
+  }
+
+  if (eTags.length === 1) {
+    return eTags[0][1]; // Single e tag indicates reply to this event
+  }
+
+  // Multiple positional e tags - last one is the reply-to event
+  return eTags[eTags.length - 1][1];
+};
