@@ -37,18 +37,19 @@ export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
 
   // Fetch profile data for all mentions
   const mentionProfiles = new Map<string, NostrUserProfile>();
-  mentions.forEach((mention) => {
-    if (mention) {
-      const { data: profile } = useNostrProfileEvent(
-        mention.pubkey,
-        false,
-        mention.relays,
-      );
-      if (profile) {
-        mentionProfiles.set(mention.pubkey, profile);
-      }
-    }
-  });
+  // TODO - fix profile look up, cant call hook this way
+  // mentions.forEach((mention) => {
+  //   if (mention) {
+  //     const { data: profile } = useNostrProfileEvent(
+  //       mention.pubkey,
+  //       false,
+  //       mention.relays,
+  //     );
+  //     if (profile) {
+  //       mentionProfiles.set(mention.pubkey, profile);
+  //     }
+  //   }
+  // });
 
   return (
     <InternalParsedTextRender
