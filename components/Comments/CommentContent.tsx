@@ -22,7 +22,25 @@ export const getCommentText = (
   npubMetadata?: NostrUserProfile | null,
 ): string => {
   if (event.content) {
-    return event.content;
+    // Example content with newlines
+    // Sam coming with the Xmas spirit! \n\nhttps://wavlake.com/track/8420d8e4-9d23-47e2-a5d4-85ab967aec3a\n\nnostr:nevent1qvzqqqpxquqzqqxud4f3c57wmrq2x309cvuq2f5khgl3v5dygk0ppsrtccsrsjxeeuszv8
+    // these content links, nostr:nevent links, and new lines are being added in hooks/useZap.ts, and also by Fountain nostr comments
+    // they arent necessary when displaying the comment in the app, so we remove the new lines here
+    // the links are removed in ParsedTextRenderer.tsx
+    let formattedContent;
+    // Remove preceding newlines before a Wavlake link followed by a Nostr link
+    formattedContent = event.content.replace(
+      /\n\n(?=https:\/\/wavlake\.com\/track\/[a-f0-9\-]{36}\n\nnostr:nevent1[a-zA-Z0-9]+)/g,
+      "",
+    );
+
+    // Remove newlines between Wavlake link and Nostr link
+    formattedContent = formattedContent.replace(
+      /https:\/\/wavlake\.com\/track\/[a-f0-9\-]{36}\n\nnostr:nevent1[a-zA-Z0-9]+/g,
+      (match) => match.replace(/\n\n/, " "),
+    );
+
+    return formattedContent;
   }
 
   if (event.kind === 9734) {

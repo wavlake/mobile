@@ -151,6 +151,15 @@ const InternalParsedTextRender = ({
             /\bhttps?:\/\/\S+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\\\s]*|&[^\\\s]*)*/,
           renderText: renderImage,
         },
+        // /\\n?https:\\/\\/wavlake\\.com\\/track\\/[a-f0-9\\-]{36}\\n?/
+
+        {
+          pattern: /https:\/\/wavlake\.com\/track\/[a-f0-9\-]{36}/,
+          style: {
+            color: brandColors.purple.DEFAULT,
+          },
+          renderText: () => "",
+        },
         {
           type: "url",
           style: { color: brandColors.purple.DEFAULT },
@@ -164,6 +173,13 @@ const InternalParsedTextRender = ({
           },
           onPress: handleMentionPress,
           renderText: parseMention,
+        },
+        {
+          pattern: /nostr:(n(?:event)1[a-zA-Z0-9]+)(?:@([a-zA-Z0-9_]+))?/,
+          style: {
+            color: brandColors.purple.DEFAULT,
+          },
+          renderText: () => "",
         },
       ]}
     >
