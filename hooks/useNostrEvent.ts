@@ -1,11 +1,58 @@
 import { getEventById } from "@/utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Event } from "nostr-tools";
+
 export const getNostrEventQueryKey = (nostrEventId?: string | null) => {
   return ["event", nostrEventId];
 };
 
+// Async utility function for prefetching events
+export const prefetchNostrEvent = async (
+  queryClient: QueryClient,
+  eventId: string,
+): Promise<Event | null> => {
+  const queryKey = getNostrEventQueryKey(eventId);
+
+  // Check if we already have this data cached
+  const cachedData = queryClient.getQueryData<Event>(queryKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  try {
+    const event = await getEventById(eventId);
+    if (event) {
+      // Cache the result
+      queryClient.setQueryData(queryKey, event);
+    }
+    return event;
+  } catch (error) {
+    console.error(`Error prefetching event ${eventId}:`, error);
+    return null;
+  }
+};
+
+// Batch prefetch utility
+export const prefetchNostrEvents = async (
+  queryClient: QueryClient,
+  eventIds: string[],
+): Promise<Map<string, Event>> => {
+  const results = new Map<string, Event>();
+
+  await Promise.all(
+    eventIds.map(async (eventId) => {
+      const event = await prefetchNostrEvent(queryClient, eventId);
+      if (event) {
+        results.set(eventId, event);
+      }
+    }),
+  );
+
+  return results;
+};
+
+// Hook for using prefetched event data
 export const useNostrEvent = (eventId: string) => {
   const queryKey = getNostrEventQueryKey(eventId);
   return useQuery({
@@ -16,6 +63,7 @@ export const useNostrEvent = (eventId: string) => {
   });
 };
 
+// Hook for manual caching
 export const useCacheNostrEvent = () => {
   const queryClient = useQueryClient();
 
@@ -25,4 +73,19 @@ export const useCacheNostrEvent = () => {
       queryClient.setQueryData(queryKey, event);
     };
   }, [queryClient]);
+};
+
+// Hook for prefetching
+export const usePrefetchNostrEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMemo(
+    () => ({
+      prefetchSingle: (eventId: string) =>
+        prefetchNostrEvent(queryClient, eventId),
+      prefetchMultiple: (eventIds: string[]) =>
+        prefetchNostrEvents(queryClient, eventIds),
+    }),
+    [queryClient],
+  );
 };
