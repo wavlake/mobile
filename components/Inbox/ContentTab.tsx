@@ -12,10 +12,12 @@ import { ItemSeparator, ListEmpty, ListFooter } from "./common";
 export const ContentTab = ({
   isLoading,
   data,
+  lastReadDate,
   refetch,
 }: {
   isLoading: boolean;
   data: Event[];
+  lastReadDate?: number;
   refetch: () => void;
 }) => {
   const toast = useToast();
@@ -24,20 +26,26 @@ export const ContentTab = ({
   const { fetchContentDetails } = useContentDetails();
   const renderItem = useCallback(({ item: commentId }: { item: string }) => {
     const onPress = async (event: Event) => {
-      const contentId = getITagFromEvent(event);
-      if (!contentId) {
-        toast.show("Content tag not found");
-        return;
-      }
-      const { type, metadata } = await fetchContentDetails(contentId);
+      try {
+        const contentId = getITagFromEvent(event);
+        if (!contentId) {
+          toast.show("Content tag not found");
+          return;
+        }
 
-      router.push({
-        pathname: `/inbox/${type}/${contentId}`,
-        params: {
-          includeBackButton: "true",
-          headerTitle: metadata.title,
-        },
-      });
+        const { type, metadata } = await fetchContentDetails(contentId);
+
+        router.push({
+          pathname: `/inbox/${type}/${contentId}`,
+          params: {
+            includeBackButton: "true",
+            headerTitle: metadata.title,
+          },
+        });
+      } catch (error) {
+        toast.show("Error fetching content details");
+        console.error(error);
+      }
     };
 
     return (
@@ -47,6 +55,7 @@ export const ContentTab = ({
         key={commentId}
         showReplyLinks={true}
         onPress={onPress}
+        lastReadDate={lastReadDate}
       />
     );
   }, []);

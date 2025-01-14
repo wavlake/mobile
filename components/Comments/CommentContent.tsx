@@ -67,11 +67,8 @@ export const CommentContent = ({
   associatedContentId,
   closeParent,
 }: CommentContentProps) => {
-  const { data: contentDetails, isLoading } =
-    useContentDetails(associatedContentId);
-  const artworkUrl =
-    contentDetails?.metadata?.artworkUrl ||
-    contentDetails?.metadata?.artwork_url;
+  const { data: contentDetails } = useContentDetails(associatedContentId);
+  const artworkUrl = contentDetails?.metadata?.artwork_url;
   const title = contentDetails?.metadata?.title;
   const album = contentDetails?.metadata?.album_title;
   const artist = contentDetails?.metadata?.artist;

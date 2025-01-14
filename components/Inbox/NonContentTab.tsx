@@ -8,10 +8,12 @@ import { ItemSeparator, ListEmpty, ListFooter } from "./common";
 export const NonContentTab = ({
   isLoading,
   data,
+  lastReadDate,
   refetch,
 }: {
   isLoading: boolean;
   data: Event[];
+  lastReadDate?: number;
   refetch: () => void;
 }) => {
   const MemoizedCommentRow = memo(CommentRow);
@@ -21,6 +23,7 @@ export const NonContentTab = ({
         commentId={commentId}
         key={commentId}
         showReplyLinks={true}
+        lastReadDate={lastReadDate}
       />
     );
   }, []);

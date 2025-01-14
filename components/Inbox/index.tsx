@@ -13,6 +13,7 @@ export const InboxPage = () => {
     isLoading,
     refetch,
     userHasContent,
+    lastReadDate,
   } = useInbox();
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export const InboxPage = () => {
           data={contentReplies}
           isLoading={isLoading}
           refetch={refetch}
+          lastReadDate={lastReadDate}
         />
       </PillTabView.Item>
       <PillTabView.Item style={{ width: "100%" }}>
@@ -35,6 +37,7 @@ export const InboxPage = () => {
           data={[...mentions, ...directReplies]}
           isLoading={isLoading}
           refetch={refetch}
+          lastReadDate={lastReadDate}
         />
       </PillTabView.Item>
     </PillTabView>
@@ -43,6 +46,7 @@ export const InboxPage = () => {
       data={[...mentions, ...directReplies]}
       isLoading={isLoading}
       refetch={refetch}
+      lastReadDate={lastReadDate}
     />
   );
 };
