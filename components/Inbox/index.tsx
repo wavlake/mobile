@@ -3,13 +3,25 @@ import { ContentTab } from "./ContentTab";
 import { NonContentTab } from "./NonContentTab";
 import { useInbox } from "@/hooks";
 import { Event } from "nostr-tools";
+import { useEffect } from "react";
 
 export const InboxPage = () => {
-  const { lastReadDate, directReplies, contentReplies, isLoading, refetch } =
-    useInbox();
+  const {
+    updateLastRead,
+    directReplies,
+    contentReplies,
+    isLoading,
+    refetch,
+    userHasContent,
+  } = useInbox();
+
+  useEffect(() => {
+    // update last read date on mount
+    updateLastRead();
+  }, []);
 
   const mentions: Event[] = [];
-  return (
+  return userHasContent ? (
     <PillTabView tabNames={["Wavlake", "Other"]}>
       <PillTabView.Item style={{ width: "100%" }}>
         <ContentTab
@@ -26,5 +38,11 @@ export const InboxPage = () => {
         />
       </PillTabView.Item>
     </PillTabView>
+  ) : (
+    <NonContentTab
+      data={[...mentions, ...directReplies]}
+      isLoading={isLoading}
+      refetch={refetch}
+    />
   );
 };

@@ -1,11 +1,15 @@
 import { Event, Filter } from "nostr-tools";
-import { useMemo, useRef, useEffect } from "react";
-import { useQuery, useMutation, useQueries } from "@tanstack/react-query";
+import { useMemo, useEffect } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { pool } from "@/utils/relay-pool";
 import { useNostrRelayList } from "./nostrRelayList";
 import { useCacheNostrEvent } from "./useNostrEvent";
-import { useAccountTracks } from "@/utils";
+import {
+  useAccountTracks,
+  useGetInboxLastRead,
+  useSetInboxLastRead,
+} from "@/utils";
 
 interface RelatedEventsQueries {
   directReplies: Array<Event>;
@@ -18,32 +22,6 @@ interface RelatedEventsQueries {
 }
 
 const CONTENT_ID_PREFIX = "podcast:item:guid:";
-
-// API client functions
-const fetchLastInboxDate = async (): Promise<number> => {
-  return Date.now();
-  const response = await fetch("/api/account/inbox");
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error("Failed to fetch last inbox date");
-  }
-  return data.lastInboxDate;
-};
-
-const updateLastInboxDate = async (timestamp: number): Promise<void> => {
-  return;
-  const response = await fetch("/api/account/inbox", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ timestamp }),
-  });
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error("Failed to update last inbox date");
-  }
-};
 
 // contentIds is a list of content owned by the logged in user
 export const useInbox = (
@@ -58,30 +36,22 @@ export const useInbox = (
     isError: isErrorAccountTracks,
   } = useAccountTracks();
   const contentIds = tracks.map((track) => track.id);
-
+  contentIds.push(
+    "243a7aba-9d56-41a6-ae36-ee5bbb5d6089",
+    "8420d8e4-9d23-47e2-a5d4-85ab967aec3a",
+  );
   const cacheEvent = useCacheNostrEvent();
   const { readRelayList } = useNostrRelayList();
-  const { userIsLoggedIn, pubkey } = useAuth();
-  const componentMountedAt = useRef(Date.now());
+  const { pubkey } = useAuth();
 
   // Fetch last read date
-  const lastReadQuery = useQuery({
-    queryKey: ["inbox", "lastRead"],
-    queryFn: fetchLastInboxDate,
-    enabled: userIsLoggedIn,
-  });
+  const { refetch: getLastRead, data: lastReadDate } = useGetInboxLastRead();
+  const { mutateAsync: updateLastRead } = useSetInboxLastRead();
 
-  // Mutation to update last read date
-  const updateLastReadMutation = useMutation({
-    mutationFn: updateLastInboxDate,
-  });
-
-  // Update last read date when component mounts
-  useEffect(() => {
-    if (userIsLoggedIn) {
-      updateLastReadMutation.mutate(componentMountedAt.current);
-    }
-  }, [userIsLoggedIn]);
+  //convert lastReadDate from datetime string to number
+  const lastReadDateNumber = lastReadDate
+    ? Math.trunc(new Date(lastReadDate).getTime() / 1000)
+    : undefined;
 
   // Format content IDs with prefix for I tag
   const formattedContentIds = useMemo(
@@ -195,6 +165,11 @@ export const useInbox = (
     replies: Event[];
   }) || { mentions: [], replies: [] };
   const contentReplies = (queries[1]?.data as Event[]) || [];
+  const allEvents = [...replies, ...mentions, ...contentReplies];
+  const hasUnreadMessages = lastReadDateNumber
+    ? allEvents.some((event) => event.created_at > lastReadDateNumber)
+    : allEvents.length > 0;
+
   // Organize results into a structured object
   const results = useMemo<RelatedEventsQueries>(
     () => ({
@@ -202,8 +177,8 @@ export const useInbox = (
       mentions: mentions || [],
       // dms: queries[1]?.data || [],
       contentReplies: contentReplies || [],
-      lastReadDate: lastReadQuery.data,
-      hasUnreadMessages: false,
+      lastReadDate: lastReadDateNumber,
+      hasUnreadMessages,
     }),
     [queries],
   );
@@ -232,8 +207,11 @@ export const useInbox = (
     formatContentId: (id: string) => `${CONTENT_ID_PREFIX}${id}`,
     // Expose mention validation helper
     validateMentions,
-    refetch: () => {
+    refetch: async () => {
       queries.forEach((query) => query.refetch());
+      getLastRead();
     },
+    updateLastRead,
+    userHasContent: contentIds.length > 0,
   };
 };
