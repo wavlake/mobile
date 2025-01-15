@@ -1,22 +1,19 @@
-import { Text } from "../shared/Text";
-import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  View,
-} from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import { memo, useCallback } from "react";
 import { SectionHeader } from "../SectionHeader";
 import { CommentRow } from "../Comments";
 import { Event } from "nostr-tools";
+import { ItemSeparator, ListEmpty, ListFooter } from "./common";
 
 export const NonContentTab = ({
   isLoading,
   data,
+  lastReadDate,
   refetch,
 }: {
   isLoading: boolean;
   data: Event[];
+  lastReadDate?: number;
   refetch: () => void;
 }) => {
   const MemoizedCommentRow = memo(CommentRow);
@@ -26,30 +23,14 @@ export const NonContentTab = ({
         commentId={commentId}
         key={commentId}
         showReplyLinks={true}
+        lastReadDate={lastReadDate}
       />
     );
   }, []);
 
   return (
     <FlatList
-      ListEmptyComponent={
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              color: "white",
-              textAlign: "center",
-            }}
-          >
-            {isLoading ? <ActivityIndicator /> : "No comment yet"}
-          </Text>
-        </View>
-      }
+      ListEmptyComponent={<ListEmpty isLoading={isLoading} />}
       data={data
         .sort((a, b) => {
           const dateA = new Date(a.created_at);
@@ -63,17 +44,12 @@ export const NonContentTab = ({
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
       keyExtractor={(item) => item}
-      ListFooterComponent={
-        data.length === 0 ? null : (
-          <Text style={{ textAlign: "center", marginTop: 40 }}>
-            End of inbox
-          </Text>
-        )
-      }
+      ListFooterComponent={<ListFooter numberOfItems={data.length} />}
       scrollEnabled={true}
       windowSize={12}
       removeClippedSubviews={true}
       maxToRenderPerBatch={8}
+      ItemSeparatorComponent={ItemSeparator}
     />
   );
 };

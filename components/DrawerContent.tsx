@@ -18,7 +18,7 @@ import Feather from "@expo/vector-icons/Feather";
 export const DrawerContent = (props: DrawerContentComponentProps) => {
   const router = useRouter();
   const { pubkey, logout } = useAuth();
-  const { signOut, user, catalogUser } = useUser();
+  const { signOut, catalogUser } = useUser();
   const { data: settings } = useSettings();
   const { hasUnreadMessages } = useInbox();
 

@@ -1,10 +1,4 @@
-import { Text } from "../shared/Text";
-import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  View,
-} from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import { memo, useCallback } from "react";
 import { SectionHeader } from "../SectionHeader";
 import { CommentRow } from "../Comments";
@@ -13,14 +7,17 @@ import { getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useToast } from "@/hooks";
 import { useContentDetails } from "@/hooks/useContentDetails";
+import { ItemSeparator, ListEmpty, ListFooter } from "./common";
 
 export const ContentTab = ({
   isLoading,
   data,
+  lastReadDate,
   refetch,
 }: {
   isLoading: boolean;
   data: Event[];
+  lastReadDate?: number;
   refetch: () => void;
 }) => {
   const toast = useToast();
@@ -29,20 +26,26 @@ export const ContentTab = ({
   const { fetchContentDetails } = useContentDetails();
   const renderItem = useCallback(({ item: commentId }: { item: string }) => {
     const onPress = async (event: Event) => {
-      const contentId = getITagFromEvent(event);
-      if (!contentId) {
-        toast.show("Content tag not found");
-        return;
-      }
-      const { type, metadata } = await fetchContentDetails(contentId);
+      try {
+        const contentId = getITagFromEvent(event);
+        if (!contentId) {
+          toast.show("Content tag not found");
+          return;
+        }
 
-      router.push({
-        pathname: `/inbox/${type}/${contentId}`,
-        params: {
-          includeBackButton: "true",
-          headerTitle: metadata.title,
-        },
-      });
+        const { type, metadata } = await fetchContentDetails(contentId);
+
+        router.push({
+          pathname: `/inbox/${type}/${contentId}`,
+          params: {
+            includeBackButton: "true",
+            headerTitle: metadata.title,
+          },
+        });
+      } catch (error) {
+        toast.show("Error fetching content details");
+        console.error(error);
+      }
     };
 
     return (
@@ -52,30 +55,14 @@ export const ContentTab = ({
         key={commentId}
         showReplyLinks={true}
         onPress={onPress}
+        lastReadDate={lastReadDate}
       />
     );
   }, []);
 
   return (
     <FlatList
-      ListEmptyComponent={
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              color: "white",
-              textAlign: "center",
-            }}
-          >
-            {isLoading ? <ActivityIndicator /> : "No comment yet"}
-          </Text>
-        </View>
-      }
+      ListEmptyComponent={<ListEmpty isLoading={isLoading} />}
       data={data
         .sort((a, b) => {
           const dateA = new Date(a.created_at);
@@ -89,17 +76,12 @@ export const ContentTab = ({
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
-      ListFooterComponent={
-        data.length === 0 ? null : (
-          <Text style={{ marginTop: 40, textAlign: "center" }}>
-            End of inbox
-          </Text>
-        )
-      }
+      ListFooterComponent={<ListFooter numberOfItems={data.length} />}
       scrollEnabled={true}
       windowSize={12}
       removeClippedSubviews={true}
       maxToRenderPerBatch={8}
+      ItemSeparatorComponent={ItemSeparator}
     />
   );
 };

@@ -3,12 +3,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useContentDetails = (contentId?: string | null) => {
   const queryClient = useQueryClient();
+  const queryKey = ["content", "details", contentId];
+
   const query = useQuery(
-    [contentId],
+    queryKey,
     async () => {
       if (!contentId) {
-        throw new Error("Content ID is required");
+        return undefined;
       }
+
       return getContentType(contentId);
     },
     {
@@ -17,8 +20,15 @@ export const useContentDetails = (contentId?: string | null) => {
   );
 
   const fetchContentDetails = async (contentId: string) => {
+    const oldData = queryClient.getQueryData(["content", "details", contentId]);
+    // return the old data if it exists
+    if (oldData) {
+      return oldData as ReturnType<typeof getContentType>;
+    }
+
     const data = await getContentType(contentId);
-    queryClient.setQueryData([contentId], data);
+    // Update the cache with the new data
+    queryClient.setQueryData(["content", "details", contentId], data);
     return data;
   };
 

@@ -321,3 +321,33 @@ export const useAccountTracks = () => {
     return data.data;
   });
 };
+
+export const useGetInboxLastRead = () => {
+  const { pubkey } = useAuth();
+  return useQuery(
+    ["inboxlastRead"],
+    async () => {
+      const { data } = await catalogApiClient.get<ResponseObject<string>>(
+        `/accounts/inbox/lastread`,
+      );
+
+      return data.data;
+    },
+    {
+      enabled: Boolean(pubkey),
+      cacheTime: 5 * 60 * 1000,
+    },
+  );
+};
+
+export const useSetInboxLastRead = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await catalogApiClient.put<ResponseObject<never>>(
+        `/accounts/inbox/lastread`,
+      );
+
+      return data;
+    },
+  });
+};

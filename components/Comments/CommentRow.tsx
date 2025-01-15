@@ -1,6 +1,6 @@
 import { TouchableOpacity, View, ViewProps } from "react-native";
 import { Event } from "nostr-tools";
-import { useAuth, useNostrProfileEvent } from "@/hooks";
+import { useNostrProfileEvent } from "@/hooks";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import { useState } from "react";
 import { CommentRepliesLink } from "./CommentRepliesLink";
@@ -16,6 +16,7 @@ interface CommentRowProps extends ViewProps {
   showReplyLinks?: boolean;
   isPressable?: boolean;
   showContentDetails?: boolean;
+  lastReadDate?: number;
   closeParent?: () => void;
   onPress?: (comment: Event) => void;
 }
@@ -26,13 +27,14 @@ export const CommentRow = ({
   showReplyLinks = true,
   isPressable = true,
   showContentDetails = false,
+  lastReadDate,
   closeParent,
   onPress,
 }: CommentRowProps) => {
   const router = useRouter();
   const basePathname = useGetBasePathname();
   const { data: comment } = useNostrEvent(commentId);
-  const contentId = comment ? getITagFromEvent(comment) : undefined;
+  const contentId = getITagFromEvent(comment);
   const {
     data: npubMetadata,
     isFetching,
@@ -53,6 +55,7 @@ export const CommentRow = ({
       }
     }
   };
+  const isUnread = lastReadDate ? comment.created_at > lastReadDate : false;
 
   return (
     <View
@@ -60,6 +63,8 @@ export const CommentRow = ({
         marginBottom: 10,
         flexDirection: "row",
         paddingHorizontal: 16,
+        paddingVertical: 16,
+        backgroundColor: isUnread ? "rgba(255, 255, 255, 0.2)" : "transparent",
       }}
     >
       <ReplyDialog
