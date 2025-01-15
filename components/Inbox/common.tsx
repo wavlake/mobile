@@ -15,7 +15,7 @@ export const ListEmpty = ({ isLoading }: { isLoading: boolean }) => (
         textAlign: "center",
       }}
     >
-      {isLoading ? <ActivityIndicator /> : "No comment yet"}
+      {isLoading ? <ActivityIndicator /> : "No messages yet"}
     </Text>
   </View>
 );

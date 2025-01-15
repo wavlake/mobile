@@ -11,7 +11,7 @@ export const useContentDetails = (contentId?: string | null) => {
       if (!contentId) {
         return undefined;
       }
-      console.log("fetching", contentId);
+
       return getContentType(contentId);
     },
     {

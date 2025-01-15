@@ -36,10 +36,6 @@ export const useInbox = (
     isError: isErrorAccountTracks,
   } = useAccountTracks();
   const contentIds = tracks.map((track) => track.id);
-  contentIds.push(
-    "243a7aba-9d56-41a6-ae36-ee5bbb5d6089",
-    "8420d8e4-9d23-47e2-a5d4-85ab967aec3a",
-  );
   const cacheEvent = useCacheNostrEvent();
   const { readRelayList } = useNostrRelayList();
   const { pubkey } = useAuth();
