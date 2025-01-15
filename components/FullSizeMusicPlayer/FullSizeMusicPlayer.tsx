@@ -10,7 +10,7 @@ import { Center } from "../shared/Center";
 import { MarqueeText } from "../shared/MarqueeText";
 import { PlayerControls } from "./PlayerControls";
 import { ArtworkCarousel } from "./ArtworkCarousel";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { ZapIcon } from "../icons";
 import { brandColors } from "@/constants";
 import { validateWalletKey } from "@/utils";
@@ -19,13 +19,12 @@ import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
 import { NowPlayingCommentSection } from "./NowPlayingCommentSection";
+import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
 export const FullSizeMusicPlayer = () => {
   const [isWalletChooserModalVisible, setIsWalletChooserModalVisible] =
     useState(false);
-  const { basePathname = "" } = useLocalSearchParams<{
-    basePathname: string;
-  }>();
+  const basePathname = useGetBasePathname();
   const router = useRouter();
   const { position } = useProgress();
   const { activeTrack } = useMusicPlayer();
