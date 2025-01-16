@@ -156,8 +156,8 @@ const ArtistSection = ({
           size={32}
           isLiked={isArtistInLibrary}
           isLoading={
-            addArtistToLibraryMutation.isLoading ||
-            deleteArtistFromLibraryMutation.isLoading
+            addArtistToLibraryMutation.isPending ||
+            deleteArtistFromLibraryMutation.isPending
           }
         />
       }
@@ -212,8 +212,8 @@ const AlbumSection = ({
           size={32}
           isLiked={isAlbumInLibrary}
           isLoading={
-            addAlbumToLibraryMutation.isLoading ||
-            deleteAlbumFromLibraryMutation.isLoading
+            addAlbumToLibraryMutation.isPending ||
+            deleteAlbumFromLibraryMutation.isPending
           }
         />
       }
@@ -265,8 +265,8 @@ const TrackSection = ({
           size={32}
           isLiked={isTrackInLibrary}
           isLoading={
-            addTrackToLibraryMutation.isLoading ||
-            deleteTrackFromLibraryMutation.isLoading
+            addTrackToLibraryMutation.isPending ||
+            deleteTrackFromLibraryMutation.isPending
           }
         />
       }
@@ -318,8 +318,8 @@ const PlaylistSection = ({
           size={32}
           isLiked={isPlaylistInLibrary}
           isLoading={
-            addPlaylistToLibraryMutation.isLoading ||
-            deletePlaylistFromLibraryMutation.isLoading
+            addPlaylistToLibraryMutation.isPending ||
+            deletePlaylistFromLibraryMutation.isPending
           }
         />
       }

@@ -82,5 +82,5 @@ export const usePublishComment = () => {
     });
   };
 
-  return { save, isSaving: nostrCommentMutation.isLoading };
+  return { save, isSaving: nostrCommentMutation.isPending };
 };
