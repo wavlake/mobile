@@ -421,7 +421,7 @@ export const useAddPubkeyToUser = ({
       return data.data;
     },
     onSuccess() {
-      queryClient.invalidateQueries(["userData"]);
+      queryClient.invalidateQueries({ queryKey: ["userData"] });
       onSuccess?.();
     },
     onError(response: ResponseObject) {
