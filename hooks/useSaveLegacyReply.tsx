@@ -19,7 +19,9 @@ export const useSaveLegacyReply = () => {
     },
     onSuccess: (_, variables) => {
       toast.show("Reply published");
-      queryClient.invalidateQueries(getQueryKey(variables.commentId));
+      queryClient.invalidateQueries({
+        queryKey: getQueryKey(variables.commentId),
+      });
     },
     onError: (error) => {
       console.error(error);

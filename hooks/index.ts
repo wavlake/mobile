@@ -6,7 +6,6 @@ export * from "./useToast";
 export * from "./useCreateNewNostrAccount";
 export * from "./useIsNavigationReady";
 export * from "./useDebounce";
-export * from "./useNewMusic";
 export * from "./library";
 export * from "./playlist";
 export * from "./useGoToArtistPage";

@@ -26,7 +26,7 @@ export const useSettingsManager = () => {
     // for now, save settings to both the user and the pubkey
     uid && (await cacheSettings(newSettings, uid));
     pubkey && (await cacheSettings(newSettings, pubkey));
-    queryClient.invalidateQueries(settingsKey);
+    queryClient.invalidateQueries({ queryKey: settingsKey });
     refetch();
     return;
   };

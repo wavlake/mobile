@@ -5,19 +5,17 @@ export const useContentDetails = (contentId?: string | null) => {
   const queryClient = useQueryClient();
   const queryKey = ["content", "details", contentId];
 
-  const query = useQuery(
+  const query = useQuery({
     queryKey,
-    async () => {
+    queryFn: async () => {
       if (!contentId) {
         return undefined;
       }
 
       return getContentType(contentId);
     },
-    {
-      enabled: Boolean(contentId),
-    },
-  );
+    enabled: Boolean(contentId),
+  });
 
   const fetchContentDetails = async (contentId: string) => {
     const oldData = queryClient.getQueryData(["content", "details", contentId]);
