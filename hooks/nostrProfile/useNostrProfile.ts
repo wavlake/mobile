@@ -30,6 +30,39 @@ export const useNostrProfile = (
   }
 };
 
+export const useCacheFollows = (pubkey: string) => {
+  const queryClient = useQueryClient();
+  const { data: followsMap } = useNostrFollows(pubkey);
+
+  return useQuery({
+    queryKey: ["cacheFollows", pubkey],
+    queryFn: async () => {
+      if (!followsMap) return;
+
+      const followPubkeys = Object.keys(followsMap);
+
+      const commonRelays = new Set(Object.values(followsMap));
+
+      // fetch profile metadata for all follows
+      batchGetProfileMetadata(followPubkeys, Array.from(commonRelays)).then(
+        (events) => {
+          events.forEach((event) => {
+            // update the cache with the profile metadata
+            queryClient.setQueryData(
+              useNostrProfileQueryKey(event.pubkey),
+              event,
+            );
+          });
+        },
+      );
+    },
+    enabled: Boolean(followsMap),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
+  return;
+};
+
 export const useNostrFollows = (pubkey?: string | null) => {
   const { readRelayList } = useNostrRelayList();
   const queryClient = useQueryClient();
@@ -43,23 +76,7 @@ export const useNostrFollows = (pubkey?: string | null) => {
         return null;
       }
 
-      const followsMap = getFollowsList(pubkey, readRelayList);
-      const followPubkeys = Object.keys(followsMap);
-
-      // eagerly fetch profile metadata for all follows
-      const commonRelays = new Set(Object.values(followsMap));
-      batchGetProfileMetadata(followPubkeys, Array.from(commonRelays)).then(
-        (events) => {
-          events.forEach((event) => {
-            // update the cache with the profile metadata
-            queryClient.setQueryData(
-              useNostrProfileQueryKey(event.pubkey),
-              event,
-            );
-          });
-        },
-      );
-      return followPubkeys;
+      return getFollowsList(pubkey, readRelayList);
     },
     enabled: Boolean(pubkey),
     staleTime: 24 * 60 * 60 * 1000,
