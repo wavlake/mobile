@@ -36,27 +36,36 @@ export const useCacheFollows = (pubkey?: string) => {
   const queryClient = useQueryClient();
   const { data: followsMap } = useNostrFollows(pubkey);
 
+  // Memoize the common relays Set creation
+  const commonRelays = useMemo(() => {
+    if (!followsMap) return new Set<string>();
+    return new Set(Object.values(followsMap));
+  }, [followsMap]);
+
+  // Memoize follow pubkeys
+  const followPubkeys = useMemo(() => {
+    if (!followsMap) return [];
+    return Object.keys(followsMap);
+  }, [followsMap]);
+
   return useQuery({
     queryKey: ["cacheFollows", pubkey],
     queryFn: async () => {
       if (!followsMap) return;
 
-      const followPubkeys = Object.keys(followsMap);
-
-      const commonRelays = new Set(Object.values(followsMap));
-
-      // fetch profile metadata for all follows
-      batchGetProfileMetadata(followPubkeys, Array.from(commonRelays)).then(
-        (events) => {
-          events.forEach((event) => {
-            // update the cache with the profile metadata
-            queryClient.setQueryData(
-              useNostrProfileQueryKey(event.pubkey),
-              event,
-            );
-          });
-        },
+      // Use the memoized values instead of creating new ones
+      const events = await batchGetProfileMetadata(
+        followPubkeys,
+        Array.from(commonRelays),
       );
+
+      // Batch update the cache
+      events.forEach((event) => {
+        queryClient.setQueryData(useNostrProfileQueryKey(event.pubkey), event);
+      });
+
+      // Return the events for potential use by components
+      return events;
     },
     enabled: Boolean(followsMap),
     staleTime: TWENTY_FOUR_HOURS,
