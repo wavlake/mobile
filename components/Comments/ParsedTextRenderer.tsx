@@ -151,10 +151,17 @@ const InternalParsedTextRender = ({
             /\bhttps?:\/\/\S+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\\\s]*|&[^\\\s]*)*/,
           renderText: renderImage,
         },
-        // /\\n?https:\\/\\/wavlake\\.com\\/track\\/[a-f0-9\\-]{36}\\n?/
+        // Add new pattern for Fountain.fm links
+        {
+          pattern: /\n*https:\/\/fountain\.fm\/track\/[a-zA-Z0-9]+\n*/,
+          style: {
+            color: brandColors.purple.DEFAULT,
+          },
+          renderText: () => "",
+        },
 
         {
-          pattern: /https:\/\/wavlake\.com\/track\/[a-f0-9\-]{36}/,
+          pattern: /\n*https:\/\/wavlake\.com\/track\/[a-f0-9\-]{36}/,
           style: {
             color: brandColors.purple.DEFAULT,
           },
@@ -175,7 +182,7 @@ const InternalParsedTextRender = ({
           renderText: parseMention,
         },
         {
-          pattern: /nostr:(n(?:event)1[a-zA-Z0-9]+)(?:@([a-zA-Z0-9_]+))?/,
+          pattern: /\n*nostr:(n(?:event)1[a-zA-Z0-9]+)(?:@([a-zA-Z0-9_]+))?/,
           style: {
             color: brandColors.purple.DEFAULT,
           },
