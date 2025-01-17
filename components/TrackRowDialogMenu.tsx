@@ -133,8 +133,8 @@ export const TrackRowDialogMenu = ({
                 size={32}
                 isLiked={isArtistInLibrary}
                 isLoading={
-                  deleteArtistFromLibraryMutation.isLoading ||
-                  deleteArtistFromLibraryMutation.isLoading
+                  deleteArtistFromLibraryMutation.isPending ||
+                  deleteArtistFromLibraryMutation.isPending
                 }
               />
               {willDisplayLikeButton && (
@@ -164,8 +164,8 @@ export const TrackRowDialogMenu = ({
                   size={32}
                   isLiked={isTrackInLibrary}
                   isLoading={
-                    addTrackToLibraryMutation.isLoading ||
-                    deleteTrackFromLibraryMutation.isLoading
+                    addTrackToLibraryMutation.isPending ||
+                    deleteTrackFromLibraryMutation.isPending
                   }
                 />
               )}

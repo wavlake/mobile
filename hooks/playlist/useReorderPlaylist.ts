@@ -21,8 +21,8 @@ export const useReorderPlaylist = (playlistId: string) => {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
-      queryClient.invalidateQueries([playlistId]);
+      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: [playlistId] });
     },
   });
 };

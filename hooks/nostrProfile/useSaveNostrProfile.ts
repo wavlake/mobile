@@ -45,5 +45,5 @@ export const useSaveNostrProfile = () => {
     });
   };
 
-  return { save, isSaving: nostrProfileMutation.isLoading };
+  return { save, isSaving: nostrProfileMutation.isPending };
 };

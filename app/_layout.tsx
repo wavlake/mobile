@@ -11,15 +11,10 @@ import {
   Poppins_400Regular,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
-import {
-  QueryClient,
-  QueryClientProvider,
-  focusManager,
-} from "@tanstack/react-query";
+import { focusManager } from "@tanstack/react-query";
 import {
   MusicPlayerProvider,
   Text,
-  HeaderBackButton,
   BitcoinPriceProvider,
   PopupProvider,
 } from "@/components";
@@ -34,6 +29,7 @@ import { UserContextProvider } from "@/components/UserContextProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "@sentry/react-native";
 import { BUILD_NUM, VERSION } from "@/app.config";
+import { QueryProvider } from "@/components/QueryProvider";
 
 const release = `${VERSION}-${BUILD_NUM}`;
 const NODE_ENV = process.env.NODE_ENV;
@@ -59,8 +55,6 @@ export { ErrorBoundary } from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient();
 
 function Layout() {
   const [loaded, error] = useFonts({
@@ -126,7 +120,7 @@ function Layout() {
   return loaded ? (
     <SafeAreaProvider>
       <ThemeProvider value={DarkTheme}>
-        <QueryClientProvider client={queryClient}>
+        <QueryProvider>
           <UserContextProvider>
             <PopupProvider>
               <MusicPlayerProvider>
@@ -205,7 +199,7 @@ function Layout() {
               </MusicPlayerProvider>
             </PopupProvider>
           </UserContextProvider>
-        </QueryClientProvider>
+        </QueryProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   ) : null;

@@ -40,7 +40,7 @@ export const useAddContentToLibrary = (queryKey: QueryKey) => {
     },
     // Always refetch after error or success:
     onSettled: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 };

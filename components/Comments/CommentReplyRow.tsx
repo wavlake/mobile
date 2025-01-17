@@ -2,9 +2,9 @@ import { View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "../shared/Text";
 import { Event, UnsignedEvent } from "nostr-tools";
-import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 import { encodeNpub } from "@/utils";
 import { ParsedTextRender } from "./ParsedTextRenderer";
+import { useNostrProfileEvent } from "@/hooks";
 
 interface CommentReplyRow extends ViewProps {
   reply: Event | UnsignedEvent;
@@ -12,8 +12,9 @@ interface CommentReplyRow extends ViewProps {
 
 export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   const { content, pubkey } = reply;
-  const { data: metadata } = useCatalogPubkey(pubkey);
-  const { name, picture } = metadata?.metadata || {};
+  const { data: metadata } = useNostrProfileEvent(pubkey);
+  const { name, picture } = metadata || {};
+
   const getDisplayName = () => {
     try {
       return name ?? encodeNpub(pubkey)?.slice(0, 10);

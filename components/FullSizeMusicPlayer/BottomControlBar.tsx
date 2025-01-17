@@ -69,8 +69,8 @@ export const BottomControlBar = ({}: {}) => {
           size={20}
           isLiked={isTrackInLibrary}
           isLoading={
-            addTrackToLibraryMutation.isLoading ||
-            deleteTrackFromLibraryMutation.isLoading
+            addTrackToLibraryMutation.isPending ||
+            deleteTrackFromLibraryMutation.isPending
           }
           isMusic={isMusic}
         />
