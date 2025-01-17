@@ -152,17 +152,13 @@ export const getEventFromRelay = (
   });
 };
 
-const getEventFromPoolAndCacheItIfNecessary = async ({
+const getEventFromPool = async ({
   pubkey,
   filter,
-  cachedEvent,
-  cache,
   relayUris = DEFAULT_READ_RELAY_URIS,
 }: {
   pubkey: string;
   filter: Filter;
-  cachedEvent: Event | null;
-  cache: Function;
   relayUris?: string[];
 }) => {
   try {
@@ -170,10 +166,6 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
 
     if (event === null) {
       return null;
-    }
-
-    if (!cachedEvent || event.created_at > cachedEvent.created_at) {
-      await cache(pubkey, event);
     }
 
     return event;
@@ -190,13 +182,38 @@ export const getProfileMetadata = async (
     kinds: [0],
     authors: [pubkey],
   };
-  return getEventFromPoolAndCacheItIfNecessary({
+  return getEventFromPool({
     pubkey,
     filter,
-    cachedEvent: await getCachedNostrProfileEvent(pubkey),
-    cache: cacheNostrProfileEvent,
     relayUris,
   });
+};
+
+export const getFollowsList = async (pubkey: string, relayUris: string[]) => {
+  const filter = {
+    kinds: [3],
+    authors: [pubkey],
+  };
+  const event = await getEventFromPool({
+    pubkey,
+    filter,
+    relayUris,
+  });
+
+  if (!event) {
+    return null;
+  }
+
+  const followsListMap = event.tags.reduce(
+    (acc, [tag, pubkey, relay, petname]) => {
+      if (tag === "p") {
+        acc[pubkey] = relay;
+      }
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+  return followsListMap;
 };
 
 export const batchGetProfileMetadata = async (
@@ -216,12 +233,9 @@ export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
     authors: [pubkey],
   };
 
-  return getEventFromPoolAndCacheItIfNecessary({
+  return getEventFromPool({
     pubkey,
     filter,
-    cachedEvent: await getCachedNWCInfoEvent(pubkey),
-    cache: cacheNWCInfoEvent,
-    // mutiny wallet doesn't allow us to read from the relay specificed in the NWC info event
     // so we have to check other relays
     relayUris: [...DEFAULT_READ_RELAY_URIS, ...(relayUri ? [relayUri] : [])],
   });
@@ -232,11 +246,9 @@ export const getRelayListMetadata = async (pubkey: string) => {
     kinds: [10002],
     authors: [pubkey],
   };
-  return getEventFromPoolAndCacheItIfNecessary({
+  return getEventFromPool({
     pubkey,
     filter,
-    cachedEvent: await getCachedNostrRelayListEvent(pubkey),
-    cache: cacheNostrRelayListEvent,
   });
 };
 

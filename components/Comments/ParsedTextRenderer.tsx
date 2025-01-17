@@ -7,7 +7,7 @@ import { Linking, View } from "react-native";
 import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import { useMemo } from "react";
-import { useNostrProfileEvent } from "@/hooks";
+import { useNostrProfile } from "@/hooks";
 interface ParsedTextWrapperProps {
   content?: string;
 }
@@ -40,7 +40,7 @@ export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
   // TODO - fix profile look up, cant call hook this way
   // mentions.forEach((mention) => {
   //   if (mention) {
-  //     const { data: profile } = useNostrProfileEvent(
+  //     const { data: profile } = useNostrProfile(
   //       mention.pubkey,
   //       false,
   //       mention.relays,

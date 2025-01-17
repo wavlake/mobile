@@ -7,12 +7,12 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
-import { useNostrProfileEvent } from "./useNostrProfile";
+import { useNostrProfile } from "./useNostrProfile";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { NostrUserProfile } from "@/utils/types";
 
 export const useSaveNostrProfile = () => {
-  const { data: profile } = useNostrProfileEvent();
+  const { data: profile } = useNostrProfile();
   const { writeRelayList } = useNostrRelayList();
   const nostrProfileQueryKey = useNostrProfileQueryKey(
     profile?.publicHex ?? "",
