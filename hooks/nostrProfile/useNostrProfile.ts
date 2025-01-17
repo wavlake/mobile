@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  batchGetProfileMetadata,
   encodeNpub,
-  getCachedNostrProfileEvent,
-  getMostRecentEvent,
+  getFollowsList,
   getProfileMetadata,
 } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +10,61 @@ import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useMemo } from "react";
 import { NostrUserProfile } from "@/utils/types";
+
+export const useNostrProfile = (
+  pubkey?: string | null,
+  shouldUpdateOnRelayListChange: boolean = true,
+) => {
+  const { data: event } = useNostrProfileEvent(
+    pubkey,
+    shouldUpdateOnRelayListChange,
+  );
+  if (!event) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(event.content) as NostrUserProfile;
+  } catch {
+    return null;
+  }
+};
+
+export const useNostrFollows = (pubkey?: string | null) => {
+  const { readRelayList } = useNostrRelayList();
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: ["follows", pubkey],
+    queryFn: async () => {
+      const isValid = pubkey && pubkey.length === 64 && !!encodeNpub(pubkey);
+
+      if (!isValid) {
+        return null;
+      }
+
+      const followsMap = getFollowsList(pubkey, readRelayList);
+      const followPubkeys = Object.keys(followsMap);
+
+      // eagerly fetch profile metadata for all follows
+      const commonRelays = new Set(Object.values(followsMap));
+      batchGetProfileMetadata(followPubkeys, Array.from(commonRelays)).then(
+        (events) => {
+          events.forEach((event) => {
+            // update the cache with the profile metadata
+            queryClient.setQueryData(
+              useNostrProfileQueryKey(event.pubkey),
+              event,
+            );
+          });
+        },
+      );
+      return followPubkeys;
+    },
+    enabled: Boolean(pubkey),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+};
 
 export const useNostrProfileEvent = (
   pubkey?: string | null,
@@ -38,61 +93,9 @@ export const useNostrProfileEvent = (
         return null;
       }
 
-      const event = await getProfileMetadata(
-        finalPubkey,
-        memoizedReadRelayList,
-      );
-      if (!event) {
-        return null;
-      }
-
-      try {
-        return JSON.parse(event.content) as NostrUserProfile;
-      } catch {
-        return null;
-      }
+      return getProfileMetadata(finalPubkey, memoizedReadRelayList);
     },
     enabled: Boolean(finalPubkey),
-    staleTime: Infinity,
+    staleTime: 24 * 60 * 60 * 1000,
   });
-};
-
-const useCachedNostrProfileEvent = (pubkey: string) => {
-  return useQuery({
-    queryKey: ["cachedNostrProfileEvent", pubkey],
-    queryFn: () => getCachedNostrProfileEvent(pubkey),
-    enabled: Boolean(pubkey),
-  });
-};
-
-export const useNostrProfile = (pubkey?: string) => {
-  const { pubkey: loggedInPubkey } = useAuth();
-  // if no pubkey is provided, use the logged in user's pubkey
-  const { data: nostrProfileEvent } = useNostrProfileEvent(
-    pubkey ?? loggedInPubkey,
-  );
-  const { data: cachedNostrProfileEvent } = useCachedNostrProfileEvent(
-    pubkey ?? loggedInPubkey,
-  );
-  const events = [];
-
-  if (nostrProfileEvent) {
-    events.push(nostrProfileEvent);
-  }
-
-  if (cachedNostrProfileEvent) {
-    events.push(cachedNostrProfileEvent);
-  }
-
-  const mostRecentProfileEvent = getMostRecentEvent(events);
-
-  if (!mostRecentProfileEvent) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(mostRecentProfileEvent.content) as NostrUserProfile;
-  } catch {
-    return null;
-  }
 };
