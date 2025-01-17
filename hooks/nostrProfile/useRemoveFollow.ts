@@ -20,7 +20,7 @@ export const useRemoveFollow = () => {
         readRelayList,
       );
       if (!currentKind3Event) {
-        toast.show("Failed to remove follower");
+        toast.show("Failed to unfollow user");
         return;
       }
 
@@ -37,7 +37,7 @@ export const useRemoveFollow = () => {
       const signed = await signEvent(event);
       const queryKey = getNostrFollowsQueryKey(loggedInPubkey);
       queryClient.setQueryData(queryKey, (data: string[]) => {
-        return newFollows;
+        return newFollows.map((follow) => follow[1]);
       });
       await publishEvent(writeRelayList, signed);
     },

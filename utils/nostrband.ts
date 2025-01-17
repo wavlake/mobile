@@ -15,7 +15,7 @@ const nostrBandApi = axios.create({
   timeout: 10000,
 });
 
-const fetchFollowersList = async (publicHex: string) => {
+const fetchFollowersCount = async (publicHex: string) => {
   try {
     const response = await nostrBandApi.get<NostrBandResponse>(
       `/v0/stats/profile/${publicHex}`,
@@ -36,10 +36,10 @@ export const useFollowersCount = (publicHex: string | undefined) => {
     queryKey: ["followers", publicHex],
     queryFn: () => {
       if (!publicHex) return Promise.resolve(0);
-      return fetchFollowersList(publicHex);
+      return fetchFollowersCount(publicHex);
     },
     enabled: !!publicHex,
-    staleTime: 24 * 60 * 60 * 1000, // Data considered fresh for 5 minutes
+    staleTime: 24 * 60 * 60 * 1000, // Data considered fresh for 24 hrs
     retry: 1,
   });
 };
