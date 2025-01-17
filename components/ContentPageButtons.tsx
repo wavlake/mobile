@@ -57,13 +57,13 @@ export const ContentPageButtons = ({
   const addTrackToLibraryMutation = useAddTrackToLibrary();
   const deleteTrackFromLibraryMutation = useDeleteTrackFromLibrary();
   const isLikeLoading = isAlbum
-    ? addAlbumToLibraryMutation.isLoading ||
-      deleteAlbumFromLibraryMutation.isLoading
+    ? addAlbumToLibraryMutation.isPending ||
+      deleteAlbumFromLibraryMutation.isPending
     : isArtist
-    ? addArtistToLibraryMutation.isLoading ||
-      deleteArtistFromLibraryMutation.isLoading
-    : addTrackToLibraryMutation.isLoading ||
-      deleteTrackFromLibraryMutation.isLoading;
+    ? addArtistToLibraryMutation.isPending ||
+      deleteArtistFromLibraryMutation.isPending
+    : addTrackToLibraryMutation.isPending ||
+      deleteTrackFromLibraryMutation.isPending;
 
   const handlePlayPausePress = () => {
     if (isThisTrackListLoaded) {

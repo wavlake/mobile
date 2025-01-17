@@ -27,8 +27,8 @@ export const PubkeyProfile = ({
   const userOwnsProfile = pubkey === loggedInUserPubkey;
   const { nostrMetadata } = useUser();
   const { picture, name, banner, about, website, nip05 } = profileData ?? {};
-  const { mutateAsync: addFollower, isLoading: addLoading } = useAddFollower();
-  const { mutateAsync: removeFollower, isLoading: removeLoading } =
+  const { mutateAsync: addFollower, isPending: addLoading } = useAddFollower();
+  const { mutateAsync: removeFollower, isPending: removeLoading } =
     useRemoveFollower();
   const userIsFollowing = nostrMetadata?.follows.some(
     (follow) => follow.pubkey === loggedInUserPubkey,

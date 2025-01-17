@@ -100,7 +100,7 @@ export const AlbumPage = () => {
           <View style={{ marginBottom: 36 }}>
             <SquareArtwork size={screenWidth} url={artworkUrl} />
             <ContentPageButtons
-              type="album"
+              contentType="album"
               shareUrl={`https://wavlake.com/album/${albumId}`}
               content={album}
               trackListId={id}

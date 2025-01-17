@@ -171,8 +171,8 @@ export const EditPlaylistDialog = ({
                     size={32}
                     isLiked={isPlaylistInLibrary}
                     isLoading={
-                      addPlaylistToLibraryMutation.isLoading ||
-                      deletePlaylistFromLibraryMutation.isLoading
+                      addPlaylistToLibraryMutation.isPending ||
+                      deletePlaylistFromLibraryMutation.isPending
                     }
                   />
                 }

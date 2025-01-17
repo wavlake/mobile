@@ -103,7 +103,6 @@ export const useInbox = (
             readRelayList,
             filters.repliesAndMentions,
           );
-          console.log("replies-and-mentions", events.length);
           events.forEach(cacheEvent);
 
           // Split events into replies and mentions
