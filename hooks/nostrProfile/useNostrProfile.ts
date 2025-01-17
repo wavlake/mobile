@@ -11,6 +11,8 @@ import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useMemo } from "react";
 import { NostrUserProfile } from "@/utils/types";
 
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
 export const useNostrProfile = (
   pubkey?: string | null,
   shouldUpdateOnRelayListChange: boolean = true,
@@ -57,15 +59,12 @@ export const useCacheFollows = (pubkey: string) => {
       );
     },
     enabled: Boolean(followsMap),
-    staleTime: 24 * 60 * 60 * 1000,
+    staleTime: TWENTY_FOUR_HOURS,
   });
-
-  return;
 };
 
 export const useNostrFollows = (pubkey?: string | null) => {
   const { readRelayList } = useNostrRelayList();
-  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: ["follows", pubkey],
@@ -79,7 +78,7 @@ export const useNostrFollows = (pubkey?: string | null) => {
       return getFollowsList(pubkey, readRelayList);
     },
     enabled: Boolean(pubkey),
-    staleTime: 24 * 60 * 60 * 1000,
+    staleTime: TWENTY_FOUR_HOURS,
   });
 };
 
@@ -113,6 +112,6 @@ export const useNostrProfileEvent = (
       return getProfileMetadata(finalPubkey, memoizedReadRelayList);
     },
     enabled: Boolean(finalPubkey),
-    staleTime: 24 * 60 * 60 * 1000,
+    staleTime: TWENTY_FOUR_HOURS,
   });
 };
