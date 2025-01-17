@@ -8,6 +8,7 @@ import {
 } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
+import { useCacheFollows } from "./nostrProfile";
 
 // this hook manage's the user's locally stored private key
 export const useAuth = () => {
@@ -17,6 +18,10 @@ export const useAuth = () => {
     queryFn: getPubkeyFromCachedSeckey,
     staleTime: Infinity,
   });
+
+  // cache follows' profiles for the logged in user
+  useCacheFollows(pubkey);
+
   const login = async (privkey: string) => {
     const { seckey } = getKeysFromNostrSecret(privkey) || {};
 

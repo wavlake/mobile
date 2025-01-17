@@ -18,12 +18,7 @@ import {
   shouldForceLogin,
   getRandomMusic,
 } from "@/utils";
-import {
-  useAuth,
-  useCacheFollows,
-  useIsNavigationReady,
-  useUser,
-} from "@/hooks";
+import { useAuth, useIsNavigationReady, useUser } from "@/hooks";
 import { useEffect } from "react";
 import { Octicons } from "@expo/vector-icons";
 
@@ -36,9 +31,6 @@ export default function TabLayout() {
   const { signOut } = useUser();
   const router = useRouter();
   const isNavigationReady = useIsNavigationReady();
-  const { pubkey } = useAuth();
-  // cache follows' profiles for the current user
-  useCacheFollows(pubkey);
 
   useEffect(() => {
     if (!isNavigationReady) {

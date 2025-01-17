@@ -32,7 +32,7 @@ export const useNostrProfile = (
   }
 };
 
-export const useCacheFollows = (pubkey: string) => {
+export const useCacheFollows = (pubkey?: string) => {
   const queryClient = useQueryClient();
   const { data: followsMap } = useNostrFollows(pubkey);
 
