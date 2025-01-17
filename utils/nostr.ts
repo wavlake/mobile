@@ -32,8 +32,6 @@ import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import axios from "axios";
 import { ShowEvents } from "@/constants/events";
-import { useMutation } from "@tanstack/react-query";
-import { useAuth, useUser } from "@/hooks";
 import { getPodcastFeedGuid } from "./rss";
 import { NWCRequest } from "./nwc";
 import {
@@ -43,15 +41,7 @@ import {
   isNotCensoredAuthor,
   removeCensoredContent,
 } from "./comments";
-import {
-  cacheNostrProfileEvent,
-  cacheNostrRelayListEvent,
-  cacheNWCInfoEvent,
-  getCachedNostrProfileEvent,
-  getCachedNostrRelayListEvent,
-  getCachedNWCInfoEvent,
-  getSettings,
-} from "./cache";
+import { getSettings } from "./cache";
 import { getSeckey } from "./secureStorage";
 import {
   DEFAULT_READ_RELAY_URIS,
@@ -59,7 +49,6 @@ import {
   wavlakeFeedPubkey,
 } from "./shared";
 import { pool } from "./relay-pool";
-import { updatePubkeyMetadata } from "./profile-service";
 import { NostrUserProfile } from "./types";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
@@ -603,8 +592,6 @@ export const subscribeToTicket = async (pubkey: string) => {
   });
 };
 
-const followerTag = "p";
-
 export const getEventById = (eventId: string) => {
   const filter = {
     ids: [eventId],
@@ -613,7 +600,7 @@ export const getEventById = (eventId: string) => {
   return pool.get(DEFAULT_READ_RELAY_URIS, filter);
 };
 
-const getKind3Event = (pubkey?: string) => {
+export const getKind3Event = (pubkey?: string) => {
   if (!pubkey) {
     return null;
   }
@@ -628,81 +615,6 @@ const getKind3Event = (pubkey?: string) => {
   } catch {
     return null;
   }
-};
-
-export const useAddFollower = () => {
-  const { refetchUser } = useUser();
-  const { pubkey: loggedInPubkey } = useAuth();
-
-  return useMutation({
-    mutationFn: async ({ pubkey }: { pubkey: string }) => {
-      let currentKind3Event: Event | EventTemplate | null =
-        await getKind3Event(loggedInPubkey);
-
-      if (!currentKind3Event) {
-        // need to take care here, if we cant find the user's event, we need to create one, but we might not now which relays to use
-        currentKind3Event = {
-          kind: Contacts,
-          created_at: Math.round(new Date().getTime() / 1000),
-          content: "",
-          tags: [],
-        };
-      }
-      const existingFollowersPubkeys = currentKind3Event.tags
-        .filter((follow) => follow[0] === followerTag)
-        .map((follow) => follow[1]);
-      const otherTags = currentKind3Event.tags.filter(
-        (tag) => tag[0] !== followerTag,
-      );
-      const newFollowers = Array.from(
-        new Set([...existingFollowersPubkeys, pubkey]),
-      );
-
-      const event = {
-        kind: Contacts,
-        created_at: Math.round(new Date().getTime() / 1000),
-        content: currentKind3Event.content,
-        tags: [
-          ...newFollowers.map((follower) => [followerTag, follower]),
-          ...otherTags,
-        ],
-      };
-
-      const signed = await signEvent(event);
-      // TODO use user's relay list event
-      await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
-      await updatePubkeyMetadata(loggedInPubkey);
-      refetchUser();
-    },
-  });
-};
-
-export const useRemoveFollower = () => {
-  const { refetchUser } = useUser();
-  const { pubkey: loggedInPubkey } = useAuth();
-
-  return useMutation({
-    mutationFn: async (removedFollowPubkey: string) => {
-      const currentKind3Event = await getKind3Event(loggedInPubkey);
-      if (!currentKind3Event) {
-        return;
-      }
-
-      const event = {
-        kind: Contacts,
-        created_at: Math.round(new Date().getTime() / 1000),
-        content: currentKind3Event?.content ?? "",
-        tags: currentKind3Event.tags.filter(
-          (follow) => follow[1] !== removedFollowPubkey,
-        ),
-      };
-      const signed = await signEvent(event);
-      // TODO use user's relay list event
-      await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
-      await updatePubkeyMetadata(loggedInPubkey);
-      refetchUser();
-    },
-  });
 };
 
 export const fetchReplies = async (kind1EventIds: string[]) => {

@@ -4,7 +4,7 @@ import { Text } from "../shared/Text";
 import { Event, UnsignedEvent } from "nostr-tools";
 import { encodeNpub } from "@/utils";
 import { ParsedTextRender } from "./ParsedTextRenderer";
-import { useNostrProfileEvent } from "@/hooks";
+import { useNostrProfile } from "@/hooks";
 
 interface CommentReplyRow extends ViewProps {
   reply: Event | UnsignedEvent;
@@ -12,7 +12,7 @@ interface CommentReplyRow extends ViewProps {
 
 export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   const { content, pubkey } = reply;
-  const { data: metadata } = useNostrProfileEvent(pubkey);
+  const { data: metadata } = useNostrProfile(pubkey);
   const { name, picture } = metadata || {};
 
   const getDisplayName = () => {
