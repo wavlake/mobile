@@ -58,7 +58,7 @@ const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
 const ticketBotPublicKey =
   "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397";
-const Contacts = 3;
+export const Contacts = 3;
 const HTTPAuth = 27235;
 
 export const encodeNpub = (pubkey: string) => {
