@@ -2,7 +2,7 @@ import { ScrollView, View, RefreshControl } from "react-native";
 import { SectionHeader } from "./SectionHeader";
 import { useLocalSearchParams } from "expo-router";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
-import { useAuth, useNostrProfileEvent } from "@/hooks";
+import { useAuth, useNostrProfile } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { Text } from "./shared/Text";
 import { PubkeyProfile } from "./PubkeyProfile";
@@ -40,7 +40,7 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
     data: npubMetadata,
     isFetching,
     refetch: refetchMetadata,
-  } = useNostrProfileEvent(pubkey);
+  } = useNostrProfile(pubkey);
   const {
     data: activity = [],
     isLoading: activityLoading,

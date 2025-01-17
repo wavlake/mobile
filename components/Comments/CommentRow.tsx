@@ -1,6 +1,6 @@
 import { TouchableOpacity, View, ViewProps } from "react-native";
 import { Event } from "nostr-tools";
-import { useNostrProfileEvent } from "@/hooks";
+import { useNostrProfile } from "@/hooks";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import { useState } from "react";
 import { CommentRepliesLink } from "./CommentRepliesLink";
@@ -39,7 +39,7 @@ export const CommentRow = ({
     data: npubMetadata,
     isFetching,
     isLoading,
-  } = useNostrProfileEvent(comment?.pubkey);
+  } = useNostrProfile(comment?.pubkey);
   const metadataIsLoading = isFetching || isLoading;
   const [dialogOpen, setDialogOpen] = useState(false);
 
