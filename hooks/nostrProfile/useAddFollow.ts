@@ -2,10 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNostrRelayList } from "../nostrRelayList";
 import { useAuth } from "../useAuth";
 import { getKind3Event, publishEvent, signEvent } from "@/utils";
-import { Contacts } from "nostr-tools/lib/types/kinds";
 import { EventTemplate } from "nostr-tools";
 import { getNostrFollowsQueryKey } from "./useNostrFollows";
 
+const Contacts = 3;
 const followerTag = "p";
 
 export const useAddFollow = () => {
