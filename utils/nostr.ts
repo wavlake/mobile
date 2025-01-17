@@ -178,7 +178,10 @@ export const getProfileMetadata = async (
   });
 };
 
-export const getFollowsList = async (pubkey: string, relayUris: string[]) => {
+export const getFollowsListMap = async (
+  pubkey: string,
+  relayUris: string[],
+) => {
   const filter = {
     kinds: [3],
     authors: [pubkey],
@@ -600,7 +603,10 @@ export const getEventById = (eventId: string) => {
   return pool.get(DEFAULT_READ_RELAY_URIS, filter);
 };
 
-export const getKind3Event = (pubkey?: string) => {
+export const getKind3Event = (
+  pubkey?: string,
+  relays: string[] = DEFAULT_READ_RELAY_URIS,
+) => {
   if (!pubkey) {
     return null;
   }
@@ -611,7 +617,7 @@ export const getKind3Event = (pubkey?: string) => {
   };
 
   try {
-    return pool.get(DEFAULT_READ_RELAY_URIS, filter);
+    return pool.get(relays, filter);
   } catch {
     return null;
   }

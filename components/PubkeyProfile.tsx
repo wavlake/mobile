@@ -3,7 +3,7 @@ import { View, Image, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { openURL } from "expo-linking";
 import { NostrUserProfile } from "@/utils";
-import { useAddFollower, useAuth, useRemoveFollower, useUser } from "@/hooks";
+import { useAddFollow, useAuth, useRemoveFollow, useUser } from "@/hooks";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -12,6 +12,8 @@ import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 import { Text } from "./shared/Text";
 import { Avatar } from "./Avatar";
 import { SlimButton } from "./shared/SlimButton";
+import { useNostrFollows } from "@/hooks/nostrProfile/useNostrFollows";
+import { useFollowersCount } from "@/utils/nostrband";
 
 const AVATAR_SIZE = 80;
 export const PubkeyProfile = ({
@@ -27,9 +29,9 @@ export const PubkeyProfile = ({
   const userOwnsProfile = pubkey === loggedInUserPubkey;
   const { nostrMetadata } = useUser();
   const { picture, name, banner, about, website, nip05 } = profileData ?? {};
-  const { mutateAsync: addFollower, isPending: addLoading } = useAddFollower();
+  const { mutateAsync: addFollower, isPending: addLoading } = useAddFollow();
   const { mutateAsync: removeFollower, isPending: removeLoading } =
-    useRemoveFollower();
+    useRemoveFollow();
   const userIsFollowing = nostrMetadata?.follows.some(
     (follow) => follow.pubkey === loggedInUserPubkey,
   );
@@ -41,7 +43,7 @@ export const PubkeyProfile = ({
     if (isFollowing) {
       removeFollower(pubkey);
     } else {
-      addFollower({ pubkey });
+      addFollower(pubkey);
     }
   };
 
@@ -189,11 +191,8 @@ export const PubkeyProfile = ({
 };
 
 const FollowerInfo = ({ pubkey }: { pubkey: string }) => {
-  const { data: catalogMetadata } = useCatalogPubkey(pubkey);
-  const { followerCount, follows } = catalogMetadata || {};
-  if (typeof followerCount === "undefined" || typeof follows === "undefined") {
-    return null;
-  }
+  const { data: followerCount = 0 } = useFollowersCount(pubkey);
+  const { data: followsList = [] } = useNostrFollows(pubkey);
 
   return (
     <View
@@ -210,10 +209,10 @@ const FollowerInfo = ({ pubkey }: { pubkey: string }) => {
           <Text style={{ fontSize: 12 }}>{` followers • `}</Text>
         </>
       )}
-      {follows.length > 0 && (
+      {followsList?.length > 0 && (
         <>
           <Text style={{ fontSize: 12 }} bold>
-            {follows.length}
+            {followsList.length}
           </Text>
           <Text style={{ fontSize: 12 }}>{` following`}</Text>
         </>

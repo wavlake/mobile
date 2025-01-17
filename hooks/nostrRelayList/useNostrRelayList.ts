@@ -14,7 +14,7 @@ import {
 } from "@/utils/shared";
 
 const useNostrRelayListEvent = (pubkey: string) => {
-  const queryKey = useNostrRelayListQueryKey();
+  const queryKey = useNostrRelayListQueryKey(pubkey);
   const { data } = useQuery({
     queryKey,
     queryFn: () => getRelayListMetadata(pubkey),
@@ -36,8 +36,9 @@ const useCachedNostrRelayListEvent = (pubkey: string) => {
   return data;
 };
 
-export const useNostrRelayList = () => {
-  const { pubkey } = useAuth();
+export const useNostrRelayList = (pubkeyOverride?: string | null) => {
+  const { pubkey: loggedInPubkey } = useAuth();
+  const pubkey = pubkeyOverride ?? loggedInPubkey;
   const nostrRelayListEvent = useNostrRelayListEvent(pubkey ?? "");
   const cachedNostrRelayListEvent = useCachedNostrRelayListEvent(pubkey ?? "");
   const events = [];
