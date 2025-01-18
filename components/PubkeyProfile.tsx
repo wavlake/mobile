@@ -8,7 +8,6 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
-import { useCatalogPubkey } from "@/hooks/nostrProfile/useCatalogPubkey";
 import { Text } from "./shared/Text";
 import { Avatar } from "./Avatar";
 import { SlimButton } from "./shared/SlimButton";

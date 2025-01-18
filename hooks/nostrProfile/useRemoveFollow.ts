@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNostrRelayList } from "../nostrRelayList";
 import { useAuth } from "../useAuth";
-import { getKind3Event, publishEvent, signEvent } from "@/utils";
-import { Contacts } from "nostr-tools/lib/types/kinds";
+import { Contacts, getKind3Event, publishEvent, signEvent } from "@/utils";
 import { getNostrFollowsQueryKey } from "./useNostrFollows";
 import { useToast } from "../useToast";
 
