@@ -65,6 +65,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    // loader is sometimes shown on top of the image, so we need to set zIndex to -1
+    zIndex: -1,
     justifyContent: "center",
     alignItems: "center",
   },

@@ -44,3 +44,6 @@ yarn-error.*
 google-services.json
 GoogleService-Info.plist
 .env.local
+
+# vscode
+settings.json
