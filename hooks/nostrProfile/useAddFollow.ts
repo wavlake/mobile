@@ -28,6 +28,13 @@ export const useAddFollow = () => {
         };
       }
 
+      const userAlreadyFollows = currentKind3Event.tags.some(
+        (tag) => tag[1] === pubkey && tag[0] === followerTag,
+      );
+      if (userAlreadyFollows) {
+        return;
+      }
+
       const existingFollowersPubkeys: string[] = [];
       const otherTags: string[][] = [];
 
@@ -39,9 +46,7 @@ export const useAddFollow = () => {
         }
       });
 
-      const newFollowers = Array.from(
-        new Set([...existingFollowersPubkeys, pubkey]),
-      );
+      const newFollowers = [...existingFollowersPubkeys, pubkey];
 
       const event = {
         kind: Contacts,
