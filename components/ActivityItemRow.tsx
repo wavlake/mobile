@@ -326,6 +326,8 @@ export const ActivityItemRow = ({
           {...generateOverflowMenuProps(item)}
           setIsOpen={setOverflowDialogIsOpen}
           isOpen={overflowDialogIsOpen}
+          contentType={contentType}
+          contentId={contentId}
         />
       </TouchableOpacity>
     </View>

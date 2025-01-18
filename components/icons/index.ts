@@ -3,7 +3,6 @@ export * from "./AlbumsIcon";
 export * from "./SongsIcon";
 export * from "./PlaylistsIcon";
 export * from "./LogoIcon";
-export * from "./ShareIcon";
 export * from "./NewBadgeIcon";
 export * from "./PauseRoundIcon";
 export * from "./PlayRoundIcon";

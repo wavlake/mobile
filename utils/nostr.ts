@@ -32,8 +32,6 @@ import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import axios from "axios";
 import { ShowEvents } from "@/constants/events";
-import { useMutation } from "@tanstack/react-query";
-import { useAuth, useUser } from "@/hooks";
 import { getPodcastFeedGuid } from "./rss";
 import { NWCRequest } from "./nwc";
 import {
@@ -43,15 +41,7 @@ import {
   isNotCensoredAuthor,
   removeCensoredContent,
 } from "./comments";
-import {
-  cacheNostrProfileEvent,
-  cacheNostrRelayListEvent,
-  cacheNWCInfoEvent,
-  getCachedNostrProfileEvent,
-  getCachedNostrRelayListEvent,
-  getCachedNWCInfoEvent,
-  getSettings,
-} from "./cache";
+import { getSettings } from "./cache";
 import { getSeckey } from "./secureStorage";
 import {
   DEFAULT_READ_RELAY_URIS,
@@ -59,7 +49,6 @@ import {
   wavlakeFeedPubkey,
 } from "./shared";
 import { pool } from "./relay-pool";
-import { updatePubkeyMetadata } from "./profile-service";
 import { NostrUserProfile } from "./types";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
@@ -69,7 +58,7 @@ const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
 const ticketBotPublicKey =
   "1c2aa0fb7bf8ed94e0cdb1118bc1b8bd51c6bd3dbfb49b2fd93277b834c40397";
-const Contacts = 3;
+export const Contacts = 3;
 const HTTPAuth = 27235;
 
 export const encodeNpub = (pubkey: string) => {
@@ -152,17 +141,13 @@ export const getEventFromRelay = (
   });
 };
 
-const getEventFromPoolAndCacheItIfNecessary = async ({
+const getEventFromPool = async ({
   pubkey,
   filter,
-  cachedEvent,
-  cache,
   relayUris = DEFAULT_READ_RELAY_URIS,
 }: {
   pubkey: string;
   filter: Filter;
-  cachedEvent: Event | null;
-  cache: Function;
   relayUris?: string[];
 }) => {
   try {
@@ -170,10 +155,6 @@ const getEventFromPoolAndCacheItIfNecessary = async ({
 
     if (event === null) {
       return null;
-    }
-
-    if (!cachedEvent || event.created_at > cachedEvent.created_at) {
-      await cache(pubkey, event);
     }
 
     return event;
@@ -190,13 +171,41 @@ export const getProfileMetadata = async (
     kinds: [0],
     authors: [pubkey],
   };
-  return getEventFromPoolAndCacheItIfNecessary({
+  return getEventFromPool({
     pubkey,
     filter,
-    cachedEvent: await getCachedNostrProfileEvent(pubkey),
-    cache: cacheNostrProfileEvent,
     relayUris,
   });
+};
+
+export const getFollowsListMap = async (
+  pubkey: string,
+  relayUris: string[],
+) => {
+  const filter = {
+    kinds: [3],
+    authors: [pubkey],
+  };
+  const event = await getEventFromPool({
+    pubkey,
+    filter,
+    relayUris,
+  });
+
+  if (!event) {
+    return null;
+  }
+
+  const followsListMap = event.tags.reduce(
+    (acc, [tag, pubkey, relay, petname]) => {
+      if (tag === "p") {
+        acc[pubkey] = relay;
+      }
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+  return followsListMap;
 };
 
 export const batchGetProfileMetadata = async (
@@ -216,12 +225,9 @@ export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
     authors: [pubkey],
   };
 
-  return getEventFromPoolAndCacheItIfNecessary({
+  return getEventFromPool({
     pubkey,
     filter,
-    cachedEvent: await getCachedNWCInfoEvent(pubkey),
-    cache: cacheNWCInfoEvent,
-    // mutiny wallet doesn't allow us to read from the relay specificed in the NWC info event
     // so we have to check other relays
     relayUris: [...DEFAULT_READ_RELAY_URIS, ...(relayUri ? [relayUri] : [])],
   });
@@ -232,11 +238,9 @@ export const getRelayListMetadata = async (pubkey: string) => {
     kinds: [10002],
     authors: [pubkey],
   };
-  return getEventFromPoolAndCacheItIfNecessary({
+  return getEventFromPool({
     pubkey,
     filter,
-    cachedEvent: await getCachedNostrRelayListEvent(pubkey),
-    cache: cacheNostrRelayListEvent,
   });
 };
 
@@ -591,8 +595,6 @@ export const subscribeToTicket = async (pubkey: string) => {
   });
 };
 
-const followerTag = "p";
-
 export const getEventById = (eventId: string) => {
   const filter = {
     ids: [eventId],
@@ -601,7 +603,10 @@ export const getEventById = (eventId: string) => {
   return pool.get(DEFAULT_READ_RELAY_URIS, filter);
 };
 
-const getKind3Event = (pubkey?: string) => {
+export const getKind3Event = (
+  pubkey?: string,
+  relays: string[] = DEFAULT_READ_RELAY_URIS,
+) => {
   if (!pubkey) {
     return null;
   }
@@ -612,85 +617,10 @@ const getKind3Event = (pubkey?: string) => {
   };
 
   try {
-    return pool.get(DEFAULT_READ_RELAY_URIS, filter);
+    return pool.get(relays, filter);
   } catch {
     return null;
   }
-};
-
-export const useAddFollower = () => {
-  const { refetchUser } = useUser();
-  const { pubkey: loggedInPubkey } = useAuth();
-
-  return useMutation({
-    mutationFn: async ({ pubkey }: { pubkey: string }) => {
-      let currentKind3Event: Event | EventTemplate | null =
-        await getKind3Event(loggedInPubkey);
-
-      if (!currentKind3Event) {
-        // need to take care here, if we cant find the user's event, we need to create one, but we might not now which relays to use
-        currentKind3Event = {
-          kind: Contacts,
-          created_at: Math.round(new Date().getTime() / 1000),
-          content: "",
-          tags: [],
-        };
-      }
-      const existingFollowersPubkeys = currentKind3Event.tags
-        .filter((follow) => follow[0] === followerTag)
-        .map((follow) => follow[1]);
-      const otherTags = currentKind3Event.tags.filter(
-        (tag) => tag[0] !== followerTag,
-      );
-      const newFollowers = Array.from(
-        new Set([...existingFollowersPubkeys, pubkey]),
-      );
-
-      const event = {
-        kind: Contacts,
-        created_at: Math.round(new Date().getTime() / 1000),
-        content: currentKind3Event.content,
-        tags: [
-          ...newFollowers.map((follower) => [followerTag, follower]),
-          ...otherTags,
-        ],
-      };
-
-      const signed = await signEvent(event);
-      // TODO use user's relay list event
-      await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
-      await updatePubkeyMetadata(loggedInPubkey);
-      refetchUser();
-    },
-  });
-};
-
-export const useRemoveFollower = () => {
-  const { refetchUser } = useUser();
-  const { pubkey: loggedInPubkey } = useAuth();
-
-  return useMutation({
-    mutationFn: async (removedFollowPubkey: string) => {
-      const currentKind3Event = await getKind3Event(loggedInPubkey);
-      if (!currentKind3Event) {
-        return;
-      }
-
-      const event = {
-        kind: Contacts,
-        created_at: Math.round(new Date().getTime() / 1000),
-        content: currentKind3Event?.content ?? "",
-        tags: currentKind3Event.tags.filter(
-          (follow) => follow[1] !== removedFollowPubkey,
-        ),
-      };
-      const signed = await signEvent(event);
-      // TODO use user's relay list event
-      await publishEvent(DEFAULT_WRITE_RELAY_URIS, signed);
-      await updatePubkeyMetadata(loggedInPubkey);
-      refetchUser();
-    },
-  });
 };
 
 export const fetchReplies = async (kind1EventIds: string[]) => {
@@ -744,4 +674,63 @@ export const fetchPulseFeedEvents = async (limit = 100) => {
   });
 
   return { zapReceipts, labelEvents };
+};
+
+const itemIdPrefix = "podcast:item:guid:";
+export const getITagFromEvent = (
+  event?: Event | null,
+  prefix: string = itemIdPrefix,
+) => {
+  if (!event) {
+    return null;
+  }
+
+  const iTags = event.tags.filter((tag) => tag[0] === "i") || [];
+  const [_iTag, contentId] =
+    iTags.find((tag) => tag[1].startsWith(prefix)) || [];
+
+  if (!contentId) {
+    return null;
+  }
+
+  return contentId.replace(prefix, "");
+};
+
+interface MarkedETag {
+  eventId: string;
+  relayUrl: string;
+  marker?: "reply" | "root" | "mention";
+  pubkey?: string;
+}
+
+/**
+ * Gets the parent event ID that this event is replying to.
+ * Handles both marked e tags (preferred) and deprecated positional e tags.
+ *
+ * @param event The nostr event to check
+ * @returns The parent event ID if this is a reply, or null if it's not a reply
+ */
+export const getParentEventId = (event: Event): string | null => {
+  // First check for marked e tags (preferred method)
+  const replyTag = event.tags.find(
+    (tag) => tag[0] === "e" && tag[3] === "reply",
+  );
+
+  if (replyTag) {
+    return replyTag[1]; // The event ID is the second element
+  }
+
+  // If no marked reply tag was found, check for deprecated positional e tags
+  const eTags = event.tags.filter((tag) => tag[0] === "e");
+
+  if (eTags.length === 0) {
+    return null; // Not a reply
+  }
+
+  if (eTags.length === 1) {
+    return eTags[0][1]; // Single e tag indicates reply to this event
+  }
+
+  // Multiple positional e tags - last one is the reply-to event
+  return eTags[eTags.length - 1][1];
 };

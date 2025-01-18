@@ -2,8 +2,19 @@
 
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-export const BUILD_NUM = 77;
-export const VERSION = "1.1.0";
+export const BUILD_NUM = 5;
+export const VERSION = "1.1.3";
+// Android version code must always be higher than the previous version
+const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
+  try {
+    const [major, minor, patch] = version.split(".").map(Number);
+    return major * 10000 + minor * 100 + patch + buildNum;
+  } catch (e) {
+    console.error("error calculating Android versionCode", e);
+    return 1;
+  }
+};
+
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
 export default ({ config }: ConfigContext): ExpoConfig => {
@@ -14,7 +25,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: VERSION,
     orientation: "portrait",
     icon: "./assets/icon.png",
-    scheme: ["wavlake", "nostr+walletconnect"],
+    scheme: ["wavlake"],
     userInterfaceStyle: "dark",
     backgroundColor: "#000000",
     splash: {
@@ -25,7 +36,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     assetBundlePatterns: ["**/*"],
     android: {
       package: "com.wavlake.mobile",
-      versionCode: BUILD_NUM,
+      versionCode: calcNumberBasedOnVersion(VERSION, BUILD_NUM),
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         monochromeImage: "./assets/adaptive-icon.png",
@@ -51,6 +62,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
               host: "*.wavlake.com",
               pathPrefix: "/verification-link",
             },
+            {
+              scheme: "https",
+              host: "*.wavlake.com",
+              pathPrefix: "/track/",
+            },
           ],
           category: ["BROWSABLE", "DEFAULT"],
         },
@@ -60,6 +76,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     ios: {
       supportsTablet: true,
+      usesAppleSignIn: true,
       infoPlist: {
         UIBackgroundModes: ["audio"],
         NSLocationWhenInUseUsageDescription:
@@ -81,10 +98,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "@react-native-google-signin/google-signin",
       "expo-font",
       "expo-secure-store",
+      "expo-apple-authentication",
       [
         "expo-camera",
         {
-          cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+          cameraPermission:
+            "Allow $(PRODUCT_NAME) to use your camera to scan QR codes for wallet connections.",
         },
       ],
       [

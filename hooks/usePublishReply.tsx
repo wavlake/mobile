@@ -49,5 +49,5 @@ export const usePublishReply = () => {
     });
   };
 
-  return { save, isSaving: nostrCommentMutation.isLoading };
+  return { save, isSaving: nostrCommentMutation.isPending };
 };

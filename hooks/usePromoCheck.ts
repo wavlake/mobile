@@ -44,7 +44,7 @@ export const usePromoCheck = (contentId?: string | boolean) => {
         return cachedData;
       }
 
-      queryClient.invalidateQueries(promoListQueryKey);
+      queryClient.invalidateQueries({ queryKey: promoListQueryKey });
       // If cache is stale or doesn't exist, fetch from API
       const apiData = await getPromoByContentId(contentId);
 
@@ -54,7 +54,7 @@ export const usePromoCheck = (contentId?: string | boolean) => {
       return apiData;
     },
     enabled: Boolean(contentId),
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // no need to refetch if not playing
       if (playbackState !== "playing") {
         // fetch one more time after playback ends
@@ -65,7 +65,7 @@ export const usePromoCheck = (contentId?: string | boolean) => {
         return false;
       }
 
-      if (data?.promoUser.canEarnToday) return CACHE_STALE_TIME;
+      if (query.state.data?.promoUser.canEarnToday) return CACHE_STALE_TIME;
 
       // stop refetching if no rewards remaining
       return false;

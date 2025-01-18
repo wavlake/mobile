@@ -10,7 +10,7 @@ import { useRepliesQueryKey } from "@/hooks/useReplies";
 import { TextInput } from "../shared/TextInput";
 import { CommentContent } from "./CommentContent";
 import { Button } from "../shared/Button";
-import { useNostrProfileEvent } from "@/hooks";
+import { useNostrProfile } from "@/hooks";
 
 interface ReplyDialogProps {
   commentId: string;
@@ -58,7 +58,7 @@ const ReplyDialogContents = ({
     data: npubMetadata,
     isFetching,
     isLoading,
-  } = useNostrProfileEvent(parentComment?.pubkey);
+  } = useNostrProfile(parentComment?.pubkey);
   const metadataIsLoading = isFetching || isLoading;
 
   const handleReply = async () => {

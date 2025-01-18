@@ -3,6 +3,8 @@ import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { normalizeTrackResponse } from "./api";
 import { PrivateUserData, ResponseObject, TrackResponse } from "./types";
+import { useAuth, useUser } from "@/hooks";
+import { deleteSecretFromKeychain } from "./keychainStorage";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const enableResponseLogging = Boolean(
@@ -62,9 +64,8 @@ const requestInterceptor = catalogApiClient.interceptors.request.use(
 );
 
 export const usePrivateUserData = (enabled: boolean) => {
-  return useQuery<PrivateUserData>(
-    ["userData"],
-    async () => {
+  return useQuery<PrivateUserData>({
+    queryFn: async () => {
       const { data } = await catalogApiClient
         .get<ResponseObject<PrivateUserData>>(`/accounts`)
         .catch((error) => {
@@ -74,10 +75,9 @@ export const usePrivateUserData = (enabled: boolean) => {
 
       return data.data;
     },
-    {
-      enabled,
-    },
-  );
+    queryKey: ["userData"],
+    enabled,
+  });
 };
 
 interface UserEditForm {
@@ -129,7 +129,30 @@ export const useEditUser = () => {
       return data.data;
     },
     onSuccess(data) {
-      queryClient.invalidateQueries(["userData"]);
+      queryClient.invalidateQueries({ queryKey: ["userData"] });
+    },
+  });
+};
+
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+  const { logout } = useAuth();
+  const { signOut } = useUser();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } =
+        await catalogApiClient.put<ResponseObject<never>>("/accounts/disable");
+
+      return data;
+    },
+    onSuccess(data) {
+      // nostr logout
+      logout();
+      // firebase logout
+      signOut();
+      // delete user's nostr secret
+      deleteSecretFromKeychain();
+      queryClient.invalidateQueries({ queryKey: ["userData"] });
     },
   });
 };
@@ -282,6 +305,48 @@ export const useCreateNewVerifiedUser = () => {
       >(`/accounts/user/verified`, body);
 
       return data.data;
+    },
+  });
+};
+
+export const useAccountTracks = () => {
+  return useQuery({
+    queryKey: ["accountTracks"],
+    queryFn: async () => {
+      const { data } =
+        await catalogApiClient.get<ResponseObject<TrackResponse[]>>(
+          `/tracks/account`,
+        );
+
+      return data.data;
+    },
+  });
+};
+
+export const useGetInboxLastRead = () => {
+  const { pubkey } = useAuth();
+  return useQuery({
+    queryKey: ["inboxlastRead"],
+    queryFn: async () => {
+      const { data } = await catalogApiClient.get<ResponseObject<string>>(
+        `/accounts/inbox/lastread`,
+      );
+
+      return data.data;
+    },
+    enabled: Boolean(pubkey),
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+export const useSetInboxLastRead = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await catalogApiClient.put<ResponseObject<never>>(
+        `/accounts/inbox/lastread`,
+      );
+
+      return data;
     },
   });
 };

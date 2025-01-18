@@ -106,7 +106,7 @@ export const SearchResults = ({ query }: SearchResultsProps) => {
   const debouncedSearchQuery = useDebounce(query, 300);
   const { data = [] } = useQuery({
     queryKey: ["search", debouncedSearchQuery],
-    queryFn: () => search(debouncedSearchQuery),
+    queryFn: () => search(debouncedSearchQuery.trim()),
     enabled: query.length > 0,
   });
   const { height } = useMiniMusicPlayer();

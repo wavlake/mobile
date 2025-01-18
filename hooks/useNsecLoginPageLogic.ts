@@ -16,7 +16,7 @@ import {
   DEFAULT_CONNECTION_SETTINGS,
   useAutoConnectNWC,
 } from "./useAutoConnectNWC";
-import { useNostrProfileEvent } from "./nostrProfile";
+import { useNostrProfile } from "./nostrProfile";
 import { useCreateNewNostrAccount } from "./useCreateNewNostrAccount";
 
 type NsecPageParams = {
@@ -41,9 +41,9 @@ export const useNsecLoginPageLogic = () => {
   const { pubkey: nsecInputPubkey } = getKeysFromNostrSecret(nsec) || {};
 
   const { data: nsecInputMetadata, isFetching: nsecInputMetadataLoading } =
-    useNostrProfileEvent(nsecInputPubkey, false);
+    useNostrProfile(nsecInputPubkey, false);
   const { data: assoicatedMetadata, isFetching: associatedMetadataLoading } =
-    useNostrProfileEvent(userAssociatedPubkey, false);
+    useNostrProfile(userAssociatedPubkey, false);
 
   const createRandomNsec = useCallback(() => {
     const privateKey = bytesToHex(generateSecretKey());

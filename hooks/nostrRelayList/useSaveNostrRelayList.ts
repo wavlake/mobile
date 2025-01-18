@@ -39,5 +39,5 @@ export const useSaveNostrRelayList = () => {
     });
   };
 
-  return { save, isSaving: nostrRelayListMutation.isLoading };
+  return { save, isSaving: nostrRelayListMutation.isPending };
 };

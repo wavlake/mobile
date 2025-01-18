@@ -17,6 +17,7 @@ export const useAuth = () => {
     queryFn: getPubkeyFromCachedSeckey,
     staleTime: Infinity,
   });
+
   const login = async (privkey: string) => {
     const { seckey } = getKeysFromNostrSecret(privkey) || {};
 

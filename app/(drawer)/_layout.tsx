@@ -19,11 +19,13 @@ const MenuButton = () => {
   const onPress = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
+
   return (
     <Pressable
       onPress={onPress}
       style={{
         paddingLeft: 15,
+        position: "relative",
       }}
     >
       <Ionicons name="menu-sharp" size={24} color={colors.text} />

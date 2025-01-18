@@ -4,13 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Album, getAlbum, getAlbumTracks, Track } from "@/utils";
 import { Text } from "./shared/Text";
 import { useMusicPlayer } from "./MusicPlayerProvider";
-import { AlbumOrArtistPageButtons } from "./AlbumOrArtistPageButtons";
+import { ContentPageButtons } from "./ContentPageButtons";
 import { TrackRow } from "./TrackRow";
 import { SectionHeader } from "./SectionHeader";
 import { SquareArtwork } from "./SquareArtwork";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { CommentList } from "./Comments/CommentList";
 import { useAlbumComments } from "@/hooks/useAlbumComments";
+import LoadingScreen from "./LoadingScreen";
+import { Center } from "./shared/Center";
 
 interface AlbumPageFooterProps {
   album: Album;
@@ -58,7 +60,7 @@ export const AlbumPage = () => {
     queryFn: () => getAlbum(albumId as string),
   });
 
-  const { data: tracks = [] } = useQuery({
+  const { data: tracks = [], isLoading } = useQuery({
     queryKey: ["albums", albumId],
     queryFn: () => getAlbumTracks(albumId as string),
   });
@@ -71,6 +73,18 @@ export const AlbumPage = () => {
       playerTitle,
     });
   };
+
+  if (isLoading) {
+    return <LoadingScreen loading />;
+  }
+
+  if (!album) {
+    return (
+      <Center>
+        <Text>Album not found</Text>
+      </Center>
+    );
+  }
 
   return (
     <FlatList
@@ -85,8 +99,8 @@ export const AlbumPage = () => {
         return (
           <View style={{ marginBottom: 36 }}>
             <SquareArtwork size={screenWidth} url={artworkUrl} />
-            <AlbumOrArtistPageButtons
-              type="album"
+            <ContentPageButtons
+              contentType="album"
               shareUrl={`https://wavlake.com/album/${albumId}`}
               content={album}
               trackListId={id}

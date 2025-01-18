@@ -1,4 +1,4 @@
-import { PopupContext } from "@/hooks";
+import { PopupContext, useUser } from "@/hooks";
 import React, { useState, useCallback } from "react";
 import {
   Animated,
@@ -37,8 +37,18 @@ interface User {
 }
 
 export const PopupProvider: React.FC<PopupProviderProps> = ({ children }) => {
+  const { catalogUser, checkIfEmailIsVerified, refetchUser } = useUser();
   const [popups, setPopups] = useState<PopupItem[]>([]);
   const [shownPopups, setShownPopups] = useState<ShownPopupsState>({});
+
+  const userCanEarn = async () => {
+    if (!catalogUser) return false;
+    const emailVerified = await checkIfEmailIsVerified();
+    const freshCatalogUser = await refetchUser();
+    if (freshCatalogUser?.isRegionVerified && emailVerified) {
+      return true;
+    }
+  };
 
   const showPopup = useCallback(
     (Component: React.ComponentType<PopupComponentProps>): number => {
@@ -55,7 +65,7 @@ export const PopupProvider: React.FC<PopupProviderProps> = ({ children }) => {
 
       return id;
     },
-    [],
+    [catalogUser],
   );
 
   const hidePopup = useCallback(
@@ -79,7 +89,8 @@ export const PopupProvider: React.FC<PopupProviderProps> = ({ children }) => {
       const popupKey = `welcome-${user.id}`;
       if (shownPopups[popupKey]) return;
 
-      const canEarn = user.emailVerified && user.isRegionVerified;
+      const canEarn = await userCanEarn();
+      // only show welcome popup if user can participate in Listen to Earn
       if (!canEarn) return;
 
       const userHasNotSeenWelcomePopup = await getHasNotSeenWelcomePopup(

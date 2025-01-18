@@ -12,7 +12,7 @@ import {
   generateOverflowMenuProps,
   ICON_MAP,
 } from "./ActivityItemRow";
-import { useNostrProfileEvent } from "@/hooks";
+import { useNostrProfile } from "@/hooks";
 import { satsFormatter } from "./WalletLabel";
 
 export const NostrActivityItemRow = ({
@@ -96,7 +96,7 @@ export const NostrActivityItemRow = ({
     data: npubMetadata,
     isFetching,
     isLoading,
-  } = useNostrProfileEvent(nostrEvent?.pubkey);
+  } = useNostrProfile(nostrEvent?.pubkey);
   const metadataIsLoading = isFetching || isLoading;
   const isZap = nostrEvent?.kind === 9734;
   if (!contentId || !contentTitle || !nostrEvent) return null;
@@ -180,6 +180,8 @@ export const NostrActivityItemRow = ({
           {...generateOverflowMenuProps(item)}
           setIsOpen={setOverflowDialogIsOpen}
           isOpen={overflowDialogIsOpen}
+          contentType={contentType}
+          contentId={contentId}
         />
       </TouchableOpacity>
     </View>

@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import auth from "@react-native-firebase/auth";
-import { ActivityItem } from "@/components";
+import { ActivityItem, ContentType } from "@/components";
 import { apiClient, createAuthHeader } from "./create-api-client";
 import {
   Album,
   Artist,
   ContentComment,
+  Episode,
   Genre,
   NostrProfileData,
   Playlist,
@@ -126,6 +127,12 @@ export const search = async (query: string): Promise<SearchResult[]> => {
 
 export const getAlbum = async (albumId: string): Promise<Album> => {
   const { data } = await apiClient.get(`/albums/${albumId}`);
+
+  return data.data;
+};
+
+export const getTrack = async (trackId: string): Promise<Track> => {
+  const { data } = await apiClient.get(`/tracks/${trackId}`);
 
   return data.data;
 };
@@ -414,7 +421,7 @@ export const useAddPubkeyToUser = ({
       return data.data;
     },
     onSuccess() {
-      queryClient.invalidateQueries(["userData"]);
+      queryClient.invalidateQueries({ queryKey: ["userData"] });
       onSuccess?.();
     },
     onError(response: ResponseObject) {
@@ -543,7 +550,6 @@ export const getContentMetadataMap = async (
   const { data } = await apiClient.get<ResponseObject<Metadata[]>>(
     `/meta/content?${queryParams.toString()}`,
   );
-
   // transform data into a map
   const map: Record<string, Metadata> = {};
   data.data.forEach((item) => {
@@ -577,4 +583,14 @@ export const validateUsername = async (username: string) => {
     {},
   );
   return data;
+};
+
+export const getContentType = async (contentId: string) => {
+  const { data } = await apiClient.get<
+    ResponseObject<{
+      type: ContentType;
+      metadata: any;
+    }>
+  >(`meta/content/${contentId}`, {});
+  return data.data;
 };

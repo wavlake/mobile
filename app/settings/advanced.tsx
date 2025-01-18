@@ -16,7 +16,7 @@ import {
   WAVLAKE_RELAY,
   useUser,
 } from "@/hooks";
-import { Settings, payInvoiceCommand } from "@/utils";
+import { Settings, payInvoiceCommand, useDeleteUser } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
@@ -228,6 +228,23 @@ export default function AdvancedSettingsPage() {
     }
   };
 
+  const { mutateAsync: deleteUser } = useDeleteUser();
+
+  const handleDeleteUser = async () => {
+    try {
+      const { success } = await deleteUser();
+      if (success) {
+        router.canDismiss() && router.dismissAll();
+        router.replace("/auth");
+      } else {
+        throw new Error("Failed to delete user");
+      }
+    } catch (error) {
+      toast.show("Failed to delete user, please contact suppport@wavlake.com");
+      console.error("Failed to delete user:", error);
+    }
+  };
+
   const hasWavlakeWallet =
     catalogUser?.isRegionVerified &&
     !catalogUser?.isLocked &&
@@ -306,6 +323,35 @@ export default function AdvancedSettingsPage() {
             </TouchableOpacity>
           </View>
         </View>
+        {!!catalogUser && (
+          <View style={styles.settingRow}>
+            <View style={styles.settingText}>
+              <TouchableOpacity
+                hitSlop={20}
+                onPress={() => {
+                  Alert.alert(
+                    "Are you sure you want to delete your account and logout?",
+                    "This action is irreversible and will delete your account and all associated data.",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Delete Account",
+                        style: "destructive",
+                        onPress: handleDeleteUser,
+                      },
+                    ],
+                  );
+                }}
+              >
+                <Text bold>Delete user account</Text>
+                <Text>
+                  This will delete your user account and you will no longer be
+                  able to login.
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </TouchableWithoutFeedback>
   );

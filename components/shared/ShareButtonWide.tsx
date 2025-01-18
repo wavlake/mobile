@@ -1,18 +1,20 @@
-import { Pressable, Share } from "react-native";
+import { Platform, Pressable, Share } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Text } from "./Text";
-import { ShareIcon } from "../icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface ShareButtonWideProps {
   url: string;
   size?: number;
 }
 
-export const ShareButtonWide = ({ url, size = 40 }: ShareButtonWideProps) => {
+export const ShareButtonWide = ({ url, size = 24 }: ShareButtonWideProps) => {
   const { colors } = useTheme();
   const handleShare = async () => {
     await Share.share({ message: url });
   };
+  const isAndroid = Platform.OS === "android";
 
   return (
     <Pressable
@@ -36,7 +38,15 @@ export const ShareButtonWide = ({ url, size = 40 }: ShareButtonWideProps) => {
       >
         Share
       </Text>
-      <ShareIcon width={40} height={40} fill={colors.text} />
+      {isAndroid ? (
+        <MaterialCommunityIcons
+          name="share-variant-outline"
+          size={size}
+          color={colors.text}
+        />
+      ) : (
+        <MaterialIcons name="ios-share" size={size} color={colors.text} />
+      )}
     </Pressable>
   );
 };

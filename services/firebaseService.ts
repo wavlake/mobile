@@ -1,6 +1,7 @@
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as Sentry from "@sentry/react-native";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 export type FirebaseUser = FirebaseAuthTypes.User | null;
 export type UserCredential = FirebaseAuthTypes.UserCredential;
@@ -95,6 +96,43 @@ const signInWithGoogle = async () => {
       });
       return { error: error.code };
     });
+};
+
+const signInWithApple = async () => {
+  try {
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+    });
+
+    // Create a Firebase credential from the response
+    const appleCredential = auth.AppleAuthProvider.credential(
+      credential.identityToken,
+    );
+
+    // Sign the user in with the credential
+    return auth()
+      .signInWithCredential(appleCredential)
+      .catch((error) => {
+        console.log({ error });
+        Sentry.captureException(error, {
+          extra: {
+            method: "firebase.signInWithApple",
+          },
+        });
+        return { error: error.code };
+      });
+  } catch (e: any) {
+    if (e.code === "ERR_REQUEST_CANCELED") {
+      // show("Apple Sign-In was canceled");
+    } else {
+      // show("Apple Sign-In failed");
+      console.error(e);
+    }
+    return { success: false, error: "Failed to sign in apple user" };
+  }
 };
 
 // todo - add twitter implementation
@@ -225,6 +263,7 @@ export const firebaseService = {
   signInWithToken,
   signOut,
   signInWithGoogle,
+  signInWithApple,
   // signInWithTwitter,
   onAuthStateChange,
   verifyEmailLink,

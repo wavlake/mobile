@@ -1,17 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  encodeNpub,
-  getCachedNostrProfileEvent,
-  getMostRecentEvent,
-  getProfileMetadata,
-} from "@/utils";
+import { encodeNpub, getProfileMetadata } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useMemo } from "react";
 import { NostrUserProfile } from "@/utils/types";
 
-export const useNostrProfileEvent = (
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+export const useNostrProfile = (
   pubkey?: string | null,
   // when a new user is logged in, the readRelayList is updated, which causes this query to refetch
   shouldUpdateOnRelayListChange: boolean = true,
@@ -53,46 +50,6 @@ export const useNostrProfileEvent = (
       }
     },
     enabled: Boolean(finalPubkey),
-    staleTime: Infinity,
+    staleTime: TWENTY_FOUR_HOURS,
   });
-};
-
-const useCachedNostrProfileEvent = (pubkey: string) => {
-  return useQuery({
-    queryKey: ["cachedNostrProfileEvent", pubkey],
-    queryFn: () => getCachedNostrProfileEvent(pubkey),
-    enabled: Boolean(pubkey),
-  });
-};
-
-export const useNostrProfile = (pubkey?: string) => {
-  const { pubkey: loggedInPubkey } = useAuth();
-  // if no pubkey is provided, use the logged in user's pubkey
-  const { data: nostrProfileEvent } = useNostrProfileEvent(
-    pubkey ?? loggedInPubkey,
-  );
-  const { data: cachedNostrProfileEvent } = useCachedNostrProfileEvent(
-    pubkey ?? loggedInPubkey,
-  );
-  const events = [];
-
-  if (nostrProfileEvent) {
-    events.push(nostrProfileEvent);
-  }
-
-  if (cachedNostrProfileEvent) {
-    events.push(cachedNostrProfileEvent);
-  }
-
-  const mostRecentProfileEvent = getMostRecentEvent(events);
-
-  if (!mostRecentProfileEvent) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(mostRecentProfileEvent.content) as NostrUserProfile;
-  } catch {
-    return null;
-  }
 };
