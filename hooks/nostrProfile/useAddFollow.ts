@@ -27,12 +27,18 @@ export const useAddFollow = () => {
           tags: [],
         };
       }
-      const existingFollowersPubkeys = currentKind3Event.tags
-        .filter((follow) => follow[0] === followerTag)
-        .map((follow) => follow[1]);
-      const otherTags = currentKind3Event.tags.filter(
-        (tag) => tag[0] !== followerTag,
-      );
+
+      const existingFollowersPubkeys: string[] = [];
+      const otherTags: string[][] = [];
+
+      currentKind3Event.tags.forEach((tag) => {
+        if (tag[0] === followerTag) {
+          existingFollowersPubkeys.push(tag[1]);
+        } else {
+          otherTags.push(tag);
+        }
+      });
+
       const newFollowers = Array.from(
         new Set([...existingFollowersPubkeys, pubkey]),
       );
