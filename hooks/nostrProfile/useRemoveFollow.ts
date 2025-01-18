@@ -35,10 +35,10 @@ export const useRemoveFollow = () => {
       };
       const signed = await signEvent(event);
       const queryKey = getNostrFollowsQueryKey(loggedInPubkey);
+      await publishEvent(writeRelayList, signed);
       queryClient.setQueryData(queryKey, (data: string[]) => {
         return newFollows.map((follow) => follow[1]);
       });
-      await publishEvent(writeRelayList, signed);
     },
   });
 };
