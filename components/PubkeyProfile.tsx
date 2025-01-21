@@ -1,9 +1,13 @@
 import { brandColors } from "@/constants";
 import { View, Image, TouchableOpacity } from "react-native";
-import { useState } from "react";
 import { openURL } from "expo-linking";
 import { NostrUserProfile } from "@/utils";
-import { useAddFollow, useAuth, useRemoveFollow, useUser } from "@/hooks";
+import {
+  useAddFollow,
+  useAuth,
+  useRemoveFollow,
+  useIsPubkeyFollowed,
+} from "@/hooks";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -26,19 +30,13 @@ export const PubkeyProfile = ({
   const { colors } = useTheme();
   const { pubkey: loggedInUserPubkey } = useAuth();
   const userOwnsProfile = pubkey === loggedInUserPubkey;
-  const { nostrMetadata } = useUser();
   const { picture, name, banner, about, website, nip05 } = profileData ?? {};
+  const { isFollowing, isLoading } = useIsPubkeyFollowed(pubkey);
   const { mutateAsync: addFollower, isPending: addLoading } = useAddFollow();
   const { mutateAsync: removeFollower, isPending: removeLoading } =
     useRemoveFollow();
-  const userIsFollowing = nostrMetadata?.follows.some(
-    (follow) => follow.pubkey === loggedInUserPubkey,
-  );
-  const [isFollowing, setIsFollowing] = useState(userIsFollowing);
   const router = useRouter();
-
   const onFollowPress = () => {
-    setIsFollowing(!isFollowing);
     if (isFollowing) {
       removeFollower(pubkey);
     } else {
@@ -151,7 +149,7 @@ export const PubkeyProfile = ({
               color="white"
               titleStyle={{ fontSize: 14 }}
               onPress={onFollowPress}
-              disabled={addLoading || removeLoading}
+              disabled={addLoading || removeLoading || isLoading}
             >
               {isFollowing ? "Unfollow" : "Follow"}
             </SlimButton>

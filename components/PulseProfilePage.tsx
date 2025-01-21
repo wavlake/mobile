@@ -13,7 +13,6 @@ import { ActivityItemRow } from "./ActivityItemRow";
 export const PulseProfilePage = () => {
   const { pubkey } = useLocalSearchParams();
   const { pubkey: loggedInPubkey } = useAuth();
-
   // If no pubkey param, we are looking at the logged in user's profile
   const targetPubkey = pubkey ?? loggedInPubkey;
 
