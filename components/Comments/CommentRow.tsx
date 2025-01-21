@@ -49,9 +49,9 @@ export const CommentRow = ({
     if (onPress) {
       onPress(comment);
     } else {
-      const parentEventId = getRootEventId(comment);
-      if (parentEventId) {
-        router.push(`${basePathname}/comment/${parentEventId}`);
+      const rootEventId = getRootEventId(comment);
+      if (rootEventId) {
+        router.push(`${basePathname}/comment/${rootEventId}`);
       }
     }
   };
