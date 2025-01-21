@@ -1,4 +1,9 @@
-import { ActivityIndicator, FlatList, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  View,
+  RefreshControl,
+} from "react-native";
 import { CommentRow } from "./CommentRow";
 import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -27,7 +32,8 @@ export const CommentRepliesPage = () => {
   }
 
   const { data: comment, isLoading } = useNostrEvent(id);
-  const { data: replies = [], isFetching } = useReplies(id);
+
+  const { data: replies = [], isFetching, refetch } = useReplies(id);
 
   if (isLoading) {
     return (
@@ -51,6 +57,7 @@ export const CommentRepliesPage = () => {
       comment={comment}
       replies={replies}
       isLoading={isFetching}
+      refetch={refetch}
     />
   );
 };
@@ -59,14 +66,42 @@ const CommentRepliesPageContents = ({
   comment,
   replies,
   isLoading,
+  refetch,
 }: {
   comment: Event;
   replies: Event[];
   isLoading: boolean;
+  refetch: () => void;
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
+  };
+
+  const topLevelReplies = replies.filter(
+    (reply) =>
+      reply.tags.some(
+        // must include the root comment event tag
+        (tag) => tag.includes("root") && tag.includes(comment.id),
+      ) &&
+      // must not include the reply event tag
+      !reply.tags.some(
+        (tag) => tag.includes("reply") && !tag.includes(comment.id),
+      ),
+  );
+
+  const getReplies = (parent: Event) => {
+    return replies.filter(
+      (reply) =>
+        reply.tags.some(
+          // must include the root comment event tag
+          (tag) => tag.includes("root") && tag.includes(comment.id),
+        ) &&
+        // must include the parent event tag
+        reply.tags.some(
+          (tag) => tag.includes("reply") && tag.includes(parent.id),
+        ),
+    );
   };
 
   return (
@@ -85,9 +120,14 @@ const CommentRepliesPageContents = ({
         isLoading ? <ActivityIndicator /> : <Text>No replies yet</Text>
       }
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={replies}
-      renderItem={({ item }) => <CommentReplyRow reply={item} />}
+      data={topLevelReplies}
+      renderItem={({ item }) => (
+        <CommentReplyRow reply={item} replies={getReplies(item)} />
+      )}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
     />
   );
 };

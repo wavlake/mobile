@@ -703,21 +703,12 @@ interface MarkedETag {
   pubkey?: string;
 }
 
-/**
- * Gets the parent event ID that this event is replying to.
- * Handles both marked e tags (preferred) and deprecated positional e tags.
- *
- * @param event The nostr event to check
- * @returns The parent event ID if this is a reply, or null if it's not a reply
- */
-export const getParentEventId = (event: Event): string | null => {
+export const getRootEventId = (event: Event): string | null => {
   // First check for marked e tags (preferred method)
-  const replyTag = event.tags.find(
-    (tag) => tag[0] === "e" && tag[3] === "reply",
-  );
+  const rootTag = event.tags.find((tag) => tag[0] === "e" && tag[3] === "root");
 
-  if (replyTag) {
-    return replyTag[1]; // The event ID is the second element
+  if (rootTag) {
+    return rootTag[1]; // The event ID is the second element
   }
 
   // If no marked reply tag was found, check for deprecated positional e tags

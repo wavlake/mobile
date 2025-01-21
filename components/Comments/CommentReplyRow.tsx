@@ -8,9 +8,10 @@ import { useNostrProfile } from "@/hooks";
 
 interface CommentReplyRow extends ViewProps {
   reply: Event | UnsignedEvent;
+  replies: Event[];
 }
 
-export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
+export const CommentReplyRow = ({ reply, replies }: CommentReplyRow) => {
   const { content, pubkey } = reply;
   const { data: metadata } = useNostrProfile(pubkey);
   const { name, picture } = metadata || {};
@@ -25,20 +26,33 @@ export const CommentReplyRow = ({ reply }: CommentReplyRow) => {
   };
 
   return (
-    <View
-      style={{
-        marginBottom: 10,
-        flexDirection: "row",
-        paddingHorizontal: 16,
-        display: "flex",
-        alignItems: "flex-start",
-      }}
-    >
-      <BasicAvatar uri={picture} pubkey={pubkey} />
-      <View style={{ marginLeft: 10, flex: 1 }}>
-        <Text bold>{getDisplayName()}</Text>
-        <ParsedTextRender content={content} />
+    <>
+      <View
+        style={{
+          marginBottom: 10,
+          flexDirection: "row",
+          paddingLeft: 16,
+          paddingRight: 6,
+          display: "flex",
+          alignItems: "flex-start",
+        }}
+      >
+        <BasicAvatar uri={picture} pubkey={pubkey} />
+        <View style={{ marginLeft: 10, flex: 1 }}>
+          <Text bold>{getDisplayName()}</Text>
+          <ParsedTextRender content={content} />
+        </View>
       </View>
-    </View>
+      <View
+        style={{
+          paddingLeft: 16,
+        }}
+      >
+        {replies.map((reply) => (
+          // TODO - explore going deeper...
+          <CommentReplyRow key={reply.id} reply={reply} replies={[]} />
+        ))}
+      </View>
+    </>
   );
 };

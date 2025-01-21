@@ -6,7 +6,7 @@ import { useState } from "react";
 import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { CommentContent } from "./CommentContent";
-import { getParentEventId, getITagFromEvent } from "@/utils";
+import { getRootEventId, getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 
@@ -49,7 +49,7 @@ export const CommentRow = ({
     if (onPress) {
       onPress(comment);
     } else {
-      const parentEventId = getParentEventId(comment);
+      const parentEventId = getRootEventId(comment);
       if (parentEventId) {
         router.push(`${basePathname}/comment/${parentEventId}`);
       }
