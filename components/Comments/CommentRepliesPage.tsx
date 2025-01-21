@@ -33,8 +33,6 @@ export const CommentRepliesPage = () => {
 
   const { data: comment, isLoading } = useNostrEvent(id);
 
-  const { data: replies = [], isFetching, refetch } = useReplies(id);
-
   if (isLoading) {
     return (
       <Center>
@@ -52,56 +50,15 @@ export const CommentRepliesPage = () => {
     );
   }
 
-  return (
-    <CommentRepliesPageContents
-      comment={comment}
-      replies={replies}
-      isLoading={isFetching}
-      refetch={refetch}
-    />
-  );
+  return <CommentRepliesPageContents comment={comment} />;
 };
 
-const CommentRepliesPageContents = ({
-  comment,
-  replies,
-  isLoading,
-  refetch,
-}: {
-  comment: Event;
-  replies: Event[];
-  isLoading: boolean;
-  refetch: () => void;
-}) => {
+const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
+  const { topLevelReplies, mentions, isFetching, getChildReplies, refetch } =
+    useReplies(comment.id);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
-  };
-
-  const topLevelReplies = replies.filter(
-    (reply) =>
-      reply.tags.some(
-        // must include the root comment event tag
-        (tag) => tag.includes("root") && tag.includes(comment.id),
-      ) &&
-      // must not include the reply event tag
-      !reply.tags.some(
-        (tag) => tag.includes("reply") && !tag.includes(comment.id),
-      ),
-  );
-
-  const getReplies = (parent: Event) => {
-    return replies.filter(
-      (reply) =>
-        reply.tags.some(
-          // must include the root comment event tag
-          (tag) => tag.includes("root") && tag.includes(comment.id),
-        ) &&
-        // must include the parent event tag
-        reply.tags.some(
-          (tag) => tag.includes("reply") && tag.includes(parent.id),
-        ),
-    );
   };
 
   return (
@@ -117,16 +74,16 @@ const CommentRepliesPageContents = ({
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       ListEmptyComponent={
-        isLoading ? <ActivityIndicator /> : <Text>No replies yet</Text>
+        isFetching ? <ActivityIndicator /> : <Text>No replies yet</Text>
       }
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
       data={topLevelReplies}
       renderItem={({ item }) => (
-        <CommentReplyRow reply={item} replies={getReplies(item)} />
+        <CommentReplyRow reply={item} replies={getChildReplies(item.id)} />
       )}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        <RefreshControl refreshing={isFetching} onRefresh={refetch} />
       }
     />
   );
