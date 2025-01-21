@@ -1,4 +1,9 @@
-import { ActivityIndicator, FlatList, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  View,
+  RefreshControl,
+} from "react-native";
 import { CommentRow } from "./CommentRow";
 import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -27,7 +32,6 @@ export const CommentRepliesPage = () => {
   }
 
   const { data: comment, isLoading } = useNostrEvent(id);
-  const { data: replies = [], isFetching } = useReplies(id);
 
   if (isLoading) {
     return (
@@ -46,24 +50,12 @@ export const CommentRepliesPage = () => {
     );
   }
 
-  return (
-    <CommentRepliesPageContents
-      comment={comment}
-      replies={replies}
-      isLoading={isFetching}
-    />
-  );
+  return <CommentRepliesPageContents comment={comment} />;
 };
 
-const CommentRepliesPageContents = ({
-  comment,
-  replies,
-  isLoading,
-}: {
-  comment: Event;
-  replies: Event[];
-  isLoading: boolean;
-}) => {
+const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
+  const { topLevelReplies, mentions, isFetching, getChildReplies, refetch } =
+    useReplies(comment.id);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
@@ -82,12 +74,17 @@ const CommentRepliesPageContents = ({
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       ListEmptyComponent={
-        isLoading ? <ActivityIndicator /> : <Text>No replies yet</Text>
+        isFetching ? <ActivityIndicator /> : <Text>No replies yet</Text>
       }
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={replies}
-      renderItem={({ item }) => <CommentReplyRow reply={item} />}
+      data={topLevelReplies}
+      renderItem={({ item }) => (
+        <CommentReplyRow reply={item} replies={getChildReplies(item.id)} />
+      )}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
+      refreshControl={
+        <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+      }
     />
   );
 };
