@@ -1,7 +1,7 @@
 import { generateSecretKey, getPublicKey } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
-import { useSaveNostrProfile } from "@/hooks/nostrProfile";
+import { useAddFollow, useSaveNostrProfile } from "@/hooks/nostrProfile";
 import { useSaveNostrRelayList } from "@/hooks/nostrRelayList/useSaveNostrRelayList";
 import { nip19 } from "nostr-tools";
 import { NostrUserProfile } from "@/utils/types";
@@ -11,6 +11,7 @@ export const useCreateNewNostrAccount = () => {
   const { login } = useAuth();
   const { save: saveProfile } = useSaveNostrProfile();
   const { save: saveRelayList } = useSaveNostrRelayList();
+  const { mutateAsync: addFollow } = useAddFollow();
 
   return async (profile: NostrUserProfile, customNsec?: string) => {
     const nsec = customNsec ?? nip19.nsecEncode(generateSecretKey());
@@ -43,6 +44,8 @@ export const useCreateNewNostrAccount = () => {
 
     try {
       await saveRelayList(bootstrapRelays);
+      // start with an empty follows list
+      await addFollow(undefined);
       await saveProfile(profile);
     } catch (error) {
       console.error("Error saving relay list or profile:", error);

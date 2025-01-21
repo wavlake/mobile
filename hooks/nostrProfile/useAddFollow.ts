@@ -12,7 +12,10 @@ export const useAddFollow = () => {
   const { readRelayList, writeRelayList } = useNostrRelayList();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (pubkey: string) => {
+    mutationFn: async (pubkey?: string) => {
+      const queryKey = getNostrFollowsQueryKey(loggedInPubkey);
+      queryClient.invalidateQueries({ queryKey });
+
       let currentKind3Event: Event | EventTemplate | null = await getKind3Event(
         loggedInPubkey,
         readRelayList,
@@ -46,7 +49,10 @@ export const useAddFollow = () => {
         }
       });
 
-      const newFollowers = [...existingFollowersPubkeys, pubkey];
+      const newFollowers = [
+        ...existingFollowersPubkeys,
+        ...(pubkey ? [pubkey] : []),
+      ];
 
       const event = {
         kind: Contacts,
@@ -60,7 +66,6 @@ export const useAddFollow = () => {
 
       const signed = await signEvent(event);
       await publishEvent(writeRelayList, signed);
-      const queryKey = getNostrFollowsQueryKey(loggedInPubkey);
       queryClient.setQueryData(queryKey, (data: string[]) => {
         return newFollowers;
       });
