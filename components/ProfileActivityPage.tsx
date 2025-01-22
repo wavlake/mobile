@@ -18,8 +18,9 @@ export const ProfileActivityPage = () => {
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
+    initialPageParam: 1,
     queryKey: ["pubkeyActivity", pubkey],
-    queryFn: ({ pageParam = 1 }) =>
+    queryFn: ({ pageParam }) =>
       getPubkeyActivity((pubkey as string) ?? "", pageParam, PAGE_SIZE),
     getNextPageParam: (lastPage, allPages) => {
       const nextPage =

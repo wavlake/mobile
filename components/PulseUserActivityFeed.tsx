@@ -23,7 +23,8 @@ export const PulseUserActivityFeed = ({
     isLoading,
   } = useInfiniteQuery({
     queryKey: ["activityFeed", pubkey],
-    queryFn: ({ pageParam = 1 }) =>
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
       getActivityFeed(pubkey ?? "", pageParam, PAGE_SIZE),
     getNextPageParam: (lastPage, allPages) => {
       const nextPage =
@@ -31,7 +32,7 @@ export const PulseUserActivityFeed = ({
       return nextPage;
     },
     staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
-    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
   const { pages = [] } = data ?? {};
   const flattenedData = pages.flatMap((page) => page ?? []);
