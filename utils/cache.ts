@@ -149,3 +149,11 @@ export const getSettings = async (
   const settings = (await getObjectData(settingsKey)) ?? {};
   return settings;
 };
+
+export const getIsLoggedInWithAmber = async () => {
+  return (await getData("isLoggedInWithAmber")) === "1";
+};
+
+export const setIsLoggedInWithAmber = async (isLoggedInWithAmber: boolean) => {
+  await storeData("isLoggedInWithAmber", isLoggedInWithAmber ? "1" : "0");
+};
