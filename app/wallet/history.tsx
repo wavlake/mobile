@@ -42,8 +42,9 @@ export default function HistoryPage() {
     isLoading,
     refetch,
   } = useInfiniteQuery({
+    initialPageParam: 1,
     queryKey: ["transaction_history", catalogUser?.id],
-    queryFn: ({ pageParam = 1 }) => getTransactionHistory(pageParam),
+    queryFn: ({ pageParam }) => getTransactionHistory(pageParam),
     getNextPageParam: (lastPage, allPages) => {
       const nextPage = lastPage.pagination.currentPage + 1;
       return nextPage > lastPage.pagination.totalPages ? undefined : nextPage;

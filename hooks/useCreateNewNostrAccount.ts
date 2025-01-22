@@ -28,10 +28,10 @@ export const useCreateNewNostrAccount = () => {
     let { data } = nip19.decode(nsec);
     const pubkey = getPublicKey(data as Uint8Array);
     const bootstrapRelays = [
-      "wss://purplepag.es",
+      "wss://relay.wavlake.com",
       "wss://relay.nostr.band",
       "wss://relay.damus.io",
-      "wss://relay.wavlake.com",
+      "wss://purplepag.es",
     ];
 
     if (!success) {
@@ -43,10 +43,11 @@ export const useCreateNewNostrAccount = () => {
     }
 
     try {
-      await saveRelayList(bootstrapRelays);
-      // start with an empty follows list
-      await addFollow(undefined);
-      await saveProfile(profile);
+      await Promise.all([
+        saveProfile(profile),
+        saveRelayList(bootstrapRelays),
+        addFollow(undefined),
+      ]);
     } catch (error) {
       console.error("Error saving relay list or profile:", error);
     }

@@ -23,7 +23,7 @@ export const useNostrProfile = (
       : readRelayList.slice(0);
   }, [shouldUpdateOnRelayListChange, readRelayList]);
 
-  const queryKey = useNostrProfileQueryKey(pubkey ?? "");
+  const queryKey = useNostrProfileQueryKey(finalPubkey);
 
   return useQuery({
     queryKey,
