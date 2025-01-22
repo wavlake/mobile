@@ -14,9 +14,6 @@ import { NostrUserProfile } from "@/utils/types";
 export const useSaveNostrProfile = () => {
   const { data: profile } = useNostrProfile();
   const { writeRelayList } = useNostrRelayList();
-  const nostrProfileQueryKey = useNostrProfileQueryKey(
-    profile?.publicHex ?? "",
-  );
   const queryClient = useQueryClient();
   const nostrProfileMutation = useMutation({
     mutationFn: async (newNostrProfileEvent: Event) => {
@@ -32,6 +29,7 @@ export const useSaveNostrProfile = () => {
       if (event) {
         nostrProfileMutation.mutate(event, {
           onSuccess: async (event) => {
+            const nostrProfileQueryKey = useNostrProfileQueryKey(event.pubkey);
             queryClient.setQueryData(nostrProfileQueryKey, event);
             await cacheNostrProfileEvent(event.pubkey, event);
             resolve();
