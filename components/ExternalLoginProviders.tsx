@@ -145,7 +145,7 @@ export const ExternalLoginProviders = ({
     >
       {providers.map((provider) => {
         if (provider.renderButton) {
-          return provider.renderButton();
+          return <View key={provider.name}>{provider.renderButton()}</View>;
         }
 
         // Ensure both icon and onPress exist for standard buttons
