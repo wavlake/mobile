@@ -6,8 +6,11 @@ import {
 } from "@/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
-import { useNostrRelayList } from "./useNostrRelayList";
-import { useNostrRelayListQueryKey } from "./useNostrRelayListQueryKey";
+import {
+  useNostrRelayList,
+  getNostrRelayListQueryKey,
+} from "./useNostrRelayList";
+
 export const useSaveNostrRelayList = () => {
   const queryClient = useQueryClient();
   const { writeRelayList } = useNostrRelayList();
@@ -25,7 +28,7 @@ export const useSaveNostrRelayList = () => {
       if (event) {
         nostrRelayListMutation.mutate(event, {
           onSuccess: async () => {
-            const nostrRelayListQueryKey = useNostrRelayListQueryKey(
+            const nostrRelayListQueryKey = getNostrRelayListQueryKey(
               event.pubkey,
             );
             queryClient.setQueryData(nostrRelayListQueryKey, event);
