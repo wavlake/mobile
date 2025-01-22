@@ -1,5 +1,5 @@
 import { View, TouchableOpacity } from "react-native";
-import { ElementType } from "react";
+import { ElementType, Fragment } from "react";
 import { useRouter } from "expo-router";
 import { ZBDIcon, TwitterIcon, GoogleIcon, NostrIcon } from "./icons/";
 import {
@@ -145,7 +145,9 @@ export const ExternalLoginProviders = ({
     >
       {providers.map((provider) => {
         if (provider.renderButton) {
-          return <View key={provider.name}>{provider.renderButton()}</View>;
+          return (
+            <Fragment key={provider.name}>{provider.renderButton()}</Fragment>
+          );
         }
 
         // Ensure both icon and onPress exist for standard buttons
