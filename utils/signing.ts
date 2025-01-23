@@ -1,11 +1,13 @@
 import { EventTemplate, finalizeEvent, generateSecretKey } from "nostr-tools";
 import { hexToBytes } from "@noble/hashes/utils";
 import { getSeckey } from "./secureStorage";
-import { getIsLoggedInWithAmber } from "./cache";
+import { getAmberPubkey } from "./cache";
 import { signEventWithAmber } from "@/hooks";
 
+// TODO: save events to react-query cache (skip HTTP auth events, kind 27235)
 export const signEvent = async (eventTemplate: EventTemplate) => {
-  const loggedInWithAmber = await getIsLoggedInWithAmber();
+  const amberPubkey = await getAmberPubkey();
+  const loggedInWithAmber = amberPubkey && amberPubkey !== "";
 
   if (loggedInWithAmber) {
     return signEventWithAmber(eventTemplate);
