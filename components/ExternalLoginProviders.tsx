@@ -1,9 +1,10 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Platform } from "react-native";
 import { ElementType, Fragment } from "react";
 import { useRouter } from "expo-router";
 import { ZBDIcon, TwitterIcon, GoogleIcon, NostrIcon } from "./icons/";
 import {
   DEFAULT_CONNECTION_SETTINGS,
+  useAuth,
   useAutoConnectNWC,
   useToast,
   useUser,
@@ -88,42 +89,52 @@ export const ExternalLoginProviders = ({
         setIsLoading(false);
       },
     },
-    {
-      name: "Apple",
-      renderButton: () => (
-        <AppleAuthentication.AppleAuthenticationButton
-          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-          cornerRadius={10}
-          style={{ width: 200, height: 60 }}
-          onPress={async () => {
-            setIsLoading(true);
-            const signedInUser = await signInWithApple();
+    ...(Platform.OS === "ios"
+      ? [
+          {
+            name: "Apple",
+            renderButton: () => (
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={
+                  AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN
+                }
+                buttonStyle={
+                  AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+                }
+                cornerRadius={10}
+                style={{ width: 200, height: 60 }}
+                onPress={async () => {
+                  setIsLoading(true);
+                  const signedInUser = await signInWithApple();
 
-            if ("error" in signedInUser) {
-              show(signedInUser.error);
-              setIsLoading(false);
-              return;
-            }
+                  if ("error" in signedInUser) {
+                    show(signedInUser.error);
+                    setIsLoading(false);
+                    return;
+                  }
 
-            if (signedInUser.isEmailVerified && signedInUser.isRegionVerified) {
-              console.log("Connecting wallet");
-              await connectWallet(
-                {
-                  ...DEFAULT_CONNECTION_SETTINGS,
-                  connectionName: DeviceInfo.getModel(),
-                },
-                signedInUser.user.uid,
-              );
-            }
-            router.replace({
-              pathname: "/auth/welcome",
-            });
-            setIsLoading(false);
-          }}
-        />
-      ),
-    },
+                  if (
+                    signedInUser.isEmailVerified &&
+                    signedInUser.isRegionVerified
+                  ) {
+                    await connectWallet(
+                      {
+                        ...DEFAULT_CONNECTION_SETTINGS,
+                        connectionName: DeviceInfo.getModel(),
+                      },
+                      signedInUser.user.uid,
+                    );
+                  }
+                  router.replace({
+                    pathname: "/auth/welcome",
+                  });
+                  setIsLoading(false);
+                }}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
