@@ -135,6 +135,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           organization: "wavlake",
         },
       ],
+      [
+        "expo-check-installed-apps",
+        {
+          android: ["com.greenart7c3.nostrsigner"],
+        },
+      ],
     ],
     experiments: {
       tsconfigPaths: true,
