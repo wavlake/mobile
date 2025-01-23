@@ -14,7 +14,7 @@ import { useRouter } from "expo-router";
 import { ZapIcon } from "../icons";
 import { brandColors } from "@/constants";
 import { validateWalletKey } from "@/utils";
-import { useAuth, useSettingsManager, useUser, useZap } from "@/hooks";
+import { useAuth, useSettingsManager, useUser, useZapContent } from "@/hooks";
 import { useState } from "react";
 import { WalletChooserModal } from "../WalletChooserModal";
 import { ArrowTopRightOnSquareIcon } from "react-native-heroicons/solid";
@@ -85,7 +85,7 @@ export const FullSizeMusicPlayer = () => {
   } = useSettingsManager();
   const { oneTapZap = false } = settings || {};
 
-  const { sendZap, isLoading } = useZap({
+  const { sendZap, isLoading } = useZapContent({
     isPodcast,
     trackId,
     title,

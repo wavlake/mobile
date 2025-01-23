@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useAuth, useSettingsManager, useZap } from "@/hooks";
+import { useAuth, useSettingsManager, useZapContent } from "@/hooks";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
 import { useTheme } from "@react-navigation/native";
@@ -48,7 +48,7 @@ export default function ZapPage() {
   const [zapAmount, setZapAmount] = useState(defaultZapAmount ?? "");
   const [zapError, setZapError] = useState<string>("");
   const [comment, setComment] = useState("");
-  const { sendZap, isLoading: isZapping } = useZap({
+  const { sendZap, isLoading: isZapping } = useZapContent({
     trackId,
     title,
     artist,

@@ -27,7 +27,7 @@ type SendZap = (
   }> | void,
 ) => Promise<void>;
 
-export const useZap = ({
+export const useZapContent = ({
   isPodcast,
   trackId,
   title,
@@ -178,7 +178,7 @@ export const useZap = ({
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
       }
     } catch (e) {
-      console.log("useZap error", e);
+      console.log("useZapContent error", e);
       toast.show("Something went wrong. Please try again later.");
     }
 
