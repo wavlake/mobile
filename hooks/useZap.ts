@@ -79,6 +79,7 @@ export const useZap = ({
       return;
     }
 
+    setIsLoading(true);
     const zapRequest = await makeZapRequest({
       amountInSats,
       relays: writeRelayList,
@@ -91,7 +92,12 @@ export const useZap = ({
 
     const signedZapRequestEvent = await signEvent(zapRequest);
 
-    setIsLoading(true);
+    if (!signedZapRequestEvent) {
+      toast.show("Failed to sign zap request.");
+      setIsLoading(false);
+      return;
+    }
+
     const response = await fetchInvoice({
       amountInSats,
       zapRequest: signedZapRequestEvent,

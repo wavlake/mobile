@@ -34,6 +34,11 @@ export const useRemoveFollow = () => {
         tags: newFollows,
       };
       const signed = await signEvent(event);
+      if (!signed) {
+        toast.show("Failed to sign event");
+        return;
+      }
+
       const queryKey = getNostrFollowsQueryKey(loggedInPubkey);
       await publishEvent(writeRelayList, signed);
       queryClient.setQueryData(queryKey, (data: string[]) => {

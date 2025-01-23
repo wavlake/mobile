@@ -20,7 +20,6 @@ import {
   finalizeEvent,
   EventTemplate,
   nip57,
-  generateSecretKey,
   utils,
   nip04,
   getPublicKey,
@@ -42,7 +41,6 @@ import {
   removeCensoredContent,
 } from "./comments";
 import { getSettings } from "./cache";
-import { getSeckey } from "./secureStorage";
 import {
   DEFAULT_READ_RELAY_URIS,
   DEFAULT_WRITE_RELAY_URIS,
@@ -50,6 +48,7 @@ import {
 } from "./shared";
 import { pool } from "./relay-pool";
 import { NostrUserProfile } from "./types";
+import { signEvent } from "./signing";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
@@ -309,16 +308,6 @@ export const makeNWCRequestEvent = async ({
   }
 };
 
-export async function signEvent(eventTemplate: EventTemplate) {
-  const loggedInUserSeckey = await getSeckey();
-  const anonSeckey = generateSecretKey();
-
-  return finalizeEvent(
-    eventTemplate,
-    loggedInUserSeckey ? hexToBytes(loggedInUserSeckey) : anonSeckey,
-  );
-}
-
 export const makeRelayListEvent = (relayUris: string[]): EventTemplate => {
   return {
     kind: 10002,
@@ -369,9 +358,13 @@ export const publishLiveStatusEvent = async ({
       ["expiration", (currentTime + duration).toString()],
     ],
   };
-  const signedEvent = await signEvent(eventTemplate);
 
   try {
+    const signedEvent = await signEvent(eventTemplate);
+    if (!signedEvent) {
+      throw new Error("Failed to sign event");
+    }
+
     await publishEvent(getNormalizedRelayUris(), signedEvent);
   } catch (error) {
     console.error(error);
