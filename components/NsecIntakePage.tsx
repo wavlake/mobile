@@ -16,6 +16,7 @@ import { BasicAvatar } from "@/components/BasicAvatar";
 import { useNsecLoginPageLogic } from "@/hooks";
 import { encodeNpub, NostrUserProfile } from "@/utils";
 import { useRouter } from "expo-router";
+import { AmberLoginButton } from "./AmberLoginButton";
 
 const NsecInput: React.FC<{
   nsec: string;
@@ -231,6 +232,7 @@ export function NsecIntakePage() {
           >
             Save
           </Button>
+          <AmberLoginButton />
           <Button color="lightgray" onPress={() => router.back()}>
             Cancel
           </Button>
