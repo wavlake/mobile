@@ -21,10 +21,7 @@ export const useAuth = () => {
   const { data: pubkey, refetch: refetchPubkey } = useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      const amberPubkey = await getAmberPubkey().catch((e) => {
-        console.log(e);
-        return "";
-      });
+      const amberPubkey = await getAmberPubkey();
 
       if (amberPubkey && amberPubkey !== "") {
         return amberPubkey;
@@ -38,9 +35,7 @@ export const useAuth = () => {
   const login = async (privkey?: string) => {
     // Try to login with remote signer
     if (!privkey) {
-      const success = await loginWithAmber().catch((e) => {
-        return false;
-      });
+      const success = await loginWithAmber();
 
       if (success) {
         // clear out any existing seckey
