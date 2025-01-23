@@ -1,6 +1,6 @@
 import { brandColors } from "@/constants";
-import { View, Image, TouchableOpacity } from "react-native";
-import { openURL } from "expo-linking";
+import { View, Image, TouchableOpacity, Linking } from "react-native";
+import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import {
   useAddFollow,
@@ -17,6 +17,10 @@ import { Avatar } from "./Avatar";
 import { SlimButton } from "./shared/SlimButton";
 import { useNostrFollows } from "@/hooks/nostrProfile/useNostrFollows";
 import { useFollowersCount } from "@/utils/nostrband";
+
+const handleUrlPress = (url: string) => {
+  Linking.openURL(url.trim());
+};
 
 const AVATAR_SIZE = 80;
 export const PubkeyProfile = ({
@@ -163,21 +167,26 @@ export const PubkeyProfile = ({
           paddingHorizontal: 16,
         }}
       >
-        <Text>{about}</Text>
+        <ParsedText
+          style={{ color: "white" }}
+          parse={[
+            {
+              type: "url",
+              style: { color: brandColors.purple.DEFAULT },
+              onPress: handleUrlPress,
+            },
+          ]}
+        >
+          {about}
+        </ParsedText>
         {website && (
           <Text
             style={{
               fontSize: 14,
-              color: brandColors.orange.DEFAULT,
+              color: brandColors.purple.DEFAULT,
               textDecorationLine: "underline",
             }}
-            onPress={() => {
-              if (website.includes("http")) {
-                openURL(website);
-              } else {
-                openURL(`http://${website}`);
-              }
-            }}
+            onPress={() => handleUrlPress(website)}
           >
             {website}
           </Text>
