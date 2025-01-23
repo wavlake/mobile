@@ -23,6 +23,7 @@ const MenuButton = () => {
   return (
     <Pressable
       onPress={onPress}
+      hitSlop={20}
       style={{
         paddingLeft: 15,
         position: "relative",
