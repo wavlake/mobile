@@ -1,8 +1,7 @@
 import { Button, Center, Text } from "@/components";
-import { View } from "react-native";
+import { View, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { setSkipLogin } from "@/utils";
-import { ScrollView } from "react-native-gesture-handler";
 
 export default function Skip() {
   const router = useRouter();
