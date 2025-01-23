@@ -150,10 +150,10 @@ export const getSettings = async (
   return settings;
 };
 
-export const getIsLoggedInWithAmber = async () => {
-  return (await getData("isLoggedInWithAmber")) === "1";
+export const getAmberPubkey = async () => {
+  return getData("amberPubkey");
 };
 
-export const setIsLoggedInWithAmber = async (isLoggedInWithAmber: boolean) => {
-  await storeData("isLoggedInWithAmber", isLoggedInWithAmber ? "1" : "0");
+export const setAmberPubkey = async (pubkey: string) => {
+  await storeData("amberPubkey", pubkey);
 };
