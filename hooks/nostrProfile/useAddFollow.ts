@@ -4,10 +4,12 @@ import { useAuth } from "../useAuth";
 import { Contacts, getKind3Event, publishEvent, signEvent } from "@/utils";
 import { EventTemplate } from "nostr-tools";
 import { getNostrFollowsQueryKey } from "./useNostrFollows";
+import { useToast } from "../useToast";
 
 const followerTag = "p";
 
 export const useAddFollow = () => {
+  const toast = useToast();
   const { pubkey: loggedInPubkey } = useAuth();
   const { readRelayList, writeRelayList } = useNostrRelayList();
   const queryClient = useQueryClient();
@@ -65,6 +67,11 @@ export const useAddFollow = () => {
       };
 
       const signed = await signEvent(event);
+      if (!signed) {
+        toast.show("Failed to sign event");
+        return;
+      }
+
       await publishEvent(writeRelayList, signed);
       queryClient.setQueryData(queryKey, (data: string[]) => {
         return newFollowers;
