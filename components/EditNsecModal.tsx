@@ -1,7 +1,7 @@
 import { Dialog } from "@rneui/themed";
 import { View, StyleSheet, Dimensions, Alert } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { Button, Text, TextInput } from "@/components";
+import { AmberLoginButton, Button, Text, TextInput } from "@/components";
 import { useState } from "react";
 import { getKeysFromNostrSecret } from "@/utils";
 
@@ -110,6 +110,7 @@ export const EditNsecModal = ({
           >
             Save
           </Button>
+          <AmberLoginButton />
           <Button color="white" onPress={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
