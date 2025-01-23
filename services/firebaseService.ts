@@ -1,3 +1,4 @@
+import { deleteNwcSecret } from "@/utils";
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as Sentry from "@sentry/react-native";
@@ -65,17 +66,21 @@ const signInWithToken = (token: string) =>
       return { error: error.code };
     });
 
-const signOut = () =>
-  auth()
-    .signOut()
-    .catch((error) => {
-      Sentry.captureException(error, {
-        extra: {
-          method: "firebase.signOut",
-        },
-      });
-      return { error: error.code };
+const signOut = async () => {
+  const app = await auth();
+  // delete wallet connection associated with userid
+  const uid = app.currentUser?.uid;
+  uid && (await deleteNwcSecret(uid));
+
+  return app.signOut().catch((error) => {
+    Sentry.captureException(error, {
+      extra: {
+        method: "firebase.signOut",
+      },
     });
+    return { error: error.code };
+  });
+};
 
 const signInWithGoogle = async () => {
   // Check if your device supports Google Play

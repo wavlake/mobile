@@ -63,6 +63,7 @@ const HTTPAuth = 27235;
 
 export const encodeNpub = (pubkey: string) => {
   try {
+    if (!pubkey) return null;
     return nip19.npubEncode(pubkey);
   } catch {
     return null;
@@ -71,6 +72,7 @@ export const encodeNpub = (pubkey: string) => {
 
 export const encodeNsec = (seckey: string) => {
   try {
+    if (!seckey) return null;
     return nip19.nsecEncode(hexToBytes(seckey));
   } catch {
     return null;

@@ -149,3 +149,11 @@ export const getSettings = async (
   const settings = (await getObjectData(settingsKey)) ?? {};
   return settings;
 };
+
+export const getAmberPubkey = async () => {
+  return getData("amberPubkey");
+};
+
+export const setAmberPubkey = async (pubkey: string) => {
+  await storeData("amberPubkey", pubkey);
+};

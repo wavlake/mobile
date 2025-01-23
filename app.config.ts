@@ -2,7 +2,7 @@
 
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-export const BUILD_NUM = 7;
+export const BUILD_NUM = 8;
 export const VERSION = "1.1.3";
 // Android version code must always be higher than the previous version
 const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
@@ -133,6 +133,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           url: "https://sentry.io/",
           project: "mobile",
           organization: "wavlake",
+        },
+      ],
+      [
+        "expo-check-installed-apps",
+        {
+          android: ["com.greenart7c3.nostrsigner"],
         },
       ],
     ],

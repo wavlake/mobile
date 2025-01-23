@@ -1,5 +1,5 @@
 import { View, ScrollView, Alert } from "react-native";
-import { useAuth, useUser } from "@/hooks";
+import { useAuth, useToast, useUser } from "@/hooks";
 import {
   Button,
   Text,
@@ -11,8 +11,10 @@ import { useEffect, useState } from "react";
 import { encodeNsec, getSeckey, useAddPubkeyToUser } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useRouter } from "expo-router";
+import { nip19 } from "nostr-tools";
 
 export default function BackupNsec() {
+  const toast = useToast();
   const { pubkey, login, logout } = useAuth();
   const [nsec, setNsec] = useState("");
   const router = useRouter();
@@ -47,26 +49,35 @@ export default function BackupNsec() {
       console.error("Failed to update nsec:", error);
     }
   };
-
+  const npub = nip19.npubEncode(pubkey);
   return pubkey ? (
     <ScrollView
       contentContainerStyle={{
         paddingHorizontal: 24,
-        paddingVertical: 40,
+        flexGrow: 1,
+        justifyContent: "center",
         alignItems: "center",
         gap: 24,
       }}
     >
-      {nsec && (
+      <TextInput
+        label="nostr npub"
+        readOnly
+        value={npub}
+        rightIcon={<CopyButton value={npub} />}
+        includeErrorMessageSpace={false}
+      />
+      {nsec ? (
         <>
           <TextInput
             label="nostr nsec"
             secureTextEntry
             value={nsec}
-            editable={false}
+            readOnly
             rightIcon={<CopyButton value={nsec} />}
+            includeErrorMessageSpace={false}
           />
-          <View style={{ paddingBottom: 40, gap: 16 }}>
+          <View style={{ paddingBottom: 20, gap: 8 }}>
             <Text style={{ fontSize: 18 }} bold>
               HEADS UP!
             </Text>
@@ -108,9 +119,6 @@ export default function BackupNsec() {
           >
             Delete
           </Button>
-          <Button color="white" onPress={router.back}>
-            Cancel
-          </Button>
           <EditNsecModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
@@ -118,7 +126,44 @@ export default function BackupNsec() {
             currentPubkey={pubkey}
           />
         </>
+      ) : (
+        <>
+          <Text style={{ fontSize: 18 }}>
+            You are currently using a remote signer
+          </Text>
+          <Button
+            onPress={() => {
+              Alert.alert(
+                "Are you sure?",
+                "You will be redirected to your remote signer where you can delete the Wavlake App from your account.",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Continue",
+                    style: "destructive",
+                    onPress: async () => {
+                      await logout();
+
+                      toast.show("User logged out");
+                      if (!Boolean(catalogUser)) {
+                        router.replace("/auth/");
+                      }
+                    },
+                  },
+                ],
+              );
+            }}
+          >
+            Logout
+          </Button>
+        </>
       )}
+      <Button color="white" onPress={router.back}>
+        Cancel
+      </Button>
     </ScrollView>
   ) : (
     <NsecIntakePage />
