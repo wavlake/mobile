@@ -5,39 +5,48 @@ import { Text } from "./shared/Text";
 
 interface PressableIconProps {
   onPress?: () => void;
+  onLongPress?: () => void;
   fullWidth?: boolean;
   size?: number;
-  label?: ReactNode;
+  leftLabel?: ReactNode;
+  rightLabel?: ReactNode;
   color?: string;
 }
 
 export const PressableIcon = ({
   onPress,
+  onLongPress,
   fullWidth = false,
   size = 40,
-  label,
+  leftLabel,
+  rightLabel,
   children,
   color,
 }: PropsWithChildren<PressableIconProps>) => {
   const { colors } = useTheme();
 
-  if (!onPress) {
+  if (!onPress && !onLongPress) {
     return (
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: label ? "space-between" : "center",
+          justifyContent: leftLabel ? "space-between" : "center",
           width: fullWidth ? "100%" : size,
           height: size,
         }}
       >
-        {label && typeof label === "string" ? (
-          <Text style={{ color: color ?? colors.text }}>{label}</Text>
+        {leftLabel && typeof leftLabel === "string" ? (
+          <Text style={{ color: color ?? colors.text }}>{leftLabel}</Text>
         ) : (
-          label
+          leftLabel
         )}
         {children}
+        {rightLabel && typeof rightLabel === "string" ? (
+          <Text style={{ color: color ?? colors.text }}>{rightLabel}</Text>
+        ) : (
+          rightLabel
+        )}
       </View>
     );
   }
@@ -45,21 +54,28 @@ export const PressableIcon = ({
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       hitSlop={10}
       style={{
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: label ? "space-between" : "center",
+        justifyContent: leftLabel ? "space-between" : "center",
         width: fullWidth ? "100%" : size,
         height: size,
+        gap: 2,
       }}
     >
-      {label && typeof label === "string" ? (
-        <Text style={{ color: color ?? colors.text }}>{label}</Text>
+      {leftLabel && typeof leftLabel === "string" ? (
+        <Text style={{ color: color ?? colors.text }}>{leftLabel}</Text>
       ) : (
-        label
+        leftLabel
       )}
       {children}
+      {rightLabel && typeof rightLabel === "string" ? (
+        <Text style={{ color: color ?? colors.text }}>{rightLabel}</Text>
+      ) : (
+        rightLabel
+      )}
     </Pressable>
   );
 };
