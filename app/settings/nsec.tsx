@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { encodeNsec, getSeckey, useAddPubkeyToUser } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useRouter } from "expo-router";
+import { nip19 } from "nostr-tools";
 
 export default function BackupNsec() {
   const { pubkey, login, logout } = useAuth();
@@ -47,12 +48,12 @@ export default function BackupNsec() {
       console.error("Failed to update nsec:", error);
     }
   };
-
+  const npub = nip19.npubEncode(pubkey);
   return pubkey ? (
     <ScrollView
       contentContainerStyle={{
         paddingHorizontal: 24,
-        paddingVertical: 40,
+        paddingVertical: 20,
         alignItems: "center",
         gap: 24,
       }}
@@ -60,13 +61,21 @@ export default function BackupNsec() {
       {nsec && (
         <>
           <TextInput
+            label="nostr npub"
+            readOnly
+            value={npub}
+            rightIcon={<CopyButton value={npub} />}
+            includeErrorMessageSpace={false}
+          />
+          <TextInput
             label="nostr nsec"
             secureTextEntry
             value={nsec}
-            editable={false}
+            readOnly
             rightIcon={<CopyButton value={nsec} />}
+            includeErrorMessageSpace={false}
           />
-          <View style={{ paddingBottom: 40, gap: 16 }}>
+          <View style={{ paddingBottom: 20, gap: 8 }}>
             <Text style={{ fontSize: 18 }} bold>
               HEADS UP!
             </Text>
