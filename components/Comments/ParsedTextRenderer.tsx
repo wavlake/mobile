@@ -7,7 +7,8 @@ import { Linking, View } from "react-native";
 import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import { useMemo } from "react";
-import { useNostrProfile } from "@/hooks";
+import { useNostrProfiles } from "@/hooks/nostrProfile/useNostrProfiles";
+
 interface ParsedTextWrapperProps {
   content?: string;
 }
@@ -32,30 +33,13 @@ export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
           return null;
         }
       })
-      .filter(Boolean);
+      .filter(Boolean) as { pubkey: string; relays: string[] }[];
   }, [content]);
 
-  // Fetch profile data for all mentions
-  const mentionProfiles = new Map<string, NostrUserProfile>();
-  // TODO - fix profile look up, cant call hook this way
-  // mentions.forEach((mention) => {
-  //   if (mention) {
-  //     const { data: profile } = useNostrProfile(
-  //       mention.pubkey,
-  //       false,
-  //       mention.relays,
-  //     );
-  //     if (profile) {
-  //       mentionProfiles.set(mention.pubkey, profile);
-  //     }
-  //   }
-  // });
+  const { profiles } = useNostrProfiles(mentions);
 
   return (
-    <InternalParsedTextRender
-      content={content}
-      mentionProfiles={mentionProfiles}
-    />
+    <InternalParsedTextRender content={content} mentionProfiles={profiles} />
   );
 };
 
@@ -120,12 +104,18 @@ const InternalParsedTextRender = ({
       const { type, data } = nip19.decode(npub);
       const pubkey =
         type === "npub" ? data : type === "nprofile" ? data.pubkey : "";
-
+      console.log({
+        pubkey,
+      });
       if (!pubkey) {
         return matchingString;
       }
 
       const metadata = mentionProfiles.get(pubkey);
+      console.log({
+        metadata,
+        mentionProfiles,
+      });
       if (metadata) {
         return (
           metadata.displayName ??
