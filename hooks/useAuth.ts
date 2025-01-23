@@ -5,6 +5,7 @@ import {
   getPubkeyFromCachedSeckey,
   deleteNwcSecret,
   getKeysFromNostrSecret,
+  getAmberPubkey,
 } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
@@ -14,20 +15,19 @@ import { useToast } from "./useToast";
 // this hook manage's the user's locally stored private key
 export const useAuth = () => {
   const toast = useToast();
-  const {
-    loginWithAmber,
-    checkAmberInstalled,
-    getAmberPubkey,
-    isLoggedInWithAmber,
-    logoutFromAmber,
-  } = useAmberSigner();
+  const { loginWithAmber, logoutFromAmber } = useAmberSigner();
   const navigation = useNavigation();
 
   const { data: pubkey, refetch: refetchPubkey } = useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      if (isLoggedInWithAmber) {
-        return getAmberPubkey();
+      const amberPubkey = await getAmberPubkey().catch((e) => {
+        console.log(e);
+        return "";
+      });
+
+      if (amberPubkey && amberPubkey !== "") {
+        return amberPubkey;
       }
 
       return getPubkeyFromCachedSeckey();
@@ -36,20 +36,22 @@ export const useAuth = () => {
   });
 
   const login = async (privkey?: string) => {
-    const isAmberInstalled = await checkAmberInstalled();
-    if (isAmberInstalled) {
-      // If Amber is installed, we try to use it to sign in
-      const success = await loginWithAmber();
+    // Try to login with remote signer
+    if (!privkey) {
+      const success = await loginWithAmber().catch((e) => {
+        return false;
+      });
+
       if (success) {
+        // clear out any existing seckey
+        await deleteSeckey();
         await refetchPubkey();
         return true;
       } else {
-        toast.show("Failed to login with Amber");
+        toast.show("Failed to login with remote signer");
+        return false;
       }
     }
-
-    // if Amber is not installed, or unsuccessful, we login with the provided private key
-    if (!privkey) return false;
 
     // Regular private key login
     const { seckey } = getKeysFromNostrSecret(privkey) || {};
@@ -64,13 +66,18 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    if (isLoggedInWithAmber) {
+    const amberPubkey = await getAmberPubkey().catch((e) => {
+      return "";
+    });
+
+    if (amberPubkey && amberPubkey !== "") {
       await logoutFromAmber();
-    } else {
-      await deleteSeckey();
-      pubkey && (await deleteNwcSecret(pubkey));
-      await refetchPubkey();
     }
+
+    await deleteSeckey();
+    // delete wallet connection associated with pubkey
+    pubkey && (await deleteNwcSecret(pubkey));
+    await refetchPubkey();
   };
 
   const goToRoot = async () => {
