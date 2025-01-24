@@ -33,3 +33,4 @@ export * from "./useBookmarks";
 export * from "./useReposts";
 export * from "./useReactions";
 export * from "./useReplies";
+export * from "./useZapEvent";
