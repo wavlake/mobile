@@ -9,7 +9,7 @@ import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useAuth } from "./useAuth";
 import { getNostrEventQueryKey } from "./useNostrEvent";
-import { useCacheEventsAndPubkeys } from "./useCacheEventsAndPubkeys";
+import { useCacheEvents } from "./useCacheEvents";
 import { getContentCommentsQueryKey } from "./useContentComments";
 
 const makeKind1Event = (
@@ -28,7 +28,7 @@ const makeKind1Event = (
 
 const contentIdPrefix = "podcast:item:guid:";
 export const usePublishComment = () => {
-  const cacheEventData = useCacheEventsAndPubkeys();
+  const cacheEventData = useCacheEvents();
   const queryClient = useQueryClient();
   const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();

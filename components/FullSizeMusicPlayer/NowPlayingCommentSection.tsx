@@ -105,7 +105,11 @@ export const NowPlayingCommentSection = ({
                 width={20}
               />
             </View>
-            <CommentRow commentId={displayedComment} isPressable={false} />
+            <CommentRow
+              hideReplies
+              commentId={displayedComment}
+              isPressable={false}
+            />
           </Pressable>
         )}
       </Animated.View>

@@ -1,4 +1,4 @@
-export * from "./shared";
+export * from "./shared/";
 export * from "./HeaderTitleLogo";
 export * from "./shared/Text";
 export * from "./shared/MarqueeText";
