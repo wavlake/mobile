@@ -14,7 +14,6 @@ import TrackPlayer, {
 } from "react-native-track-player";
 import {
   getCachedNostrRelayListEvent,
-  getPubkeyFromCachedSeckey,
   getWriteRelayUris,
   publishLiveStatusEvent,
   Track,
@@ -22,6 +21,7 @@ import {
 import { getActiveTrackIndex } from "react-native-track-player/lib/trackPlayer";
 import { getUserAgent } from "@/app.config";
 import DeviceInfo from "react-native-device-info";
+import { useAuth } from "@/hooks";
 
 export type LoadTrackList = ({
   trackList,
@@ -61,6 +61,7 @@ const shuffleArrayWithIndexAtStart = (array: any[], index: number) => {
 };
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
+  const { pubkey } = useAuth();
   const userAgent = getUserAgent(DeviceInfo.getModel());
   const [playerTitle, setPlayerTitle] = useState<string>();
   const [trackMetadataMap, setTrackMetadataMap] = useState<
@@ -145,8 +146,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   };
 
   const publishTrackToNostr = async (track: Track) => {
-    const pubkey = await getPubkeyFromCachedSeckey();
-
     if (!pubkey) {
       return;
     }
@@ -221,7 +220,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
     const activeRNTPTrack = trackQueue ? trackQueue[event.index] : null;
     const activeTrack = trackMetadataMap[activeRNTPTrack?.id ?? ""];
-
     switch (event.type) {
       case Event.PlaybackActiveTrackChanged:
         if (activeTrack) {

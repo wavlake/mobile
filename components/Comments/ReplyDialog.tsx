@@ -61,9 +61,16 @@ const ReplyDialogContents = ({
   } = useNostrProfile(parentComment?.pubkey);
   const metadataIsLoading = isFetching || isLoading;
 
+  const parentCommentId = parentComment.id;
+  const [tag, rootEventId, relay, replyType] =
+    parentComment.tags.find(
+      ([tag, eventId, relay, replyType]) => tag === "e" && replyType === "root",
+    ) || [];
+
   const handleReply = async () => {
     const tags = [
-      ["e", parentComment.id, "wss://relay.wavlake.com", "root"],
+      ["e", rootEventId ?? parentCommentId, relay, "root"],
+      ...(rootEventId ? [["e", parentCommentId, relay, "reply"]] : []),
       ["p", parentComment.pubkey],
     ];
     const replyEvent = await publishReply(comment, tags);

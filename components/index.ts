@@ -1,3 +1,4 @@
+export * from "./shared";
 export * from "./HeaderTitleLogo";
 export * from "./shared/Text";
 export * from "./shared/MarqueeText";
@@ -67,7 +68,6 @@ export * from "./FeaturedSection";
 export * from "./ProfilePicturePicker";
 export * from "./AddNostr";
 export * from "./NsecIntakePage";
-export * from "./EditNsecModal";
 export * from "./DollarAmount";
 export * from "./BitcoinPriceProvider";
 export * from "./VercelImage";

@@ -24,7 +24,7 @@ export const getCommentText = (
   if (event.content) {
     // Example content with newlines
     // Sam coming with the Xmas spirit! \n\nhttps://wavlake.com/track/8420d8e4-9d23-47e2-a5d4-85ab967aec3a\n\nnostr:nevent1qvzqqqpxquqzqqxud4f3c57wmrq2x309cvuq2f5khgl3v5dygk0ppsrtccsrsjxeeuszv8
-    // these content links, nostr:nevent links, and new lines are being added in hooks/useZap.ts, and also by Fountain nostr comments
+    // these content links, nostr:nevent links, and new lines are being added in hooks/useZapContent.ts, and also by Fountain nostr comments
     // they arent necessary when displaying the comment in the app, so we remove the new lines here
     // the links are removed in ParsedTextRenderer.tsx
     let formattedContent;

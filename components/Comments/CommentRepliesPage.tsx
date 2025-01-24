@@ -71,11 +71,13 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
         />
       }
       ListHeaderComponentStyle={{
+        // TODO - improve rendering replies and indentation
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       ListEmptyComponent={
         isFetching ? <ActivityIndicator /> : <Text>No replies yet</Text>
       }
+      // TODO - improve rendering replies and indentation
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
       data={topLevelReplies}
       renderItem={({ item }) => (

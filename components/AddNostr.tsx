@@ -1,4 +1,4 @@
-import { Center, Text, Button } from "@/components";
+import { Center, Text, Button } from "./shared";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 

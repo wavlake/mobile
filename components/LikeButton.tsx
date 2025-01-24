@@ -61,7 +61,7 @@ export const LikeButton = ({
   return (
     <PressableIcon
       onPress={onPress ? handlePress : undefined}
-      label={label}
+      leftLabel={label}
       fullWidth={fullWidth}
     >
       <MaterialCommunityIcons
