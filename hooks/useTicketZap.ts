@@ -47,6 +47,12 @@ export const useTicketZap = (showEventDTag: string) => {
 
     const signedZapRequestEvent = await signEvent(zapRequest);
 
+    if (!signedZapRequestEvent) {
+      toast.show("Failed to sign zap request.");
+      setIsLoading(false);
+      return;
+    }
+
     const response = await fetchInvoice({
       amountInSats: amountInSats,
       zapRequest: signedZapRequestEvent,

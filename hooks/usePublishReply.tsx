@@ -1,9 +1,10 @@
-import { signEvent, publishEvent } from "@/utils";
+import { publishEvent } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
+import { signEvent } from "@/utils/signing";
 
 const makeKind1Event = (
   pubkey: string,

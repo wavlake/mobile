@@ -11,3 +11,4 @@ export * from "./rss";
 export * from "./general";
 export * from "./types";
 export * from "./keychainStorage";
+export * from "./signing";
