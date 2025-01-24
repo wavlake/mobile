@@ -149,7 +149,7 @@ const EditModal: React.FC<EditModalProps> = ({
     }
 
     const parsedAmount = parseInt(amount);
-    console.log("parsedAmount", parsedAmount);
+
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       newErrors.amount = "Please enter a valid positive number";
       isValid = false;

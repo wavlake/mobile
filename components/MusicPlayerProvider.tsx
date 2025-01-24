@@ -86,7 +86,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     playerTitle,
     startIndex,
   }) => {
-    console.log("Loading track list", playerTitle);
     isLoadingTrackList.current = true;
     let normalizedTrackList: RNTPTrack[] = trackList.map((t) => ({
       id: t.id,
@@ -137,7 +136,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setCurrentTrackListId(trackListId);
     isLoadingTrackList.current = false;
     setIsSwitchingTrackList(false);
-    console.log("Loaded track list publishing to nostr");
     publishTrackToNostr(currentTrack).catch(console.error);
   };
 
@@ -214,7 +212,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   };
 
   useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
-    console.log("active track chagne event", event);
     const trackQueue = await TrackPlayer.getQueue();
 
     if (event.index === undefined || isLoadingTrackList.current) {
@@ -223,10 +220,8 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
     const activeRNTPTrack = trackQueue ? trackQueue[event.index] : null;
     const activeTrack = trackMetadataMap[activeRNTPTrack?.id ?? ""];
-    console.log("playback-active-track-changed???", event.type);
     switch (event.type) {
       case Event.PlaybackActiveTrackChanged:
-        console.log("PlaybackActiveTrackChanged", { activeTrack });
         if (activeTrack) {
           publishTrackToNostr(activeTrack).catch(console.error);
         }
