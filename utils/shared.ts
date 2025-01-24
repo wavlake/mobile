@@ -1,7 +1,6 @@
 export const WAVLAKE_RELAY = "wss://relay.wavlake.com";
 export const DEFAULT_READ_RELAY_URIS = [
   WAVLAKE_RELAY,
-  "wss://relay.wavlake.com",
   "wss://purplepag.es",
   "wss://relay.nostr.band",
   "wss://relay.damus.io",
@@ -14,7 +13,7 @@ export const DEFAULT_WRITE_RELAY_URIS = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
   "wss://relay.damus.io",
-  "wss://relay.wavlake.com",
+  WAVLAKE_RELAY,
 ];
 
 // this npub published zap receipts and label events
