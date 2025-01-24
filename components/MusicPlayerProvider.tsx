@@ -14,7 +14,6 @@ import TrackPlayer, {
 } from "react-native-track-player";
 import {
   getCachedNostrRelayListEvent,
-  getPubkeyFromCachedSeckey,
   getWriteRelayUris,
   publishLiveStatusEvent,
   Track,
@@ -22,6 +21,7 @@ import {
 import { getActiveTrackIndex } from "react-native-track-player/lib/trackPlayer";
 import { getUserAgent } from "@/app.config";
 import DeviceInfo from "react-native-device-info";
+import { useAuth } from "@/hooks";
 
 export type LoadTrackList = ({
   trackList,
@@ -61,6 +61,7 @@ const shuffleArrayWithIndexAtStart = (array: any[], index: number) => {
 };
 
 export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
+  const { pubkey } = useAuth();
   const userAgent = getUserAgent(DeviceInfo.getModel());
   const [playerTitle, setPlayerTitle] = useState<string>();
   const [trackMetadataMap, setTrackMetadataMap] = useState<
@@ -85,6 +86,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     playerTitle,
     startIndex,
   }) => {
+    console.log("Loading track list", playerTitle);
     isLoadingTrackList.current = true;
     let normalizedTrackList: RNTPTrack[] = trackList.map((t) => ({
       id: t.id,
@@ -135,6 +137,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
     setCurrentTrackListId(trackListId);
     isLoadingTrackList.current = false;
     setIsSwitchingTrackList(false);
+    console.log("Loaded track list publishing to nostr");
     publishTrackToNostr(currentTrack).catch(console.error);
   };
 
@@ -145,8 +148,6 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   };
 
   const publishTrackToNostr = async (track: Track) => {
-    const pubkey = await getPubkeyFromCachedSeckey();
-
     if (!pubkey) {
       return;
     }
@@ -213,6 +214,7 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
   };
 
   useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], async (event) => {
+    console.log("active track chagne event", event);
     const trackQueue = await TrackPlayer.getQueue();
 
     if (event.index === undefined || isLoadingTrackList.current) {
@@ -221,9 +223,10 @@ export const MusicPlayerProvider = ({ children }: PropsWithChildren) => {
 
     const activeRNTPTrack = trackQueue ? trackQueue[event.index] : null;
     const activeTrack = trackMetadataMap[activeRNTPTrack?.id ?? ""];
-
+    console.log("playback-active-track-changed???", event.type);
     switch (event.type) {
       case Event.PlaybackActiveTrackChanged:
+        console.log("PlaybackActiveTrackChanged", { activeTrack });
         if (activeTrack) {
           publishTrackToNostr(activeTrack).catch(console.error);
         }
