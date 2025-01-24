@@ -1,5 +1,5 @@
 import { useAmberSigner, useAuth } from "@/hooks";
-import { Button } from ".";
+import { Button } from "./shared";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 

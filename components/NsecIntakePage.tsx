@@ -10,13 +10,14 @@ import {
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { Text, Button, TextInput, NsecInfoDialog } from "@/components";
-import { CopyButton } from "@/components/CopyButton";
-import { BasicAvatar } from "@/components/BasicAvatar";
+import { Text, Button, TextInput } from "./shared";
+import { CopyButton } from "./CopyButton";
+import { BasicAvatar } from "./BasicAvatar";
 import { useNsecLoginPageLogic } from "@/hooks";
 import { encodeNpub, NostrUserProfile } from "@/utils";
 import { useRouter } from "expo-router";
 import { AmberLoginButton } from "./AmberLoginButton";
+import { NsecInfoDialog } from "./NsecInfoDialog";
 
 const NsecInput: React.FC<{
   nsec: string;

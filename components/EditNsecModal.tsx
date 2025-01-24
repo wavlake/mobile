@@ -1,7 +1,7 @@
 import { Dialog } from "@rneui/themed";
 import { View, StyleSheet, Dimensions, Alert } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import { AmberLoginButton, Button, Text, TextInput } from "@/components";
+import { AmberLoginButton, Button, Text, TextInput } from "./";
 import { useState } from "react";
 import { getKeysFromNostrSecret } from "@/utils";
 

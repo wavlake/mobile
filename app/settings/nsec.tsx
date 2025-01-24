@@ -1,17 +1,12 @@
 import { View, ScrollView, Alert } from "react-native";
 import { useAuth, useToast, useUser } from "@/hooks";
-import {
-  Button,
-  Text,
-  TextInput,
-  NsecIntakePage,
-  EditNsecModal,
-} from "@/components";
+import { Button, Text, TextInput, NsecIntakePage } from "@/components";
 import { useEffect, useState } from "react";
 import { encodeNsec, getSeckey, useAddPubkeyToUser } from "@/utils";
 import { CopyButton } from "@/components/CopyButton";
 import { useRouter } from "expo-router";
 import { nip19 } from "nostr-tools";
+import { EditNsecModal } from "@/components/EditNsecModal";
 
 export default function BackupNsec() {
   const toast = useToast();
