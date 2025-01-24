@@ -23,8 +23,6 @@ export const PressableIcon = ({
   children,
   color,
 }: PropsWithChildren<PressableIconProps>) => {
-  const { colors } = useTheme();
-
   if (!onPress && !onLongPress) {
     return (
       <View
@@ -37,13 +35,13 @@ export const PressableIcon = ({
         }}
       >
         {leftLabel && typeof leftLabel === "string" ? (
-          <Text style={{ color: color ?? colors.text }}>{leftLabel}</Text>
+          <TextLabel color={color} label={leftLabel} />
         ) : (
           leftLabel
         )}
         {children}
         {rightLabel && typeof rightLabel === "string" ? (
-          <Text style={{ color: color ?? colors.text }}>{rightLabel}</Text>
+          <TextLabel color={color} label={rightLabel} />
         ) : (
           rightLabel
         )}
@@ -66,16 +64,22 @@ export const PressableIcon = ({
       }}
     >
       {leftLabel && typeof leftLabel === "string" ? (
-        <Text style={{ color: color ?? colors.text }}>{leftLabel}</Text>
+        <TextLabel color={color} label={leftLabel} />
       ) : (
         leftLabel
       )}
       {children}
       {rightLabel && typeof rightLabel === "string" ? (
-        <Text style={{ color: color ?? colors.text }}>{rightLabel}</Text>
+        <TextLabel color={color} label={rightLabel} />
       ) : (
         rightLabel
       )}
     </Pressable>
   );
+};
+
+const TextLabel = ({ color, label }: { color?: string; label: string }) => {
+  const { colors } = useTheme();
+
+  return <Text style={{ color: color ?? colors.text }}>{label}</Text>;
 };
