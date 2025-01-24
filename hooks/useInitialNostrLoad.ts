@@ -40,7 +40,6 @@ export const getInitialLoadQueryKey = (pubkey?: string | null) => [
 ];
 
 export const useInitialNostrLoad = (pubkey?: string | null) => {
-  console.log("useInitialNostrLoad", { pubkey });
   const { readRelayList } = useNostrRelayList();
   const cacheEvents = useCacheEvents();
   const queryClient = useQueryClient();
@@ -53,7 +52,6 @@ export const useInitialNostrLoad = (pubkey?: string | null) => {
   return useQuery({
     queryKey,
     queryFn: async () => {
-      console.log("useInitialNostrLoad START", { pubkey });
       if (!pubkey) return null;
 
       try {

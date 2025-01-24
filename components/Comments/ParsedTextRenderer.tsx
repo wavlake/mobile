@@ -64,9 +64,7 @@ const renderImage = (matchingString: string, matches: string[]): any => {
 
 const renderEvent = (matchingString: string, matches: string[]): any => {
   const nip19Match = matches[1];
-  console.log({ nip19Match });
   const { type, data } = nip19.decode(nip19Match);
-  console.log({ type, data });
   // if (type === "nevent") {
   //   const { id, relays, author, kind } = data;
   //   return kind === 1 ? <CommentRow commentId={id} /> : undefined;
