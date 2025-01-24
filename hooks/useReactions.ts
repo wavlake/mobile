@@ -3,6 +3,7 @@ import { Event } from "nostr-tools";
 import { useNostrRelayList } from "./nostrRelayList";
 import { useAuth } from "./useAuth";
 import { signEvent, publishEvent, fetchEventReactions } from "@/utils";
+// import { useNostrEvents } from "./useNostrEvents";
 
 interface UseReactionsResult {
   reactions: Event[];
@@ -39,7 +40,8 @@ export const useReactions = (event: Event): UseReactionsResult => {
   const queryClient = useQueryClient();
   const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();
-
+  // const { data } = useNostrEvents(event.id, event.pubkey);
+  const data = { reactions: [] };
   const {
     data: reactions = [],
     isLoading,
@@ -76,7 +78,7 @@ export const useReactions = (event: Event): UseReactionsResult => {
   };
 
   return {
-    reactions,
+    reactions: data?.reactions ?? [],
     reactToEvent,
     isLoading,
     error,

@@ -8,6 +8,7 @@ import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import { useMemo } from "react";
 import { useNostrProfiles } from "@/hooks/nostrProfile/useNostrProfiles";
+import { CommentRow } from "./CommentRow";
 
 interface ParsedTextWrapperProps {
   content?: string;
@@ -61,6 +62,35 @@ const renderImage = (matchingString: string, matches: string[]): any => {
   );
 };
 
+const renderEvent = (matchingString: string, matches: string[]): any => {
+  const nip19Match = matches[1];
+  console.log({ nip19Match });
+  const { type, data } = nip19.decode(nip19Match);
+  console.log({ type, data });
+  // if (type === "nevent") {
+  //   const { id, relays, author, kind } = data;
+  //   return kind === 1 ? <CommentRow commentId={id} /> : undefined;
+  // }
+
+  // if (type === "note") {
+  //   return (
+  //     <View
+  //       style={{
+  //         backgroundColor: "white",
+  //         padding: 5,
+  //         borderRadius: 5,
+  //         marginBottom: 5,
+  //       }}
+  //     >
+  //       <CommentRow commentId={data} />;
+  //     </View>
+  //   );
+  // }
+  // Linking.openURL(`njump.me/${data}`);
+
+  return matchingString;
+};
+
 interface InternalParsedTextRenderProps {
   content?: string;
   mentionProfiles: Map<string, NostrUserProfile>;
@@ -104,18 +134,12 @@ const InternalParsedTextRender = ({
       const { type, data } = nip19.decode(npub);
       const pubkey =
         type === "npub" ? data : type === "nprofile" ? data.pubkey : "";
-      console.log({
-        pubkey,
-      });
+
       if (!pubkey) {
         return matchingString;
       }
 
       const metadata = mentionProfiles.get(pubkey);
-      console.log({
-        metadata,
-        mentionProfiles,
-      });
       if (metadata) {
         return (
           metadata.displayName ??
@@ -155,6 +179,8 @@ const InternalParsedTextRender = ({
           style: {
             color: brandColors.purple.DEFAULT,
           },
+          // TODO - create mobile app "embed" for fountain and wavlake links
+
           renderText: () => "",
         },
         {
@@ -176,7 +202,14 @@ const InternalParsedTextRender = ({
           style: {
             color: brandColors.purple.DEFAULT,
           },
-          renderText: () => "",
+          renderText: renderEvent,
+        },
+        {
+          pattern: /\n*nostr:(note[a-zA-Z0-9]+)(?:@([a-zA-Z0-9_]+))?/,
+          style: {
+            color: brandColors.mint.DEFAULT,
+          },
+          renderText: renderEvent,
         },
       ]}
     >

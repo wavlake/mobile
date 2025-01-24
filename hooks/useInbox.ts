@@ -10,6 +10,7 @@ import {
   useGetInboxLastRead,
   useSetInboxLastRead,
 } from "@/utils";
+import { useInitialNostrLoad } from "./useInitialNostrLoad";
 
 interface RelatedEventsQueries {
   directReplies: Array<Event>;
@@ -30,15 +31,15 @@ export const useInbox = (
     staleTime: 1000 * 60 * 5, // 5 minutes
   },
 ) => {
-  const {
-    data: tracks = [],
-    isLoading: isLoadingAccountTracks,
-    isError: isErrorAccountTracks,
-  } = useAccountTracks();
-  const contentIds = tracks.map((track) => track.id);
-  const cacheEvent = useCacheNostrEvent();
-  const { readRelayList } = useNostrRelayList();
   const { pubkey } = useAuth();
+  const { readRelayList } = useNostrRelayList();
+  const cacheEvent = useCacheNostrEvent();
+  const { data: initialLoad } = useInitialNostrLoad(pubkey);
+  const mentionEvents = initialLoad?.mentionEvents || [];
+
+  const { data: tracks = [] } = useAccountTracks();
+  const userHasContent = Boolean(tracks?.length);
+  const contentIds = tracks.map((track) => `${CONTENT_ID_PREFIX}${track.guid}`);
 
   // Fetch last read date
   const { refetch: getLastRead, data: lastReadDate } = useGetInboxLastRead();
@@ -66,31 +67,16 @@ export const useInbox = (
     });
   };
 
-  const userHasContent = contentIds.length > 0;
-  // Create filters for different types of related events
-  const filters = useMemo(() => {
-    const repliesAndMentions: Filter = {
-      kinds: [1],
-      limit: 100,
-      "#p": [pubkey],
-    };
-
-    const contentReplies: Filter = {
-      kinds: [1],
-      limit: 100,
-      "#i": formattedContentIds,
-    };
-
-    return {
-      repliesAndMentions,
-      // TODO - Direct messages to the user
-      // dms: {
-      //   kinds: [4],
-      //   "#p": [pubkey],
-      // } as Filter,
-      contentReplies,
-    };
-  }, [pubkey, formattedContentIds]);
+  const filters = useMemo(
+    () => ({
+      contentReplies: {
+        kinds: [1],
+        limit: 100,
+        "#i": formattedContentIds,
+      },
+    }),
+    [contentIds],
+  );
 
   // Only add content replies query if there are contentIds
   const allQueries = useMemo(() => {
@@ -99,59 +85,37 @@ export const useInbox = (
         queryKey: ["nostr", "replies-and-mentions", pubkey],
         queryFn: async () => {
           if (!pubkey) return { replies: [], mentions: [] };
-          const events = await pool.querySync(
-            readRelayList,
-            filters.repliesAndMentions,
-          );
-          events.forEach(cacheEvent);
 
-          // Split events into replies and mentions
-          const mentions = validateMentions(events);
+          // Use events from initialLoad instead of querying again
+          const mentions = validateMentions(mentionEvents);
           const mentionIds = new Set(mentions.map((e) => e.id));
 
-          const replies = events.filter((event) => !mentionIds.has(event.id));
+          const replies = mentionEvents.filter(
+            (event) => !mentionIds.has(event.id),
+          );
 
           return {
-            replies: replies.filter(
-              (reply) =>
-                reply.pubkey !==
-                "d5475b24841e54e51087a09b067c9639bea1c8a530256a8f5412589c8098e1c4",
-            ),
-            mentions: mentions.filter(
-              (mention) =>
-                mention.pubkey !==
-                "d5475b24841e54e51087a09b067c9639bea1c8a530256a8f5412589c8098e1c4",
-            ),
+            replies,
+            mentions,
           };
         },
         ...options,
       },
-      // TODO - Implement direct messages
-      // {
-      //   queryKey: ["nostr", "related", "dms", pubkey],
-      //   queryFn: async () => {
-      //     const events = await pool.querySync(readRelayList, filters.dms);
-      //     return events.map((event) => event.id);
-      //   },
-      //   ...options,
-      // },
       {
         queryKey: ["nostr", "related", "content-replies", contentIds],
         queryFn: async () => {
-          // skip an empty filter
           if (!userHasContent) return [];
           const events = await pool.querySync(
             readRelayList,
             filters.contentReplies,
           );
           events.forEach(cacheEvent);
-
           return events;
         },
         ...options,
       },
     ];
-  }, [contentIds, filters.contentReplies, readRelayList, options, pubkey]);
+  }, [pubkey, mentionEvents, userHasContent, contentIds, filters, options]);
 
   // Setup queries
   const queries = useQueries({ queries: allQueries });
@@ -179,25 +143,17 @@ export const useInbox = (
   );
 
   // Aggregate loading and error states
-  const isLoading =
-    queries.some((query) => query.isLoading) || isLoadingAccountTracks;
-  const isError =
-    queries.some((query) => query.isError) || isErrorAccountTracks;
+  const isLoading = queries.some((query) => query.isLoading);
+  const isError = queries.some((query) => query.isError);
   const errors = queries
     .filter((query) => query.error)
     .map((query) => query.error);
-
-  // Cleanup function
-  const cleanup = () => {
-    pool.close(readRelayList);
-  };
 
   return {
     ...results,
     isLoading,
     isError,
     errors,
-    cleanup,
     // Expose helper for consistency
     formatContentId: (id: string) => `${CONTENT_ID_PREFIX}${id}`,
     // Expose mention validation helper
