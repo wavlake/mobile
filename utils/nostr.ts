@@ -618,13 +618,52 @@ export const getKind3Event = (
   }
 };
 
-export const fetchReplies = async (kind1EventIds: string[]) => {
+export const fetchReplies = async (
+  kind1EventIds: string[],
+  relayList = DEFAULT_READ_RELAY_URIS,
+) => {
   const filter = {
     kinds: [1],
     ["#e"]: kind1EventIds,
   };
 
-  return pool.querySync(DEFAULT_READ_RELAY_URIS, filter);
+  return pool.querySync(relayList, filter);
+};
+
+export const fetchQuoteReposts = async (
+  eventId: string,
+  relayList = DEFAULT_READ_RELAY_URIS,
+) => {
+  const filter = {
+    kinds: [1],
+    ["#q"]: [eventId],
+  };
+
+  return pool.querySync(relayList, filter);
+};
+
+export const fetchReposts = async (
+  eventId: string,
+  relayList = DEFAULT_READ_RELAY_URIS,
+) => {
+  const filter = {
+    kinds: [6],
+    "#e": [eventId],
+  };
+  return pool.querySync(relayList, filter);
+};
+
+export const fetchEventReactions = async (
+  event: Event,
+  relayList = DEFAULT_READ_RELAY_URIS,
+) => {
+  const filter = {
+    kinds: [7],
+    ["#e"]: [event.id],
+    ["#p"]: [event.pubkey],
+  };
+
+  return pool.querySync(relayList, filter);
 };
 
 export const fetchContentCommentEvents = async (
