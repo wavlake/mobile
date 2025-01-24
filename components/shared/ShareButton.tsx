@@ -1,9 +1,8 @@
 import { Platform, Share } from "react-native";
 import { PressableIcon } from "../PressableIcon";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
-
+import Entypo from "@expo/vector-icons/Entypo";
 interface ShareButtonProps {
   url?: string;
   size?: number;
@@ -14,11 +13,7 @@ export const ShareIcon = ({ size = 30 }: { size?: number }) => {
   const isAndroid = Platform.OS === "android";
 
   return isAndroid ? (
-    <MaterialCommunityIcons
-      name="share-variant-outline"
-      size={size}
-      color={colors.text}
-    />
+    <Entypo name="share" size={size} color={colors.text} />
   ) : (
     <MaterialIcons name="ios-share" size={size} color={colors.text} />
   );
