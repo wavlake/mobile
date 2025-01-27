@@ -1,17 +1,19 @@
 import { View, ViewProps } from "react-native";
 import { BasicAvatar } from "../BasicAvatar";
 import { Text } from "../shared/Text";
-import { Event, UnsignedEvent } from "nostr-tools";
+import { Event } from "nostr-tools";
 import { encodeNpub } from "@/utils";
 import { ParsedTextRender } from "./ParsedTextRenderer";
-import { useNostrProfile } from "@/hooks";
+import { useNostrProfile, useReplies } from "@/hooks";
+import { CommentActionBar } from "./CommentActionBar";
 
 interface CommentReplyRow extends ViewProps {
-  reply: Event | UnsignedEvent;
+  reply: Event;
   replies: Event[];
 }
 
 export const CommentReplyRow = ({ reply, replies }: CommentReplyRow) => {
+  const { getChildReplies } = useReplies(reply.id);
   const { content, pubkey } = reply;
   const { data: metadata } = useNostrProfile(pubkey);
   const { name, picture } = metadata || {};
@@ -43,14 +45,18 @@ export const CommentReplyRow = ({ reply, replies }: CommentReplyRow) => {
           <ParsedTextRender content={content} />
         </View>
       </View>
+      {/* <CommentActionBar comment={reply} /> */}
       <View
         style={{
           paddingLeft: 16,
         }}
       >
         {replies.map((reply) => (
-          // TODO - explore going deeper...
-          <CommentReplyRow key={reply.id} reply={reply} replies={[]} />
+          <CommentReplyRow
+            key={reply.id}
+            reply={reply}
+            replies={getChildReplies(reply.id)}
+          />
         ))}
       </View>
     </>

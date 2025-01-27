@@ -2,6 +2,7 @@ import { getEventById } from "@/utils";
 import { useQuery, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Event } from "nostr-tools";
+import { useNostrEvents } from "@/providers/NostrEventProvider";
 
 export const getNostrEventQueryKey = (nostrEventId?: string | null) => {
   return ["event", nostrEventId];
@@ -53,15 +54,17 @@ export const prefetchNostrEvents = async (
 };
 
 // Hook for using prefetched event data
-export const useNostrEvent = (eventId: string) => {
-  const queryKey = getNostrEventQueryKey(eventId);
-  return useQuery({
-    queryKey,
-    queryFn: async () => getEventById(eventId),
-    staleTime: Infinity,
-    enabled: Boolean(eventId),
+export function useNostrEvent(id: string | null) {
+  const { getEvent } = useNostrEvents();
+
+  return useQuery<Event | null>({
+    queryKey: ["nostr-event", id],
+    queryFn: () => (id ? getEvent(id) : null),
+    enabled: Boolean(id),
+    staleTime: Infinity, // Events are immutable
+    gcTime: 1000 * 60 * 60, // Keep in cache for 1 hour
   });
-};
+}
 
 // Hook for manual caching
 export const useCacheNostrEvent = () => {

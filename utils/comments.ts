@@ -120,8 +120,8 @@ export const removeCensoredContent = (event: Event) => {
     /(?:\n\n)?(?:https?:\/\/)?(?:www\.)?wavlake\.com(?:\/\S*)?/g,
     // any fountain.fm links
     // /(?:\n\n)?(?:https?:\/\/)?(?:www\.)?wavlake\.com(?:\/\S*)?/g,
-    // nostr event quotes
-    // the mobile app publishes a kind 1 event that quotes the zap receipt event
+    // nostr event reposts
+    // the mobile app publishes a kind 1 event that reposts the zap receipt event
     /(?:\n\n)?nostr:(\w+)/g,
   ];
   // remove censored content from event.content string

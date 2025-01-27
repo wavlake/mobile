@@ -1,10 +1,10 @@
 import { fetchContentCommentEvents } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useCacheEventsAndPubkeys } from "./useCacheEventsAndPubkeys";
+import { useCacheEvents } from "./useCacheEvents";
 
 // this returns a list of event IDs for event kinds 1, 1985, and 9735
 export const useTrackComments = (trackId: string, limit?: number) => {
-  const cacheEventData = useCacheEventsAndPubkeys();
+  const cacheEventData = useCacheEvents();
 
   return useQuery({
     queryKey: ["comments", trackId, limit],

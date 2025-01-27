@@ -5,8 +5,17 @@ import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { useMemo } from "react";
 import { NostrUserProfile } from "@/utils/types";
+import { Event } from "nostr-tools";
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+export const decodeProfileMetadata = (event: Event) => {
+  try {
+    return JSON.parse(event.content) as NostrUserProfile;
+  } catch {
+    return null;
+  }
+};
 
 export const useNostrProfile = (
   pubkey?: string | null,
@@ -43,11 +52,7 @@ export const useNostrProfile = (
         return null;
       }
 
-      try {
-        return JSON.parse(event.content) as NostrUserProfile;
-      } catch {
-        return null;
-      }
+      return decodeProfileMetadata(event);
     },
     enabled: Boolean(finalPubkey),
     staleTime: TWENTY_FOUR_HOURS,

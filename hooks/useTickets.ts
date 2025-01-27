@@ -30,6 +30,7 @@ export const useTickets = () => {
       return;
     }
 
+    // TODO - this wont currently work for users logged in with amber
     const loggedInUserSeckey = await getSeckey();
     const ticketDM = await nip04
       .decrypt(loggedInUserSeckey ?? "", ticket.pubkey, ticket.content)

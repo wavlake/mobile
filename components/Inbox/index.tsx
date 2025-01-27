@@ -1,9 +1,9 @@
-import { PillTabView } from "@/components";
 import { ContentTab } from "./ContentTab";
 import { NonContentTab } from "./NonContentTab";
 import { useInbox } from "@/hooks";
 import { Event } from "nostr-tools";
 import { useEffect } from "react";
+import { PillTabView } from "../PillTabView";
 
 export const InboxPage = () => {
   const {
