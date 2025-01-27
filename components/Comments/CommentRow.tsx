@@ -121,7 +121,7 @@ export const CommentRow = ({
           </View>
         )} */}
       </View>
-      <CommentActionBar comment={comment} />
+      {/* <CommentActionBar comment={comment} /> */}
     </>
   );
 };

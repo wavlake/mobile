@@ -45,7 +45,7 @@ export const CommentReplyRow = ({ reply, replies }: CommentReplyRow) => {
           <ParsedTextRender content={content} />
         </View>
       </View>
-      <CommentActionBar comment={reply} />
+      {/* <CommentActionBar comment={reply} /> */}
       <View
         style={{
           paddingLeft: 16,

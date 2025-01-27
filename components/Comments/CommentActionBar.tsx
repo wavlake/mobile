@@ -65,7 +65,9 @@ export const CommentActionBar = ({
         <PressableIcon
           onPress={handleReplyPress}
           rightLabel={
-            topLevelReplies.length > 0 ? topLevelReplies.length : undefined
+            topLevelReplies.length > 0
+              ? topLevelReplies.length.toString()
+              : undefined
           }
         >
           <MaterialCommunityIcons
@@ -73,10 +75,9 @@ export const CommentActionBar = ({
             size={20}
             color={colors.text}
           />
-          <Text>{topLevelReplies.length}</Text>
         </PressableIcon>
 
-        <PressableIcon onPress={handleZapPress} rightLabel={12345}>
+        <PressableIcon onPress={handleZapPress} rightLabel={"12345"}>
           <MaterialCommunityIcons
             name="lightning-bolt"
             size={20}
@@ -87,7 +88,9 @@ export const CommentActionBar = ({
         <PressableIcon
           onPress={handleReactionPress}
           onLongPress={() => setReactionDialogOpen(true)}
-          rightLabel={reactions.length > 0 ? reactions.length : undefined}
+          rightLabel={
+            reactions.length > 0 ? reactions.length.toString() : undefined
+          }
         >
           <MaterialCommunityIcons
             name={reactions.length > 0 ? "heart" : "heart-outline"}
@@ -100,7 +103,9 @@ export const CommentActionBar = ({
 
         <PressableIcon
           onPress={handleQuotePress}
-          rightLabel={reposts.length > 0 ? reposts.length : undefined}
+          rightLabel={
+            reposts.length > 0 ? reposts.length.toString() : undefined
+          }
         >
           <MaterialCommunityIcons
             name="recycle"
