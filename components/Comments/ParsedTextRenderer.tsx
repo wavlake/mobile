@@ -200,14 +200,14 @@ const InternalParsedTextRender = ({
           style: {
             color: brandColors.purple.DEFAULT,
           },
-          renderText: renderEvent,
+          // renderText: renderEvent,
         },
         {
           pattern: /\n*nostr:(note[a-zA-Z0-9]+)(?:@([a-zA-Z0-9_]+))?/,
           style: {
             color: brandColors.mint.DEFAULT,
           },
-          renderText: renderEvent,
+          // renderText: renderEvent,
         },
       ]}
     >

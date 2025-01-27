@@ -66,18 +66,7 @@ class LoggingPool {
     filter: Filter,
     params?: { id?: string; maxWait?: number },
   ): Promise<Event[]> {
-    this.log("querySync", {
-      filter: {
-        ...filter,
-        ...(filter.authors?.length
-          ? {
-              authors:
-                filter.authors.length > 2
-                  ? filter.authors?.length
-                  : filter.authors,
-            }
-          : {}),
-      },
+    this.log("querySync", filter.kinds, "authors:", filter.authors?.length, {
       params,
     });
     const results = await this.pool.querySync(relays, filter, params);
@@ -90,14 +79,14 @@ class LoggingPool {
     filter: Filter,
     params?: { id?: string; maxWait?: number },
   ): Promise<Event | null> {
-    this.log("get", { filter, params });
+    this.log("get", filter.kinds, "authors:", filter.authors?.length, params);
     const result = await this.pool.get(relays, filter, params);
     this.log("get:result", result?.kind, result?.id);
     return result;
   }
 
   publish(relays: string[], event: Event): Promise<string>[] {
-    this.log("publish", { relays, event });
+    this.log("publish", { event });
     const promises = this.pool.publish(relays, event);
     Promise.all(promises).then(
       (results) => this.log("publish:complete", results),

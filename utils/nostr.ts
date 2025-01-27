@@ -181,7 +181,7 @@ export const getProfileMetadata = async (
 
 export const getFollowsListMap = async (
   pubkey: string,
-  relayUris: string[],
+  relayUris: string[] = DEFAULT_READ_RELAY_URIS,
 ) => {
   const filter = {
     kinds: [3],

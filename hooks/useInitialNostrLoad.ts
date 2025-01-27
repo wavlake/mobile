@@ -7,9 +7,13 @@ import { encodeNpub, getFollowsListMap } from "@/utils";
 import { useNostrFilterTimestamps } from "./useNostrFilterTimestamps";
 import { useNostrProfileQueryKey } from "./nostrProfile/useNostrProfileQueryKey";
 import { decodeProfileMetadata } from "./nostrProfile";
+import { getFeedEventsQueryKey } from "./useNostrFeedEvents";
+import { getFeedInteractionsQueryKey } from "./useNostrFeedInteractions";
+import { useNostrEvents } from "@/providers/NostrEventProvider";
 
 const MENTIONS_FILTER: Filter = {
-  kinds: [1, 6, 16, 7, 9735, 30023],
+  // kinds: [1, 6, 16, 7, 9735, 30023],
+  kinds: [1],
   limit: 51,
 };
 
@@ -38,10 +42,21 @@ export const getInitialLoadQueryKey = (pubkey?: string | null) => [
   "initial-load",
   pubkey,
 ];
+export const useInitialNostrLoad3 = (pubkey?: string | null) => {
+  const data = useQuery<Event[]>({
+    queryKey: getInitialLoadQueryKey(pubkey),
+    // Start with empty array, will be populated by useInitialNostrLoad
+    queryFn: () => [],
+    enabled: Boolean(pubkey),
+    staleTime: 10000,
+  });
 
-export const useInitialNostrLoad = (pubkey?: string | null) => {
+  return data;
+};
+
+export const useInitialNostrLoad2 = (pubkey?: string | null) => {
   const { readRelayList } = useNostrRelayList();
-  const cacheEvents = useCacheEvents();
+  const { cacheEvents } = useNostrEvents();
   const queryClient = useQueryClient();
   const { getTimestamp, setTimestamp } = useNostrFilterTimestamps();
 
@@ -59,7 +74,7 @@ export const useInitialNostrLoad = (pubkey?: string | null) => {
         const mentionsFilter = {
           ...MENTIONS_FILTER,
           "#p": [pubkey],
-          since: getTimestamp(MENTIONS_FILTER),
+          // since: getTimestamp(MENTIONS_FILTER),
         };
         const mentionEvents = await pool.querySync(
           readRelayList,
@@ -108,7 +123,10 @@ export const useInitialNostrLoad = (pubkey?: string | null) => {
           const feedEvents = await pool.querySync(readRelayList, feedFilter);
           cacheEvents(feedEvents);
 
-          // 8. Subscribe to interactions for initial feed events
+          // Set feed events in cache
+          queryClient.setQueryData(getFeedEventsQueryKey(pubkey), feedEvents);
+
+          // Handle interactions for initial feed events
           const initialNotes = feedEvents
             .filter((e) => e.kind === 1)
             .slice(0, 20)
@@ -126,6 +144,11 @@ export const useInitialNostrLoad = (pubkey?: string | null) => {
               {
                 onevent: (event) => {
                   cacheEvents([event]);
+                  // Update interactions cache
+                  queryClient.setQueryData<Event[]>(
+                    getFeedInteractionsQueryKey(pubkey),
+                    (old = []) => [...old, event],
+                  );
                 },
               },
             );
@@ -135,15 +158,23 @@ export const useInitialNostrLoad = (pubkey?: string | null) => {
         // 7. Subscribe to profile metadata updates
         pool.subscribeMany(
           readRelayList,
-          [{ ...METADATA_FILTER, authors: [pubkey] }],
+          [
+            {
+              ...METADATA_FILTER,
+              authors: [pubkey, ...(follows.length ? follows : [])],
+            },
+          ],
           {
             onevent: (event) => {
-              const queryKey = useNostrProfileQueryKey(pubkey);
+              const queryKey = useNostrProfileQueryKey(event.pubkey);
               queryClient.setQueryData(queryKey, decodeProfileMetadata(event));
             },
           },
         );
-
+        console.log("initialLoad:", {
+          follows: follows.length,
+          mentionEvents: mentionEvents.length,
+        });
         return {
           follows,
           mentionEvents,
@@ -161,8 +192,8 @@ export const useInitialNostrLoad = (pubkey?: string | null) => {
     gcTime: 10000,
     initialData: cachedData,
     refetchOnMount: !cachedData,
-    // refetchOnWindowFocus: false,
-    // refetchOnReconnect: false,
-    // retry: 2, // limit retries on error
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 2, // limit retries on error
   });
 };

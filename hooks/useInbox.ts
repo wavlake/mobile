@@ -1,5 +1,5 @@
-import { Event, Filter } from "nostr-tools";
-import { useMemo, useEffect } from "react";
+import { Event } from "nostr-tools";
+import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { pool } from "@/utils/relay-pool";
@@ -10,7 +10,9 @@ import {
   useGetInboxLastRead,
   useSetInboxLastRead,
 } from "@/utils";
-import { useInitialNostrLoad } from "./useInitialNostrLoad";
+import { useNostrFeedEvents } from "./useNostrFeedEvents";
+import { useNostrFeedInteractions } from "./useNostrFeedInteractions";
+import { useNostrEvents } from "@/providers/NostrEventProvider";
 
 interface RelatedEventsQueries {
   directReplies: Array<Event>;
@@ -34,8 +36,10 @@ export const useInbox = (
   const { pubkey } = useAuth();
   const { readRelayList } = useNostrRelayList();
   const cacheEvent = useCacheNostrEvent();
-  const { data: initialLoad } = useInitialNostrLoad(pubkey);
-  const mentionEvents = initialLoad?.mentionEvents || [];
+
+  const { mentionEvents } = useNostrEvents();
+  const { data: feedEvents = [] } = useNostrFeedEvents(pubkey);
+  const { data: feedInteractions = [] } = useNostrFeedInteractions(pubkey);
 
   const { data: tracks = [] } = useAccountTracks();
   const userHasContent = Boolean(tracks?.length);
@@ -56,6 +60,8 @@ export const useInbox = (
     [contentIds],
   );
   const validateMentions = (events: Event[]): Event[] => {
+    console.log("validateMentions:", events.length);
+    console.log(events?.[0]);
     return events.filter((event) => {
       const mentionTagIndices = event.tags
         .map((tag, index) => (tag[0] === "p" && tag[1] === pubkey ? index : -1))
@@ -78,7 +84,11 @@ export const useInbox = (
     [contentIds],
   );
 
-  // Only add content replies query if there are contentIds
+  // Combine feed events and interactions
+  const allEvents = useMemo(() => {
+    return [...feedEvents, ...feedInteractions];
+  }, [feedEvents, feedInteractions]);
+
   const allQueries = useMemo(() => {
     return [
       {
@@ -86,14 +96,12 @@ export const useInbox = (
         queryFn: async () => {
           if (!pubkey) return { replies: [], mentions: [] };
 
-          // Use events from initialLoad instead of querying again
           const mentions = validateMentions(mentionEvents);
           const mentionIds = new Set(mentions.map((e) => e.id));
 
           const replies = mentionEvents.filter(
             (event) => !mentionIds.has(event.id),
           );
-
           return {
             replies,
             mentions,
@@ -117,17 +125,22 @@ export const useInbox = (
     ];
   }, [pubkey, mentionEvents, userHasContent, contentIds, filters, options]);
 
-  // Setup queries
   const queries = useQueries({ queries: allQueries });
   const { replies, mentions } = (queries[0]?.data as {
     mentions: Event[];
     replies: Event[];
   }) || { mentions: [], replies: [] };
   const contentReplies = (queries[1]?.data as Event[]) || [];
-  const allEvents = [...replies, ...mentions, ...contentReplies];
+
+  const combinedEvents = [
+    ...allEvents,
+    ...replies,
+    ...mentions,
+    ...contentReplies,
+  ];
   const hasUnreadMessages = lastReadDateNumber
-    ? allEvents.some((event) => event.created_at > lastReadDateNumber)
-    : allEvents.length > 0;
+    ? combinedEvents.some((event) => event.created_at > lastReadDateNumber)
+    : combinedEvents.length > 0;
 
   // Organize results into a structured object
   const results = useMemo<RelatedEventsQueries>(
@@ -139,7 +152,7 @@ export const useInbox = (
       lastReadDate: lastReadDateNumber,
       hasUnreadMessages,
     }),
-    [queries],
+    [replies, mentions, contentReplies, lastReadDateNumber, hasUnreadMessages],
   );
 
   // Aggregate loading and error states

@@ -1,17 +1,18 @@
+import { getFollowsListMap } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getInitialLoadQueryKey,
-  useInitialNostrLoad,
-} from "../useInitialNostrLoad";
+
+export const getNostrFollowsQueryKey = (pubkey?: string | null) => {
+  return ["follows", pubkey];
+};
 
 export const useNostrFollows = (pubkey?: string | null) => {
-  // const { data: initialLoad } = useInitialNostrLoad(pubkey);
-  const initialLoad = {
-    follows: [],
-  };
   return useQuery({
-    queryKey: ["follows", pubkey],
-    queryFn: () => initialLoad?.follows || [],
+    queryKey: getNostrFollowsQueryKey(pubkey),
+    queryFn: () => {
+      if (!pubkey) return [];
+      const followsMap = getFollowsListMap(pubkey);
+      return Object.keys(followsMap);
+    },
     enabled: Boolean(pubkey),
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
   });
