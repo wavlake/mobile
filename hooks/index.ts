@@ -29,8 +29,6 @@ export * from "./useAlbumComments";
 export * from "./useArtistComments";
 export * from "./useTrackComments";
 export * from "./useAmberSigner";
-export * from "./useBookmarks";
-export * from "./useReposts";
 export * from "./useReactions";
 export * from "./useReplies";
 export * from "./useZapEvent";
