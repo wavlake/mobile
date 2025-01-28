@@ -1,14 +1,19 @@
-import { TouchableOpacity, View, ViewProps } from "react-native";
+import {
+  ActivityIndicator,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from "react-native";
 import { Event } from "nostr-tools";
 import { useNostrProfile } from "@/hooks";
-import { useNostrEvent } from "@/hooks/useNostrEvent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { CommentContent } from "./CommentContent";
 import { getRootEventId, getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
+import { useNostrEvents } from "@/providers/NostrEventProvider";
 
 interface CommentRowProps extends ViewProps {
   commentId: string;
@@ -20,7 +25,6 @@ interface CommentRowProps extends ViewProps {
   closeParent?: () => void;
   onPress?: (comment: Event) => void;
 }
-
 export const CommentRow = ({
   commentId,
   replies = [],
@@ -31,9 +35,68 @@ export const CommentRow = ({
   closeParent,
   onPress,
 }: CommentRowProps) => {
+  const { getEventAsync } = useNostrEvents();
+  const [event, setEvent] = useState<Event | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    getEventAsync(commentId).then((event) => {
+      setEvent(event);
+      setIsLoading(false);
+    }),
+      [commentId];
+  });
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 16,
+          height: 80,
+        }}
+      >
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (!event) {
+    return null;
+  }
+
+  if (event.kind === 1) {
+    return (
+      <Kind1Event
+        comment={event}
+        replies={replies}
+        showReplyLinks={showReplyLinks}
+        isPressable={isPressable}
+        showContentDetails={showContentDetails}
+        lastReadDate={lastReadDate}
+        closeParent={closeParent}
+        onPress={onPress}
+        key={event.id}
+      />
+    );
+  }
+
+  console.log("event kind not yet supported", event.kind, event.content);
+};
+
+const Kind1Event = ({
+  comment,
+  replies = [],
+  showReplyLinks = true,
+  isPressable = true,
+  showContentDetails = false,
+  lastReadDate,
+  closeParent,
+  onPress,
+}: Omit<CommentRowProps, "commentId"> & { comment: Event }) => {
   const router = useRouter();
   const basePathname = useGetBasePathname();
-  const { data: comment } = useNostrEvent(commentId);
   const contentId = getITagFromEvent(comment);
   const {
     data: npubMetadata,
@@ -69,7 +132,7 @@ export const CommentRow = ({
     >
       <ReplyDialog
         setIsOpen={setDialogOpen}
-        commentId={commentId}
+        commentId={comment.id}
         isOpen={dialogOpen}
       />
       {isPressable ? (

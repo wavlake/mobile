@@ -1,4 +1,10 @@
-import { createContext, useContext, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useCallback,
+  ReactNode,
+  useEffect,
+} from "react";
 import { Event, Filter } from "nostr-tools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getEventById, getProfileMetadata, NostrUserProfile } from "@/utils";
@@ -6,6 +12,8 @@ import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { getFollowsListMap } from "@/utils";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
+import { SubCloser } from "nostr-tools/lib/types/abstract-pool";
+import { InteractionManager } from "react-native";
 
 const FORTY_EIGHT_HOURS = 48 * 60 * 60 * 1000;
 const SOCIAL_NOTES: Filter = {
@@ -66,7 +74,7 @@ const FOLLOWS_FILTER: Filter = {
 };
 
 type NostrEventContextType = {
-  getEvent: (id: string) => Promise<Event | null>;
+  getEventAsync: (id: string) => Promise<Event | null>;
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
   getPubkeyProfile: (pubkey: string) => Promise<NostrUserProfile | null>;
@@ -99,7 +107,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
 
-  const getEvent = useCallback(
+  const getEventAsync = useCallback(
     async (id: string) => {
       const queryKey = nostrQueryKeys.event(id);
 
@@ -140,101 +148,119 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     [queryClient],
   );
 
-  // app load event queries
-  const { data } = useQuery({
-    queryKey: ["initial-load", pubkey],
+  // Core functionality that should load immediately
+  const { data: initialData } = useQuery({
+    queryKey: ["initial-load-core", pubkey],
     queryFn: async () => {
       if (!pubkey) return defaultNostrEventContext;
-
+      // Wait for animations to complete
+      await InteractionManager.runAfterInteractions();
       try {
+        // Only load critical data first
         const followsMap = await getFollowsListMap(pubkey, readRelayList);
         const follows = followsMap ? Object.keys(followsMap) : [];
-
-        const socialFilter = {
-          ...SOCIAL_NOTES,
-          "#p": [pubkey],
-        };
-        const socialEvents = await pool.querySync(readRelayList, socialFilter);
-        // const followsActivity = await pool.querySync(readRelayList, {
-        //   ...FOLLOWS_SOCIAL_NOTES,
-        //   authors: follows,
-        // });
-        // followsActivity.forEach(cacheEventById);
-        // const followsQueryKey = nostrQueryKeys.follows(pubkey);
-        // queryClient.setQueryData(
-        //   followsQueryKey,
-        //   followsActivity.map((e) => e.id),
-        // );
-
-        // setTimestamp(comments_FILTER);
-        const kind1: string[] = [];
-        const kind6: string[] = [];
-        const kind7: string[] = [];
-        const kind16: string[] = [];
-        const kind9735: string[] = [];
-        // sort social eventIds into different kinds
-        socialEvents.forEach((event) => {
-          cacheEventById(event);
-          if (event.kind === 1) {
-            kind1.push(event.id);
-          } else if (event.kind === 6) {
-            kind6.push(event.id);
-          } else if (event.kind === 7) {
-            kind7.push(event.id);
-          } else if (event.kind === 16) {
-            kind16.push(event.id);
-          } else if (event.kind === 9735) {
-            kind9735.push(event.id);
-          }
-        });
-        // cache events
-        queryClient.setQueryData(nostrQueryKeys.comments(pubkey), kind1);
-        queryClient.setQueryData(nostrQueryKeys.reposts(pubkey), kind6);
-        queryClient.setQueryData(nostrQueryKeys.reactions(pubkey), kind7);
-        queryClient.setQueryData(nostrQueryKeys.genericReposts(pubkey), kind16);
-        queryClient.setQueryData(nostrQueryKeys.zapReceipts(pubkey), kind9735);
-
-        pool.subscribeMany(
-          readRelayList,
-          [
-            {
-              ...PUBKEY_METADATA,
-              authors: [pubkey, ...(follows.length ? follows : [])],
-            },
-          ],
-          {
-            onevent: (event) => {
-              const queryKey = nostrQueryKeys.profile(event.pubkey);
-              const existingData = queryClient.getQueryData<Event>(queryKey);
-
-              // Only update if new event is more recent
-              if (!existingData || event.created_at > existingData.created_at) {
-                queryClient.setQueryData(queryKey, event, {
-                  updatedAt: Date.now(),
-                });
-              }
-            },
-          },
-        );
-
         return {
-          comments: kind1,
-          reactions: kind7,
-          reposts: kind6,
-          genericReposts: kind16,
-          zapReceipts: kind9735,
           follows,
-          followsActivity: [],
           followsMap,
+          comments: [],
+          reactions: [],
+          reposts: [],
+          genericReposts: [],
+          zapReceipts: [],
+          followsActivity: [],
         };
       } catch (error) {
-        console.error("Initial load error:", error);
+        console.error("Initial core load error:", error);
         return defaultNostrEventContext;
       }
     },
     enabled: Boolean(pubkey),
     retry: false,
   });
+
+  // Secondary data loading
+  useEffect(() => {
+    if (!pubkey || !initialData) return;
+
+    let isActive = true;
+    let subscription: SubCloser | null = null;
+
+    const loadSecondaryData = async () => {
+      // Wait for animations to complete
+      await InteractionManager.runAfterInteractions();
+
+      try {
+        const socialFilter = {
+          ...SOCIAL_NOTES,
+          "#p": [pubkey],
+        };
+
+        // Load social events in background
+        console.log("running social events query");
+        const socialEvents = await pool.querySync(readRelayList, socialFilter);
+        // Make sure we haven't cleaned up before processing
+        if (!isActive) return;
+
+        // Process and cache events without blocking
+        setTimeout(() => {
+          if (!isActive) return;
+
+          const kind1: string[] = [];
+          const kind6: string[] = [];
+          const kind7: string[] = [];
+          const kind16: string[] = [];
+          const kind9735: string[] = [];
+
+          socialEvents.forEach((event) => {
+            queryClient.setQueryData(nostrQueryKeys.event(event.id), event);
+
+            switch (event.kind) {
+              case 1:
+                kind1.push(event.id);
+                break;
+              case 6:
+                kind6.push(event.id);
+                break;
+              case 7:
+                kind7.push(event.id);
+                break;
+              case 16:
+                kind16.push(event.id);
+                break;
+              case 9735:
+                kind9735.push(event.id);
+                break;
+            }
+          });
+          // Update queries in batches
+          queryClient.setQueryData(nostrQueryKeys.comments(pubkey), kind1);
+          queryClient.setQueryData(nostrQueryKeys.reposts(pubkey), kind6);
+          queryClient.setQueryData(nostrQueryKeys.reactions(pubkey), kind7);
+          queryClient.setQueryData(
+            nostrQueryKeys.genericReposts(pubkey),
+            kind16,
+          );
+          queryClient.setQueryData(
+            nostrQueryKeys.zapReceipts(pubkey),
+            kind9735,
+          );
+        }, 0);
+      } catch (error) {
+        console.error("Secondary load error:", error);
+      }
+    };
+
+    loadSecondaryData();
+
+    // Cleanup function
+    return () => {
+      isActive = false;
+      if (subscription) {
+        subscription.close();
+        subscription = null;
+      }
+    };
+  }, [pubkey, initialData, queryClient]);
 
   const getPubkeyProfile = useCallback(
     async (pubkey: string) => {
@@ -253,22 +279,46 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     },
     [queryClient],
   );
+  const { data: comments = [] } = useQuery<string[]>({
+    queryKey: nostrQueryKeys.comments(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  const { data: reactions = [] } = useQuery<string[]>({
+    queryKey: nostrQueryKeys.reactions(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  const { data: reposts = [] } = useQuery<string[]>({
+    queryKey: nostrQueryKeys.reposts(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  const { data: genericReposts = [] } = useQuery<string[]>({
+    queryKey: nostrQueryKeys.genericReposts(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  const { data: zapReceipts = [] } = useQuery<string[]>({
+    queryKey: nostrQueryKeys.zapReceipts(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
 
   return (
     <NostrEventContext.Provider
       value={{
-        getEvent,
+        getEventAsync,
         cacheEventById,
         cacheEventsById,
         getPubkeyProfile,
-        comments: data?.comments ?? [],
-        reactions: data?.reactions ?? [],
-        reposts: data?.reposts ?? [],
-        genericReposts: data?.genericReposts ?? [],
-        zapReceipts: data?.zapReceipts ?? [],
-        follows: data?.follows ?? [],
+        comments,
+        reactions,
+        reposts,
+        genericReposts,
+        zapReceipts,
+        follows: initialData?.follows ?? [],
         followsActivity: [],
-        followsMap: data?.followsMap ?? {},
+        followsMap: initialData?.followsMap ?? {},
       }}
     >
       {children}

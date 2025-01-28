@@ -30,6 +30,7 @@ export const useAuth = () => {
       return getPubkeyFromCachedSeckey();
     },
     staleTime: Infinity,
+    gcTime: Infinity,
   });
 
   const login = async (privkey?: string) => {
