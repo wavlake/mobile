@@ -2,9 +2,7 @@ import {
   generateSecretKey,
   getPublicKey,
   intakeNwcURI,
-  useCreateConnection,
   buildUri,
-  WalletConnectionMethods,
 } from "@/utils";
 import { bytesToHex } from "@noble/hashes/utils";
 import { useWalletBalance } from "./useWalletBalance";
@@ -13,6 +11,10 @@ import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
 import { useSettingsManager } from "./useSettingsManager";
 import { walletServicePubkey } from "@/utils/shared";
+import {
+  useCreateConnection,
+  WalletConnectionMethods,
+} from "./useCreateConnection";
 
 interface ConnectionSettings {
   connectionName: string;

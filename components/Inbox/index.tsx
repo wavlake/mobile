@@ -1,4 +1,4 @@
-import { PillTabView } from "@/components";
+import { PillTabView } from "../PillTabView";
 import { ContentTab } from "./ContentTab";
 import { NonContentTab } from "./NonContentTab";
 import { useInbox } from "@/hooks";

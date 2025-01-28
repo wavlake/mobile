@@ -5,19 +5,17 @@ import {
   CreateEmailUserArgs,
   useAuth,
   useCreateNewNostrAccount,
+  useCreateNewUser,
+  useCreateNewVerifiedUser,
+  usePrivateUserData,
   UserContext,
   useToast,
 } from "@/hooks";
-import {
-  useCreateNewVerifiedUser,
-  usePrivateUserData,
-} from "@/utils/authTokenApi";
 import {
   getKeysFromNostrSecret,
   getSecretFromKeychain,
   saveSecretToKeychain,
   useAddPubkeyToUser,
-  useCreateNewUser,
 } from "@/utils";
 
 interface AuthState {

@@ -11,13 +11,19 @@ import {
   StyleSheet,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { useAuth, useToast, useUser, useSettingsManager } from "@/hooks";
+import {
+  useAuth,
+  useToast,
+  useUser,
+  useSettingsManager,
+  useEditUser,
+} from "@/hooks";
 import { BUILD_NUM, VERSION } from "@/app.config";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { brandColors } from "@/constants";
 import { Tooltip } from "@rneui/themed";
 import { useTheme } from "@react-navigation/native";
-import { PrivateUserData, useEditUser } from "@/utils";
+import { PrivateUserData } from "@/utils";
 import { useValidateUsername } from "@/hooks/useValidateUsername";
 import { useWalletBalance } from "@/hooks/useWalletBalance";
 

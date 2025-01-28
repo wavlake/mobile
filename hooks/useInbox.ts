@@ -4,12 +4,9 @@ import { useQueries } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { pool } from "@/utils/relay-pool";
 import { useNostrRelayList } from "./nostrRelayList";
-import { useCacheNostrEvent } from "./useNostrEvent";
-import {
-  useAccountTracks,
-  useGetInboxLastRead,
-  useSetInboxLastRead,
-} from "@/utils";
+import { useGetInboxLastRead } from "./useGetInboxLastRead";
+import { useAccountTracks } from "./useAccountTracks";
+import { useSetInboxLastRead } from "./useSetInboxLastRead";
 
 interface RelatedEventsQueries {
   directReplies: Array<Event>;
@@ -36,7 +33,6 @@ export const useInbox = (
     isError: isErrorAccountTracks,
   } = useAccountTracks();
   const contentIds = tracks.map((track) => track.id);
-  const cacheEvent = useCacheNostrEvent();
   const { readRelayList } = useNostrRelayList();
   const { pubkey } = useAuth();
 
@@ -103,7 +99,6 @@ export const useInbox = (
             readRelayList,
             filters.repliesAndMentions,
           );
-          events.forEach(cacheEvent);
 
           // Split events into replies and mentions
           const mentions = validateMentions(events);
@@ -144,7 +139,6 @@ export const useInbox = (
             readRelayList,
             filters.contentReplies,
           );
-          events.forEach(cacheEvent);
 
           return events;
         },

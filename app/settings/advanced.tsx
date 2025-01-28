@@ -15,8 +15,9 @@ import {
   useSettingsManager,
   WAVLAKE_RELAY,
   useUser,
+  useDeleteUser,
 } from "@/hooks";
-import { Settings, payInvoiceCommand, useDeleteUser } from "@/utils";
+import { Settings, payInvoiceCommand } from "@/utils";
 import { useTheme } from "@react-navigation/native";
 import { Switch } from "@rneui/themed";
 import { brandColors } from "@/constants";
