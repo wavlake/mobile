@@ -122,8 +122,8 @@ function Layout() {
     <SafeAreaProvider>
       <ThemeProvider value={DarkTheme}>
         <QueryProvider>
-          <UserContextProvider>
-            <NostrEventProvider>
+          <NostrEventProvider>
+            <UserContextProvider>
               <PopupProvider>
                 <MusicPlayerProvider>
                   <BitcoinPriceProvider>
@@ -200,8 +200,8 @@ function Layout() {
                   </BitcoinPriceProvider>
                 </MusicPlayerProvider>
               </PopupProvider>
-            </NostrEventProvider>
-          </UserContextProvider>
+            </UserContextProvider>
+          </NostrEventProvider>
         </QueryProvider>
       </ThemeProvider>
     </SafeAreaProvider>
