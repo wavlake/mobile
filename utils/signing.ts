@@ -2,7 +2,7 @@ import { EventTemplate, finalizeEvent, generateSecretKey } from "nostr-tools";
 import { hexToBytes } from "@noble/hashes/utils";
 import { getSeckey } from "./secureStorage";
 import { getAmberPubkey } from "./cache";
-import { signEventWithAmber } from "@/hooks";
+import { signEventWithAmber } from "./amber";
 
 // TODO: save events to react-query cache (skip HTTP auth events, kind 27235)
 export const signEvent = async (eventTemplate: EventTemplate) => {
