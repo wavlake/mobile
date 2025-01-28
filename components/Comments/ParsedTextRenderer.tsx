@@ -104,18 +104,13 @@ const InternalParsedTextRender = ({
       const { type, data } = nip19.decode(npub);
       const pubkey =
         type === "npub" ? data : type === "nprofile" ? data.pubkey : "";
-      console.log({
-        pubkey,
-      });
+
       if (!pubkey) {
         return matchingString;
       }
 
       const metadata = mentionProfiles.get(pubkey);
-      console.log({
-        metadata,
-        mentionProfiles,
-      });
+
       if (metadata) {
         return (
           metadata.displayName ??
