@@ -86,6 +86,7 @@ export const logoutFromAmber = async () => {
       },
     });
 
+    // assume the user handles the logout in Amber and return true
     return true;
   } catch (error) {
     console.error("Amber logout error:", error);
