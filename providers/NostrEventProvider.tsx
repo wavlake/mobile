@@ -7,12 +7,16 @@ import {
 } from "react";
 import { Event, Filter } from "nostr-tools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getEventById, getProfileMetadata, NostrUserProfile } from "@/utils";
+import {
+  getEventById,
+  getLastFetchTime,
+  NostrUserProfile,
+  setLastFetchTime,
+} from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { getFollowsListMap } from "@/utils";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
-import { SubCloser } from "nostr-tools/lib/types/abstract-pool";
 import { InteractionManager } from "react-native";
 
 const FORTY_EIGHT_HOURS = 48 * 60 * 60 * 1000;
@@ -182,9 +186,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!pubkey || !initialData) return;
 
-    let isActive = true;
-    let subscription: SubCloser | null = null;
-
     const loadSecondaryData = async () => {
       // Wait for animations to complete
       await InteractionManager.runAfterInteractions();
@@ -195,16 +196,9 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
           "#p": [pubkey],
         };
 
-        // Load social events in background
-        console.log("running social events query");
-        const socialEvents = await pool.querySync(readRelayList, socialFilter);
-        // Make sure we haven't cleaned up before processing
-        if (!isActive) return;
+        const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
-        // Process and cache events without blocking
         setTimeout(() => {
-          if (!isActive) return;
-
           const kind1: string[] = [];
           const kind6: string[] = [];
           const kind7: string[] = [];
@@ -233,16 +227,25 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
             }
           });
           // Update queries in batches
-          queryClient.setQueryData(nostrQueryKeys.comments(pubkey), kind1);
-          queryClient.setQueryData(nostrQueryKeys.reposts(pubkey), kind6);
-          queryClient.setQueryData(nostrQueryKeys.reactions(pubkey), kind7);
-          queryClient.setQueryData(
-            nostrQueryKeys.genericReposts(pubkey),
-            kind16,
+          queryClient.setQueryData<string[]>(
+            nostrQueryKeys.comments(pubkey),
+            (old) => [...kind1, ...(old ?? [])],
           );
-          queryClient.setQueryData(
+          queryClient.setQueryData<string[]>(
+            nostrQueryKeys.reposts(pubkey),
+            (old) => [...kind6, ...(old ?? [])],
+          );
+          queryClient.setQueryData<string[]>(
+            nostrQueryKeys.reactions(pubkey),
+            (old) => [...kind7, ...(old ?? [])],
+          );
+          queryClient.setQueryData<string[]>(
+            nostrQueryKeys.genericReposts(pubkey),
+            (old) => [...kind16, ...(old ?? [])],
+          );
+          queryClient.setQueryData<string[]>(
             nostrQueryKeys.zapReceipts(pubkey),
-            kind9735,
+            (old) => [...kind9735, ...(old ?? [])],
           );
         }, 0);
       } catch (error) {
@@ -251,25 +254,19 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     };
 
     loadSecondaryData();
-
-    // Cleanup function
-    return () => {
-      isActive = false;
-      if (subscription) {
-        subscription.close();
-        subscription = null;
-      }
-    };
   }, [pubkey, initialData, queryClient]);
 
   const getPubkeyProfile = useCallback(
-    async (pubkey: string) => {
+    async (pubkey: string, relayList: string[] = readRelayList) => {
       const queryKey = nostrQueryKeys.profile(pubkey);
-
+      const filter = {
+        kinds: [0],
+        authors: [pubkey],
+      };
       const event = await queryClient.fetchQuery({
         queryKey,
         queryFn: async () => {
-          return getProfileMetadata(pubkey);
+          return getEventSince(filter, relayList);
         },
         staleTime: FORTY_EIGHT_HOURS,
         gcTime: FORTY_EIGHT_HOURS * 10,
@@ -370,4 +367,38 @@ const decodeProfileMetadata = (event: Event) => {
   } catch {
     return null;
   }
+};
+
+const querySyncSince = async (filter: Filter, readRelayList: string[]) => {
+  const queryKey = JSON.stringify(filter);
+  const lastFetch = await getLastFetchTime(queryKey);
+
+  // Only fetch events newer than our last fetch
+  const updatedFilter = {
+    ...filter,
+    since: lastFetch,
+  };
+
+  const events = await pool.querySync(readRelayList, updatedFilter);
+  if (!events) return [];
+
+  // Update the last fetch time after successful query
+  await setLastFetchTime(queryKey);
+
+  return events;
+};
+
+// use pool.get
+const getEventSince = async (filter: Filter, readRelayList: string[]) => {
+  const queryKey = JSON.stringify(filter);
+  const lastFetch = await getLastFetchTime(queryKey);
+  const updatedFilter = {
+    ...filter,
+    since: lastFetch,
+  };
+  const event = await pool.get(readRelayList, updatedFilter);
+  if (!event) return null;
+
+  await setLastFetchTime(queryKey);
+  return event;
 };

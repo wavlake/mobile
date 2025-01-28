@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl } from "react-native";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { SectionHeader } from "../SectionHeader";
 import { CommentRow } from "../Comments";
 import { ItemSeparator, ListEmpty, ListFooter } from "./common";
@@ -30,7 +30,10 @@ export const NonContentTab = ({
       />
     );
   }, []);
-  const events = [...comments, ...reactions, ...zapReceipts];
+  const events = useMemo(
+    () => [...comments, ...reactions, ...zapReceipts],
+    [comments, reactions, zapReceipts],
+  );
   return (
     <FlatList
       ListEmptyComponent={<ListEmpty isLoading={isLoading} />}
