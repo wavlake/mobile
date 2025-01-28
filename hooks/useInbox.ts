@@ -4,11 +4,9 @@ import { useQueries } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { pool } from "@/utils/relay-pool";
 import { useNostrRelayList } from "./nostrRelayList";
-import {
-  useAccountTracks,
-  useGetInboxLastRead,
-  useSetInboxLastRead,
-} from "@/utils";
+import { useGetInboxLastRead } from "./useGetInboxLastRead";
+import { useAccountTracks } from "./useAccountTracks";
+import { useSetInboxLastRead } from "./useSetInboxLastRead";
 
 interface RelatedEventsQueries {
   directReplies: Array<Event>;

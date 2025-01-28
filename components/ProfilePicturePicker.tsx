@@ -7,8 +7,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { brandColors } from "@/constants";
 import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
-import { useEditUser } from "@/utils";
-import { useToast, useUser } from "@/hooks";
+import { useEditUser, useToast, useUser } from "@/hooks";
 
 export const ProfileImagePicker = () => {
   const refreshWithKey = () => {
