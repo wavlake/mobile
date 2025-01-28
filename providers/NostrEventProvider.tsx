@@ -1,14 +1,13 @@
 import { createContext, useContext, useCallback, ReactNode } from "react";
 import { Event, Filter } from "nostr-tools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getEventById, NostrUserProfile } from "@/utils";
+import { getEventById, getProfileMetadata, NostrUserProfile } from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
-import { useNostrProfileQueryKey } from "@/hooks/nostrProfile/useNostrProfileQueryKey";
-import { decodeProfileMetadata } from "@/hooks/nostrProfile";
 import { getFollowsListMap } from "@/utils";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
 
+const FORTY_EIGHT_HOURS = 48 * 60 * 60 * 1000;
 const SOCIAL_NOTES: Filter = {
   kinds: [
     // comment
@@ -51,7 +50,7 @@ const RECENT_COMMENT_ACTIVITY: Filter = {
   limit: 53,
 };
 
-const METADATA_FILTER: Filter = {
+const PUBKEY_METADATA: Filter = {
   kinds: [0],
 };
 
@@ -199,16 +198,20 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
           readRelayList,
           [
             {
-              ...METADATA_FILTER,
+              ...PUBKEY_METADATA,
               authors: [pubkey, ...(follows.length ? follows : [])],
             },
           ],
           {
             onevent: (event) => {
-              if (event.kind === 0) {
-                cacheEventById(event);
-                const queryKey = useNostrProfileQueryKey(event.pubkey);
-                queryClient.setQueryData(queryKey, event.id);
+              const queryKey = nostrQueryKeys.profile(event.pubkey);
+              const existingData = queryClient.getQueryData<Event>(queryKey);
+
+              // Only update if new event is more recent
+              if (!existingData || event.created_at > existingData.created_at) {
+                queryClient.setQueryData(queryKey, event, {
+                  updatedAt: Date.now(),
+                });
               }
             },
           },
@@ -235,17 +238,20 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
   const getPubkeyProfile = useCallback(
     async (pubkey: string) => {
-      const profileQueryKey = useNostrProfileQueryKey(pubkey);
-      const profileEventId = queryClient.getQueryData<string>(profileQueryKey);
-      if (profileEventId) {
-        const event = await getEvent(profileEventId);
-        if (event) {
-          return decodeProfileMetadata(event);
-        }
-      }
-      return null;
+      const queryKey = nostrQueryKeys.profile(pubkey);
+
+      const event = await queryClient.fetchQuery({
+        queryKey,
+        queryFn: async () => {
+          return getProfileMetadata(pubkey);
+        },
+        staleTime: FORTY_EIGHT_HOURS,
+        gcTime: FORTY_EIGHT_HOURS * 10,
+      });
+
+      return event ? decodeProfileMetadata(event) : null;
     },
-    [queryClient, getEvent],
+    [queryClient],
   );
 
   return (
@@ -278,10 +284,11 @@ export function useNostrEvents() {
   return context;
 }
 
-const nostrQueryKeys = {
+export const nostrQueryKeys = {
   event: (id: string) => ["nostr", "event", id],
   profile: (pubkey: string) => ["nostr", "profile", "event", pubkey],
   relayList: (pubkey: string) => ["nostr", "relayList", "event", pubkey],
+  // TODO - clean up old follows hooks (add, remove, get)
   follows: (pubkey: string | null | undefined) => [
     "nostr",
     "follows",
@@ -305,4 +312,12 @@ const nostrQueryKeys = {
     contentIds,
   ],
   replies: (eventId: string) => ["nostr", "replies", eventId],
+};
+
+const decodeProfileMetadata = (event: Event) => {
+  try {
+    return JSON.parse(event.content) as NostrUserProfile;
+  } catch {
+    return null;
+  }
 };
