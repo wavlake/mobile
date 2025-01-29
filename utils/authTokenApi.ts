@@ -2,6 +2,7 @@ import axios, { AxiosError } from "axios";
 import auth from "@react-native-firebase/auth";
 import { normalizeTrackResponse } from "./api";
 import { ResponseObject, TrackResponse } from "./types";
+import { configureLoggingInterceptors } from "./api-interceptors";
 
 const catalogApi = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
 const enableResponseLogging = Boolean(
@@ -12,39 +13,7 @@ export const catalogApiClient = axios.create({
   baseURL: catalogApi,
 });
 
-// this interceptor handles errors and doesn't need to be updated once registered
-const responseInterceptor = catalogApiClient.interceptors.response.use(
-  // on response fulfilled (200 response)
-  (response) => {
-    if (!!response.data.error) {
-      console.log("Catalog (fb auth):", response.data.error);
-    } else {
-      if (enableResponseLogging) {
-        const byteSizeOfResponse = new Blob([JSON.stringify(response.data)])
-          .size;
-        console.log(
-          "Catalog (fb auth):",
-          response.request.responseURL?.split(".com")[1],
-          byteSizeOfResponse,
-          "bytes",
-        );
-      }
-    }
-
-    return response;
-  },
-  // on response rejected (non 200 response)
-  (error: AxiosError) => {
-    const errorObject = error?.response?.data;
-
-    // TODO - improve error handling here
-    // const { response, request } = error;
-    // wavlakeErrorHandler(response?.data);
-
-    // need to throw the response, else it will be swallowed here
-    throw errorObject;
-  },
-);
+configureLoggingInterceptors(catalogApiClient, "CatalogAuth");
 
 // this interceptor adds the auth token
 const requestInterceptor = catalogApiClient.interceptors.request.use(

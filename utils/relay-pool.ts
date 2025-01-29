@@ -1,33 +1,20 @@
 import { SimplePool, Event, Filter } from "nostr-tools";
+import { logger } from "./logger";
 
 class LoggingPool {
   private pool: SimplePool;
-  private enableLogging: boolean = false;
 
   constructor() {
     this.pool = new SimplePool();
-    if (process.env.NODE_ENV === "development") {
-      this.enableLogging = true;
-    }
-  }
-
-  setLogging(enabled: boolean) {
-    this.enableLogging = enabled;
-  }
-
-  private log(method: string, ...args: any[]) {
-    if (this.enableLogging) {
-      console.log(`[NostrPool] ${method}:`, ...args);
-    }
   }
 
   async ensureRelay(url: string, params?: { connectionTimeout?: number }) {
-    this.log("ensureRelay", { url, params });
+    logger.logWebsocketMessage("ensureRelay", { url, params });
     return this.pool.ensureRelay(url, params);
   }
 
   close(relays: string[]) {
-    this.log("close", { relays });
+    logger.logWebsocketMessage("close", { relays });
     this.pool.close(relays);
   }
 
@@ -43,19 +30,19 @@ class LoggingPool {
       id?: string;
     },
   ) {
-    this.log("subscribeMany", { filters, params });
+    logger.logWebsocketMessage("subscribeMany", { filters, params });
     return this.pool.subscribeMany(relays, filters, {
       ...params,
       onevent: (event) => {
-        // this.log("subscribeMany:event", event);
+        logger.logNostrEvent("subscribeMany:event", event);
         params.onevent?.(event);
       },
       oneose: () => {
-        // this.log("subscribeMany:eose");
+        logger.logWebsocketMessage("subscribeMany:eose");
         params.oneose?.();
       },
       onclose: (reasons) => {
-        // this.log("subscribeMany:close", reasons);
+        logger.logWebsocketMessage("subscribeMany:close", { reasons });
         params.onclose?.(reasons);
       },
     });
@@ -66,9 +53,9 @@ class LoggingPool {
     filter: Filter,
     params?: { id?: string; maxWait?: number },
   ): Promise<Event[]> {
-    this.log("querySync", JSON.stringify(filter), params);
+    logger.logWebsocketMessage("querySync", { filter, params });
     const results = await this.pool.querySync(relays, filter, params);
-    this.log("querySync:results", results.length);
+    logger.logWebsocketMessage("querySync:results", { count: results.length });
     return results;
   }
 
@@ -77,40 +64,28 @@ class LoggingPool {
     filter: Filter,
     params?: { id?: string; maxWait?: number },
   ): Promise<Event | null> {
-    this.log("get", JSON.stringify(filter), params);
+    logger.logWebsocketMessage("get", { filter, params });
     const result = await this.pool.get(relays, filter, params);
-    this.log("get:result", result?.kind, result?.id);
+    result
+      ? logger.logNostrEvent("get:result", result)
+      : logger.logWebsocketMessage("get:result", { result: "event not found" });
     return result;
   }
 
   publish(relays: string[], event: Event): Promise<string>[] {
-    this.log("publish", { event });
+    logger.logNostrEvent("publish", event);
     const promises = this.pool.publish(relays, event);
     Promise.all(promises).then(
-      (results) => this.log("publish:complete", results),
-      (error) => this.log("publish:error", error),
+      (results) => logger.logWebsocketMessage("publish:complete", { results }),
+      (error) => logger.logWebsocketMessage("publish:error", { error }),
     );
     return promises;
   }
 
-  // listConnectionStatus(): Map<string, boolean> {
-  //   this.log("listConnectionStatus");
-  //   const status = this.pool.listConnectionStatus();
-  //   this.log("listConnectionStatus:result", Object.fromEntries(status));
-  //   return status;
-  // }
-
-  // destroy() {
-  //   this.log("destroy");
-  //   this.pool.destroy();
-  // }
-
-  // Expose seenOn map from the underlying pool
   get seenOn() {
     return this.pool.seenOn;
   }
 
-  // Expose trackRelays property
   get trackRelays() {
     return this.pool.trackRelays;
   }
