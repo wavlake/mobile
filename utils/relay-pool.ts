@@ -66,9 +66,7 @@ class LoggingPool {
     filter: Filter,
     params?: { id?: string; maxWait?: number },
   ): Promise<Event[]> {
-    this.log("querySync", filter.kinds, "authors:", filter.authors?.length, {
-      params,
-    });
+    this.log("querySync", JSON.stringify(filter), params);
     const results = await this.pool.querySync(relays, filter, params);
     this.log("querySync:results", results.length);
     return results;
@@ -79,7 +77,7 @@ class LoggingPool {
     filter: Filter,
     params?: { id?: string; maxWait?: number },
   ): Promise<Event | null> {
-    this.log("get", filter.kinds, "authors:", filter.authors?.length, params);
+    this.log("get", JSON.stringify(filter), params);
     const result = await this.pool.get(relays, filter, params);
     this.log("get:result", result?.kind, result?.id);
     return result;

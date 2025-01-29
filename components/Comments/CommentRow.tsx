@@ -14,9 +14,11 @@ import { getRootEventId, getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { CommentActionBar } from "./CommentActionBar";
 
 interface CommentRowProps extends ViewProps {
-  commentId: string;
+  commentId?: string;
+  comment?: Event;
   replies?: Event[];
   showReplyLinks?: boolean;
   isPressable?: boolean;
@@ -25,8 +27,10 @@ interface CommentRowProps extends ViewProps {
   closeParent?: () => void;
   onPress?: (comment: Event) => void;
 }
+
 export const CommentRow = ({
   commentId,
+  comment,
   replies = [],
   showReplyLinks = true,
   isPressable = true,
@@ -36,9 +40,14 @@ export const CommentRow = ({
   onPress,
 }: CommentRowProps) => {
   const { getEventAsync } = useNostrEvents();
-  const [event, setEvent] = useState<Event | null>(null);
+  const [event, setEvent] = useState<Event | undefined | null>(comment);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
+    if (comment) {
+      setIsLoading(false);
+    }
+
+    if (!commentId) return;
     getEventAsync(commentId).then((event) => {
       setEvent(event);
       setIsLoading(false);
@@ -137,28 +146,40 @@ const EventRenderer = ({
   const isUnread = lastReadDate ? comment.created_at > lastReadDate : false;
 
   return (
-    <View
-      style={{
-        marginBottom: 10,
-        flexDirection: "row",
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        backgroundColor: isUnread ? "rgba(255, 255, 255, 0.2)" : "transparent",
-      }}
-    >
-      <ReplyDialog
-        setIsOpen={setDialogOpen}
-        commentId={comment.id}
-        isOpen={dialogOpen}
-      />
-      {isPressable ? (
-        <TouchableOpacity
-          onPress={onReplyPress}
-          onLongPress={() => {
-            setDialogOpen(true);
-          }}
-          style={{ flex: 1 }}
-        >
+    <>
+      <View
+        style={{
+          marginBottom: 10,
+          flexDirection: "row",
+          paddingHorizontal: 16,
+          paddingVertical: 16,
+          backgroundColor: isUnread
+            ? "rgba(255, 255, 255, 0.2)"
+            : "transparent",
+        }}
+      >
+        <ReplyDialog
+          setIsOpen={setDialogOpen}
+          commentId={comment.id}
+          isOpen={dialogOpen}
+        />
+        {isPressable ? (
+          <TouchableOpacity
+            onPress={onReplyPress}
+            onLongPress={() => {
+              setDialogOpen(true);
+            }}
+            style={{ flex: 1 }}
+          >
+            <CommentContent
+              associatedContentId={showContentDetails ? contentId : undefined}
+              comment={comment}
+              npubMetadata={npubMetadata}
+              metadataIsLoading={metadataIsLoading}
+              closeParent={closeParent}
+            />
+          </TouchableOpacity>
+        ) : (
           <CommentContent
             associatedContentId={showContentDetails ? contentId : undefined}
             comment={comment}
@@ -166,30 +187,26 @@ const EventRenderer = ({
             metadataIsLoading={metadataIsLoading}
             closeParent={closeParent}
           />
-        </TouchableOpacity>
-      ) : (
-        <CommentContent
-          associatedContentId={showContentDetails ? contentId : undefined}
-          comment={comment}
-          npubMetadata={npubMetadata}
-          metadataIsLoading={metadataIsLoading}
-          closeParent={closeParent}
-        />
-      )}
-      {showReplyLinks && (
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            paddingTop: 20,
-            paddingBottom: 10,
-            gap: 8,
-          }}
-        >
-          <CommentRepliesLink replies={replies} parentcommentId={comment.id} />
-        </View>
-      )}
-    </View>
+        )}
+        {showReplyLinks && (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: 20,
+              paddingBottom: 10,
+              gap: 8,
+            }}
+          >
+            <CommentRepliesLink
+              replies={replies}
+              parentcommentId={comment.id}
+            />
+          </View>
+        )}
+      </View>
+      <CommentActionBar comment={comment} />
+    </>
   );
 };

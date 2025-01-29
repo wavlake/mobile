@@ -24,7 +24,7 @@ export const ContentTab = ({
   const router = useRouter();
   const MemoizedCommentRow = memo(CommentRow);
   const { fetchContentDetails } = useContentDetails();
-  const renderItem = useCallback(({ item: commentId }: { item: string }) => {
+  const renderItem = useCallback(({ item: event }: { item: Event }) => {
     const onPress = async (event: Event) => {
       try {
         const contentId = getITagFromEvent(event);
@@ -51,8 +51,8 @@ export const ContentTab = ({
     return (
       <MemoizedCommentRow
         showContentDetails
-        commentId={commentId}
-        key={commentId}
+        comment={event}
+        key={event.id}
         showReplyLinks={true}
         onPress={onPress}
         lastReadDate={lastReadDate}
@@ -63,16 +63,14 @@ export const ContentTab = ({
   return (
     <FlatList
       ListEmptyComponent={<ListEmpty isLoading={isLoading} />}
-      data={data
-        .sort((a, b) => {
-          const dateA = new Date(a.created_at);
-          const dateB = new Date(b.created_at);
-          return dateB.getTime() - dateA.getTime();
-        })
-        .map((event) => event.id)}
+      data={data.sort((a, b) => {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateB.getTime() - dateA.getTime();
+      })}
       ListHeaderComponent={() => <SectionHeader title="Inbox" />}
       renderItem={renderItem}
-      keyExtractor={(item) => item}
+      keyExtractor={(item) => item.id}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }

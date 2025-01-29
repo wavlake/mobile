@@ -33,7 +33,7 @@ const SOCIAL_NOTES: Filter = {
     // zap receipt
     9735,
   ],
-  limit: 51,
+  limit: 100,
 };
 
 const FOLLOWS_SOCIAL_NOTES: Filter = {
@@ -83,11 +83,11 @@ type NostrEventContextType = {
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
   getPubkeyProfile: (pubkey: string) => Promise<NostrUserProfile | null>;
-  comments: string[];
-  reactions: string[];
-  reposts: string[];
-  genericReposts: string[];
-  zapReceipts: string[];
+  comments: Event[];
+  reactions: Event[];
+  reposts: Event[];
+  genericReposts: Event[];
+  zapReceipts: Event[];
   follows: string[];
   followsActivity: string[];
   // Record<followPubkey, followRelay>
@@ -207,57 +207,114 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
         setTimeout(() => {
-          const kind1: string[] = [];
-          const kind6: string[] = [];
-          const kind7: string[] = [];
-          const kind16: string[] = [];
-          const kind9735: string[] = [];
+          const kind1: Event[] = [];
+          const kind6: Event[] = [];
+          const kind7: Event[] = [];
+          const kind16: Event[] = [];
+          const kind9735: Event[] = [];
 
           socialEvents.forEach((event) => {
             queryClient.setQueryData(nostrQueryKeys.event(event.id), event);
 
             switch (event.kind) {
               case 1:
-                kind1.push(event.id);
+                kind1.push(event);
                 break;
               case 6:
-                kind6.push(event.id);
+                kind6.push(event);
                 break;
               case 7:
-                kind7.push(event.id);
+                kind7.push(event);
                 break;
               case 16:
-                kind16.push(event.id);
+                kind16.push(event);
                 break;
               case 9735:
-                kind9735.push(event.id);
+                kind9735.push(event);
                 break;
             }
           });
           // Update queries in batches
-          queryClient.setQueryData<string[]>(
+          queryClient.setQueryData<Event[]>(
             nostrQueryKeys.comments(pubkey),
             kind1,
           );
-          queryClient.setQueryData<string[]>(
+          queryClient.setQueryData<Event[]>(
             nostrQueryKeys.reposts(pubkey),
             kind6,
           );
-          queryClient.setQueryData<string[]>(
+          queryClient.setQueryData<Event[]>(
             nostrQueryKeys.reactions(pubkey),
             kind7,
           );
-          queryClient.setQueryData<string[]>(
+          queryClient.setQueryData<Event[]>(
             nostrQueryKeys.genericReposts(pubkey),
             kind16,
           );
-          queryClient.setQueryData<string[]>(
+          queryClient.setQueryData<Event[]>(
             nostrQueryKeys.zapReceipts(pubkey),
             kind9735,
           );
         }, 0);
+        // load event comments, reactions, reposts, generic reposts, and zaps
+        const eventSocialFilter = {
+          ...SOCIAL_NOTES,
+          "#e": socialEvents.map((event) => event.id),
+        };
+
+        const eventSocialEvents = await querySyncSince(
+          eventSocialFilter,
+          readRelayList,
+        );
+
+        setTimeout(() => {
+          const eventIdMap = eventSocialEvents.reduce(
+            (acc, event) => {
+              const [eTag, eventId] =
+                event.tags.find(([tag, value]) => tag === "e") ?? [];
+              if (eventId) {
+                if (!acc[eventId]) {
+                  acc[eventId] = {
+                    [event.kind]: [event],
+                  };
+                }
+                acc[eventId] = {
+                  ...acc[eventId],
+                  [event.kind]: [...(acc[eventId]?.[event.kind] ?? []), event],
+                };
+              }
+              return acc;
+            },
+            {} as Record<
+              string,
+              {
+                [kind: number]: Event[];
+              }
+            >,
+          );
+
+          Object.keys(eventIdMap).forEach((eventId) => {
+            const event = eventIdMap[eventId];
+            queryClient.setQueryData<Event[]>(
+              nostrQueryKeys.replies(eventId),
+              event[1] ?? [],
+            );
+            queryClient.setQueryData<Event[]>(
+              nostrQueryKeys.eventReposts(eventId),
+              event[6] ?? [],
+            );
+            queryClient.setQueryData<Event[]>(
+              nostrQueryKeys.eventReactions(eventId),
+              event[7] ?? [],
+            );
+            queryClient.setQueryData<Event[]>(
+              nostrQueryKeys.eventGenericReposts(eventId),
+              event[16] ?? [],
+            );
+          });
+        }, 0);
       } catch (error) {
-        console.error("Secondary load error:", error);
+        console.error("Secondary data load error:", error);
       }
     };
 
@@ -284,27 +341,27 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     },
     [queryClient],
   );
-  const { data: comments = [] } = useQuery<string[]>({
+  const { data: comments = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.comments(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: reactions = [] } = useQuery<string[]>({
+  const { data: reactions = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.reactions(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: reposts = [] } = useQuery<string[]>({
+  const { data: reposts = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.reposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: genericReposts = [] } = useQuery<string[]>({
+  const { data: genericReposts = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.genericReposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: zapReceipts = [] } = useQuery<string[]>({
+  const { data: zapReceipts = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.zapReceipts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
@@ -355,23 +412,24 @@ export const nostrQueryKeys = {
   comments: (pubkey: string) => ["nostr", "kind1", pubkey],
   // kind 6 with user pubkey #p tag
   reposts: (pubkey: string) => ["nostr", "kind6", pubkey],
+  // kind 6 with event #e tag
+  eventReposts: (pubkey: string) => ["nostr", "kind6", pubkey],
   // kind 7 with user pubkey #p tag
   reactions: (pubkey: string) => ["nostr", "kind7", pubkey],
+  // kind 7 with event #e tag
+  eventReactions: (eventId: string) => ["nostr", "kind7", eventId],
   // kind 16 with user pubkey #p tag
   genericReposts: (pubkey: string) => ["nostr", "kind16", pubkey],
+  // kind 16 with event #e tag
+  eventGenericReposts: (eventId: string) => ["nostr", "kind16", eventId],
   // kind 9735 with user pubkey #p tag
   zapReceipts: (pubkey: string) => ["nostr", "kind9735", pubkey],
-  contentReplies: (contentIds: string[]) => [
-    "nostr",
-    "related",
-    "content-replies",
-    contentIds,
-  ],
   contentComments: (contentId: string) => [
     "nostr",
     "content-comments",
     contentId,
   ],
+  // kind 1 with event #e tag
   replies: (eventId: string) => ["nostr", "replies", eventId],
 };
 

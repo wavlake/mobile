@@ -3,6 +3,7 @@ import { memo, useCallback, useMemo } from "react";
 import { SectionHeader } from "../SectionHeader";
 import { CommentRow } from "../Comments";
 import { ItemSeparator, ListEmpty, ListFooter } from "./common";
+import { Event } from "nostr-tools";
 
 export const NonContentTab = ({
   isLoading,
@@ -13,18 +14,18 @@ export const NonContentTab = ({
   refetch,
 }: {
   isLoading: boolean;
-  comments: string[];
-  reactions: string[];
-  zapReceipts: string[];
+  comments: Event[];
+  reactions: Event[];
+  zapReceipts: Event[];
   lastReadDate?: number;
   refetch: () => void;
 }) => {
   const MemoizedCommentRow = memo(CommentRow);
-  const renderItem = useCallback(({ item: commentId }: { item: string }) => {
+  const renderItem = useCallback(({ item: event }: { item: Event }) => {
     return (
       <MemoizedCommentRow
-        commentId={commentId}
-        key={commentId}
+        comment={event}
+        key={event.id}
         showReplyLinks={true}
         lastReadDate={lastReadDate}
       />
@@ -43,7 +44,7 @@ export const NonContentTab = ({
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
-      keyExtractor={(item) => item}
+      keyExtractor={(item) => item.id}
       ListFooterComponent={<ListFooter numberOfItems={events.length} />}
       scrollEnabled={true}
       windowSize={12}

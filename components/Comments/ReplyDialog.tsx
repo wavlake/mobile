@@ -6,11 +6,11 @@ import { usePublishReply } from "@/hooks/usePublishReply";
 import { Event } from "nostr-tools";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRepliesQueryKey } from "@/hooks/useReplies";
 import { TextInput } from "../shared/TextInput";
 import { CommentContent } from "./CommentContent";
 import { Button } from "../shared/Button";
 import { useNostrProfile } from "@/hooks";
+import { nostrQueryKeys } from "@/providers/NostrEventProvider";
 
 interface ReplyDialogProps {
   commentId: string;
@@ -52,7 +52,7 @@ const ReplyDialogContents = ({
   const { save: publishReply } = usePublishReply();
   const { colors } = useTheme();
   const queryClient = useQueryClient();
-  const replyQueryKey = useRepliesQueryKey(parentComment.id);
+  const replyQueryKey = nostrQueryKeys.replies(parentComment.id);
   const [comment, setComment] = useState("");
   const {
     data: npubMetadata,

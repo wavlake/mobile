@@ -64,7 +64,7 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
     <FlatList
       ListHeaderComponent={
         <ListHeaderComp
-          commentId={comment.id}
+          comment={comment}
           dialogOpen={dialogOpen}
           setDialogOpen={setDialogOpen}
         />
@@ -91,11 +91,11 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
 };
 
 const ListHeaderComp = ({
-  commentId,
+  comment,
   dialogOpen,
   setDialogOpen,
 }: {
-  commentId: string;
+  comment: Event;
   dialogOpen: boolean;
   setDialogOpen: (isOpen: boolean) => void;
 }) => {
@@ -103,10 +103,10 @@ const ListHeaderComp = ({
     <>
       <ReplyDialog
         setIsOpen={setDialogOpen}
-        commentId={commentId}
+        commentId={comment.id}
         isOpen={dialogOpen}
       />
-      <CommentRow commentId={commentId} showReplyLinks={false} />
+      <CommentRow comment={comment} showReplyLinks={false} />
     </>
   );
 };

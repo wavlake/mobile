@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useMemo } from "react";
 import { fetchReplies } from "@/utils";
+import { nostrQueryKeys } from "@/providers/NostrEventProvider";
 
 interface ReplyHierarchy {
   topLevelReplies: Event[];
@@ -28,15 +29,9 @@ const hasNonRootReplyTag = (reply: Event, commentId: string): boolean =>
 const isRootReply = (reply: Event, commentId: string): boolean =>
   hasRootTag(reply, commentId) && !hasNonRootReplyTag(reply, commentId);
 
-// Query key generator
-export const useRepliesQueryKey = (nostrEventId?: string | null) => {
-  return ["replies", nostrEventId];
-};
-
 // Enhanced hook
-export const useReplies = (nostrEventId?: string | null): UseRepliesResult => {
-  const queryKey = useRepliesQueryKey(nostrEventId);
-
+export const useReplies = (nostrEventId: string): UseRepliesResult => {
+  const queryKey = nostrQueryKeys.replies(nostrEventId);
   const {
     data: replies = [],
     isError,
