@@ -82,6 +82,7 @@ export const CommentRow = ({
   }
 
   console.log("event kind not yet supported", event.kind, event.content);
+  return null;
 };
 
 const Kind1Event = ({
