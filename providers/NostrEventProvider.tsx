@@ -78,6 +78,7 @@ const FOLLOWS_FILTER: Filter = {
 };
 
 type NostrEventContextType = {
+  querySync: (filter: Filter) => Promise<Event[]>;
   getEventAsync: (id: string) => Promise<Event | null>;
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
@@ -135,6 +136,14 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
       }
     },
     [queryClient],
+  );
+
+  const querySync = useCallback(
+    async (filter: Filter) => {
+      const events = await querySyncSince(filter, readRelayList);
+      return events;
+    },
+    [readRelayList],
   );
 
   const cacheEventById = useCallback(
@@ -195,8 +204,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
           ...SOCIAL_NOTES,
           "#p": [pubkey],
         };
-        const key = nostrQueryKeys.comments(pubkey);
-        console.log("update key", queryClient.getQueryData(key));
         const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
         setTimeout(() => {
@@ -305,6 +312,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   return (
     <NostrEventContext.Provider
       value={{
+        querySync,
         getEventAsync,
         cacheEventById,
         cacheEventsById,
@@ -358,6 +366,11 @@ export const nostrQueryKeys = {
     "related",
     "content-replies",
     contentIds,
+  ],
+  contentComments: (contentId: string) => [
+    "nostr",
+    "content-comments",
+    contentId,
   ],
   replies: (eventId: string) => ["nostr", "replies", eventId],
 };

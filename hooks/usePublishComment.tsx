@@ -8,9 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useAuth } from "./useAuth";
-import { getNostrEventQueryKey } from "./useNostrEvent";
-import { useCacheEventsAndPubkeys } from "./useCacheEventsAndPubkeys";
-import { getContentCommentsQueryKey } from "./useContentComments";
+import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
 
 const makeKind1Event = (
   pubkey: string,
@@ -26,9 +24,8 @@ const makeKind1Event = (
   };
 };
 
-const contentIdPrefix = "podcast:item:guid:";
 export const usePublishComment = () => {
-  const cacheEventData = useCacheEventsAndPubkeys();
+  const { cacheEventById } = useNostrEvents();
   const queryClient = useQueryClient();
   const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();
@@ -55,11 +52,11 @@ export const usePublishComment = () => {
           .mutateAsync(event)
           .then(async () => {
             // save the event to the cache so we dont need to fetch it
-            cacheEventData([event]);
+            cacheEventById(event);
             const contentId = getITagFromEvent(event);
 
             if (contentId) {
-              const queryKey = getContentCommentsQueryKey(contentId);
+              const queryKey = nostrQueryKeys.contentComments(contentId);
               // manually add this new event ID to the cache
               const oldCache = queryClient.getQueryData(queryKey) as string[];
               queryClient.setQueryData(queryKey, [...oldCache, event.id]);
