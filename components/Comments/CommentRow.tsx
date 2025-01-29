@@ -42,9 +42,8 @@ export const CommentRow = ({
     getEventAsync(commentId).then((event) => {
       setEvent(event);
       setIsLoading(false);
-    }),
-      [commentId];
-  });
+    });
+  }, [commentId]);
 
   if (isLoading) {
     return (
