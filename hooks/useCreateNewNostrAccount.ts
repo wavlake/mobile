@@ -5,6 +5,7 @@ import { useAddFollow, useSaveNostrProfile } from "@/hooks/nostrProfile";
 import { useSaveNostrRelayList } from "@/hooks/nostrRelayList/useSaveNostrRelayList";
 import { nip19 } from "nostr-tools";
 import { NostrUserProfile } from "@/utils/types";
+import { DEFAULT_WRITE_RELAY_URIS } from "@/utils/shared";
 
 export const useCreateNewNostrAccount = () => {
   const toast = useToast();
@@ -27,12 +28,6 @@ export const useCreateNewNostrAccount = () => {
 
     let { data } = nip19.decode(nsec);
     const pubkey = getPublicKey(data as Uint8Array);
-    const bootstrapRelays = [
-      "wss://relay.wavlake.com",
-      "wss://relay.nostr.band",
-      "wss://relay.damus.io",
-      "wss://purplepag.es",
-    ];
 
     if (!success) {
       toast.show("Something went wrong. Please try again later.");
@@ -45,7 +40,7 @@ export const useCreateNewNostrAccount = () => {
     try {
       await Promise.all([
         saveProfile(profile),
-        saveRelayList(bootstrapRelays),
+        saveRelayList(DEFAULT_WRITE_RELAY_URIS),
         addFollow(undefined),
       ]);
     } catch (error) {

@@ -1,5 +1,6 @@
 import { SimplePool, Event, Filter } from "nostr-tools";
 import { logger } from "./logger";
+import { PURPLE_PAGES_RELAY } from "./shared";
 
 class LoggingPool {
   private pool: SimplePool;
@@ -73,8 +74,14 @@ class LoggingPool {
   }
 
   publish(relays: string[], event: Event): Promise<string>[] {
+    // remove purple pages relay from the list of relays if the event is not accepted
+    const isAcceptedByPurplePages = [0, 3, 10002].includes(event.kind);
+    const adjustedRelays = isAcceptedByPurplePages
+      ? relays
+      : relays.filter((r) => !r.startsWith(PURPLE_PAGES_RELAY));
+
     logger.logNostrEvent("publish", event);
-    const promises = this.pool.publish(relays, event);
+    const promises = this.pool.publish(adjustedRelays, event);
     Promise.all(promises).then(
       (results) => logger.logWebsocketMessage("publish:complete", { results }),
       (error) => logger.logWebsocketMessage("publish:error", { error }),

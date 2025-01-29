@@ -44,6 +44,7 @@ import { getSettings } from "./cache";
 import {
   DEFAULT_READ_RELAY_URIS,
   DEFAULT_WRITE_RELAY_URIS,
+  PURPLE_PAGES_RELAY,
   wavlakeFeedPubkey,
 } from "./shared";
 import { pool } from "./relay-pool";
@@ -344,7 +345,7 @@ export const publishLiveStatusEvent = async ({
         ? DEFAULT_WRITE_RELAY_URIS
         : relayUris;
 
-    return relaysToUse.filter((r) => !r.startsWith("wss://purplepag.es"));
+    return relaysToUse.filter((r) => !r.startsWith(PURPLE_PAGES_RELAY));
   };
   const currentTime = Math.floor(Date.now() / 1000);
   const eventTemplate = {
