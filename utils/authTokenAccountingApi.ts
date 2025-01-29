@@ -1,65 +1,28 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import auth from "@react-native-firebase/auth";
 import { Event } from "nostr-tools";
 import { Promo } from "./authTokenApi";
 import { ResponseObject } from "./types";
+import { configureLoggingInterceptors } from "./api-interceptors";
 
 const accountingApi = process.env.EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL;
-const enableResponseLogging = Boolean(
-  process.env.EXPO_PUBLIC_ENABLE_RESPONSE_LOGGING,
-);
 
 export const accountingApiClient = axios.create({
   baseURL: accountingApi,
 });
 
-// this interceptor handles errors and doesn't need to be updated once registered
-const responseInterceptor = accountingApiClient.interceptors.response.use(
-  // on response fulfilled (200 response)
-  (response) => {
-    if (!!response.data.error) {
-      console.log("Accounting error:", response.data.error);
-    } else {
-      if (enableResponseLogging) {
-        const byteSizeOfResponse = new Blob([JSON.stringify(response.data)])
-          .size;
-        console.log(
-          "Accounting:",
-          response?.request?.responseURL?.split(".com")[1],
-          byteSizeOfResponse,
-          "bytes",
-        );
-      }
-    }
-    return response;
-  },
-  // on response rejected (non 200 response)
-  (error: AxiosError) => {
-    const errorObject = error?.response?.data;
-
-    // TODO - improve error handling here
-    // const { response, request } = error;
-    // wavlakeErrorHandler(response?.data);
-
-    // need to throw the response, else it will be swallowed here
-    throw errorObject;
-  },
-);
+configureLoggingInterceptors(accountingApiClient, "Accounting");
 
 // this interceptor adds the auth token
-const requestInterceptor = accountingApiClient.interceptors.request.use(
-  // on request fulfilled
-  async (config) => {
-    const currentUser = auth().currentUser;
-    if (currentUser && config.headers) {
-      const requestAuthToken = await currentUser.getIdToken();
-
-      config.headers.authorization = `Bearer ${requestAuthToken}`;
-    }
-    return config;
-  },
-);
+accountingApiClient.interceptors.request.use(async (config) => {
+  const currentUser = auth().currentUser;
+  if (currentUser && config.headers) {
+    const requestAuthToken = await currentUser.getIdToken();
+    config.headers.authorization = `Bearer ${requestAuthToken}`;
+  }
+  return config;
+});
 
 interface ZapPayload {
   contentId: string;
