@@ -28,7 +28,7 @@ export const QueryProvider: React.FC<PropsWithChildren> = ({ children }) => (
     client={queryClient}
     persistOptions={{
       persister: asyncStoragePersister,
-      maxAge: TWENTY_FOUR_HOURS,
+      maxAge: TWENTY_FOUR_HOURS * 14, // Persist data for 14 days
     }}
   >
     {children}

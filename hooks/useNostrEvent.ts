@@ -2,6 +2,7 @@ import { getEventById } from "@/utils";
 import { useQuery, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Event } from "nostr-tools";
+import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
 
 export const getNostrEventQueryKey = (nostrEventId?: string | null) => {
   return ["event", nostrEventId];
@@ -52,13 +53,12 @@ export const prefetchNostrEvents = async (
   return results;
 };
 
-// Hook for using prefetched event data
 export const useNostrEvent = (eventId: string) => {
-  const queryKey = getNostrEventQueryKey(eventId);
-  return useQuery({
-    queryKey,
-    queryFn: async () => getEventById(eventId),
-    staleTime: Infinity,
+  const { getEventAsync } = useNostrEvents();
+
+  return useQuery<Event | null>({
+    queryKey: nostrQueryKeys.event(eventId),
+    queryFn: () => getEventAsync(eventId),
     enabled: Boolean(eventId),
   });
 };

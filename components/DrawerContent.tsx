@@ -7,7 +7,7 @@ import {
 import { Text } from "./shared/Text";
 import { Divider } from "@rneui/themed";
 import { brandColors } from "@/constants";
-import { useAuth, useInbox, useUser, WAVLAKE_RELAY } from "@/hooks";
+import { useAuth, useUser, WAVLAKE_RELAY } from "@/hooks";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { WalletLabel } from "./WalletLabel";
@@ -20,8 +20,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
   const { pubkey, logout } = useAuth();
   const { signOut, catalogUser } = useUser();
   const { data: settings } = useSettings();
-  const { hasUnreadMessages } = useInbox();
-
+  const hasUnreadMessages = false;
   // TODO - support any nwc wallet
   // implment make_invoice on nwc server (currently using lnurl in mobile client)
   const showWallet =

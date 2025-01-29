@@ -7,6 +7,7 @@ import {
   useAuth,
   useRemoveFollow,
   useIsPubkeyFollowed,
+  useFollowersCount,
 } from "@/hooks";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useTheme } from "@react-navigation/native";
@@ -16,7 +17,6 @@ import { Text } from "./shared/Text";
 import { Avatar } from "./Avatar";
 import { SlimButton } from "./shared/SlimButton";
 import { useNostrFollows } from "@/hooks/nostrProfile/useNostrFollows";
-import { useFollowersCount } from "@/utils/nostrband";
 
 const handleUrlPress = (url: string) => {
   Linking.openURL(url.trim());

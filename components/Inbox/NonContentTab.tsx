@@ -1,18 +1,21 @@
 import { FlatList, RefreshControl } from "react-native";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { SectionHeader } from "../SectionHeader";
 import { CommentRow } from "../Comments";
-import { Event } from "nostr-tools";
 import { ItemSeparator, ListEmpty, ListFooter } from "./common";
 
 export const NonContentTab = ({
   isLoading,
-  data,
+  comments,
+  reactions,
+  zapReceipts,
   lastReadDate,
   refetch,
 }: {
   isLoading: boolean;
-  data: Event[];
+  comments: string[];
+  reactions: string[];
+  zapReceipts: string[];
   lastReadDate?: number;
   refetch: () => void;
 }) => {
@@ -27,24 +30,21 @@ export const NonContentTab = ({
       />
     );
   }, []);
-
+  const events = useMemo(
+    () => [...comments, ...reactions, ...zapReceipts],
+    [comments, reactions, zapReceipts],
+  );
   return (
     <FlatList
       ListEmptyComponent={<ListEmpty isLoading={isLoading} />}
-      data={data
-        .sort((a, b) => {
-          const dateA = new Date(a.created_at);
-          const dateB = new Date(b.created_at);
-          return dateB.getTime() - dateA.getTime();
-        })
-        .map((event) => event.id)}
+      data={events}
       ListHeaderComponent={() => <SectionHeader title="Inbox" />}
       renderItem={renderItem}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
       keyExtractor={(item) => item}
-      ListFooterComponent={<ListFooter numberOfItems={data.length} />}
+      ListFooterComponent={<ListFooter numberOfItems={events.length} />}
       scrollEnabled={true}
       windowSize={12}
       removeClippedSubviews={true}

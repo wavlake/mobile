@@ -1,4 +1,4 @@
-import { EventTemplate } from "nostr-tools";
+import { EventTemplate, VerifiedEvent } from "nostr-tools";
 import { setAmberPubkey } from "./cache";
 import * as IntentLauncher from "expo-intent-launcher";
 import { Platform } from "react-native";
@@ -36,7 +36,7 @@ export const signEventWithAmber = async (event: EventTemplate) => {
     return null;
   }
 
-  const signedEvent: Event = JSON.parse(response.event);
+  const signedEvent: VerifiedEvent = JSON.parse(response.event);
   return signedEvent;
 };
 

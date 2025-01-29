@@ -2,14 +2,15 @@ import { PillTabView } from "../PillTabView";
 import { ContentTab } from "./ContentTab";
 import { NonContentTab } from "./NonContentTab";
 import { useInbox } from "@/hooks";
-import { Event } from "nostr-tools";
 import { useEffect } from "react";
 
 export const InboxPage = () => {
   const {
     updateLastRead,
-    directReplies,
-    contentReplies,
+    comments,
+    contentComments,
+    reactions,
+    zapReceipts,
     isLoading,
     refetch,
     userHasContent,
@@ -21,12 +22,11 @@ export const InboxPage = () => {
     updateLastRead();
   }, []);
 
-  const mentions: Event[] = [];
   return userHasContent ? (
     <PillTabView tabNames={["Wavlake", "Other"]}>
       <PillTabView.Item style={{ width: "100%" }}>
         <ContentTab
-          data={contentReplies}
+          data={contentComments}
           isLoading={isLoading}
           refetch={refetch}
           lastReadDate={lastReadDate}
@@ -34,7 +34,9 @@ export const InboxPage = () => {
       </PillTabView.Item>
       <PillTabView.Item style={{ width: "100%" }}>
         <NonContentTab
-          data={[...mentions, ...directReplies]}
+          comments={comments}
+          reactions={reactions}
+          zapReceipts={zapReceipts}
           isLoading={isLoading}
           refetch={refetch}
           lastReadDate={lastReadDate}
@@ -43,7 +45,9 @@ export const InboxPage = () => {
     </PillTabView>
   ) : (
     <NonContentTab
-      data={[...mentions, ...directReplies]}
+      comments={comments}
+      reactions={reactions}
+      zapReceipts={zapReceipts}
       isLoading={isLoading}
       refetch={refetch}
       lastReadDate={lastReadDate}

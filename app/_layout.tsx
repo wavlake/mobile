@@ -30,6 +30,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "@sentry/react-native";
 import { BUILD_NUM, VERSION } from "@/app.config";
 import { QueryProvider } from "@/components/QueryProvider";
+import { NostrEventProvider } from "@/providers/NostrEventProvider";
 
 const release = `${VERSION}-${BUILD_NUM}`;
 const NODE_ENV = process.env.NODE_ENV;
@@ -121,84 +122,86 @@ function Layout() {
     <SafeAreaProvider>
       <ThemeProvider value={DarkTheme}>
         <QueryProvider>
-          <UserContextProvider>
-            <PopupProvider>
-              <MusicPlayerProvider>
-                <BitcoinPriceProvider>
-                  <RootSiblingParent>
-                    <View style={{ flex: 1, backgroundColor: "black" }}>
-                      <PolyfillCrypto />
-                      <Stack
-                        screenOptions={{
-                          headerStyle: {
-                            backgroundColor: "black",
-                          },
-                          headerShadowVisible: false,
-                          headerTintColor: "white",
-                          headerBackTitleVisible: false,
-                          headerTitleAlign: "center",
-                        }}
-                      >
-                        <Stack.Screen
-                          name="(drawer)"
-                          options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                          name="auth"
-                          options={{
-                            headerShown: false,
-                            gestureDirection: "vertical",
-                            gestureEnabled: false,
+          <NostrEventProvider>
+            <UserContextProvider>
+              <PopupProvider>
+                <MusicPlayerProvider>
+                  <BitcoinPriceProvider>
+                    <RootSiblingParent>
+                      <View style={{ flex: 1, backgroundColor: "black" }}>
+                        <PolyfillCrypto />
+                        <Stack
+                          screenOptions={{
+                            headerStyle: {
+                              backgroundColor: "black",
+                            },
+                            headerShadowVisible: false,
+                            headerTintColor: "white",
+                            headerBackTitleVisible: false,
+                            headerTitleAlign: "center",
                           }}
-                        />
-                        <Stack.Screen
-                          name="zap"
-                          options={{
-                            headerShown: false,
-                            gestureEnabled: false,
-                            gestureDirection: "vertical",
-                          }}
-                        />
-                        <Stack.Screen
-                          name="settings"
-                          options={{
-                            headerShown: false,
-                          }}
-                        />
-                        <Stack.Screen
-                          name="nwcScanner"
-                          options={{
-                            headerTitle: () => (
-                              <Text>Nostr Wallet Connect</Text>
-                            ),
-                          }}
-                        />
-                        <Stack.Screen name="notification.click" />
-                        <Stack.Screen
-                          name="nwcAdd"
-                          options={{
-                            headerTitle: () => <Text>Connecting wallet</Text>,
-                          }}
-                        />
-                        <Stack.Screen
-                          name="wallet"
-                          options={{
-                            headerShown: false,
-                          }}
-                        />
-                        <Stack.Screen
-                          name="+not-found"
-                          options={{
-                            headerShown: false,
-                          }}
-                        />
-                      </Stack>
-                    </View>
-                  </RootSiblingParent>
-                </BitcoinPriceProvider>
-              </MusicPlayerProvider>
-            </PopupProvider>
-          </UserContextProvider>
+                        >
+                          <Stack.Screen
+                            name="(drawer)"
+                            options={{ headerShown: false }}
+                          />
+                          <Stack.Screen
+                            name="auth"
+                            options={{
+                              headerShown: false,
+                              gestureDirection: "vertical",
+                              gestureEnabled: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="zap"
+                            options={{
+                              headerShown: false,
+                              gestureEnabled: false,
+                              gestureDirection: "vertical",
+                            }}
+                          />
+                          <Stack.Screen
+                            name="settings"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="nwcScanner"
+                            options={{
+                              headerTitle: () => (
+                                <Text>Nostr Wallet Connect</Text>
+                              ),
+                            }}
+                          />
+                          <Stack.Screen name="notification.click" />
+                          <Stack.Screen
+                            name="nwcAdd"
+                            options={{
+                              headerTitle: () => <Text>Connecting wallet</Text>,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="wallet"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
+                            name="+not-found"
+                            options={{
+                              headerShown: false,
+                            }}
+                          />
+                        </Stack>
+                      </View>
+                    </RootSiblingParent>
+                  </BitcoinPriceProvider>
+                </MusicPlayerProvider>
+              </PopupProvider>
+            </UserContextProvider>
+          </NostrEventProvider>
         </QueryProvider>
       </ThemeProvider>
     </SafeAreaProvider>

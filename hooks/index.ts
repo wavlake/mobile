@@ -41,3 +41,4 @@ export * from "./useDeleteUser";
 export * from "./useEditUser";
 export * from "./useCreateConnection";
 export * from "./usePrivateUserData";
+export * from "./useFollowerCount";

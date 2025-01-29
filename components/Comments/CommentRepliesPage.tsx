@@ -22,6 +22,7 @@ const LEFT_INDENTATION = 40;
 export const CommentRepliesPage = () => {
   // nostr event id
   const { id } = useLocalSearchParams();
+  const { data: comment, isLoading } = useNostrEvent(id as string);
   if (typeof id !== "string") {
     return (
       <Center>
@@ -30,8 +31,6 @@ export const CommentRepliesPage = () => {
       </Center>
     );
   }
-
-  const { data: comment, isLoading } = useNostrEvent(id);
 
   if (isLoading) {
     return (
