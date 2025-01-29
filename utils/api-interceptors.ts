@@ -27,7 +27,7 @@ export const configureLoggingInterceptors = (
     },
     (error) => {
       logger.logHttpResponse(
-        `${name}:${error.config.url}`,
+        `${name}:${error?.config?.url}`,
         error.response?.status || 0,
         error.response?.data || error.message,
       );
