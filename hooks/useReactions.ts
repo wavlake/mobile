@@ -3,6 +3,7 @@ import { Event } from "nostr-tools";
 import { useNostrRelayList } from "./nostrRelayList";
 import { useAuth } from "./useAuth";
 import { signEvent, publishEvent, fetchEventReactions } from "@/utils";
+import { nostrQueryKeys } from "@/providers/NostrEventProvider";
 
 interface UseReactionsResult {
   reactions: Event[];
@@ -30,11 +31,6 @@ const makeReactionEvent = (
   };
 };
 
-export const useReactionsQueryKey = (eventId?: string) => [
-  "reactions",
-  eventId,
-];
-
 export const useReactions = (event: Event): UseReactionsResult => {
   const queryClient = useQueryClient();
   const { pubkey, userIsLoggedIn } = useAuth();
@@ -45,7 +41,7 @@ export const useReactions = (event: Event): UseReactionsResult => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: useReactionsQueryKey(event.id),
+    queryKey: nostrQueryKeys.eventReactions(event.id),
     queryFn: async () => fetchEventReactions(event),
     enabled: Boolean(event),
   });
@@ -58,7 +54,7 @@ export const useReactions = (event: Event): UseReactionsResult => {
     },
     onSuccess: (newReaction) => {
       queryClient.setQueryData(
-        useReactionsQueryKey(event.id),
+        nostrQueryKeys.eventReactions(event.id),
         (old: Event[] = []) => [...old, newReaction],
       );
     },
