@@ -33,7 +33,7 @@ const SOCIAL_NOTES: Filter = {
     // zap receipt
     9735,
   ],
-  limit: 51,
+  limit: 20,
 };
 
 const FOLLOWS_SOCIAL_NOTES: Filter = {
@@ -221,55 +221,44 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
         setTimeout(() => {
-          const kind1: Event[] = [];
-          const kind6: Event[] = [];
-          const kind7: Event[] = [];
-          const kind16: Event[] = [];
-          const kind9735: Event[] = [];
+          // Use Maps to store events by kind
+          const eventsByKind = new Map<number, Map<string, Event>>();
 
           socialEvents.forEach((event) => {
+            // Cache individual events
             queryClient.setQueryData(nostrQueryKeys.event(event.id), event);
 
-            switch (event.kind) {
-              case 1:
-                kind1.push(event);
-                break;
-              case 6:
-                kind6.push(event);
-                break;
-              case 7:
-                kind7.push(event);
-                break;
-              case 16:
-                kind16.push(event);
-                break;
-              case 9735:
-                kind9735.push(event);
-                break;
+            // Initialize Map for this kind if it doesn't exist
+            if (!eventsByKind.has(event.kind)) {
+              eventsByKind.set(event.kind, new Map());
             }
+
+            // Add event to appropriate kind Map using id as key
+            eventsByKind.get(event.kind)!.set(event.id, event);
           });
-          // Update queries in batches
+          // Update queries with deduplicated events
           queryClient.setQueryData<Event[]>(
             nostrQueryKeys.comments(pubkey),
-            kind1,
+            Array.from(eventsByKind.get(1)?.values() ?? []),
           );
           queryClient.setQueryData<Event[]>(
             nostrQueryKeys.reposts(pubkey),
-            kind6,
+            Array.from(eventsByKind.get(6)?.values() ?? []),
           );
           queryClient.setQueryData<Event[]>(
             nostrQueryKeys.reactions(pubkey),
-            kind7,
+            Array.from(eventsByKind.get(7)?.values() ?? []),
           );
           queryClient.setQueryData<Event[]>(
             nostrQueryKeys.genericReposts(pubkey),
-            kind16,
+            Array.from(eventsByKind.get(16)?.values() ?? []),
           );
           queryClient.setQueryData<Event[]>(
             nostrQueryKeys.zapReceipts(pubkey),
-            kind9735,
+            Array.from(eventsByKind.get(9735)?.values() ?? []),
           );
         }, 0);
+
         // load event comments, reactions, reposts, generic reposts, and zaps
         const eventSocialFilter = {
           ...SOCIAL_NOTES,
@@ -282,7 +271,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         );
 
         setTimeout(() => {
-          const eventIdMap = new Map<string, Map<number, Set<Event>>>();
+          const eventIdMap = new Map<string, Map<number, Map<string, Event>>>();
 
           for (const event of eventSocialEvents) {
             const eTag = event.tags.find(([tag]) => tag === "e");
@@ -290,30 +279,41 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
             if (!eventId) continue;
 
+            // Initialize maps if they don't exist
             if (!eventIdMap.has(eventId)) {
               eventIdMap.set(eventId, new Map());
             }
 
             const kindMap = eventIdMap.get(eventId)!;
             if (!kindMap.has(event.kind)) {
-              kindMap.set(event.kind, new Set());
+              kindMap.set(event.kind, new Map());
             }
 
-            kindMap.get(event.kind)!.add(event);
+            // Store event using its id as key
+            kindMap.get(event.kind)!.set(event.id, event);
           }
 
+          // Update cache for each referenced event
           for (const [eventId, kindMap] of eventIdMap) {
             queryClient.setQueryData<Record<number, Event[]>>(
               nostrQueryKeys.eventRelatedEvents(eventId),
               (oldData: Record<number, Event[]> = {}) => {
                 const newData: Record<number, Event[]> = { ...oldData };
 
-                for (const [kind, events] of kindMap.entries()) {
-                  const existingEvents = new Set(oldData[kind] ?? []);
-                  for (const event of events) {
-                    existingEvents.add(event);
-                  }
-                  newData[kind] = Array.from(existingEvents);
+                for (const [kind, eventsMap] of kindMap.entries()) {
+                  // Convert existing events array to Map for deduplication
+                  const existingEvents = new Map(
+                    (oldData[kind] ?? []).map((event) => [event.id, event]),
+                  );
+
+                  // Merge existing and new events
+                  const mergedEvents = new Map([
+                    ...existingEvents,
+                    ...eventsMap,
+                  ]);
+
+                  // Convert back to array
+                  newData[kind] = Array.from(mergedEvents.values());
                 }
 
                 return newData;

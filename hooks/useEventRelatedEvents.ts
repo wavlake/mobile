@@ -28,8 +28,9 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     queryKey,
     queryFn: async () => {
       const events = await getEventRelatedEvents(event);
-      const kindMap = new Map<number, Set<Event>>();
+      const kindMap = new Map<number, Map<string, Event>>();
 
+      // Process new events
       for (const event of events) {
         const eTag = event.tags.find(([tag]) => tag === "e");
         const eventId = eTag?.[1];
@@ -37,41 +38,53 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
         if (!eventId) continue;
 
         if (!kindMap.has(event.kind)) {
-          kindMap.set(event.kind, new Set());
+          kindMap.set(event.kind, new Map());
         }
 
-        kindMap.get(event.kind)!.add(event);
+        // Use event.id as the key to ensure uniqueness
+        kindMap.get(event.kind)!.set(event.id, event);
       }
 
+      // Get existing cache
       const oldCache =
         queryClient.getQueryData<Record<number, Event[]>>(queryKey) ?? {};
-
       const newData: Record<number, Event[]> = { ...oldCache };
 
-      for (const [kind, events] of kindMap.entries()) {
-        const existingEvents = new Set(oldCache[kind] ?? []);
-        for (const event of events) {
-          existingEvents.add(event);
-        }
-        newData[kind] = Array.from(existingEvents);
+      // Merge existing cache with new events
+      for (const [kind, eventsMap] of kindMap.entries()) {
+        const existingEvents = new Map(
+          (oldCache[kind] ?? []).map((event) => [event.id, event]),
+        );
+
+        // Merge existing events with new ones
+        const mergedEvents = new Map([...existingEvents, ...eventsMap]);
+
+        // Convert back to array
+        newData[kind] = Array.from(mergedEvents.values());
       }
 
       return newData;
     },
-
     enabled: Boolean(event),
   });
 
   const addEventToCache = (event: Event) => {
     queryClient.setQueryData(queryKey, (old: Record<number, Event[]> = {}) => {
       const kindEvents = old[event.kind] ?? [];
+
+      // Check if event already exists in cache
+      const eventExists = kindEvents.some((e) => e.id === event.id);
+
+      if (eventExists) {
+        return old;
+      }
+
       return {
         ...old,
         [event.kind]: [...kindEvents, event],
       };
     });
   };
-
   return {
     replies: events[1] ?? [],
     reactions: events[7] ?? [],
