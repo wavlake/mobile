@@ -10,6 +10,7 @@ import { useReactions } from "@/hooks/useReactions";
 import { DialogWrapper } from "../DialogWrapper";
 import { useReposts, useZapEvent } from "@/hooks";
 import { PressableIcon } from "../PressableIcon";
+import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
 
 interface CommentActionBarProps {
   comment: Event;
@@ -30,8 +31,10 @@ export const CommentActionBar = ({
     trackId: contentId,
     parentContentId: comment.id,
   });
-  const { reactToEvent, reactions } = useReactions(comment);
-  const { repostEvent, reposts } = useReposts(comment);
+  const { refetch, reposts, reactions, zapsReceipts, replies, genericReposts } =
+    useEventRelatedEvents(comment);
+  const { reactToEvent } = useReactions(comment);
+  const { repostEvent } = useReposts(comment);
 
   const handleReplyPress = () => {
     router.push(`/comment/${comment.id}`);

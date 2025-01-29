@@ -33,7 +33,7 @@ const SOCIAL_NOTES: Filter = {
     // zap receipt
     9735,
   ],
-  limit: 100,
+  limit: 51,
 };
 
 const FOLLOWS_SOCIAL_NOTES: Filter = {
@@ -83,6 +83,7 @@ type NostrEventContextType = {
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
   getPubkeyProfile: (pubkey: string) => Promise<NostrUserProfile | null>;
+  getEventRelatedEvents: (event: Event) => Promise<Event[]>;
   comments: Event[];
   reactions: Event[];
   reposts: Event[];
@@ -159,6 +160,19 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
       events.forEach(cacheEventById);
     },
     [queryClient],
+  );
+
+  const getEventRelatedEvents = useCallback(
+    async (event: Event) => {
+      const filter = {
+        kinds: [0, 1, 6, 7, 16, 9735],
+        ["#e"]: [event.id],
+      };
+      const events = await querySyncSince(filter, readRelayList);
+
+      return events;
+    },
+    [queryClient, readRelayList],
   );
 
   // Core functionality that should load immediately
@@ -268,50 +282,44 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         );
 
         setTimeout(() => {
-          const eventIdMap = eventSocialEvents.reduce(
-            (acc, event) => {
-              const [eTag, eventId] =
-                event.tags.find(([tag, value]) => tag === "e") ?? [];
-              if (eventId) {
-                if (!acc[eventId]) {
-                  acc[eventId] = {
-                    [event.kind]: [event],
-                  };
-                }
-                acc[eventId] = {
-                  ...acc[eventId],
-                  [event.kind]: [...(acc[eventId]?.[event.kind] ?? []), event],
-                };
-              }
-              return acc;
-            },
-            {} as Record<
-              string,
-              {
-                [kind: number]: Event[];
-              }
-            >,
-          );
+          const eventIdMap = new Map<string, Map<number, Set<Event>>>();
 
-          Object.keys(eventIdMap).forEach((eventId) => {
-            const event = eventIdMap[eventId];
-            queryClient.setQueryData<Event[]>(
-              nostrQueryKeys.replies(eventId),
-              event[1] ?? [],
+          for (const event of eventSocialEvents) {
+            const eTag = event.tags.find(([tag]) => tag === "e");
+            const eventId = eTag?.[1];
+
+            if (!eventId) continue;
+
+            if (!eventIdMap.has(eventId)) {
+              eventIdMap.set(eventId, new Map());
+            }
+
+            const kindMap = eventIdMap.get(eventId)!;
+            if (!kindMap.has(event.kind)) {
+              kindMap.set(event.kind, new Set());
+            }
+
+            kindMap.get(event.kind)!.add(event);
+          }
+
+          for (const [eventId, kindMap] of eventIdMap) {
+            queryClient.setQueryData<Record<number, Event[]>>(
+              nostrQueryKeys.eventRelatedEvents(eventId),
+              (oldData: Record<number, Event[]> = {}) => {
+                const newData: Record<number, Event[]> = { ...oldData };
+
+                for (const [kind, events] of kindMap.entries()) {
+                  const existingEvents = new Set(oldData[kind] ?? []);
+                  for (const event of events) {
+                    existingEvents.add(event);
+                  }
+                  newData[kind] = Array.from(existingEvents);
+                }
+
+                return newData;
+              },
             );
-            queryClient.setQueryData<Event[]>(
-              nostrQueryKeys.eventReposts(eventId),
-              event[6] ?? [],
-            );
-            queryClient.setQueryData<Event[]>(
-              nostrQueryKeys.eventReactions(eventId),
-              event[7] ?? [],
-            );
-            queryClient.setQueryData<Event[]>(
-              nostrQueryKeys.eventGenericReposts(eventId),
-              event[16] ?? [],
-            );
-          });
+          }
         }, 0);
       } catch (error) {
         console.error("Secondary data load error:", error);
@@ -374,6 +382,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         cacheEventById,
         cacheEventsById,
         getPubkeyProfile,
+        getEventRelatedEvents,
         comments,
         reactions,
         reposts,
@@ -412,18 +421,18 @@ export const nostrQueryKeys = {
   comments: (pubkey: string) => ["nostr", "kind1", pubkey],
   // kind 6 with user pubkey #p tag
   reposts: (pubkey: string) => ["nostr", "kind6", pubkey],
-  // kind 6 with event #e tag
-  eventReposts: (pubkey: string) => ["nostr", "kind6", pubkey],
   // kind 7 with user pubkey #p tag
   reactions: (pubkey: string) => ["nostr", "kind7", pubkey],
-  // kind 7 with event #e tag
-  eventReactions: (eventId: string) => ["nostr", "kind7", eventId],
   // kind 16 with user pubkey #p tag
   genericReposts: (pubkey: string) => ["nostr", "kind16", pubkey],
-  // kind 16 with event #e tag
-  eventGenericReposts: (eventId: string) => ["nostr", "kind16", eventId],
   // kind 9735 with user pubkey #p tag
   zapReceipts: (pubkey: string) => ["nostr", "kind9735", pubkey],
+  // any kind with event #e tag that references the eventId (replies, reposts, reactions, etc)
+  eventRelatedEvents: (eventId: string) => [
+    "nostr",
+    "eventRelatedEvents",
+    eventId,
+  ],
   contentComments: (contentId: string) => [
     "nostr",
     "content-comments",

@@ -1,16 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "./nostrRelayList";
 import { useAuth } from "./useAuth";
-import { signEvent, publishEvent, fetchEventReactions } from "@/utils";
-import { nostrQueryKeys } from "@/providers/NostrEventProvider";
+import { signEvent, publishEvent } from "@/utils";
+import { useEventRelatedEvents } from "./useEventRelatedEvents";
 
 interface UseReactionsResult {
-  reactions: Event[];
   reactToEvent: (reaction: string) => Promise<void>;
-  isLoading: boolean;
-  error: unknown;
-  userReaction: Event | undefined;
 }
 
 const makeReactionEvent = (
@@ -32,20 +28,9 @@ const makeReactionEvent = (
 };
 
 export const useReactions = (event: Event): UseReactionsResult => {
-  const queryClient = useQueryClient();
+  const { addEventToCache } = useEventRelatedEvents(event);
   const { pubkey, userIsLoggedIn } = useAuth();
   const { writeRelayList } = useNostrRelayList();
-
-  const {
-    data: reactions = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: nostrQueryKeys.eventReactions(event.id),
-    queryFn: async () => fetchEventReactions(event),
-    enabled: Boolean(event),
-  });
-  const userReaction = reactions.find((reaction) => reaction.pubkey === pubkey);
 
   const reactionMutation = useMutation({
     mutationFn: async (newReactionEvent: Event) => {
@@ -53,10 +38,7 @@ export const useReactions = (event: Event): UseReactionsResult => {
       return newReactionEvent;
     },
     onSuccess: (newReaction) => {
-      queryClient.setQueryData(
-        nostrQueryKeys.eventReactions(event.id),
-        (old: Event[] = []) => [...old, newReaction],
-      );
+      addEventToCache(newReaction);
     },
   });
 
@@ -72,10 +54,6 @@ export const useReactions = (event: Event): UseReactionsResult => {
   };
 
   return {
-    reactions,
     reactToEvent,
-    isLoading,
-    error,
-    userReaction,
   };
 };
