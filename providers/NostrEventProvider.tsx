@@ -195,7 +195,8 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
           ...SOCIAL_NOTES,
           "#p": [pubkey],
         };
-
+        const key = nostrQueryKeys.comments(pubkey);
+        console.log("update key", queryClient.getQueryData(key));
         const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
         setTimeout(() => {
@@ -229,23 +230,23 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
           // Update queries in batches
           queryClient.setQueryData<string[]>(
             nostrQueryKeys.comments(pubkey),
-            (old) => [...kind1, ...(old ?? [])],
+            kind1,
           );
           queryClient.setQueryData<string[]>(
             nostrQueryKeys.reposts(pubkey),
-            (old) => [...kind6, ...(old ?? [])],
+            kind6,
           );
           queryClient.setQueryData<string[]>(
             nostrQueryKeys.reactions(pubkey),
-            (old) => [...kind7, ...(old ?? [])],
+            kind7,
           );
           queryClient.setQueryData<string[]>(
             nostrQueryKeys.genericReposts(pubkey),
-            (old) => [...kind16, ...(old ?? [])],
+            kind16,
           );
           queryClient.setQueryData<string[]>(
             nostrQueryKeys.zapReceipts(pubkey),
-            (old) => [...kind9735, ...(old ?? [])],
+            kind9735,
           );
         }, 0);
       } catch (error) {

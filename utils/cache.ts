@@ -160,15 +160,20 @@ export const setAmberPubkey = async (pubkey: string) => {
 
 const LAST_FETCH_PREFIX = "@lastFetch:";
 export const getLastFetchTime = async (queryKey: string): Promise<number> => {
-  try {
-    const stored = await AsyncStorage.getItem(LAST_FETCH_PREFIX + queryKey);
-    return stored ? parseInt(stored, 10) : 0;
-  } catch {
-    return 0;
-  }
+  // disabled for now
+  return 0;
+
+  // try {
+  //   const stored = await AsyncStorage.getItem(LAST_FETCH_PREFIX + queryKey);
+  //   return stored ? parseInt(stored, 10) : 0;
+  // } catch {
+  //   return 0;
+  // }
 };
 
 export const setLastFetchTime = async (queryKey: string): Promise<void> => {
-  const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
-  await AsyncStorage.setItem(LAST_FETCH_PREFIX + queryKey, now.toString());
+  // disabled for now
+  return;
+  // const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
+  // await AsyncStorage.setItem(LAST_FETCH_PREFIX + queryKey, now.toString());
 };
