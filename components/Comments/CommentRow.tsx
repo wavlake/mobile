@@ -67,7 +67,23 @@ export const CommentRow = ({
 
   if (event.kind === 1) {
     return (
-      <Kind1Event
+      <EventRenderer
+        comment={event}
+        replies={replies}
+        showReplyLinks={showReplyLinks}
+        isPressable={isPressable}
+        showContentDetails={showContentDetails}
+        lastReadDate={lastReadDate}
+        closeParent={closeParent}
+        onPress={onPress}
+        key={event.id}
+      />
+    );
+  }
+
+  if (event.kind === 9734) {
+    return (
+      <EventRenderer
         comment={event}
         replies={replies}
         showReplyLinks={showReplyLinks}
@@ -85,7 +101,7 @@ export const CommentRow = ({
   return null;
 };
 
-const Kind1Event = ({
+const EventRenderer = ({
   comment,
   replies = [],
   showReplyLinks = true,
