@@ -307,56 +307,54 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     [queryClient],
   );
 
-  const batchGetPubkeyProfiles = useCallback(
-    async (pubkeys: string[]) => {
-      if (!pubkeys.length) return new Map<string, NostrUserProfile>();
+  const batchGetPubkeyProfiles = useCallback(async (pubkeys: string[]) => {
+    if (!pubkeys.length) return new Map<string, NostrUserProfile>();
 
-      //skip profiles that are already in the cache
-      const existingProfiles = new Map<string, NostrUserProfile>();
-      const missingPubkeys = pubkeys.filter(
-        (pubkey) => !queryClient.getQueryData(nostrQueryKeys.profile(pubkey)),
-      );
+    //skip profiles that are already in the cache
+    const existingProfiles = new Map<string, NostrUserProfile>();
+    const missingPubkeys = pubkeys.filter(
+      (pubkey) => !queryClient.getQueryData(nostrQueryKeys.profile(pubkey)),
+    );
 
-      if (missingPubkeys.length === 0) {
-        pubkeys.forEach((pubkey) => {
-          const profile = queryClient.getQueryData<NostrUserProfile>(
-            nostrQueryKeys.profile(pubkey),
-          );
-          if (profile) {
-            existingProfiles.set(pubkey, profile);
-          }
-        });
-        return existingProfiles;
-      }
-
-      const profiles = new Map<string, NostrUserProfile>();
-      const filter = {
-        kinds: [0],
-        authors: missingPubkeys,
-      };
-      const events = await querySync(filter);
-      events.forEach((event) => {
-        const exisitingProfile = profiles.get(event.pubkey);
-        // if the existingProfile is newer than the event, don't update
-        if (
-          !!exisitingProfile?.created_at &&
-          event.created_at < exisitingProfile.created_at
-        ) {
-          return;
-        }
-
-        const profile = decodeProfileMetadata(event);
+    if (missingPubkeys.length === 0) {
+      pubkeys.forEach((pubkey) => {
+        const profile = queryClient.getQueryData<NostrUserProfile>(
+          nostrQueryKeys.profile(pubkey),
+        );
         if (profile) {
-          profiles.set(event.pubkey, {
-            ...profile,
-            created_at: event.created_at,
-          });
+          existingProfiles.set(pubkey, profile);
         }
       });
-      return profiles;
-    },
-    [getPubkeyProfile],
-  );
+      return existingProfiles;
+    }
+
+    const profiles = new Map<string, NostrUserProfile>();
+    const filter = {
+      kinds: [0],
+      authors: missingPubkeys,
+    };
+    const events = await querySync(filter);
+    events.forEach((event) => {
+      const exisitingProfile = profiles.get(event.pubkey);
+      // if the existingProfile is newer than the event, don't update
+      if (
+        !!exisitingProfile?.created_at &&
+        event.created_at < exisitingProfile.created_at
+      ) {
+        return;
+      }
+
+      const profile = decodeProfileMetadata(event);
+      if (profile) {
+        profiles.set(event.pubkey, {
+          ...profile,
+          created_at: event.created_at,
+        });
+      }
+    });
+    return profiles;
+  }, []);
+
   const { data: comments } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.comments(pubkey ?? ""),
     enabled: Boolean(pubkey),
