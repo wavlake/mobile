@@ -311,10 +311,28 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     async (pubkeys: string[]) => {
       if (!pubkeys.length) return new Map<string, NostrUserProfile>();
 
+      //skip profiles that are already in the cache
+      const existingProfiles = new Map<string, NostrUserProfile>();
+      const missingPubkeys = pubkeys.filter(
+        (pubkey) => !queryClient.getQueryData(nostrQueryKeys.profile(pubkey)),
+      );
+
+      if (missingPubkeys.length === 0) {
+        pubkeys.forEach((pubkey) => {
+          const profile = queryClient.getQueryData<NostrUserProfile>(
+            nostrQueryKeys.profile(pubkey),
+          );
+          if (profile) {
+            existingProfiles.set(pubkey, profile);
+          }
+        });
+        return existingProfiles;
+      }
+
       const profiles = new Map<string, NostrUserProfile>();
       const filter = {
         kinds: [0],
-        authors: pubkeys,
+        authors: missingPubkeys,
       };
       const events = await querySync(filter);
       events.forEach((event) => {
