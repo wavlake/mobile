@@ -131,7 +131,6 @@ export const NowPlayingCommentSection = ({
           commentIds={commentsData}
           isLoading={isFetching}
           onClose={() => setIsExpanded(false)}
-          showReplyLinks={false}
         />
       </BottomSheet>
     </>

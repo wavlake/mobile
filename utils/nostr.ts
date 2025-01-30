@@ -502,6 +502,21 @@ export const fetchInvoice = async ({
   }
 };
 
+export const parseZapRequestFromReceipt = (event: Event) => {
+  try {
+    const [descTag, zapRequest] =
+      event.tags.find((tag) => tag[0] === "description") ?? [];
+    const receipt: Event = JSON.parse(zapRequest);
+
+    const [amountTag, amount] =
+      receipt.tags.find((tag) => tag[0] === "amount") ?? [];
+
+    return { receipt, amount: parseInt(amount) };
+  } catch (e) {
+    return { receipt: null, amount: null };
+  }
+};
+
 export const getZapReceipt = async (invoice: string): Promise<Event | null> => {
   return new Promise(async (resolve, reject) => {
     try {

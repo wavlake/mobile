@@ -20,6 +20,7 @@ export const useInbox = (
 ) => {
   const { comments, reactions, zapReceipts, cacheEventsById } =
     useNostrEvents();
+
   const {
     data: tracks = [],
     isLoading: isLoadingAccountTracks,
@@ -90,8 +91,6 @@ export const useInbox = (
     reactions: reactions,
     zapReceipts: zapReceipts,
     cleanup,
-    // Expose helper for consistency
-    formatContentId: (id: string) => `${CONTENT_ID_PREFIX}${id}`,
     // Expose mention validation helper
     validateMentions,
     refetch: async () => {

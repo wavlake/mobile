@@ -53,7 +53,6 @@ export const ContentTab = ({
         showContentDetails
         comment={event}
         key={event.id}
-        showReplyLinks={true}
         onPress={onPress}
         lastReadDate={lastReadDate}
       />

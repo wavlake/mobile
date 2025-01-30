@@ -26,7 +26,6 @@ export const NonContentTab = ({
       <MemoizedCommentRow
         comment={event}
         key={event.id}
-        showReplyLinks={true}
         lastReadDate={lastReadDate}
       />
     );
@@ -35,6 +34,7 @@ export const NonContentTab = ({
     () => [...comments, ...reactions, ...zapReceipts],
     [comments, reactions, zapReceipts],
   );
+
   return (
     <FlatList
       ListEmptyComponent={<ListEmpty isLoading={isLoading} />}

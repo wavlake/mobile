@@ -12,9 +12,13 @@ import {
   getLastFetchTime,
   NostrUserProfile,
   setLastFetchTime,
+  KindEventCache,
+  mergeEventsIntoCache,
+  getFollowsListMap,
+  EventCache,
+  getEventArray,
 } from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
-import { getFollowsListMap } from "@/utils";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
 import { InteractionManager } from "react-native";
@@ -210,7 +214,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     if (!pubkey || !initialData) return;
 
     const loadSecondaryData = async () => {
-      // Wait for animations to complete
       await InteractionManager.runAfterInteractions();
 
       try {
@@ -221,45 +224,21 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
         setTimeout(() => {
-          // Use Maps to store events by kind
-          const eventsByKind = new Map<number, Map<string, Event>>();
-
+          // Cache individual events and update kind-specific caches
           socialEvents.forEach((event) => {
-            // Cache individual events
             queryClient.setQueryData(nostrQueryKeys.event(event.id), event);
-
-            // Initialize Map for this kind if it doesn't exist
-            if (!eventsByKind.has(event.kind)) {
-              eventsByKind.set(event.kind, new Map());
-            }
-
-            // Add event to appropriate kind Map using id as key
-            eventsByKind.get(event.kind)!.set(event.id, event);
           });
-          // Update queries with deduplicated events
-          queryClient.setQueryData<Event[]>(
-            nostrQueryKeys.comments(pubkey),
-            Array.from(eventsByKind.get(1)?.values() ?? []),
-          );
-          queryClient.setQueryData<Event[]>(
-            nostrQueryKeys.reposts(pubkey),
-            Array.from(eventsByKind.get(6)?.values() ?? []),
-          );
-          queryClient.setQueryData<Event[]>(
-            nostrQueryKeys.reactions(pubkey),
-            Array.from(eventsByKind.get(7)?.values() ?? []),
-          );
-          queryClient.setQueryData<Event[]>(
-            nostrQueryKeys.genericReposts(pubkey),
-            Array.from(eventsByKind.get(16)?.values() ?? []),
-          );
-          queryClient.setQueryData<Event[]>(
-            nostrQueryKeys.zapReceipts(pubkey),
-            Array.from(eventsByKind.get(9735)?.values() ?? []),
-          );
+
+          const kindCache = mergeEventsIntoCache(socialEvents);
+
+          // Update queries with Map caches
+          for (const [kind, cache] of Object.entries(kindCache)) {
+            const queryKey = getQueryKeyForKind(Number(kind), pubkey);
+            queryClient.setQueryData(queryKey, cache);
+          }
         }, 0);
 
-        // load event comments, reactions, reposts, generic reposts, and zaps
+        // Handle event-related events
         const eventSocialFilter = {
           ...SOCIAL_NOTES,
           "#e": socialEvents.map((event) => event.id),
@@ -271,53 +250,25 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         );
 
         setTimeout(() => {
-          const eventIdMap = new Map<string, Map<number, Map<string, Event>>>();
+          const eventIdMap = new Map<string, Event[]>();
 
+          // Group events by their referenced event ID
           for (const event of eventSocialEvents) {
             const eTag = event.tags.find(([tag]) => tag === "e");
             const eventId = eTag?.[1];
-
             if (!eventId) continue;
 
-            // Initialize maps if they don't exist
             if (!eventIdMap.has(eventId)) {
-              eventIdMap.set(eventId, new Map());
+              eventIdMap.set(eventId, []);
             }
-
-            const kindMap = eventIdMap.get(eventId)!;
-            if (!kindMap.has(event.kind)) {
-              kindMap.set(event.kind, new Map());
-            }
-
-            // Store event using its id as key
-            kindMap.get(event.kind)!.set(event.id, event);
+            eventIdMap.get(eventId)!.push(event);
           }
 
           // Update cache for each referenced event
-          for (const [eventId, kindMap] of eventIdMap) {
-            queryClient.setQueryData<Record<number, Event[]>>(
+          for (const [eventId, events] of eventIdMap) {
+            queryClient.setQueryData<KindEventCache>(
               nostrQueryKeys.eventRelatedEvents(eventId),
-              (oldData: Record<number, Event[]> = {}) => {
-                const newData: Record<number, Event[]> = { ...oldData };
-
-                for (const [kind, eventsMap] of kindMap.entries()) {
-                  // Convert existing events array to Map for deduplication
-                  const existingEvents = new Map(
-                    (oldData[kind] ?? []).map((event) => [event.id, event]),
-                  );
-
-                  // Merge existing and new events
-                  const mergedEvents = new Map([
-                    ...existingEvents,
-                    ...eventsMap,
-                  ]);
-
-                  // Convert back to array
-                  newData[kind] = Array.from(mergedEvents.values());
-                }
-
-                return newData;
-              },
+              (oldCache = {}) => mergeEventsIntoCache(events, oldCache),
             );
           }
         }, 0);
@@ -349,27 +300,28 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     },
     [queryClient],
   );
-  const { data: comments = [] } = useQuery<Event[]>({
+
+  const { data: comments } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.comments(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: reactions = [] } = useQuery<Event[]>({
+  const { data: reactions } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.reactions(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: reposts = [] } = useQuery<Event[]>({
+  const { data: reposts } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.reposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: genericReposts = [] } = useQuery<Event[]>({
+  const { data: genericReposts } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.genericReposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: zapReceipts = [] } = useQuery<Event[]>({
+  const { data: zapReceipts } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.zapReceipts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
@@ -383,11 +335,11 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         cacheEventsById,
         getPubkeyProfile,
         getEventRelatedEvents,
-        comments,
-        reactions,
-        reposts,
-        genericReposts,
-        zapReceipts,
+        comments: getEventArray(comments),
+        reactions: getEventArray(reactions),
+        reposts: getEventArray(reposts),
+        genericReposts: getEventArray(genericReposts),
+        zapReceipts: getEventArray(zapReceipts),
         follows: initialData?.follows ?? [],
         followsActivity: [],
         followsMap: initialData?.followsMap ?? {},
@@ -483,3 +435,20 @@ const getEventSince = async (filter: Filter, readRelayList: string[]) => {
   await setLastFetchTime(queryKey);
   return event;
 };
+
+function getQueryKeyForKind(kind: number, pubkey: string) {
+  switch (kind) {
+    case 1:
+      return nostrQueryKeys.comments(pubkey);
+    case 6:
+      return nostrQueryKeys.reposts(pubkey);
+    case 7:
+      return nostrQueryKeys.reactions(pubkey);
+    case 16:
+      return nostrQueryKeys.genericReposts(pubkey);
+    case 9735:
+      return nostrQueryKeys.zapReceipts(pubkey);
+    default:
+      return nostrQueryKeys.eventRelatedEvents(pubkey);
+  }
+}

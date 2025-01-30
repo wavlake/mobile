@@ -7,7 +7,6 @@ import {
 import { Event } from "nostr-tools";
 import { useNostrProfile } from "@/hooks";
 import { useEffect, useState } from "react";
-import { CommentRepliesLink } from "./CommentRepliesLink";
 import { ReplyDialog } from "./ReplyDialog";
 import { CommentContent } from "./CommentContent";
 import { getRootEventId, getITagFromEvent } from "@/utils";
@@ -15,12 +14,12 @@ import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useNostrEvents } from "@/providers/NostrEventProvider";
 import { CommentActionBar } from "./CommentActionBar";
+import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
 
 interface CommentRowProps extends ViewProps {
   commentId?: string;
   comment?: Event;
   replies?: Event[];
-  showReplyLinks?: boolean;
   isPressable?: boolean;
   showContentDetails?: boolean;
   lastReadDate?: number;
@@ -31,8 +30,6 @@ interface CommentRowProps extends ViewProps {
 export const CommentRow = ({
   commentId,
   comment,
-  replies = [],
-  showReplyLinks = true,
   isPressable = true,
   showContentDetails = false,
   lastReadDate,
@@ -78,8 +75,6 @@ export const CommentRow = ({
     return (
       <EventRenderer
         comment={event}
-        replies={replies}
-        showReplyLinks={showReplyLinks}
         isPressable={isPressable}
         showContentDetails={showContentDetails}
         lastReadDate={lastReadDate}
@@ -94,8 +89,6 @@ export const CommentRow = ({
     return (
       <EventRenderer
         comment={event}
-        replies={replies}
-        showReplyLinks={showReplyLinks}
         isPressable={isPressable}
         showContentDetails={showContentDetails}
         lastReadDate={lastReadDate}
@@ -112,14 +105,24 @@ export const CommentRow = ({
 
 const EventRenderer = ({
   comment,
-  replies = [],
-  showReplyLinks = true,
   isPressable = true,
   showContentDetails = false,
   lastReadDate,
   closeParent,
   onPress,
 }: Omit<CommentRowProps, "commentId"> & { comment: Event }) => {
+  const {
+    refetch,
+    reposts,
+    reactions,
+    zapReceipts,
+    replies,
+    genericReposts,
+    zapTotal,
+    userHasReacted,
+    userHasZapped,
+  } = useEventRelatedEvents(comment);
+
   const router = useRouter();
   const basePathname = useGetBasePathname();
   const contentId = getITagFromEvent(comment);
@@ -188,25 +191,18 @@ const EventRenderer = ({
             closeParent={closeParent}
           />
         )}
-        {showReplyLinks && (
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              paddingTop: 20,
-              paddingBottom: 10,
-              gap: 8,
-            }}
-          >
-            <CommentRepliesLink
-              replies={replies}
-              parentcommentId={comment.id}
-            />
-          </View>
-        )}
       </View>
-      <CommentActionBar comment={comment} />
+      <CommentActionBar
+        comment={comment}
+        reposts={reposts}
+        replies={replies}
+        reactions={reactions}
+        zapReceipts={zapReceipts}
+        genericReposts={genericReposts}
+        zapTotal={zapTotal}
+        userHasReacted={userHasReacted}
+        userHasZapped={userHasZapped}
+      />
     </>
   );
 };
