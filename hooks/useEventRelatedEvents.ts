@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
+import { useAuth } from "./useAuth";
 
 interface UseEventRelatedEvents {
   reactions: Event[];
@@ -10,6 +11,7 @@ interface UseEventRelatedEvents {
   zapsReceipts: Event[];
   isLoading: boolean;
   error: unknown;
+  userHasReacted: boolean;
   addEventToCache: (event: Event) => void;
   refetch: () => void;
 }
@@ -18,7 +20,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   const { getEventRelatedEvents } = useNostrEvents();
   const queryClient = useQueryClient();
   const queryKey = nostrQueryKeys.eventRelatedEvents(event.id);
-
+  const { pubkey } = useAuth();
   const {
     data: events = [],
     isLoading,
@@ -85,6 +87,11 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
       };
     });
   };
+
+  const userHasReacted = (events[7] ?? []).some(
+    (reaction) => reaction.pubkey === pubkey,
+  );
+
   return {
     replies: events[1] ?? [],
     reactions: events[7] ?? [],
@@ -93,6 +100,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     zapsReceipts: events[9735] ?? [],
     isLoading,
     error,
+    userHasReacted,
     addEventToCache,
     refetch,
   };

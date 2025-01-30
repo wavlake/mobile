@@ -31,8 +31,16 @@ export const CommentActionBar = ({
     trackId: contentId,
     parentContentId: comment.id,
   });
-  const { refetch, reposts, reactions, zapsReceipts, replies, genericReposts } =
-    useEventRelatedEvents(comment);
+  const {
+    refetch,
+    reposts,
+    reactions,
+    zapsReceipts,
+    replies,
+    genericReposts,
+    userHasReacted,
+  } = useEventRelatedEvents(comment);
+
   const zapTotal = zapsReceipts.reduce((acc, zap) => {
     try {
       const zapRequest: Event = JSON.parse(zap.content);
@@ -56,7 +64,7 @@ export const CommentActionBar = ({
   };
 
   const handleReactionPress = () => {
-    reactToEvent("❤️");
+    reactToEvent("+");
   };
 
   const handleQuotePress = () => {
@@ -102,18 +110,16 @@ export const CommentActionBar = ({
         </PressableIcon>
 
         <PressableIcon
-          onPress={handleReactionPress}
+          onPress={userHasReacted ? undefined : handleReactionPress}
           onLongPress={() => setReactionDialogOpen(true)}
           rightLabel={
             reactions.length > 0 ? reactions.length.toString() : undefined
           }
         >
           <MaterialCommunityIcons
-            name={reactions.length > 0 ? "heart" : "heart-outline"}
+            name={userHasReacted ? "heart" : "heart-outline"}
             size={20}
-            color={
-              reactions.length > 0 ? brandColors.pink.DEFAULT : colors.text
-            }
+            color={userHasReacted ? brandColors.pink.DEFAULT : colors.text}
           />
         </PressableIcon>
 
