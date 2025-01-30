@@ -46,18 +46,7 @@ export function mergeEventsIntoCache(
       const existingMap = ensureMap(oldCache[kind]);
       const newMap = ensureMap(eventsByKind[kind]);
 
-      // Merge the Maps safely
-      newCache[kind] = new Map();
-
-      // Add existing events
-      for (const [id, event] of existingMap) {
-        newCache[kind].set(id, event);
-      }
-
-      // Add new events
-      for (const [id, event] of newMap) {
-        newCache[kind].set(id, event);
-      }
+      newCache[kind] = new Map([...existingMap, ...newMap]);
     }
 
     return newCache;

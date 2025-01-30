@@ -234,6 +234,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
           // Update queries with Map caches
           for (const [kind, cache] of Object.entries(kindCache)) {
             const queryKey = getQueryKeyForKind(Number(kind), pubkey);
+            if (!queryKey) continue;
             queryClient.setQueryData(queryKey, cache);
           }
         }, 0);
@@ -448,7 +449,5 @@ function getQueryKeyForKind(kind: number, pubkey: string) {
       return nostrQueryKeys.genericReposts(pubkey);
     case 9735:
       return nostrQueryKeys.zapReceipts(pubkey);
-    default:
-      return nostrQueryKeys.eventRelatedEvents(pubkey);
   }
 }
