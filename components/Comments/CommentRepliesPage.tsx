@@ -106,7 +106,7 @@ const ListHeaderComp = ({
         commentId={comment.id}
         isOpen={dialogOpen}
       />
-      <CommentRow comment={comment} showReplyLinks={false} />
+      <CommentRow comment={comment} />
     </>
   );
 };

@@ -27,7 +27,6 @@ export const CommentList = ({
   scrollEnabled = false,
   showMoreLink,
   onClose,
-  showReplyLinks = true,
 }: {
   commentIds: string[];
   isLoading: boolean;
@@ -37,7 +36,6 @@ export const CommentList = ({
     params: Record<string, string>;
   };
   onClose?: () => void;
-  showReplyLinks?: boolean;
 }) => {
   const router = useRouter();
   const { data: repliesMap = {} } = useRepliesMap(commentIds);
@@ -57,7 +55,6 @@ export const CommentList = ({
           commentId={commentId}
           key={commentId}
           replies={replies}
-          showReplyLinks={showReplyLinks}
           closeParent={onClose}
         />
       );
