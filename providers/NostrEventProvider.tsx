@@ -33,7 +33,7 @@ const SOCIAL_NOTES: Filter = {
     // zap receipt
     9735,
   ],
-  limit: 20,
+  limit: 100,
 };
 
 const FOLLOWS_SOCIAL_NOTES: Filter = {
