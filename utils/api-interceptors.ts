@@ -20,7 +20,6 @@ export const configureLoggingInterceptors = (
       logger.logHttpResponse(
         `${name}:${response.config.url}`,
         response.status,
-        response.data,
         bytes,
       );
       return response;

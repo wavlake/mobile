@@ -9,8 +9,9 @@ export const DEFAULT_READ_RELAY_URIS = [
   "wss://relay.fountain.fm",
 ];
 
+export const PURPLE_PAGES_RELAY = "wss://purplepag.es";
 export const DEFAULT_WRITE_RELAY_URIS = [
-  "wss://purplepag.es",
+  PURPLE_PAGES_RELAY,
   "wss://relay.nostr.band",
   "wss://relay.damus.io",
   WAVLAKE_RELAY,

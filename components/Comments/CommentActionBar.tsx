@@ -10,6 +10,7 @@ import { useReactions } from "@/hooks/useReactions";
 import { DialogWrapper } from "../DialogWrapper";
 import { useReposts, useZapEvent } from "@/hooks";
 import { PressableIcon } from "../PressableIcon";
+import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
 
 interface CommentActionBarProps {
   comment: Event;
@@ -30,8 +31,29 @@ export const CommentActionBar = ({
     trackId: contentId,
     parentContentId: comment.id,
   });
-  const { reactToEvent, reactions } = useReactions(comment);
-  const { repostEvent, reposts } = useReposts(comment);
+  const {
+    refetch,
+    reposts,
+    reactions,
+    zapsReceipts,
+    replies,
+    genericReposts,
+    userHasReacted,
+  } = useEventRelatedEvents(comment);
+
+  const zapTotal = zapsReceipts.reduce((acc, zap) => {
+    try {
+      const zapRequest: Event = JSON.parse(zap.content);
+      const [amountTag, amount] =
+        zapRequest.tags.find((tag) => tag[0] === "amount") ?? [];
+      return acc + parseInt(amount);
+    } catch (e) {
+      return acc;
+    }
+  }, 0);
+
+  const { reactToEvent } = useReactions(comment);
+  const { repostEvent } = useReposts(comment);
 
   const handleReplyPress = () => {
     router.push(`/comment/${comment.id}`);
@@ -42,7 +64,7 @@ export const CommentActionBar = ({
   };
 
   const handleReactionPress = () => {
-    reactToEvent("❤️");
+    reactToEvent("+");
   };
 
   const handleQuotePress = () => {
@@ -76,7 +98,10 @@ export const CommentActionBar = ({
           />
         </PressableIcon>
 
-        <PressableIcon onPress={handleZapPress} rightLabel={"12345"}>
+        <PressableIcon
+          onPress={handleZapPress}
+          rightLabel={zapTotal > 0 ? zapTotal.toString() : undefined}
+        >
           <MaterialCommunityIcons
             name="lightning-bolt"
             size={20}
@@ -85,18 +110,16 @@ export const CommentActionBar = ({
         </PressableIcon>
 
         <PressableIcon
-          onPress={handleReactionPress}
+          onPress={userHasReacted ? undefined : handleReactionPress}
           onLongPress={() => setReactionDialogOpen(true)}
           rightLabel={
             reactions.length > 0 ? reactions.length.toString() : undefined
           }
         >
           <MaterialCommunityIcons
-            name={reactions.length > 0 ? "heart" : "heart-outline"}
+            name={userHasReacted ? "heart" : "heart-outline"}
             size={20}
-            color={
-              reactions.length > 0 ? brandColors.pink.DEFAULT : colors.text
-            }
+            color={userHasReacted ? brandColors.pink.DEFAULT : colors.text}
           />
         </PressableIcon>
 

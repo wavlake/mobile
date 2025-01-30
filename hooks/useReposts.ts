@@ -1,19 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Event, nip19 } from "nostr-tools";
 import { useNostrRelayList } from "./nostrRelayList";
 import { useAuth } from "./useAuth";
 import { signEvent, publishEvent } from "@/utils";
-import { pool } from "@/utils/relay-pool";
-import { nostrQueryKeys } from "@/providers/NostrEventProvider";
+import { useEventRelatedEvents } from "./useEventRelatedEvents";
 
 interface UseRepostsResult {
-  reposts: Event[];
-  // quoteReposts: Event[];
-  repostCount: number;
-  // quoteCount: number;
   repostEvent: (event: Event, quote?: string) => Promise<void>;
-  isLoading: boolean;
-  error: unknown;
 }
 
 const makeRepostEvent = ({
@@ -73,41 +66,9 @@ export const useQuoteRepostsQueryKey = (eventId?: string) => [
 ];
 
 export const useReposts = (event: Event): UseRepostsResult => {
-  const queryClient = useQueryClient();
+  const { addEventToCache } = useEventRelatedEvents(event);
   const { pubkey, userIsLoggedIn } = useAuth();
-  const { writeRelayList, readRelayList } = useNostrRelayList();
-
-  const {
-    data: reposts = [],
-    isLoading: repostsLoading,
-    error: repostsError,
-  } = useQuery({
-    queryKey: nostrQueryKeys.eventReposts(event.id),
-    queryFn: async () => {
-      const filter = {
-        kinds: [6],
-        "#e": [event.id],
-      };
-      return pool.querySync(readRelayList, filter);
-    },
-    enabled: Boolean(event.id),
-  });
-
-  // const {
-  //   data: quoteReposts = [],
-  //   isLoading: quotesLoading,
-  //   error: quotesError,
-  // } = useQuery({
-  //   queryKey: useQuoteRepostsQueryKey(event.id),
-  //   queryFn: async () => {
-  //     const filter = {
-  //       kinds: [1],
-  //       "#q": [event.id],
-  //     };
-  //     return pool.querySync(readRelayList, filter);
-  //   },
-  //   enabled: Boolean(event.id),
-  // });
+  const { writeRelayList } = useNostrRelayList();
 
   const repostMutation = useMutation({
     mutationFn: async (newEvent: Event) => {
@@ -115,15 +76,7 @@ export const useReposts = (event: Event): UseRepostsResult => {
       return newEvent;
     },
     onSuccess: (newEvent) => {
-      const queryKey =
-        newEvent.kind === 6
-          ? useRepostsQueryKey(event.id)
-          : useQuoteRepostsQueryKey(event.id);
-
-      queryClient.setQueryData(queryKey, (old: Event[] = []) => [
-        ...old,
-        newEvent,
-      ]);
+      addEventToCache(newEvent);
     },
   });
 
@@ -143,12 +96,6 @@ export const useReposts = (event: Event): UseRepostsResult => {
   };
 
   return {
-    reposts,
-    // quoteReposts,
-    repostCount: reposts.length,
-    // quoteCount: quoteReposts.length,
     repostEvent,
-    isLoading: repostsLoading, //|| quotesLoading,
-    error: repostsError, // || quotesError,
   };
 };
