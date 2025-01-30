@@ -6,14 +6,19 @@ import { nip19 } from "nostr-tools";
 import { Linking, View } from "react-native";
 import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
-import { useMemo } from "react";
-import { useNostrProfiles } from "@/hooks/nostrProfile/useNostrProfiles";
+import { useEffect, useMemo, useState } from "react";
+import { useNostrEvents } from "@/providers/NostrEventProvider";
 
 interface ParsedTextWrapperProps {
   content?: string;
 }
 
 export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
+  const { batchGetPubkeyProfiles, getPubkeyProfile } = useNostrEvents();
+  const [profiles, setProfiles] = useState<Map<string, NostrUserProfile>>(
+    new Map(),
+  );
+
   // Extract mentions from the content
   const mentions = useMemo(() => {
     const mentionRegex =
@@ -36,10 +41,24 @@ export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
       .filter(Boolean) as { pubkey: string; relays: string[] }[];
   }, [content]);
 
-  const { profiles } = useNostrProfiles(mentions);
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      const profiles = await batchGetPubkeyProfiles(
+        mentions.map((m) => m.pubkey),
+      );
+
+      setProfiles(profiles);
+    };
+
+    fetchProfiles();
+  }, [mentions]);
 
   return (
-    <InternalParsedTextRender content={content} mentionProfiles={profiles} />
+    <InternalParsedTextRender
+      content={content}
+      mentionProfiles={profiles}
+      getPubkeyProfile={getPubkeyProfile}
+    />
   );
 };
 
@@ -64,6 +83,7 @@ const renderImage = (matchingString: string, matches: string[]): any => {
 interface InternalParsedTextRenderProps {
   content?: string;
   mentionProfiles: Map<string, NostrUserProfile>;
+  getPubkeyProfile: (pubkey: string) => Promise<NostrUserProfile | null>;
 }
 
 const InternalParsedTextRender = ({
@@ -98,7 +118,7 @@ const InternalParsedTextRender = ({
     }
   };
 
-  const parseMention = (matchingString: string, matches: string[]): string => {
+  const parseMention = (matchingString: string, matches: string[]) => {
     try {
       const npub = matches[1];
       const { type, data } = nip19.decode(npub);
@@ -106,7 +126,7 @@ const InternalParsedTextRender = ({
         type === "npub" ? data : type === "nprofile" ? data.pubkey : "";
 
       if (!pubkey) {
-        return matchingString;
+        return matchingString.slice(0, 10);
       }
 
       const metadata = mentionProfiles.get(pubkey);
@@ -116,14 +136,14 @@ const InternalParsedTextRender = ({
           metadata.displayName ??
           metadata.name ??
           metadata.display_name ??
-          matchingString
+          pubkey.slice(0, 10)
         );
       }
 
-      return matchingString;
+      return pubkey.slice(0, 10);
     } catch (e) {
       console.error("Error parsing mention:", e);
-      return matchingString;
+      return matchingString.slice(0, 10);
     }
   };
 

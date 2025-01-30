@@ -197,10 +197,11 @@ export interface NostrUserProfile {
   nip05?: string;
   picture?: string;
   // non standard fields below
-  [key: string]: string | undefined; // allows custom fields
   displayName?: string;
+  display_name?: string;
   bio?: string;
   lud06?: string;
   zapService?: string;
   publicHex?: string;
+  created_at?: number;
 }

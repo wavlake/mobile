@@ -18,7 +18,7 @@ export const useContentDetails = (contentId?: string | null) => {
   });
 
   const fetchContentDetails = async (contentId: string) => {
-    const oldData = queryClient.getQueryData(["content", "details", contentId]);
+    const oldData = queryClient.getQueryData(queryKey);
     // return the old data if it exists
     if (oldData) {
       return oldData as ReturnType<typeof getContentType>;
@@ -26,7 +26,7 @@ export const useContentDetails = (contentId?: string | null) => {
 
     const data = await getContentType(contentId);
     // Update the cache with the new data
-    queryClient.setQueryData(["content", "details", contentId], data);
+    queryClient.setQueryData(queryKey, data);
     return data;
   };
 
