@@ -152,10 +152,9 @@ const EventRenderer = ({
     <>
       <View
         style={{
-          marginBottom: 10,
           flexDirection: "row",
           paddingHorizontal: 16,
-          paddingVertical: 16,
+          paddingTop: 8,
           backgroundColor: isUnread
             ? "rgba(255, 255, 255, 0.2)"
             : "transparent",
