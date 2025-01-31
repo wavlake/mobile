@@ -70,7 +70,6 @@ export const CommentContent = ({
   const { data: contentDetails } = useContentDetails(associatedContentId);
   const artworkUrl = contentDetails?.metadata?.artwork_url;
   const title = contentDetails?.metadata?.title;
-  const album = contentDetails?.metadata?.album_title;
   const artist = contentDetails?.metadata?.artist;
   const { picture, name } = npubMetadata || {};
   const { content, pubkey, kind } = comment;
@@ -111,15 +110,14 @@ export const CommentContent = ({
                 <Text bold>{name ?? "anonymous"}</Text>
               )}
             </View>
-            {title && <Text bold>{title}</Text>}
             <View
               style={{
                 width: "100%",
                 flexDirection: "row",
               }}
             >
-              {album && <Text bold>{album}</Text>}
-              {artist && album && <Text> - </Text>}
+              {title && <Text bold>{title}</Text>}
+              {artist && title && <Text> - </Text>}
               {artist && <Text>{artist}</Text>}
             </View>
           </View>
