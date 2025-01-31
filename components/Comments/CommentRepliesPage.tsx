@@ -14,8 +14,8 @@ import { Text } from "../shared/Text";
 import { useLocalSearchParams } from "expo-router";
 import { Center } from "../shared/Center";
 import { Event } from "nostr-tools";
-import { useReplies } from "@/hooks/useReplies";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
 
 const LEFT_INDENTATION = 40;
 
@@ -53,8 +53,8 @@ export const CommentRepliesPage = () => {
 };
 
 const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
-  const { topLevelReplies, mentions, isFetching, getChildReplies, refetch } =
-    useReplies(comment.id);
+  const { topLevelReplies, getChildReplies, refetch, isLoading } =
+    useEventRelatedEvents(comment);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
@@ -74,7 +74,7 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       ListEmptyComponent={
-        isFetching ? <ActivityIndicator /> : <Text>No replies yet</Text>
+        isLoading ? <ActivityIndicator /> : <Text>No replies yet</Text>
       }
       // TODO - improve rendering replies and indentation
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
@@ -84,7 +84,7 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
       )}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
       refreshControl={
-        <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
     />
   );

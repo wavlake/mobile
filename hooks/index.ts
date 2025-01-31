@@ -30,7 +30,6 @@ export * from "./useArtistComments";
 export * from "./useTrackComments";
 export * from "./useAmberSigner";
 export * from "./useReactions";
-export * from "./useReplies";
 export * from "./useZapEvent";
 export * from "./useGetInboxLastRead";
 export * from "./useSetInboxLastRead";

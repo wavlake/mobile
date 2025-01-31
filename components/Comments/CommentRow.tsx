@@ -116,7 +116,7 @@ const EventRenderer = ({
     reposts,
     reactions,
     zapReceipts,
-    replies,
+    topLevelReplies,
     genericReposts,
     zapTotal,
     userHasReacted,
@@ -152,10 +152,9 @@ const EventRenderer = ({
     <>
       <View
         style={{
-          marginBottom: 10,
           flexDirection: "row",
           paddingHorizontal: 16,
-          paddingVertical: 16,
+          paddingTop: 8,
           backgroundColor: isUnread
             ? "rgba(255, 255, 255, 0.2)"
             : "transparent",
@@ -195,7 +194,7 @@ const EventRenderer = ({
       <CommentActionBar
         comment={comment}
         reposts={reposts}
-        replies={replies}
+        replies={topLevelReplies}
         reactions={reactions}
         zapReceipts={zapReceipts}
         genericReposts={genericReposts}
