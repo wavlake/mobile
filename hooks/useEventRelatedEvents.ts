@@ -29,10 +29,10 @@ interface UseEventRelatedEvents {
 
 // Helper functions for reply hierarchy
 const hasRootTag = (reply: Event, commentId: string): boolean =>
-  reply.tags.some((tag) => tag.includes("root") && tag.includes(commentId));
+  reply.tags.some((tag) => tag?.[0] === "root" && tag.includes(commentId));
 
 const hasNonRootReplyTag = (reply: Event, commentId: string): boolean =>
-  reply.tags.some((tag) => tag.includes("reply") && !tag.includes(commentId));
+  reply.tags.some((tag) => tag?.[0] === "reply" && !tag.includes(commentId));
 
 const isRootReply = (reply: Event, commentId: string): boolean =>
   hasRootTag(reply, commentId) && !hasNonRootReplyTag(reply, commentId);
