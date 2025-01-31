@@ -116,7 +116,7 @@ const EventRenderer = ({
     reposts,
     reactions,
     zapReceipts,
-    replies,
+    topLevelReplies,
     genericReposts,
     zapTotal,
     userHasReacted,
@@ -194,7 +194,7 @@ const EventRenderer = ({
       <CommentActionBar
         comment={comment}
         reposts={reposts}
-        replies={replies}
+        replies={topLevelReplies}
         reactions={reactions}
         zapReceipts={zapReceipts}
         genericReposts={genericReposts}

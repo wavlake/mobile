@@ -466,7 +466,7 @@ const querySyncSince = async (filter: Filter, readRelayList: string[]) => {
     ...filter,
     since: lastFetch,
   };
-
+  console.log("OK PROVIDER");
   const events = await pool.querySync(readRelayList, updatedFilter);
   if (!events) return [];
 
@@ -484,6 +484,7 @@ const getEventSince = async (filter: Filter, readRelayList: string[]) => {
     ...filter,
     since: lastFetch,
   };
+  console.log("OK PROVIDER");
   const event = await pool.get(readRelayList, updatedFilter);
   if (!event) return null;
 
