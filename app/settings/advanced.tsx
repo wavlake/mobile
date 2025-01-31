@@ -26,6 +26,7 @@ import {
   PlusCircleIcon,
   TrashIcon,
 } from "react-native-heroicons/solid";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SettingsSwitch = ({
   value,
@@ -210,6 +211,7 @@ const styles = StyleSheet.create({
 });
 
 export default function AdvancedSettingsPage() {
+  const queryClient = useQueryClient();
   const toast = useToast();
   const router = useRouter();
   const { userIsLoggedIn: pubkeyLoggedIn } = useAuth();
@@ -230,6 +232,10 @@ export default function AdvancedSettingsPage() {
   };
 
   const { mutateAsync: deleteUser } = useDeleteUser();
+  const handleClearCachedData = async () => {
+    queryClient.clear();
+    toast.show("Cleared cache");
+  };
 
   const handleDeleteUser = async () => {
     try {
@@ -321,6 +327,30 @@ export default function AdvancedSettingsPage() {
                 Tap here to view your account secret key and export it to a safe
                 place.
               </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.settingRow}>
+          <View style={styles.settingText}>
+            <TouchableOpacity
+              hitSlop={20}
+              onPress={() => {
+                Alert.alert(
+                  "Are you sure?",
+                  "This action is irreversible and will delete any cached data on your device.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Clear cache",
+                      style: "destructive",
+                      onPress: handleClearCachedData,
+                    },
+                  ],
+                );
+              }}
+            >
+              <Text bold>Clear app cache</Text>
+              <Text>This will delete cached data on your device.</Text>
             </TouchableOpacity>
           </View>
         </View>
