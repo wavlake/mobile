@@ -70,11 +70,12 @@ const renderImage = (matchingString: string, matches: string[]): any => {
   const urlParamsRemoved = matchingString.replace(/(\?|#)\S*/g, "");
 
   return (
-    <View>
+    <View style={{ width: "100%" }}>
       <Image
         source={{ uri: urlParamsRemoved }}
-        style={{ width: 200, height: 200, marginVertical: 10 }}
+        style={{ width: "100%", aspectRatio: 1, marginVertical: 10 }}
         cachePolicy="memory-disk"
+        contentFit="cover"
       />
     </View>
   );
