@@ -1,5 +1,5 @@
 import { Event } from "nostr-tools";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { pool } from "@/utils/relay-pool";
@@ -18,8 +18,14 @@ export const useInbox = (
     staleTime: 1000 * 60 * 5, // 5 minutes
   },
 ) => {
-  const { comments, reactions, zapReceipts, cacheEventsById } =
-    useNostrEvents();
+  const [isLoadingInitial, setIsLoadingInitial] = useState(false);
+  const {
+    comments,
+    reactions,
+    zapReceipts,
+    cacheEventsById,
+    loadInitialData: loadNostrEvents,
+  } = useNostrEvents();
 
   const {
     data: tracks = [],
@@ -80,6 +86,20 @@ export const useInbox = (
     enabled: userHasContent,
   });
 
+  const loadInitialData = async () => {
+    setIsLoadingInitial(true);
+    try {
+      await loadNostrEvents();
+      await refetchAccountTracks();
+      await refetchContentComments();
+      await getLastRead();
+    } catch (error) {
+      console.error("Error loading initial inbox data:", error);
+    } finally {
+      setIsLoadingInitial(false);
+    }
+  };
+
   // Cleanup function
   const cleanup = () => {
     pool.close(readRelayList);
@@ -98,9 +118,11 @@ export const useInbox = (
       refetchContentComments();
       getLastRead();
     },
-    isLoading: isLoadingAccountTracks || isFetching,
+    isLoading: isLoadingInitial || isLoadingAccountTracks || isFetching,
     updateLastRead,
     lastReadDate: lastReadDateNumber,
     userHasContent: contentIds.length > 0,
+    loadInitialData,
+    isLoadingInitial,
   };
 };
