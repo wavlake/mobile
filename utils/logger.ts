@@ -1,7 +1,7 @@
 import { Event } from "nostr-tools";
 
 type LogLevel = "debug" | "info" | "warn" | "error";
-type LogCategory = "http" | "websocket" | "general";
+type LogCategory = "http" | "ws" | "general";
 
 interface LogOptions {
   category: LogCategory;
@@ -71,7 +71,7 @@ class Logger {
   // Websocket specific logging methods
   logWebsocketMessage(method: string, data?: any) {
     this.log(`WS ${method}`, {
-      category: "websocket",
+      category: "ws",
       level: "info",
       metadata: data,
     });
@@ -79,7 +79,7 @@ class Logger {
 
   logNostrEvent(method: string, event?: Event) {
     this.log(`Nostr ${method}`, {
-      category: "websocket",
+      category: "ws",
       level: "info",
       metadata: event
         ? {

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useAuth } from "./useAuth";
 import {
   parseZapRequestFromReceipt,
@@ -48,15 +48,14 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     isLoading,
     error,
     refetch,
-  } = useQuery({
+  } = useQuery<Event[]>({
     queryKey,
     queryFn: async () => {
-      const events = await getEventRelatedEvents(event);
-      const oldCache = queryClient.getQueryData<KindEventCache>(queryKey) ?? {};
-
-      return mergeEventsIntoCache(events, oldCache);
+      return getEventRelatedEvents(event);
     },
     enabled: Boolean(event),
+    // Use persisted data while fetching
+    refetchOnMount: true,
   });
 
   const addEventToCacheHandler = useCallback(
