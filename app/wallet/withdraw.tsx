@@ -1,4 +1,10 @@
-import { Button, QRScanner, satsWithCommas, Text } from "@/components";
+import {
+  Button,
+  msatsToSatsWithCommas,
+  QRScanner,
+  satsWithCommas,
+  Text,
+} from "@/components";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useAuth, useToast, useUser } from "@/hooks";
 import { useSettings } from "@/hooks/useSettings";
@@ -25,7 +31,12 @@ export default function Withdraw({}: {}) {
   const userIdOrPubkey = catalogUser?.id ?? pubkey;
   const { data: settings } = useSettings();
   const toast = useToast();
-  const { setBalance, refetch: refetchBalance } = useWalletBalance();
+  const {
+    setBalance,
+    refetch: refetchBalance,
+    data: balanceData,
+  } = useWalletBalance();
+  const { balance } = balanceData ?? { balance: 0 };
   const [invoice, setInvoice] = useState("");
   const [invoiceAmount, setInvoiceAmount] = useState(0);
 
@@ -104,7 +115,8 @@ export default function Withdraw({}: {}) {
     }
     setIsLoading(false);
   };
-
+  // the wavlake wallet will reject payment (insufficient balance) if it does not account for an addtl 1.5% in fees
+  const invoiceTooHigh = invoiceAmount > 0.985 * balance;
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -143,6 +155,21 @@ export default function Withdraw({}: {}) {
               >
                 {invoice.slice(0, 8)}...{invoice.slice(-8)}
               </Text>
+              {invoiceTooHigh && (
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontSize: 18,
+                    color: "red",
+                  }}
+                >
+                  Warning: This withdrawal amount is higher than the maximum
+                  withdrawal amount of{" "}
+                  {msatsToSatsWithCommas(Math.floor(balance * 0.985))} sats.
+                  Please reduce the invoice amount to account for 1.5% in
+                  potential network fees.
+                </Text>
+              )}
               <View
                 style={{
                   flex: 1,
@@ -175,6 +202,17 @@ export default function Withdraw({}: {}) {
                 }}
               >
                 Scan a Lightning invoice QR code or paste using the button below
+              </Text>
+              <Text
+                style={{
+                  textAlign: "center",
+                  marginHorizontal: 24,
+                  fontSize: 18,
+                }}
+              >
+                The withdrawal amount must account for at least 1.5% in
+                additional Lightning Network fees. Pleaes limit the withdrawal
+                to {msatsToSatsWithCommas(Math.floor(balance * 0.985))} sats.
               </Text>
               <Button width={200} color="white" onPress={onPaste}>
                 Paste
