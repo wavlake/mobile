@@ -1,11 +1,16 @@
+import { useEffect } from "react";
+import { ActivityIndicator } from "react-native";
 import { PillTabView } from "../PillTabView";
 import { ContentTab } from "./ContentTab";
 import { NonContentTab } from "./NonContentTab";
 import { useInbox } from "@/hooks";
-import { useEffect } from "react";
+import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { Center } from "../shared/Center";
 
 export const InboxPage = () => {
   const {
+    loadInitialData,
+    isLoadingInitial,
     updateLastRead,
     comments,
     contentComments,
@@ -18,9 +23,17 @@ export const InboxPage = () => {
   } = useInbox();
 
   useEffect(() => {
-    // update last read date on mount
+    loadInitialData();
     updateLastRead();
   }, []);
+
+  if (isLoadingInitial) {
+    return (
+      <Center>
+        <ActivityIndicator size="large" />
+      </Center>
+    );
+  }
 
   return userHasContent ? (
     <PillTabView tabNames={["Wavlake", "Other"]}>

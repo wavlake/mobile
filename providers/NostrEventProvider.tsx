@@ -4,6 +4,7 @@ import {
   useCallback,
   ReactNode,
   useEffect,
+  useState,
 } from "react";
 import { Event, Filter } from "nostr-tools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -100,6 +101,8 @@ type NostrEventContextType = {
   followsActivity: string[];
   // Record<followPubkey, followRelay>
   followsMap: Record<string, string>;
+  loadInitialData: () => Promise<void>;
+  isLoadingInitial: boolean;
 };
 
 const defaultNostrEventContext: Partial<NostrEventContextType> = {
@@ -119,6 +122,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   const { pubkey } = useAuth();
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
+  const [isLoadingInitial, setIsLoadingInitial] = useState(false);
 
   const getEventAsync = useCallback(
     async (id: string) => {
@@ -182,107 +186,100 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     [queryClient, readRelayList],
   );
 
-  // Core functionality that should load immediately
-  const { data: initialData } = useQuery({
-    queryKey: ["initial-load-core", pubkey],
-    queryFn: async () => {
-      if (!pubkey) return defaultNostrEventContext;
-      // Wait for animations to complete
-      await InteractionManager.runAfterInteractions();
-      try {
-        // Only load critical data first
-        const followsMap = await getFollowsListMap(pubkey, readRelayList);
-        const follows = followsMap ? Object.keys(followsMap) : [];
-        return {
-          follows,
-          followsMap,
-          comments: [],
-          reactions: [],
-          reposts: [],
-          genericReposts: [],
-          zapReceipts: [],
-          followsActivity: [],
-        };
-      } catch (error) {
-        console.error("Initial core load error:", error);
-        return defaultNostrEventContext;
-      }
-    },
-    enabled: Boolean(pubkey),
-    retry: false,
-  });
+  const loadInitialData = useCallback(async () => {
+    if (!pubkey) return;
+    setIsLoadingInitial(true);
 
-  // Secondary data loading
-  useEffect(() => {
-    if (!pubkey || !initialData) return;
+    try {
+      // Load critical data
+      const followsMap = await getFollowsListMap(pubkey, readRelayList);
+      const follows = followsMap ? Object.keys(followsMap) : [];
 
-    const loadSecondaryData = async () => {
-      await InteractionManager.runAfterInteractions();
+      // Update context with initial data
+      queryClient.setQueryData(["initial-load-core", pubkey], {
+        follows,
+        followsMap,
+        comments: [],
+        reactions: [],
+        reposts: [],
+        genericReposts: [],
+        zapReceipts: [],
+        followsActivity: [],
+      });
 
-      try {
-        const socialFilter = {
-          ...SOCIAL_NOTES,
-          "#p": [pubkey],
-        };
-        const socialEvents = await querySyncSince(socialFilter, readRelayList);
+      // Load secondary data
+      await loadSecondaryData();
+    } catch (error) {
+      console.error("Initial data load error:", error);
+    } finally {
+      setIsLoadingInitial(false);
+    }
+  }, [pubkey, readRelayList, queryClient]);
 
-        setTimeout(() => {
-          // Cache individual events and update kind-specific caches
-          socialEvents.forEach((event) => {
-            queryClient.setQueryData(nostrQueryKeys.event(event.id), event);
-          });
+  const loadSecondaryData = async () => {
+    await InteractionManager.runAfterInteractions();
 
-          const kindCache = mergeEventsIntoCache(socialEvents);
+    try {
+      const socialFilter = {
+        ...SOCIAL_NOTES,
+        "#p": [pubkey],
+      };
+      const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
-          // Update queries with Map caches
-          for (const [kind, cache] of Object.entries(kindCache)) {
-            const queryKey = getQueryKeyForKind(Number(kind), pubkey);
-            if (!queryKey) continue;
-            queryClient.setQueryData(queryKey, cache);
+      setTimeout(() => {
+        // Cache individual events and update kind-specific caches
+        socialEvents.forEach((event) => {
+          queryClient.setQueryData(nostrQueryKeys.event(event.id), event);
+        });
+
+        const kindCache = mergeEventsIntoCache(socialEvents);
+
+        // Update queries with Map caches
+        for (const [kind, cache] of Object.entries(kindCache)) {
+          const queryKey = getQueryKeyForKind(Number(kind), pubkey);
+          if (!queryKey) continue;
+          queryClient.setQueryData(queryKey, cache);
+        }
+      }, 0);
+
+      // Handle event-related events
+      const eventSocialFilter = {
+        ...SOCIAL_NOTES,
+        "#e": socialEvents.map((event) => event.id),
+      };
+
+      const eventSocialEvents = await querySyncSince(
+        eventSocialFilter,
+        readRelayList,
+      );
+
+      setTimeout(() => {
+        const eventIdMap = new Map<string, Event[]>();
+
+        // Group events by their referenced event ID
+        for (const event of eventSocialEvents) {
+          const eTag = event.tags.find(([tag]) => tag === "e");
+          const eventId = eTag?.[1];
+          if (!eventId) continue;
+
+          if (!eventIdMap.has(eventId)) {
+            eventIdMap.set(eventId, []);
           }
-        }, 0);
+          eventIdMap.get(eventId)!.push(event);
+        }
 
-        // Handle event-related events
-        const eventSocialFilter = {
-          ...SOCIAL_NOTES,
-          "#e": socialEvents.map((event) => event.id),
-        };
-
-        const eventSocialEvents = await querySyncSince(
-          eventSocialFilter,
-          readRelayList,
-        );
-
-        setTimeout(() => {
-          const eventIdMap = new Map<string, Event[]>();
-
-          // Group events by their referenced event ID
-          for (const event of eventSocialEvents) {
-            const eTag = event.tags.find(([tag]) => tag === "e");
-            const eventId = eTag?.[1];
-            if (!eventId) continue;
-
-            if (!eventIdMap.has(eventId)) {
-              eventIdMap.set(eventId, []);
-            }
-            eventIdMap.get(eventId)!.push(event);
-          }
-
-          // Update cache for each referenced event
-          for (const [eventId, events] of eventIdMap) {
-            queryClient.setQueryData<KindEventCache>(
-              nostrQueryKeys.eventRelatedEvents(eventId),
-              (oldCache = {}) => mergeEventsIntoCache(events, oldCache),
-            );
-          }
-        }, 0);
-      } catch (error) {
-        console.error("Secondary data load error:", error);
-      }
-    };
-
-    loadSecondaryData();
-  }, [pubkey, initialData, queryClient]);
+        // Update cache for each referenced event
+        for (const [eventId, events] of eventIdMap) {
+          queryClient.setQueryData<KindEventCache>(
+            nostrQueryKeys.eventRelatedEvents(eventId),
+            (oldCache = {}) => mergeEventsIntoCache(events, oldCache),
+          );
+        }
+      }, 0);
+    } catch (error) {
+      console.error("Secondary data load error:", error);
+    }
+  };
 
   const getPubkeyProfile = useCallback(
     async (pubkey: string, relayList: string[] = readRelayList) => {
@@ -380,6 +377,13 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     enabled: Boolean(pubkey),
   });
 
+  const { data: initialData } = useQuery<
+    Partial<NostrEventContextType> & { follows: string[] }
+  >({
+    queryKey: ["initial-load-core", pubkey],
+    enabled: Boolean(pubkey),
+  });
+
   return (
     <NostrEventContext.Provider
       value={{
@@ -398,6 +402,8 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         follows: initialData?.follows ?? [],
         followsActivity: [],
         followsMap: initialData?.followsMap ?? {},
+        loadInitialData,
+        isLoadingInitial,
       }}
     >
       {children}
