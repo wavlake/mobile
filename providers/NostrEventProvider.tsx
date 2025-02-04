@@ -3,7 +3,6 @@ import {
   useContext,
   useCallback,
   ReactNode,
-  useEffect,
   useState,
 } from "react";
 import { Event, Filter } from "nostr-tools";
@@ -23,7 +22,6 @@ import {
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
-import { InteractionManager } from "react-native";
 
 const FORTY_EIGHT_HOURS = 48 * 60 * 60 * 1000;
 const SOCIAL_NOTES: Filter = {
@@ -216,8 +214,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   }, [pubkey, readRelayList, queryClient]);
 
   const loadSecondaryData = async () => {
-    await InteractionManager.runAfterInteractions();
-
     try {
       const socialFilter = {
         ...SOCIAL_NOTES,

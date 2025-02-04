@@ -50,14 +50,14 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
       return mergeEventsIntoCache(events, oldCache);
     },
     enabled: Boolean(event),
-    refetchOnMount: true,
+    refetchOnMount: "always",
   });
 
   const replyToEventId = getParentEventId(event);
   const { data: replyParent, isLoading: replyParentLoading } = useQuery({
     queryKey: nostrQueryKeys.event(replyToEventId ?? ""),
     queryFn: () => {
-      if (!replyToEventId) return;
+      if (!replyToEventId) return null;
       return getEventAsync(replyToEventId);
     },
     enabled: Boolean(event),
