@@ -5,7 +5,6 @@ import {
   RefreshControl,
 } from "react-native";
 import { CommentRow } from "./CommentRow";
-import { CommentReplyRow } from "./CommentReplyRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { useState } from "react";
@@ -53,8 +52,7 @@ export const CommentRepliesPage = () => {
 };
 
 const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
-  const { directReplies, getChildReplies, refetch, isLoading } =
-    useEventRelatedEvents(comment);
+  const { directReplies, refetch, isLoading } = useEventRelatedEvents(comment);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
     setDialogOpen(true);
@@ -79,9 +77,7 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
       // TODO - improve rendering replies and indentation
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
       data={directReplies}
-      renderItem={({ item }) => (
-        <CommentReplyRow reply={item} replies={getChildReplies(item.id)} />
-      )}
+      renderItem={({ item }) => <CommentRow comment={item} />}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
