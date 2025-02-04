@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
-import { useCallback, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { useAuth } from "./useAuth";
 import {
   parseZapRequestFromReceipt,
@@ -13,7 +13,7 @@ import {
 
 interface UseEventRelatedEvents {
   reactions: Event[];
-  topLevelReplies: Event[];
+  directReplies: Event[];
   getChildReplies: (parentId: string) => Event[];
   reposts: Event[];
   genericReposts: Event[];
@@ -23,26 +23,40 @@ interface UseEventRelatedEvents {
   error: unknown;
   userHasReacted: boolean;
   userHasZapped: number;
+  replyParent?: Event;
   addEventToCache: (event: Event) => void;
   refetch: () => void;
 }
 
 // Helper functions for reply hierarchy
-const hasRootTag = (reply: Event, commentId: string): boolean =>
-  reply.tags.some((tag) => tag?.[0] === "root" && tag.includes(commentId));
+// ["e", <event-id>, <relay-url>, <marker>, <pubkey>]
+const hasRootTag = (reply: Event, eventId: string): boolean =>
+  reply.tags
+    .filter(([tag]) => tag === "e")
+    .some(
+      ([tag, tagId, relay, marker, pubkey]) =>
+        marker === "root" && tagId === eventId,
+    );
 
-const hasNonRootReplyTag = (reply: Event, commentId: string): boolean =>
-  reply.tags.some((tag) => tag?.[0] === "reply" && !tag.includes(commentId));
+const hasReplyTag = (reply: Event, eventId?: string): boolean =>
+  reply.tags
+    .filter(([tag]) => tag === "e")
+    .some(([tag, tagId, relay, marker, pubkey]) => {
+      const hasReplyTag = marker === "reply";
+      // only check tagId if eventId is provided
+      const tagIdMatchesEventId = eventId ? tagId === eventId : true;
+      return hasReplyTag && tagIdMatchesEventId;
+    });
 
-const isRootReply = (reply: Event, commentId: string): boolean =>
-  hasRootTag(reply, commentId) && !hasNonRootReplyTag(reply, commentId);
+const isRootReply = (reply: Event, eventId: string): boolean =>
+  hasRootTag(reply, eventId) && !hasReplyTag(reply);
 
 export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   const { getEventRelatedEvents } = useNostrEvents();
   const queryClient = useQueryClient();
   const queryKey = nostrQueryKeys.eventRelatedEvents(event.id);
   const { pubkey } = useAuth();
-
+  const [replyParent, setReplyParent] = useState<Event | undefined>(undefined);
   const {
     data: eventsCache = {},
     isLoading,
@@ -51,12 +65,13 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   } = useQuery({
     queryKey,
     queryFn: async () => {
-      const events = await getEventRelatedEvents(event);
+      const { events, replyParent } = await getEventRelatedEvents(event);
       const oldCache = queryClient.getQueryData<KindEventCache>(queryKey) ?? {};
-
+      replyParent && setReplyParent(replyParent);
       return mergeEventsIntoCache(events, oldCache);
     },
     enabled: Boolean(event),
+    refetchOnMount: true,
   });
 
   const addEventToCacheHandler = useCallback(
@@ -67,21 +82,12 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     },
     [queryClient, queryKey],
   );
-
   const { replies, reactions, reposts, genericReposts, zapReceipts } =
     getRelatedEventsFromCache(eventsCache);
 
-  const topLevelReplies = replies.filter((reply) =>
-    isRootReply(reply, event.id),
-  );
-
   const getChildReplies = (parentId: string): Event[] =>
     replies.filter(
-      (reply) =>
-        hasRootTag(reply, event.id) &&
-        reply.tags.some(
-          (tag) => tag.includes("reply") && tag.includes(parentId),
-        ),
+      (reply) => hasRootTag(reply, parentId) || hasReplyTag(reply, parentId),
     );
 
   const userHasReacted = reactions.some((e) => e.pubkey === pubkey);
@@ -95,10 +101,15 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     return !!amount ? acc + amount : acc;
   }, 0);
 
+  const directReplies = replies.filter((e) => {
+    return isRootReply(e, event.id) || hasReplyTag(e, event.id);
+  });
+
   return {
     reactions,
     reposts,
-    topLevelReplies,
+    directReplies,
+    replyParent,
     getChildReplies,
     genericReposts,
     zapReceipts,
