@@ -99,7 +99,9 @@ export function getEventsArrayFromCache(
  */
 export function getRelatedEventsFromCache(cache: KindEventCache) {
   return {
-    replies: getEventsArrayFromCache(cache, 1),
+    replies: getEventsArrayFromCache(cache, 1).sort(
+      (a, b) => a.created_at - b.created_at,
+    ),
     reactions: getEventsArrayFromCache(cache, 7),
     reposts: getEventsArrayFromCache(cache, 6),
     genericReposts: getEventsArrayFromCache(cache, 16),
