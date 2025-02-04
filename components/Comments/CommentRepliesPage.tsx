@@ -53,7 +53,7 @@ export const CommentRepliesPage = () => {
 };
 
 const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
-  const { topLevelReplies, getChildReplies, refetch, isLoading } =
+  const { directReplies, getChildReplies, refetch, isLoading } =
     useEventRelatedEvents(comment);
   const [dialogOpen, setDialogOpen] = useState(false);
   const onReplyPress = () => {
@@ -78,7 +78,7 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
       }
       // TODO - improve rendering replies and indentation
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
-      data={topLevelReplies}
+      data={directReplies}
       renderItem={({ item }) => (
         <CommentReplyRow reply={item} replies={getChildReplies(item.id)} />
       )}
@@ -106,7 +106,7 @@ const ListHeaderComp = ({
         commentId={comment.id}
         isOpen={dialogOpen}
       />
-      <CommentRow comment={comment} />
+      <CommentRow comment={comment} showReplyParent />
     </>
   );
 };

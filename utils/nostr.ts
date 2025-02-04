@@ -748,40 +748,63 @@ export const getITagFromEvent = (
   return contentId.replace(prefix, "");
 };
 
-interface MarkedETag {
-  eventId: string;
-  relayUrl: string;
-  marker?: "reply" | "root" | "mention";
-  pubkey?: string;
-}
+// Utility function to extract e-tags
+const getETags = (event: Event): string[][] =>
+  event.tags.filter(([tag]) => tag === "e");
 
+// Check for a specific marked tag
+// ["e", <event-id>, <relay-url>, <marker>, <pubkey>]
+const hasMarkedTag = (
+  event: Event,
+  marker: string,
+  eventId?: string,
+): boolean =>
+  getETags(event).some(
+    ([, tagId, , tagMarker]) =>
+      tagMarker === marker && (eventId ? tagId === eventId : true),
+  );
+
+// Check for root tag
+export const hasRootTag = (event: Event, eventId?: string): boolean =>
+  hasMarkedTag(event, "root", eventId);
+
+// Check for reply tag
+export const hasReplyTag = (event: Event, eventId?: string): boolean =>
+  hasMarkedTag(event, "reply", eventId);
+
+// Check if event is a root reply
+export const isRootReply = (event: Event, eventId?: string): boolean =>
+  hasRootTag(event, eventId) && !hasReplyTag(event);
+
+// Get mention tag
+const getMentionTag = (event: Event): string | null => {
+  const mentionTag = getETags(event).find(
+    ([, , , marker]) => marker === "mention",
+  );
+  return mentionTag ? mentionTag[1] : null;
+};
+
+// Determine parent event ID
 export const getParentEventId = (event: Event): string | null => {
-  // First check for marked e tags (preferred method)
-  const [eTagReply, eventIdReply] =
-    event.tags.find((tag) => tag[0] === "e" && tag[3] === "reply") || [];
+  // Strategy 1: Explicit reply tag
+  const replyTag = getETags(event).find(([, , , marker]) => marker === "reply");
+  if (replyTag) return replyTag[1];
 
-  if (eventIdReply) {
-    return eventIdReply;
+  // Strategy 2: Root reply
+  if (isRootReply(event)) {
+    const rootTag = getETags(event).find(([, , , marker]) => marker === "root");
+    if (rootTag) return rootTag[1];
   }
 
-  // second check for root event tags
-  const [eTagRoot, eventIdRoot] =
-    event.tags.find((tag) => tag[0] === "e" && tag[3] === "root") || [];
-  if (eventIdRoot) {
-    return eventIdRoot;
-  }
+  // Strategy 3: Mention tag
+  const mentionEventId = getMentionTag(event);
+  if (mentionEventId) return mentionEventId;
 
-  // If no reply tag was found, check for positional e tags
-  const eTags = event.tags.filter((tag) => tag[0] === "e");
+  // Strategy 4: Positional e-tags
+  const eTags = getETags(event);
+  if (eTags.length === 0) return null;
+  if (eTags.length === 1) return eTags[0][1];
 
-  if (eTags.length === 0) {
-    return null; // Not a reply
-  }
-
-  if (eTags.length === 1) {
-    return eTags[0][1]; // Single e tag indicates reply to this event
-  }
-
-  // Multiple positional e tags - last one is the reply-to event
+  // Multiple tags - last one is reply-to event
   return eTags[eTags.length - 1][1];
 };

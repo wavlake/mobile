@@ -24,6 +24,7 @@ export const NonContentTab = ({
   const renderItem = useCallback(({ item: event }: { item: Event }) => {
     return (
       <MemoizedCommentRow
+        showReplyParent
         comment={event}
         key={event.id}
         lastReadDate={lastReadDate}

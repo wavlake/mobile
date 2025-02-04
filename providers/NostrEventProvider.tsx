@@ -92,9 +92,7 @@ type NostrEventContextType = {
   batchGetPubkeyProfiles: (
     pubkeys: string[],
   ) => Promise<Map<string, NostrUserProfile>>;
-  getEventRelatedEvents: (
-    event: Event,
-  ) => Promise<{ events: Event[]; replyParent: Event | null }>;
+  getEventRelatedEvents: (event: Event) => Promise<Event[]>;
   comments: Event[];
   reactions: Event[];
   reposts: Event[];
@@ -177,18 +175,12 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
   const getEventRelatedEvents = useCallback(
     async (event: Event) => {
-      const replyToEventId = getParentEventId(event);
       const filter = {
         kinds: [0, 1, 6, 7, 16, 9735],
         ["#e"]: [event.id],
       };
 
-      const replyParent = replyToEventId
-        ? await getEventById(replyToEventId)
-        : null;
-      const events = await querySyncSince(filter, readRelayList);
-
-      return { events, replyParent };
+      return querySyncSince(filter, readRelayList);
     },
     [queryClient, readRelayList],
   );

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useAuth } from "./useAuth";
 import {
   parseZapRequestFromReceipt,
@@ -9,6 +9,10 @@ import {
   mergeEventsIntoCache,
   addEventToCache,
   getRelatedEventsFromCache,
+  isRootReply,
+  hasReplyTag,
+  hasRootTag,
+  getParentEventId,
 } from "@/utils";
 
 interface UseEventRelatedEvents {
@@ -23,40 +27,16 @@ interface UseEventRelatedEvents {
   error: unknown;
   userHasReacted: boolean;
   userHasZapped: number;
-  replyParent?: Event;
+  replyParent?: Event | null;
   addEventToCache: (event: Event) => void;
   refetch: () => void;
 }
 
-// Helper functions for reply hierarchy
-// ["e", <event-id>, <relay-url>, <marker>, <pubkey>]
-const hasRootTag = (reply: Event, eventId: string): boolean =>
-  reply.tags
-    .filter(([tag]) => tag === "e")
-    .some(
-      ([tag, tagId, relay, marker, pubkey]) =>
-        marker === "root" && tagId === eventId,
-    );
-
-const hasReplyTag = (reply: Event, eventId?: string): boolean =>
-  reply.tags
-    .filter(([tag]) => tag === "e")
-    .some(([tag, tagId, relay, marker, pubkey]) => {
-      const hasReplyTag = marker === "reply";
-      // only check tagId if eventId is provided
-      const tagIdMatchesEventId = eventId ? tagId === eventId : true;
-      return hasReplyTag && tagIdMatchesEventId;
-    });
-
-const isRootReply = (reply: Event, eventId: string): boolean =>
-  hasRootTag(reply, eventId) && !hasReplyTag(reply);
-
 export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
-  const { getEventRelatedEvents } = useNostrEvents();
+  const { getEventRelatedEvents, getEventAsync } = useNostrEvents();
   const queryClient = useQueryClient();
   const queryKey = nostrQueryKeys.eventRelatedEvents(event.id);
   const { pubkey } = useAuth();
-  const [replyParent, setReplyParent] = useState<Event | undefined>(undefined);
   const {
     data: eventsCache = {},
     isLoading,
@@ -65,13 +45,22 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   } = useQuery({
     queryKey,
     queryFn: async () => {
-      const { events, replyParent } = await getEventRelatedEvents(event);
+      const events = await getEventRelatedEvents(event);
       const oldCache = queryClient.getQueryData<KindEventCache>(queryKey) ?? {};
-      replyParent && setReplyParent(replyParent);
       return mergeEventsIntoCache(events, oldCache);
     },
     enabled: Boolean(event),
     refetchOnMount: true,
+  });
+
+  const replyToEventId = getParentEventId(event);
+  const { data: replyParent, isLoading: replyParentLoading } = useQuery({
+    queryKey: nostrQueryKeys.event(replyToEventId ?? ""),
+    queryFn: () => {
+      if (!replyToEventId) return;
+      return getEventAsync(replyToEventId);
+    },
+    enabled: Boolean(event),
   });
 
   const addEventToCacheHandler = useCallback(
@@ -114,7 +103,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     genericReposts,
     zapReceipts,
     zapTotal,
-    isLoading,
+    isLoading: isLoading || replyParentLoading,
     error,
     userHasReacted,
     userHasZapped,
