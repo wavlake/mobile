@@ -50,6 +50,7 @@ import {
 import { pool } from "./relay-pool";
 import { NostrUserProfile } from "./types";
 import { signEvent } from "./signing";
+import { parseInvoice } from "./bolt11";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
@@ -508,10 +509,11 @@ export const parseZapRequestFromReceipt = (event: Event) => {
       event.tags.find((tag) => tag[0] === "description") ?? [];
     const receipt: Event = JSON.parse(zapRequest);
 
-    const [amountTag, amount] =
-      receipt.tags.find((tag) => tag[0] === "amount") ?? [];
+    const [bolt11Tag, bolt11Invoice] =
+      event.tags.find((tag) => tag[0] === "bolt11") ?? [];
+    const amountFromInvoice = parseInvoice(bolt11Invoice);
 
-    return { receipt, amount: parseInt(amount) };
+    return { receipt, amount: amountFromInvoice ?? 0 };
   } catch (e) {
     return { receipt: null, amount: null };
   }
@@ -753,15 +755,23 @@ interface MarkedETag {
   pubkey?: string;
 }
 
-export const getRootEventId = (event: Event): string | null => {
+export const getParentEventId = (event: Event): string | null => {
   // First check for marked e tags (preferred method)
-  const rootTag = event.tags.find((tag) => tag[0] === "e" && tag[3] === "root");
+  const [eTagReply, eventIdReply] =
+    event.tags.find((tag) => tag[0] === "e" && tag[3] === "reply") || [];
 
-  if (rootTag) {
-    return rootTag[1]; // The event ID is the second element
+  if (eventIdReply) {
+    return eventIdReply;
   }
 
-  // If no marked reply tag was found, check for deprecated positional e tags
+  // second check for root event tags
+  const [eTagRoot, eventIdRoot] =
+    event.tags.find((tag) => tag[0] === "e" && tag[3] === "root") || [];
+  if (eventIdRoot) {
+    return eventIdRoot;
+  }
+
+  // If no reply tag was found, check for positional e tags
   const eTags = event.tags.filter((tag) => tag[0] === "e");
 
   if (eTags.length === 0) {
