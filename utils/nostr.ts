@@ -519,10 +519,13 @@ export const parseZapRequestFromReceipt = (event: Event) => {
   }
 };
 
-export const getZapReceipt = async (invoice: string): Promise<Event | null> => {
+export const getZapReceipt = async (
+  invoice: string,
+  relay = "wss://relay.wavlake.com",
+): Promise<Event | null> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const relay = await Relay.connect("wss://relay.wavlake.com");
+      const relayConnection = await Relay.connect(relay);
       // seeing an API publish time that is 5 minutes behind the current time
       const offsetTime = 800;
       const since = Math.round(Date.now() / 1000) - offsetTime;
@@ -530,7 +533,7 @@ export const getZapReceipt = async (invoice: string): Promise<Event | null> => {
         kinds: [9735],
         since,
       };
-      const sub = relay.subscribe([filter], {
+      const sub = relayConnection.subscribe([filter], {
         onevent(event) {
           const [bolt11Tag, receiptInvoice] =
             event.tags.find((tag) => tag[0] === "bolt11") || [];
