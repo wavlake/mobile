@@ -50,6 +50,7 @@ import {
 import { pool } from "./relay-pool";
 import { NostrUserProfile } from "./types";
 import { signEvent } from "./signing";
+import { parseInvoice } from "./bolt11";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
@@ -508,10 +509,11 @@ export const parseZapRequestFromReceipt = (event: Event) => {
       event.tags.find((tag) => tag[0] === "description") ?? [];
     const receipt: Event = JSON.parse(zapRequest);
 
-    const [amountTag, amount] =
-      receipt.tags.find((tag) => tag[0] === "amount") ?? [];
+    const [bolt11Tag, bolt11Invoice] =
+      event.tags.find((tag) => tag[0] === "bolt11") ?? [];
+    const amountFromInvoice = parseInvoice(bolt11Invoice);
 
-    return { receipt, amount: parseInt(amount) };
+    return { receipt, amount: amountFromInvoice ?? 0 };
   } catch (e) {
     return { receipt: null, amount: null };
   }
@@ -746,32 +748,63 @@ export const getITagFromEvent = (
   return contentId.replace(prefix, "");
 };
 
-interface MarkedETag {
-  eventId: string;
-  relayUrl: string;
-  marker?: "reply" | "root" | "mention";
-  pubkey?: string;
-}
+// Utility function to extract e-tags
+const getETags = (event: Event): string[][] =>
+  event.tags.filter(([tag]) => tag === "e");
 
-export const getRootEventId = (event: Event): string | null => {
-  // First check for marked e tags (preferred method)
-  const rootTag = event.tags.find((tag) => tag[0] === "e" && tag[3] === "root");
+// Check for a specific marked tag
+// ["e", <event-id>, <relay-url>, <marker>, <pubkey>]
+const hasMarkedTag = (
+  event: Event,
+  marker: string,
+  eventId?: string,
+): boolean =>
+  getETags(event).some(
+    ([, tagId, , tagMarker]) =>
+      tagMarker === marker && (eventId ? tagId === eventId : true),
+  );
 
-  if (rootTag) {
-    return rootTag[1]; // The event ID is the second element
+// Check for root tag
+export const hasRootTag = (event: Event, eventId?: string): boolean =>
+  hasMarkedTag(event, "root", eventId);
+
+// Check for reply tag
+export const hasReplyTag = (event: Event, eventId?: string): boolean =>
+  hasMarkedTag(event, "reply", eventId);
+
+// Check if event is a root reply
+export const isRootReply = (event: Event, eventId?: string): boolean =>
+  hasRootTag(event, eventId) && !hasReplyTag(event);
+
+// Get mention tag
+const getMentionTag = (event: Event): string | null => {
+  const mentionTag = getETags(event).find(
+    ([, , , marker]) => marker === "mention",
+  );
+  return mentionTag ? mentionTag[1] : null;
+};
+
+// Determine parent event ID
+export const getParentEventId = (event: Event): string | null => {
+  // Strategy 1: Explicit reply tag
+  const replyTag = getETags(event).find(([, , , marker]) => marker === "reply");
+  if (replyTag) return replyTag[1];
+
+  // Strategy 2: Root reply
+  if (isRootReply(event)) {
+    const rootTag = getETags(event).find(([, , , marker]) => marker === "root");
+    if (rootTag) return rootTag[1];
   }
 
-  // If no marked reply tag was found, check for deprecated positional e tags
-  const eTags = event.tags.filter((tag) => tag[0] === "e");
+  // Strategy 3: Mention tag
+  const mentionEventId = getMentionTag(event);
+  if (mentionEventId) return mentionEventId;
 
-  if (eTags.length === 0) {
-    return null; // Not a reply
-  }
+  // Strategy 4: Positional e-tags
+  const eTags = getETags(event);
+  if (eTags.length === 0) return null;
+  if (eTags.length === 1) return eTags[0][1];
 
-  if (eTags.length === 1) {
-    return eTags[0][1]; // Single e tag indicates reply to this event
-  }
-
-  // Multiple positional e tags - last one is the reply-to event
+  // Multiple tags - last one is reply-to event
   return eTags[eTags.length - 1][1];
 };

@@ -12,7 +12,7 @@ import { PressableIcon } from "../PressableIcon";
 import { ShareButton } from "../shared";
 import Feather from "@expo/vector-icons/Feather";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
-import { getRootEventId } from "@/utils";
+import { getParentEventId } from "@/utils";
 import { satsFormatter } from "../WalletLabel";
 
 interface CommentActionBarProps {
@@ -53,7 +53,7 @@ export const CommentActionBar = ({
   const { repostEvent } = useReposts(comment);
 
   const handleReplyPress = () => {
-    const rootEventId = getRootEventId(comment);
+    const rootEventId = getParentEventId(comment);
     if (rootEventId) {
       router.push(`${basePathname}/comment/${rootEventId}`);
     }
@@ -105,7 +105,7 @@ export const CommentActionBar = ({
 
         <PressableIcon
           onPress={handleZapPress}
-          rightLabel={zapTotal > 0 ? satsFormatter(zapTotal) : undefined}
+          rightLabel={zapTotal > 0 ? satsFormatter(zapTotal * 1000) : undefined}
         >
           <MaterialCommunityIcons
             name="lightning-bolt"

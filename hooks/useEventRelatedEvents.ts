@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useAuth } from "./useAuth";
 import {
   parseZapRequestFromReceipt,
@@ -9,11 +9,15 @@ import {
   mergeEventsIntoCache,
   addEventToCache,
   getRelatedEventsFromCache,
+  isRootReply,
+  hasReplyTag,
+  hasRootTag,
+  getParentEventId,
 } from "@/utils";
 
 interface UseEventRelatedEvents {
   reactions: Event[];
-  topLevelReplies: Event[];
+  directReplies: Event[];
   getChildReplies: (parentId: string) => Event[];
   reposts: Event[];
   genericReposts: Event[];
@@ -23,26 +27,16 @@ interface UseEventRelatedEvents {
   error: unknown;
   userHasReacted: boolean;
   userHasZapped: number;
+  replyParent?: Event | null;
   addEventToCache: (event: Event) => void;
   refetch: () => void;
 }
 
-// Helper functions for reply hierarchy
-const hasRootTag = (reply: Event, commentId: string): boolean =>
-  reply.tags.some((tag) => tag?.[0] === "root" && tag.includes(commentId));
-
-const hasNonRootReplyTag = (reply: Event, commentId: string): boolean =>
-  reply.tags.some((tag) => tag?.[0] === "reply" && !tag.includes(commentId));
-
-const isRootReply = (reply: Event, commentId: string): boolean =>
-  hasRootTag(reply, commentId) && !hasNonRootReplyTag(reply, commentId);
-
 export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
-  const { getEventRelatedEvents } = useNostrEvents();
+  const { getEventRelatedEvents, getEventAsync } = useNostrEvents();
   const queryClient = useQueryClient();
   const queryKey = nostrQueryKeys.eventRelatedEvents(event.id);
   const { pubkey } = useAuth();
-
   const {
     data: eventsCache = {},
     isLoading,
@@ -53,8 +47,18 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     queryFn: async () => {
       const events = await getEventRelatedEvents(event);
       const oldCache = queryClient.getQueryData<KindEventCache>(queryKey) ?? {};
-
       return mergeEventsIntoCache(events, oldCache);
+    },
+    enabled: Boolean(event),
+    refetchOnMount: "always",
+  });
+
+  const replyToEventId = getParentEventId(event);
+  const { data: replyParent, isLoading: replyParentLoading } = useQuery({
+    queryKey: nostrQueryKeys.event(replyToEventId ?? ""),
+    queryFn: () => {
+      if (!replyToEventId) return null;
+      return getEventAsync(replyToEventId);
     },
     enabled: Boolean(event),
   });
@@ -67,21 +71,12 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     },
     [queryClient, queryKey],
   );
-
   const { replies, reactions, reposts, genericReposts, zapReceipts } =
     getRelatedEventsFromCache(eventsCache);
 
-  const topLevelReplies = replies.filter((reply) =>
-    isRootReply(reply, event.id),
-  );
-
   const getChildReplies = (parentId: string): Event[] =>
     replies.filter(
-      (reply) =>
-        hasRootTag(reply, event.id) &&
-        reply.tags.some(
-          (tag) => tag.includes("reply") && tag.includes(parentId),
-        ),
+      (reply) => hasRootTag(reply, parentId) || hasReplyTag(reply, parentId),
     );
 
   const userHasReacted = reactions.some((e) => e.pubkey === pubkey);
@@ -95,15 +90,20 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     return !!amount ? acc + amount : acc;
   }, 0);
 
+  const directReplies = replies.filter((e) => {
+    return isRootReply(e, event.id) || hasReplyTag(e, event.id);
+  });
+
   return {
     reactions,
     reposts,
-    topLevelReplies,
+    directReplies,
+    replyParent,
     getChildReplies,
     genericReposts,
     zapReceipts,
     zapTotal,
-    isLoading,
+    isLoading: isLoading || replyParentLoading,
     error,
     userHasReacted,
     userHasZapped,

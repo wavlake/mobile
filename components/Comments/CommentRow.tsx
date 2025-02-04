@@ -8,13 +8,15 @@ import { Event } from "nostr-tools";
 import { useNostrProfile } from "@/hooks";
 import { useEffect, useState } from "react";
 import { ReplyDialog } from "./ReplyDialog";
+import { Text } from "../shared/Text";
 import { CommentContent } from "./CommentContent";
-import { getRootEventId, getITagFromEvent } from "@/utils";
+import { getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { useNostrEvents } from "@/providers/NostrEventProvider";
 import { CommentActionBar } from "./CommentActionBar";
 import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
+import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
 
 interface CommentRowProps extends ViewProps {
   commentId?: string;
@@ -23,6 +25,7 @@ interface CommentRowProps extends ViewProps {
   isPressable?: boolean;
   showContentDetails?: boolean;
   lastReadDate?: number;
+  showReplyParent?: boolean;
   closeParent?: () => void;
   onPress?: (comment: Event) => void;
 }
@@ -33,6 +36,7 @@ export const CommentRow = ({
   isPressable = true,
   showContentDetails = false,
   lastReadDate,
+  showReplyParent = false,
   closeParent,
   onPress,
 }: CommentRowProps) => {
@@ -74,6 +78,7 @@ export const CommentRow = ({
   if (event.kind === 1) {
     return (
       <EventRenderer
+        showReplyParent={showReplyParent}
         comment={event}
         isPressable={isPressable}
         showContentDetails={showContentDetails}
@@ -107,6 +112,7 @@ const EventRenderer = ({
   comment,
   isPressable = true,
   showContentDetails = false,
+  showReplyParent,
   lastReadDate,
   closeParent,
   onPress,
@@ -116,33 +122,35 @@ const EventRenderer = ({
     reposts,
     reactions,
     zapReceipts,
-    topLevelReplies,
+    directReplies,
     genericReposts,
     zapTotal,
     userHasReacted,
     userHasZapped,
+    replyParent,
   } = useEventRelatedEvents(comment);
-
   const router = useRouter();
   const basePathname = useGetBasePathname();
+  const { data: replyToMetadata, isLoading: replyToMetadataIsLoading } =
+    useNostrProfile(replyParent?.pubkey);
   const contentId = getITagFromEvent(comment);
   const {
     data: npubMetadata,
     isFetching,
     isLoading,
   } = useNostrProfile(comment?.pubkey);
+
   const metadataIsLoading = isFetching || isLoading;
   const [dialogOpen, setDialogOpen] = useState(false);
 
   if (!comment) return null;
 
-  const onReplyPress = () => {
+  const onCommentPress = () => {
     if (onPress) {
       onPress(comment);
     } else {
-      const rootEventId = getRootEventId(comment);
-      if (rootEventId) {
-        router.push(`${basePathname}/comment/${rootEventId}`);
+      if (replyParent) {
+        router.push(`${basePathname}/comment/${replyParent.id}`);
       }
     }
   };
@@ -150,6 +158,31 @@ const EventRenderer = ({
 
   return (
     <>
+      <ReplyDialog
+        setIsOpen={setDialogOpen}
+        commentId={comment.id}
+        isOpen={dialogOpen}
+      />
+      {showReplyParent && replyParent && (
+        <TouchableOpacity
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+            paddingVertical: 8,
+          }}
+          onPress={() => {
+            router.push(`${basePathname}/comment/${replyParent.id}`);
+          }}
+        >
+          <Text>Replying to:</Text>
+          {replyToMetadataIsLoading ? (
+            <PulsatingEllipsisLoader />
+          ) : (
+            <Text bold>{replyToMetadata?.name ?? "unknown"}</Text>
+          )}
+        </TouchableOpacity>
+      )}
       <View
         style={{
           flexDirection: "row",
@@ -160,14 +193,9 @@ const EventRenderer = ({
             : "transparent",
         }}
       >
-        <ReplyDialog
-          setIsOpen={setDialogOpen}
-          commentId={comment.id}
-          isOpen={dialogOpen}
-        />
         {isPressable ? (
           <TouchableOpacity
-            onPress={onReplyPress}
+            onPress={onCommentPress}
             onLongPress={() => {
               setDialogOpen(true);
             }}
@@ -194,7 +222,7 @@ const EventRenderer = ({
       <CommentActionBar
         comment={comment}
         reposts={reposts}
-        replies={topLevelReplies}
+        replies={directReplies}
         reactions={reactions}
         zapReceipts={zapReceipts}
         genericReposts={genericReposts}

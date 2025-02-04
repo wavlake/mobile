@@ -3,7 +3,6 @@ import {
   useContext,
   useCallback,
   ReactNode,
-  useEffect,
   useState,
 } from "react";
 import { Event, Filter } from "nostr-tools";
@@ -18,11 +17,11 @@ import {
   getFollowsListMap,
   EventCache,
   getEventArray,
+  getParentEventId,
 } from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
-import { InteractionManager } from "react-native";
 
 const FORTY_EIGHT_HOURS = 48 * 60 * 60 * 1000;
 const SOCIAL_NOTES: Filter = {
@@ -131,7 +130,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
       // Check cache first
       const cachedEvent = queryClient.getQueryData<Event>(queryKey);
       if (cachedEvent) {
-        // console.log("fetched cached event", cachedEvent.id);
         return cachedEvent;
       }
 
@@ -179,9 +177,8 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         kinds: [0, 1, 6, 7, 16, 9735],
         ["#e"]: [event.id],
       };
-      const events = await querySyncSince(filter, readRelayList);
 
-      return events;
+      return querySyncSince(filter, readRelayList);
     },
     [queryClient, readRelayList],
   );
@@ -217,8 +214,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   }, [pubkey, readRelayList, queryClient]);
 
   const loadSecondaryData = async () => {
-    await InteractionManager.runAfterInteractions();
-
     try {
       const socialFilter = {
         ...SOCIAL_NOTES,
@@ -472,7 +467,7 @@ const querySyncSince = async (filter: Filter, readRelayList: string[]) => {
     ...filter,
     since: lastFetch,
   };
-  console.log("OK PROVIDER");
+  console.log("PROVIDER QUERY SYNC EVENT");
   const events = await pool.querySync(readRelayList, updatedFilter);
   if (!events) return [];
 
@@ -490,7 +485,8 @@ const getEventSince = async (filter: Filter, readRelayList: string[]) => {
     ...filter,
     since: lastFetch,
   };
-  console.log("OK PROVIDER");
+  console.log("PROVIDER GET EVENT");
+
   const event = await pool.get(readRelayList, updatedFilter);
   if (!event) return null;
 
