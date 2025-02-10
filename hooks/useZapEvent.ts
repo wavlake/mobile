@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
 import { useNostrRelayList } from "./nostrRelayList";
@@ -38,6 +38,14 @@ export const useZapEvent = (): {
   const { max_payment: maxNWCPayment } = data || {};
   const { pubkey, userIsLoggedIn } = useAuth();
   const { catalogUser } = useUser();
+
+  // clear success state after 5 seconds
+  useEffect(() => {
+    if (isSuccess) {
+      const timer = setTimeout(() => setIsSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess]);
 
   const userIdOrPubkey = catalogUser?.id ?? pubkey;
 
@@ -90,7 +98,6 @@ export const useZapEvent = (): {
       if (zapReceipt) {
         setIsLoading(false);
         setIsSuccess(true);
-        setTimeout(() => setIsSuccess(false), 5000);
       }
     } catch {
       // Fail silently if unable to connect to relay to get zap receipt.
