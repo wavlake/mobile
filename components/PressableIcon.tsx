@@ -53,7 +53,7 @@ export const PressableIcon = ({
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
-      hitSlop={10}
+      hitSlop={20}
       style={{
         flexDirection: "row",
         alignItems: "center",
