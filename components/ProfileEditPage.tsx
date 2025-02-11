@@ -19,7 +19,7 @@ export const ProfileEditPage = () => {
   const toast = useToast();
   const { pubkey = "" } = useAuth();
   const npub = encodeNpub(pubkey) ?? "";
-  const { data: profile } = useNostrProfile();
+  const { data: profile } = useNostrProfile(pubkey);
   const { save, isSaving } = useSaveNostrProfile();
   const [name, setName] = useState(profile?.name ?? "");
   const isSaveDisabled =

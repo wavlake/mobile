@@ -60,14 +60,11 @@ export const FOLLOWS_FILTER: Filter = {
 };
 
 export type NostrEventContextType = {
-  querySync: (filter: Filter) => Promise<Event[]>;
-  getEventAsync: (id: string) => Promise<Event | null>;
+  getLatestEvent: (filter: Filter, relays?: string[]) => Promise<Event | null>;
+  querySync: (filter: Filter, relays?: string[]) => Promise<Event[]>;
+  getEventFromId: (id: string, relays?: string[]) => Promise<Event | null>;
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
-  getPubkeyProfile: (pubkey: string) => Promise<NostrUserProfile | null>;
-  batchGetPubkeyProfiles: (
-    pubkeys: string[],
-  ) => Promise<Map<string, NostrUserProfile>>;
   getEventRelatedEvents: (event: Event) => Promise<Event[]>;
   comments: Event[];
   reactions: Event[];

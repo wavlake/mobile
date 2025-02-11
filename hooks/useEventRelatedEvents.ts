@@ -33,7 +33,7 @@ interface UseEventRelatedEvents {
 }
 
 export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
-  const { getEventRelatedEvents, getEventAsync } = useNostrEvents();
+  const { getEventRelatedEvents, getEventFromId } = useNostrEvents();
   const queryClient = useQueryClient();
   const queryKey = nostrQueryKeys.eTagEvents(event.id);
   const { pubkey } = useAuth();
@@ -58,7 +58,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     queryKey: nostrQueryKeys.event(replyToEventId ?? ""),
     queryFn: () => {
       if (!replyToEventId) return null;
-      return getEventAsync(replyToEventId);
+      return getEventFromId(replyToEventId);
     },
     enabled: Boolean(event),
   });

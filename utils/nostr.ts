@@ -612,12 +612,15 @@ export const subscribeToTicket = async (pubkey: string) => {
   });
 };
 
-export const getEventById = (eventId: string) => {
+export const getEventById = (
+  eventId: string,
+  relays: string[] = DEFAULT_READ_RELAY_URIS,
+) => {
   const filter = {
     ids: [eventId],
   };
 
-  return pool.get(DEFAULT_READ_RELAY_URIS, filter);
+  return pool.get(relays, filter);
 };
 
 export const getKind3Event = (

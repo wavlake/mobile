@@ -10,9 +10,11 @@ import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfile } from "./useNostrProfile";
 import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { NostrUserProfile } from "@/utils/types";
+import { useAuth } from "@/hooks/useAuth";
 
 export const useSaveNostrProfile = () => {
-  const { data: profile } = useNostrProfile();
+  const { pubkey } = useAuth();
+  const { data: profile } = useNostrProfile(pubkey);
   const { writeRelayList } = useNostrRelayList();
   const queryClient = useQueryClient();
   const nostrProfileMutation = useMutation({

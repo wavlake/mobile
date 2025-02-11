@@ -39,7 +39,7 @@ export const CommentRow = ({
   closeParent,
   onPress,
 }: CommentRowProps) => {
-  const { getEventAsync } = useNostrEvents();
+  const { getEventFromId } = useNostrEvents();
   const [event, setEvent] = useState<Event | undefined | null>(comment);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
@@ -48,7 +48,7 @@ export const CommentRow = ({
     }
 
     if (!commentId) return;
-    getEventAsync(commentId).then((event) => {
+    getEventFromId(commentId).then((event) => {
       setEvent(event);
       setIsLoading(false);
     });

@@ -37,8 +37,21 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   const { readRelayList } = useNostrRelayList();
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
 
-  const getEventAsync = useCallback(
-    async (id: string) => {
+  const getLatestEvent = useCallback(
+    async (filter: Filter, relays: string[] = readRelayList) => {
+      const event = await pool.get(relays, filter);
+      if (!event) return null;
+
+      const queryKey = nostrQueryKeys.event(event.id);
+      queryClient.setQueryData(queryKey, event);
+
+      return event;
+    },
+    [pool, queryClient],
+  );
+
+  const getEventFromId = useCallback(
+    async (id: string, relays?: string[]) => {
       const queryKey = nostrQueryKeys.event(id);
 
       // Check cache first
@@ -49,7 +62,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
       // Fetch if not in cache
       try {
-        const event = await getEventById(id);
+        const event = await getEventById(id, relays);
         if (event) {
           queryClient.setQueryData(queryKey, event);
         }
@@ -63,7 +76,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   );
 
   const querySync = useCallback(
-    async (filter: Filter) => {
+    async (filter: Filter, relays: string[] = readRelayList) => {
       const events = await querySyncSince(filter, readRelayList);
       return events;
     },
@@ -190,76 +203,77 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getPubkeyProfile = useCallback(
-    async (pubkey: string, relayList: string[] = readRelayList) => {
-      const queryKey = nostrQueryKeys.profile(pubkey);
-      const filter = {
-        kinds: [0],
-        authors: [pubkey],
-      };
-      const event = await queryClient.fetchQuery({
-        queryKey,
-        queryFn: async () => {
-          return getEventSince(filter, relayList);
-        },
-        staleTime: FORTY_EIGHT_HOURS,
-        gcTime: FORTY_EIGHT_HOURS * 10,
-      });
+  // const getPubkeyProfile = useCallback(
+  //   async (pubkey: string, relayList: string[] = readRelayList) => {
+  //     const queryKey = nostrQueryKeys.profile(pubkey);
+  //     const filter = {
+  //       kinds: [0],
+  //       authors: [pubkey],
+  //     };
 
-      return event
-        ? { ...decodeProfileMetadata(event), created_at: event.created_at }
-        : null;
-    },
-    [queryClient],
-  );
+  //     const event = await queryClient.fetchQuery({
+  //       queryKey,
+  //       queryFn: async () => {
+  //         return getEventSince(filter, relayList);
+  //       },
+  //       staleTime: Infinity,
+  //       gcTime: Infinity,
+  //     });
 
-  const batchGetPubkeyProfiles = useCallback(async (pubkeys: string[]) => {
-    if (!pubkeys.length) return new Map<string, NostrUserProfile>();
+  //     return event
+  //       ? { ...decodeProfileMetadata(event), created_at: event.created_at }
+  //       : null;
+  //   },
+  //   [queryClient],
+  // );
 
-    //skip profiles that are already in the cache
-    const existingProfiles = new Map<string, NostrUserProfile>();
-    const missingPubkeys = pubkeys.filter(
-      (pubkey) => !queryClient.getQueryData(nostrQueryKeys.profile(pubkey)),
-    );
+  // const batchGetPubkeyProfiles = useCallback(async (pubkeys: string[]) => {
+  //   if (!pubkeys.length) return new Map<string, NostrUserProfile>();
 
-    if (missingPubkeys.length === 0) {
-      pubkeys.forEach((pubkey) => {
-        const profile = queryClient.getQueryData<NostrUserProfile>(
-          nostrQueryKeys.profile(pubkey),
-        );
-        if (profile) {
-          existingProfiles.set(pubkey, profile);
-        }
-      });
-      return existingProfiles;
-    }
+  //   //skip profiles that are already in the cache
+  //   const existingProfiles = new Map<string, NostrUserProfile>();
+  //   const missingPubkeys = pubkeys.filter(
+  //     (pubkey) => !queryClient.getQueryData(nostrQueryKeys.profile(pubkey)),
+  //   );
 
-    const profiles = new Map<string, NostrUserProfile>();
-    const filter = {
-      kinds: [0],
-      authors: missingPubkeys,
-    };
-    const events = await querySync(filter);
-    events.forEach((event) => {
-      const exisitingProfile = profiles.get(event.pubkey);
-      // if the existingProfile is newer than the event, don't update
-      if (
-        !!exisitingProfile?.created_at &&
-        event.created_at < exisitingProfile.created_at
-      ) {
-        return;
-      }
+  //   if (missingPubkeys.length === 0) {
+  //     pubkeys.forEach((pubkey) => {
+  //       const profile = queryClient.getQueryData<NostrUserProfile>(
+  //         nostrQueryKeys.profile(pubkey),
+  //       );
+  //       if (profile) {
+  //         existingProfiles.set(pubkey, profile);
+  //       }
+  //     });
+  //     return existingProfiles;
+  //   }
 
-      const profile = decodeProfileMetadata(event);
-      if (profile) {
-        profiles.set(event.pubkey, {
-          ...profile,
-          created_at: event.created_at,
-        });
-      }
-    });
-    return profiles;
-  }, []);
+  //   const profiles = new Map<string, NostrUserProfile>();
+  //   const filter = {
+  //     kinds: [0],
+  //     authors: missingPubkeys,
+  //   };
+  //   const events = await querySync(filter);
+  //   events.forEach((event) => {
+  //     const exisitingProfile = profiles.get(event.pubkey);
+  //     // if the existingProfile is newer than the event, don't update
+  //     if (
+  //       !!exisitingProfile?.created_at &&
+  //       event.created_at < exisitingProfile.created_at
+  //     ) {
+  //       return;
+  //     }
+
+  //     const profile = decodeProfileMetadata(event);
+  //     if (profile) {
+  //       profiles.set(event.pubkey, {
+  //         ...profile,
+  //         created_at: event.created_at,
+  //       });
+  //     }
+  //   });
+  //   return profiles;
+  // }, []);
 
   const { data: comments } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
@@ -296,12 +310,13 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   return (
     <NostrEventContext.Provider
       value={{
+        getLatestEvent,
         querySync,
-        getEventAsync,
+        getEventFromId,
         cacheEventById,
         cacheEventsById,
-        getPubkeyProfile,
-        batchGetPubkeyProfiles,
+        // getPubkeyProfile,
+        // batchGetPubkeyProfiles,
         getEventRelatedEvents,
         comments: getEventArray(comments),
         reactions: getEventArray(reactions),
@@ -327,14 +342,6 @@ export function useNostrEvents() {
   }
   return context;
 }
-
-const decodeProfileMetadata = (event: Event) => {
-  try {
-    return JSON.parse(event.content) as NostrUserProfile;
-  } catch {
-    return null;
-  }
-};
 
 const querySyncSince = async (filter: Filter, readRelayList: string[]) => {
   const queryKey = JSON.stringify(filter);

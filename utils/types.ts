@@ -203,5 +203,4 @@ export interface NostrUserProfile {
   lud06?: string;
   zapService?: string;
   publicHex?: string;
-  created_at?: number;
 }
