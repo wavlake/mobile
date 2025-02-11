@@ -216,8 +216,18 @@ export const CommentActionBar = ({
           onChangeText={(value) => updateFormField("comment", value)}
           errorMessage={formState.errors.comment}
         />
-        <Button onPress={handleZap}>Zap</Button>
-        <Button onPress={() => setZapDialogOpen(false)}>Cancel</Button>
+        <View
+          style={{
+            paddingTop: 16,
+            gap: 16,
+            marginHorizontal: "auto",
+          }}
+        >
+          <Button onPress={handleZap}>Zap</Button>
+          <Button onPress={() => setZapDialogOpen(false)} color="white">
+            Cancel
+          </Button>
+        </View>
       </DialogWrapper>
     </>
   );
