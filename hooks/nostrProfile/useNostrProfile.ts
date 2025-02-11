@@ -29,13 +29,20 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
     gcTime: Infinity,
     enabled: !!pubkey,
     refetchOnMount: false,
-    structuralSharing: (prev: any, next: any) => {
-      if ("created_at" in next && "created_at" in prev) {
-        return next.created_at > prev.created_at ? next : prev;
-      }
-      return next;
-    },
-    placeholderData: (previousData) => previousData,
+    // structuralSharing: (prev: any, next: any) => {
+    //   if ("created_at" in next && "created_at" in prev) {
+    //     console.log("struct comp", { pubkey, prev, next });
+
+    //     return next.created_at > prev.created_at ? next : prev;
+    //   }
+    //   console.log("nexting", pubkey, next);
+
+    //   return next;
+    // },
+    // placeholderData: (previousData) => {
+    //   console.log("placeholder", { pubkey, previousData });
+    //   return previousData;
+    // },
   });
 
   const getProfileMetadata = useCallback(
