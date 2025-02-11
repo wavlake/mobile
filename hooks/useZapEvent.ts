@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
-import { useNostrRelayList } from "./nostrRelayList";
-
 import {
   fetchInvoice,
   getZapReceipt,
   openInvoiceInWallet,
   payInvoiceCommand,
   payWithNWC,
-  makeZapRequest,
   signEvent,
 } from "@/utils";
-import { useRouter } from "expo-router";
 import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
-import { usePublishComment } from "./usePublishComment";
-import { Event, EventTemplate, nip19, nip57 } from "nostr-tools";
+import { Event, nip57 } from "nostr-tools";
 import { useUser } from "./useUser";
+import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { fetchLNURLPaymentInfo, validateLNURLPayAmount } from "@/utils/luds";
+import { DEFAULT_WRITE_RELAY_URIS } from "@/utils/shared";
 
 type SendZap = (props: {
   event: Event;
@@ -33,11 +31,12 @@ export const useZapEvent = (): {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { data: settings } = useSettings();
-  const { enableNWC, defaultZapAmount } = settings || {};
+  const { enableNWC } = settings || {};
   const { data, setBalance, refetch: refetchBalance } = useWalletBalance();
   const { max_payment: maxNWCPayment } = data || {};
   const { pubkey, userIsLoggedIn } = useAuth();
   const { catalogUser } = useUser();
+  const { getPubkeyProfile } = useNostrEvents();
 
   // clear success state after 5 seconds
   useEffect(() => {
@@ -51,96 +50,126 @@ export const useZapEvent = (): {
 
   const toast = useToast();
 
+  const shouldPayWithNWC = Boolean(
+    userIsLoggedIn &&
+      pubkey &&
+      enableNWC &&
+      settings?.nwcCommands.includes(payInvoiceCommand),
+  );
+
   const sendZap: SendZap = async ({ event, comment = "", amountInSats }) => {
-    // TODO - check if maxNWCPayment is in sats or msats
-    if (enableNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
+    if (shouldPayWithNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
       toast.show(
-        `Your wallet's zap limit is ${maxNWCPayment} sats. Please try a lower amount or adjust your wallet limits.`,
+        `Amount must be less than your NWC maximum of ${maxNWCPayment} sats`,
       );
       return;
     }
-    setIsLoading(true);
 
-    const zapRequest = await nip57.makeZapRequest({
-      profile: event.pubkey,
-      amount: amountInSats * 1000,
-      // TODO - figure out which relays to use, based on zapee's pubkey?
-      relays: [],
-      comment,
-      event: null,
-    });
-    const signedZapRequest = await signEvent(zapRequest);
-    if (!signedZapRequest) {
-      toast.show("Failed to sign zap request.");
-      setIsLoading(false);
+    const userProfile = await getPubkeyProfile(event.pubkey);
+    if (!userProfile?.lud16) {
+      toast.show("Unable to find author's LNURL.");
       return;
     }
 
-    const response = await fetchInvoice({
-      zapRequest,
-      amountInSats,
-      // TODO figure out which zapEndpoint to use, based of pubkey's lnurl?
-      zapEndpoint: "",
-    });
-
-    if ("reason" in response) {
-      toast.show(response.reason);
-      setIsLoading(false);
-
-      return;
-    }
-
-    const invoice = response.pr;
-    // start listening for payment ASAP
     try {
-      const zapReceipt = await getZapReceipt(invoice);
+      // Get LNURL-pay metadata and callback URL
+      const { callback, maxSendable, minSendable, metadata } =
+        await fetchLNURLPaymentInfo(userProfile.lud16);
 
-      if (zapReceipt) {
-        setIsLoading(false);
-        setIsSuccess(true);
+      // Convert sats to msats for LNURL
+      const amountMsats = amountInSats * 1000;
+
+      // Validate amount against LNURL constraints
+      if (!validateLNURLPayAmount(amountMsats, minSendable, maxSendable)) {
+        toast.show(
+          `Amount must be between ${minSendable / 1000} and ${
+            maxSendable / 1000
+          } sats`,
+        );
+        return;
       }
-    } catch {
-      // Fail silently if unable to connect to relay to get zap receipt.
-    }
 
-    // pay the invoice
-    // pay the invoice
-    try {
-      if (
-        userIsLoggedIn &&
-        pubkey &&
-        enableNWC &&
-        settings?.nwcCommands.includes(payInvoiceCommand)
-      ) {
-        // use NWC, responds with preimage if successful
-        const response = await payWithNWC({
-          userIdOrPubkey,
-          invoice,
-          walletPubkey: settings.nwcPubkey,
-          nwcRelay: settings.nwcRelay,
+      // Rest of the existing zap flow using callback as zapEndpoint
+      setIsLoading(true);
+      // TODO - determine which relays to use for the pubkey being zapped
+      const relays = DEFAULT_WRITE_RELAY_URIS;
+      const zapRequest = await nip57.makeZapRequest({
+        profile: event.pubkey,
+        event: event.id,
+        amount: amountMsats,
+        relays: [...relays],
+        comment,
+      });
+      const signedZapRequest = await signEvent(zapRequest);
+      if (!signedZapRequest) {
+        toast.show("Failed to sign zap request.");
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetchInvoice({
+        zapRequest,
+        amountInSats,
+        zapEndpoint: callback,
+      });
+
+      if ("reason" in response) {
+        toast.show(response.reason);
+        setIsLoading(false);
+
+        return;
+      }
+
+      const invoice = response.pr;
+      // start listening for payment ASAP
+      try {
+        getZapReceipt(invoice).then((zapReceipt) => {
+          if (zapReceipt) {
+            setIsLoading(false);
+            setIsSuccess(true);
+          }
         });
+      } catch {
+        // Fail silently if unable to connect to relay to get zap receipt.
+      }
 
-        const { error, result, result_type } = response;
+      // pay the invoice
+      try {
+        if (shouldPayWithNWC && settings) {
+          // use NWC, responds with preimage if successful
+          const response = await payWithNWC({
+            userIdOrPubkey,
+            invoice,
+            walletPubkey: settings.nwcPubkey,
+            nwcRelay: settings.nwcRelay,
+          });
 
-        if (result_type !== "pay_invoice") {
-          toast.show("Something went wrong. Please try again later.");
-          return;
-        }
-        if (error?.message) {
-          const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
-          toast.show(errorMsg);
-        }
-        if (result?.balance) {
-          setBalance(result.balance);
+          const { error, result, result_type } = response;
+          if (result_type !== "pay_invoice") {
+            toast.show("Something went wrong. Please try again later.");
+            return;
+          }
+          if (error?.message) {
+            const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
+            toast.show(errorMsg);
+          }
+          if (result?.balance) {
+            setBalance(result.balance);
+          } else {
+            refetchBalance();
+          }
         } else {
-          refetchBalance();
+          // fallback to opening the invoice in the default wallet
+          openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
         }
-      } else {
-        // fallback to opening the invoice in the default wallet
-        openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
+      } catch (e) {
+        console.error("useZapEvent error", e);
+        toast.show(
+          "Something went wrong while paying the invoice. Please try again later.",
+        );
       }
     } catch (e) {
-      console.log("useZapContent error", e);
+      console.error("useZapEvent error", e);
       toast.show("Something went wrong. Please try again later.");
     }
 
