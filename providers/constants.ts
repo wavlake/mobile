@@ -105,41 +105,37 @@ export const nostrQueryKeys = {
     pubkey,
   ],
   // kind 1 with user pubkey #p tag
-  comments: (pubkey: string) => ["nostr", "kind1", pubkey],
+  pTagComments: (pubkey: string) => ["nostr", "kind1", pubkey],
   // kind 6 with user pubkey #p tag
-  reposts: (pubkey: string) => ["nostr", "kind6", pubkey],
+  pTagReposts: (pubkey: string) => ["nostr", "kind6", pubkey],
   // kind 7 with user pubkey #p tag
-  reactions: (pubkey: string) => ["nostr", "kind7", pubkey],
+  pTagReactions: (pubkey: string) => ["nostr", "kind7", pubkey],
   // kind 16 with user pubkey #p tag
-  genericReposts: (pubkey: string) => ["nostr", "kind16", pubkey],
+  pTagGenericReposts: (pubkey: string) => ["nostr", "kind16", pubkey],
   // kind 9735 with user pubkey #p tag
-  zapReceipts: (pubkey: string) => ["nostr", "kind9735", pubkey],
+  pTagZapReceipts: (pubkey: string) => ["nostr", "kind9735", pubkey],
   // any kind with event #e tag that references the eventId (replies, reposts, reactions, etc)
-  eventRelatedEvents: (eventId: string) => [
-    "nostr",
-    "eventRelatedEvents",
-    eventId,
-  ],
+  eTagEvents: (eventId: string) => ["nostr", "eTagEvents", eventId],
   contentComments: (contentId: string) => [
     "nostr",
     "content-comments",
     contentId,
   ],
   // kind 1 with event #e tag
-  replies: (eventId: string) => ["nostr", "replies", eventId],
+  eTagReplies: (eventId: string) => ["nostr", "replies", eventId],
 };
 
 export function getQueryKeyForKind(kind: number, pubkey: string) {
   switch (kind) {
     case 1:
-      return nostrQueryKeys.comments(pubkey);
+      return nostrQueryKeys.pTagComments(pubkey);
     case 6:
-      return nostrQueryKeys.reposts(pubkey);
+      return nostrQueryKeys.pTagReposts(pubkey);
     case 7:
-      return nostrQueryKeys.reactions(pubkey);
+      return nostrQueryKeys.pTagReactions(pubkey);
     case 16:
-      return nostrQueryKeys.genericReposts(pubkey);
+      return nostrQueryKeys.pTagGenericReposts(pubkey);
     case 9735:
-      return nostrQueryKeys.zapReceipts(pubkey);
+      return nostrQueryKeys.pTagZapReceipts(pubkey);
   }
 }

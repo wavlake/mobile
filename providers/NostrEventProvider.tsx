@@ -180,7 +180,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         // Update cache for each referenced event
         for (const [eventId, events] of eventIdMap) {
           queryClient.setQueryData<KindEventCache>(
-            nostrQueryKeys.eventRelatedEvents(eventId),
+            nostrQueryKeys.eTagEvents(eventId),
             (oldCache = {}) => mergeEventsIntoCache(events, oldCache),
           );
         }
@@ -262,27 +262,27 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const { data: comments } = useQuery<EventCache>({
-    queryKey: nostrQueryKeys.comments(pubkey ?? ""),
+    queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
   const { data: reactions } = useQuery<EventCache>({
-    queryKey: nostrQueryKeys.reactions(pubkey ?? ""),
+    queryKey: nostrQueryKeys.pTagReactions(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
   const { data: reposts } = useQuery<EventCache>({
-    queryKey: nostrQueryKeys.reposts(pubkey ?? ""),
+    queryKey: nostrQueryKeys.pTagReposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
   const { data: genericReposts } = useQuery<EventCache>({
-    queryKey: nostrQueryKeys.genericReposts(pubkey ?? ""),
+    queryKey: nostrQueryKeys.pTagGenericReposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
   const { data: zapReceipts } = useQuery<EventCache>({
-    queryKey: nostrQueryKeys.zapReceipts(pubkey ?? ""),
+    queryKey: nostrQueryKeys.pTagZapReceipts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
