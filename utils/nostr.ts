@@ -23,6 +23,7 @@ import {
   utils,
   nip04,
   getPublicKey,
+  VerifiedEvent,
 } from "nostr-tools";
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
@@ -50,7 +51,7 @@ import {
 import { pool } from "./relay-pool";
 import { NostrUserProfile } from "./types";
 import { signEvent } from "./signing";
-import { parseInvoice } from "./bolt11";
+import { parseInvoice } from "./bolts";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
@@ -482,7 +483,7 @@ export const fetchInvoice = async ({
   amountInSats,
   zapEndpoint = "https://www.wavlake.com/api/zap",
 }: {
-  zapRequest: EventTemplate;
+  zapRequest: VerifiedEvent;
   amountInSats: number;
   zapEndpoint?: string;
 }): Promise<{ pr: string } | { status: string; reason: string }> => {
@@ -519,10 +520,13 @@ export const parseZapRequestFromReceipt = (event: Event) => {
   }
 };
 
-export const getZapReceipt = async (invoice: string): Promise<Event | null> => {
+export const getZapReceipt = async (
+  invoice: string,
+  relay = "wss://relay.wavlake.com",
+): Promise<Event | null> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const relay = await Relay.connect("wss://relay.wavlake.com");
+      const relayConnection = await Relay.connect(relay);
       // seeing an API publish time that is 5 minutes behind the current time
       const offsetTime = 800;
       const since = Math.round(Date.now() / 1000) - offsetTime;
@@ -530,7 +534,7 @@ export const getZapReceipt = async (invoice: string): Promise<Event | null> => {
         kinds: [9735],
         since,
       };
-      const sub = relay.subscribe([filter], {
+      const sub = relayConnection.subscribe([filter], {
         onevent(event) {
           const [bolt11Tag, receiptInvoice] =
             event.tags.find((tag) => tag[0] === "bolt11") || [];

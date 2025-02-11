@@ -21,7 +21,6 @@ import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
 interface CommentRowProps extends ViewProps {
   commentId?: string;
   comment?: Event;
-  replies?: Event[];
   isPressable?: boolean;
   showContentDetails?: boolean;
   lastReadDate?: number;

@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useTheme } from "@react-navigation/native";
@@ -9,7 +9,7 @@ import { useReactions } from "@/hooks/useReactions";
 import { DialogWrapper } from "../DialogWrapper";
 import { useReposts, useToast, useZapEvent } from "@/hooks";
 import { PressableIcon } from "../PressableIcon";
-import { ShareButton } from "../shared";
+import { Button, ShareButton, TextInput } from "../shared";
 import Feather from "@expo/vector-icons/Feather";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { getParentEventId } from "@/utils";
@@ -28,6 +28,20 @@ interface CommentActionBarProps {
   zapTotal: number;
 }
 
+interface ZapFormState {
+  amount: string;
+  comment: string;
+  errors: {
+    amount?: string;
+    comment?: string;
+  };
+}
+const initialFormState: ZapFormState = {
+  amount: "",
+  comment: "",
+  errors: {},
+};
+
 export const CommentActionBar = ({
   comment,
   contentId,
@@ -43,11 +57,12 @@ export const CommentActionBar = ({
   const router = useRouter();
   const { colors } = useTheme();
   const [reactionDialogOpen, setReactionDialogOpen] = useState(false);
-  const { sendZap } = useZapEvent({
-    isPodcast: false,
-    trackId: contentId,
-    parentContentId: comment.id,
-  });
+  const [zapDialogOpen, setZapDialogOpen] = useState(false);
+  const {
+    sendZap,
+    isLoading: zapInProgress,
+    isSuccess: zapSuccess,
+  } = useZapEvent();
 
   const { reactToEvent } = useReactions(comment);
   const { repostEvent } = useReposts(comment);
@@ -58,10 +73,32 @@ export const CommentActionBar = ({
       router.push(`${basePathname}/comment/${rootEventId}`);
     }
   };
+  const [formState, setFormState] = useState<ZapFormState>(initialFormState);
 
-  const handleZapPress = () => {
-    toast.show("Zap feature is not yet implemented");
-    // sendZap({ amount: 1000 })
+  const updateFormField = <K extends keyof ZapFormState>(
+    field: K,
+    value: ZapFormState[K],
+  ) => {
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+      errors: {
+        ...prev.errors,
+        [field]: undefined, // Clear specific field error
+      },
+    }));
+  };
+
+  const handleZap = () => {
+    const amountInSats = parseInt(formState.amount);
+
+    if (isNaN(amountInSats) || amountInSats <= 0) {
+      toast.show("Zap amount must be a positive integer");
+      return;
+    }
+
+    sendZap({ event: comment, amountInSats, comment: formState.comment });
+    setZapDialogOpen(false);
   };
 
   const handleReactionPress = () => {
@@ -104,14 +141,24 @@ export const CommentActionBar = ({
         </PressableIcon>
 
         <PressableIcon
-          onPress={handleZapPress}
+          onPress={() => setZapDialogOpen(true)}
           rightLabel={zapTotal > 0 ? satsFormatter(zapTotal * 1000) : undefined}
         >
-          <MaterialCommunityIcons
-            name="lightning-bolt"
-            size={20}
-            color={userHasZapped ? brandColors.orange.DEFAULT : colors.text}
-          />
+          {zapInProgress ? (
+            <ActivityIndicator size="small" />
+          ) : zapSuccess ? (
+            <MaterialCommunityIcons
+              name="check"
+              size={20}
+              color={brandColors.mint.DEFAULT}
+            />
+          ) : (
+            <MaterialCommunityIcons
+              name="lightning-bolt"
+              size={20}
+              color={userHasZapped ? brandColors.orange.DEFAULT : colors.text}
+            />
+          )}
         </PressableIcon>
 
         <PressableIcon
@@ -152,6 +199,35 @@ export const CommentActionBar = ({
         setIsOpen={setReactionDialogOpen}
       >
         {/* Reaction picker dialog content */}
+      </DialogWrapper>
+      <DialogWrapper isOpen={zapDialogOpen} setIsOpen={setZapDialogOpen}>
+        <TextInput
+          label="Amount"
+          keyboardType="numeric"
+          autoCorrect={false}
+          value={formState.amount}
+          onChangeText={(value) => updateFormField("amount", value)}
+          errorMessage={formState.errors.amount}
+        />
+        <TextInput
+          label="Comment (optional)"
+          autoCorrect={false}
+          value={formState.comment}
+          onChangeText={(value) => updateFormField("comment", value)}
+          errorMessage={formState.errors.comment}
+        />
+        <View
+          style={{
+            paddingTop: 16,
+            gap: 16,
+            marginHorizontal: "auto",
+          }}
+        >
+          <Button onPress={handleZap}>Zap</Button>
+          <Button onPress={() => setZapDialogOpen(false)} color="white">
+            Cancel
+          </Button>
+        </View>
       </DialogWrapper>
     </>
   );

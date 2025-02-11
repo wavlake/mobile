@@ -149,6 +149,8 @@ export const useZapContent = ({
     } catch {
       // Fail silently if unable to connect to wavlake relay to get zap receipt.
     }
+
+    // pay the invoice
     try {
       if (
         userIsLoggedIn &&

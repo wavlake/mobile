@@ -20,7 +20,7 @@ import {
   View,
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { parseInvoice } from "@/utils/bolt11";
+import { parseInvoice } from "@/utils/bolts";
 
 export default function Withdraw({}: {}) {
   const router = useRouter();
