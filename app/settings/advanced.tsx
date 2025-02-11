@@ -218,7 +218,7 @@ export default function AdvancedSettingsPage() {
   const { settings, updateSettings } = useSettingsManager();
   const { catalogUser } = useUser();
   const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
-  if (!settings) return null;
+
   const handleSettingsUpdate = async (newSettings: Partial<Settings>) => {
     try {
       toast.clearAll();
@@ -257,6 +257,8 @@ export default function AdvancedSettingsPage() {
     !catalogUser?.isLocked &&
     settings?.enableNWC &&
     settings.nwcRelay === WAVLAKE_RELAY;
+
+  if (!settings) return null;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
