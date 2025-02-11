@@ -15,7 +15,6 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
     queryKey: nostrQueryKeys.profile(pubkey ?? ""),
     queryFn: async () => {
       if (!pubkey) return null;
-      // todo - implement tracking of last query time that is saved to the react-query cache
       const LAST_QUERY_TIME = 0;
       const filter = {
         kinds: [0],
@@ -24,7 +23,6 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
       };
 
       const event = await getLatestEvent(filter, relays);
-
       return event ? decodeProfileMetadata(event) : null;
     },
     staleTime: STALE_TIME,
@@ -37,7 +35,6 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
       }
       return next;
     },
-    // Return cached data immediately, but check for updates in the background
     placeholderData: (previousData) => previousData,
   });
 
@@ -45,14 +42,12 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
     async (targetPubkey: string, relayList?: string[]) => {
       const queryKey = nostrQueryKeys.profile(targetPubkey);
 
-      // Check if we have cached data and if it's still fresh
       const cachedData = queryClient.getQueryData(queryKey);
       const queryState = queryClient.getQueryState(queryKey);
       const dataAge = queryState?.dataUpdatedAt
         ? Date.now() - queryState.dataUpdatedAt
         : Infinity;
 
-      // Only fetch if no cache exists or if data is stale
       if (!cachedData || dataAge > STALE_TIME) {
         return queryClient.fetchQuery({
           queryKey,
@@ -78,31 +73,58 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
 
       return cachedData as NostrUserProfileWithTimestamp | null;
     },
-    [queryClient],
+    [queryClient, getLatestEvent],
   );
 
   const batchGetProfileMetadata = useCallback(
-    async (pubkeys: string[]) => {
-      const profiles: Map<string, NostrUserProfileWithTimestamp> = new Map();
-      await Promise.all(
-        pubkeys.map(async (pubkey) => {
-          const newMetadata = await getProfileMetadata(pubkey);
-          if (newMetadata) {
-            const oldMetadata = profiles.get(pubkey);
-            if (!oldMetadata) {
-              profiles.set(pubkey, newMetadata);
-              return;
-            }
+    async (pubkeys: string[], relayList?: string[]) => {
+      // Skip empty requests
+      if (!pubkeys.length)
+        return new Map<string, NostrUserProfileWithTimestamp>();
 
-            if (newMetadata.created_at > oldMetadata.created_at) {
-              profiles.set(pubkey, newMetadata);
-            }
+      // Check cache first and collect missing pubkeys
+      const profiles = new Map<string, NostrUserProfileWithTimestamp>();
+      const missingPubkeys: string[] = [];
+
+      pubkeys.forEach((pubkey) => {
+        const queryKey = nostrQueryKeys.profile(pubkey);
+        const cachedData = queryClient.getQueryData(queryKey);
+        const queryState = queryClient.getQueryState(queryKey);
+        const dataAge = queryState?.dataUpdatedAt
+          ? Date.now() - queryState.dataUpdatedAt
+          : Infinity;
+
+        if (cachedData && dataAge <= STALE_TIME) {
+          profiles.set(pubkey, cachedData as NostrUserProfileWithTimestamp);
+        } else {
+          missingPubkeys.push(pubkey);
+        }
+      });
+
+      // If we have missing profiles, fetch them in a single query
+      if (missingPubkeys.length > 0) {
+        const filter = {
+          kinds: [0],
+          authors: missingPubkeys,
+        };
+
+        const { querySync } = useNostrEvents();
+        const events = await querySync(filter, relayList);
+
+        // Process and cache the results
+        events.forEach((event) => {
+          const profile = decodeProfileMetadata(event);
+          if (profile) {
+            const queryKey = nostrQueryKeys.profile(event.pubkey);
+            queryClient.setQueryData(queryKey, profile);
+            profiles.set(event.pubkey, profile);
           }
-        }),
-      );
+        });
+      }
+
       return profiles;
     },
-    [getProfileMetadata],
+    [queryClient],
   );
 
   return {
