@@ -108,7 +108,7 @@ export const useZapEvent = (): {
       }
 
       const response = await fetchInvoice({
-        zapRequest,
+        zapRequest: signedZapRequest,
         amountInSats,
         zapEndpoint: callback,
       });

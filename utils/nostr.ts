@@ -23,6 +23,7 @@ import {
   utils,
   nip04,
   getPublicKey,
+  VerifiedEvent,
 } from "nostr-tools";
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
@@ -482,7 +483,7 @@ export const fetchInvoice = async ({
   amountInSats,
   zapEndpoint = "https://www.wavlake.com/api/zap",
 }: {
-  zapRequest: EventTemplate;
+  zapRequest: VerifiedEvent;
   amountInSats: number;
   zapEndpoint?: string;
 }): Promise<{ pr: string } | { status: string; reason: string }> => {
