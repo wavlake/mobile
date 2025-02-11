@@ -50,7 +50,7 @@ import {
 import { pool } from "./relay-pool";
 import { NostrUserProfile } from "./types";
 import { signEvent } from "./signing";
-import { parseInvoice } from "./bolt11";
+import { parseInvoice } from "./bolts";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 

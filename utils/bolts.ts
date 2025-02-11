@@ -1,3 +1,5 @@
+// BOLT 11
+// https://github.com/lightning/bolts/blob/master/11-payment-encoding.md
 export function parseInvoice(x: string) {
   const SATS_PER_BTC = 100_000_000;
   const re = new RegExp(`(lnbc)([1234567890]{1,})(\\w)1\\w+`);
