@@ -18,14 +18,15 @@ export const TrackPage = () => {
   const { loadTrackList } = useMusicPlayer();
   const { trackId: trackIdParam } = useLocalSearchParams();
   const trackId = trackIdParam as string;
-  const { data: track, isLoading } = useQuery({
+  const { data: track, isPending: trackLoading } = useQuery({
     queryKey: [trackId],
     queryFn: () => getTrack(trackId as string),
   });
-  const { data: commentIds = [], isFetching } = useTrackComments(trackId, 10);
+  const { data: commentIds = [], isPending: commentsLoading } =
+    useTrackComments(trackId, 10);
   const screenWidth = Dimensions.get("window").width;
 
-  if (isLoading) {
+  if (trackLoading) {
     return <LoadingScreen loading />;
   }
 
@@ -64,7 +65,7 @@ export const TrackPage = () => {
       </View>
       <CommentList
         commentIds={commentIds}
-        isLoading={isFetching}
+        isLoading={commentsLoading}
         showMoreLink={{
           pathname: `${basePathname}/track/[trackId]/comments`,
           params: {
