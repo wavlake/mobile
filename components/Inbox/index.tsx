@@ -4,7 +4,7 @@ import { PillTabView } from "../PillTabView";
 import { ContentTab } from "./ContentTab";
 import { NonContentTab } from "./NonContentTab";
 import { useInbox } from "@/hooks";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useNostrEvents } from "@/providers";
 import { Center } from "../shared/Center";
 
 export const InboxPage = () => {

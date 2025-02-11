@@ -30,7 +30,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "@sentry/react-native";
 import { BUILD_NUM, VERSION } from "@/app.config";
 import { QueryProvider } from "@/components/QueryProvider";
-import { NostrEventProvider } from "@/providers/NostrEventProvider";
+import { NostrEventProvider } from "@/providers";
 
 const release = `${VERSION}-${BUILD_NUM}`;
 const NODE_ENV = process.env.NODE_ENV;

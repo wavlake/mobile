@@ -2,7 +2,7 @@ import { getEventById } from "@/utils";
 import { useQuery, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Event } from "nostr-tools";
-import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys, useNostrEvents } from "@/providers";
 
 export const getNostrEventQueryKey = (nostrEventId?: string | null) => {
   return ["event", nostrEventId];

@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useAuth } from "./useAuth";
-import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys, useNostrEvents } from "@/providers";
 
 const makeKind1Event = (
   pubkey: string,

@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useNostrEvents } from "@/providers";
 import { useQuery } from "@tanstack/react-query";
 
 export const useNostrProfile = (pubkey?: string | null) => {

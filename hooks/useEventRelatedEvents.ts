@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
-import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys, useNostrEvents } from "@/providers";
 import { useCallback } from "react";
 import { useAuth } from "./useAuth";
 import {
@@ -35,7 +35,7 @@ interface UseEventRelatedEvents {
 export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   const { getEventRelatedEvents, getEventAsync } = useNostrEvents();
   const queryClient = useQueryClient();
-  const queryKey = nostrQueryKeys.eventRelatedEvents(event.id);
+  const queryKey = nostrQueryKeys.eTagEvents(event.id);
   const { pubkey } = useAuth();
   const {
     data: eventsCache = {},

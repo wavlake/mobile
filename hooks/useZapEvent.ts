@@ -13,7 +13,7 @@ import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 import { Event, nip57 } from "nostr-tools";
 import { useUser } from "./useUser";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useNostrEvents } from "@/providers";
 import { fetchLNURLPaymentInfo, validateLNURLPayAmount } from "@/utils/luds";
 import { DEFAULT_WRITE_RELAY_URIS } from "@/utils/shared";
 

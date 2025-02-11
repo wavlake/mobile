@@ -7,7 +7,7 @@ import { Linking, View } from "react-native";
 import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useNostrEvents } from "@/providers";
 
 interface ParsedTextWrapperProps {
   content?: string;

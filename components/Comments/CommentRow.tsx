@@ -13,7 +13,7 @@ import { CommentContent } from "./CommentContent";
 import { getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useNostrEvents } from "@/providers";
 import { CommentActionBar } from "./CommentActionBar";
 import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
 import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
