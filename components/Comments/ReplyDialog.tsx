@@ -52,7 +52,7 @@ const ReplyDialogContents = ({
   const { save: publishReply } = usePublishReply();
   const { colors } = useTheme();
   const queryClient = useQueryClient();
-  const replyQueryKey = nostrQueryKeys.pTagReplies(parentComment.id);
+  const replyQueryKey = nostrQueryKeys.eTagReplies(parentComment.id);
   const [comment, setComment] = useState("");
   const {
     data: npubMetadata,

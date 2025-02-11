@@ -105,24 +105,41 @@ export const nostrQueryKeys = {
     pubkey,
   ],
   // kind 1 with user pubkey #p tag
-  pTagComments: (pubkey: string) => ["nostr", "kind1", pubkey],
+  pTagComments: (pubkey: string) => ["nostr", "kind-1", "event-list", pubkey],
   // kind 6 with user pubkey #p tag
-  pTagReposts: (pubkey: string) => ["nostr", "kind6", pubkey],
+  pTagReposts: (pubkey: string) => ["nostr", "kind-6", "event-list", pubkey],
   // kind 7 with user pubkey #p tag
-  pTagReactions: (pubkey: string) => ["nostr", "kind7", pubkey],
+  pTagReactions: (pubkey: string) => ["nostr", "kind-7", "event-list", pubkey],
   // kind 16 with user pubkey #p tag
-  pTagGenericReposts: (pubkey: string) => ["nostr", "kind16", pubkey],
-  // kind 9735 with user pubkey #p tag
-  pTagZapReceipts: (pubkey: string) => ["nostr", "kind9735", pubkey],
-  // any kind with event #e tag that references the eventId (replies, reposts, reactions, etc)
-  eTagEvents: (eventId: string) => ["nostr", "eTagEvents", eventId],
-  contentComments: (contentId: string) => [
+  pTagGenericReposts: (pubkey: string) => [
     "nostr",
-    "content-comments",
+    "kind-16",
+    "event-list",
+    pubkey,
+  ],
+  // kind 9735 with user pubkey #p tag
+  pTagZapReceipts: (pubkey: string) => [
+    "nostr",
+    "kind-9735",
+    "event-list",
+    pubkey,
+  ],
+  // any kind with event #e tag that references the eventId (replies, reposts, reactions, etc)
+  eTagEvents: (eventId: string) => [
+    "nostr",
+    "eTagEvents",
+    "event-list",
+    eventId,
+  ],
+  // kind 1 with content #i tag
+  iTagComments: (contentId: string) => [
+    "nostr",
+    "iTag",
+    "event-list",
     contentId,
   ],
   // kind 1 with event #e tag
-  eTagReplies: (eventId: string) => ["nostr", "replies", eventId],
+  eTagReplies: (eventId: string) => ["nostr", "replies", "event-list", eventId],
 };
 
 export function getQueryKeyForKind(kind: number, pubkey: string) {
