@@ -146,6 +146,7 @@ export const useZapEvent = (): {
 
           const { error, result, result_type } = response;
           if (result_type !== "pay_invoice") {
+            setIsLoading(false);
             toast.show("Something went wrong. Please try again later.");
             return;
           }
