@@ -92,7 +92,7 @@ export const CommentActionBar = ({
   const handleZap = () => {
     const amountInSats = parseInt(formState.amount);
 
-    if (isNaN(amountInSats) || amountInSats < 0) {
+    if (isNaN(amountInSats) || amountInSats <= 0) {
       toast.show("Zap amount must be a positive integer");
       return;
     }

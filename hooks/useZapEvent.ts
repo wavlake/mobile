@@ -147,12 +147,18 @@ export const useZapEvent = (): {
           const { error, result, result_type } = response;
           if (result_type !== "pay_invoice") {
             setIsLoading(false);
-            toast.show("Something went wrong. Please try again later.");
+            toast.show(
+              `Something went wrong, result_type: ${result_type}. Please try again later.`,
+            );
             return;
           }
           if (error?.message) {
             const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
-            toast.show(errorMsg);
+            setIsLoading(false);
+            toast.show(
+              `Something went wrong: ${errorMsg}. Please try again later.`,
+            );
+            return;
           }
           if (result?.balance) {
             setBalance(result.balance);
