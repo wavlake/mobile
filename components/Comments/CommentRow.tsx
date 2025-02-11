@@ -134,11 +134,12 @@ const EventRenderer = ({
     useNostrProfile(replyParent?.pubkey);
   const contentId = getITagFromEvent(comment);
   const {
-    data: npubMetadata,
+    data: event,
+    decodeProfileMetadata,
     isFetching,
     isLoading,
   } = useNostrProfile(comment?.pubkey);
-
+  const profile = decodeProfileMetadata(event);
   const metadataIsLoading = isFetching || isLoading;
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -203,7 +204,7 @@ const EventRenderer = ({
             <CommentContent
               associatedContentId={showContentDetails ? contentId : undefined}
               comment={comment}
-              npubMetadata={npubMetadata}
+              npubMetadata={profile}
               metadataIsLoading={metadataIsLoading}
               closeParent={closeParent}
             />
@@ -212,7 +213,7 @@ const EventRenderer = ({
           <CommentContent
             associatedContentId={showContentDetails ? contentId : undefined}
             comment={comment}
-            npubMetadata={npubMetadata}
+            npubMetadata={profile}
             metadataIsLoading={metadataIsLoading}
             closeParent={closeParent}
           />

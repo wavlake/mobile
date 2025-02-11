@@ -10,7 +10,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getEventById,
   getLastFetchTime,
-  NostrUserProfile,
   setLastFetchTime,
   KindEventCache,
   mergeEventsIntoCache,
@@ -22,7 +21,6 @@ import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
 import {
-  FORTY_EIGHT_HOURS,
   getQueryKeyForKind,
   NostrEventContextType,
   nostrQueryKeys,
@@ -315,8 +313,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         getEventFromId,
         cacheEventById,
         cacheEventsById,
-        // getPubkeyProfile,
-        // batchGetPubkeyProfiles,
         getEventRelatedEvents,
         comments: getEventArray(comments),
         reactions: getEventArray(reactions),

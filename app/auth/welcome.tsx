@@ -21,8 +21,13 @@ export default function WelcomePage() {
   const router = useRouter();
   const { catalogUser } = useUser();
   const { pubkey } = useAuth();
-  const { data: userProfile, isFetching } = useNostrProfile(pubkey);
-  const userName = nostrOnlyLogin ? userProfile?.name : catalogUser?.name;
+  const {
+    data: event,
+    isFetching,
+    decodeProfileMetadata,
+  } = useNostrProfile(pubkey);
+  const profile = decodeProfileMetadata(event);
+  const userName = nostrOnlyLogin ? profile?.name : catalogUser?.name;
   const goToHomePage = async () => {
     router.replace("/");
     catalogUser && showWelcomePopup(catalogUser);

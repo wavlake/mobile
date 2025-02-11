@@ -40,10 +40,15 @@ export const useNsecLoginPageLogic = () => {
   const { connectWallet } = useAutoConnectNWC();
   const { pubkey: nsecInputPubkey } = getKeysFromNostrSecret(nsec) || {};
 
-  const { data: nsecInputMetadata, isFetching: nsecInputMetadataLoading } =
-    useNostrProfile(nsecInputPubkey, false);
-  const { data: assoicatedMetadata, isFetching: associatedMetadataLoading } =
-    useNostrProfile(userAssociatedPubkey, false);
+  const {
+    data: nsecInputEvent,
+    isFetching: nsecInputMetadataLoading,
+    decodeProfileMetadata,
+  } = useNostrProfile(nsecInputPubkey);
+  const nsecInputMetadata = decodeProfileMetadata(nsecInputEvent);
+  const { data: associatedEvent, isFetching: associatedMetadataLoading } =
+    useNostrProfile(userAssociatedPubkey);
+  const assoicatedMetadata = decodeProfileMetadata(associatedEvent);
 
   const createRandomNsec = useCallback(() => {
     const privateKey = bytesToHex(generateSecretKey());

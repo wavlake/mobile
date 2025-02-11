@@ -55,10 +55,12 @@ const ReplyDialogContents = ({
   const replyQueryKey = nostrQueryKeys.eTagReplies(parentComment.id);
   const [comment, setComment] = useState("");
   const {
-    data: npubMetadata,
+    data: event,
+    decodeProfileMetadata,
     isFetching,
     isLoading,
   } = useNostrProfile(parentComment?.pubkey);
+  const profile = decodeProfileMetadata(event);
   const metadataIsLoading = isFetching || isLoading;
 
   const parentCommentId = parentComment.id;
@@ -101,7 +103,7 @@ const ReplyDialogContents = ({
       >
         <CommentContent
           comment={parentComment}
-          npubMetadata={npubMetadata}
+          npubMetadata={profile}
           metadataIsLoading={metadataIsLoading}
         />
         <TextInput

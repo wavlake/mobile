@@ -7,7 +7,7 @@ import { Event } from "nostr-tools";
 const STALE_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 type NostrUserProfileWithTimestamp = NostrUserProfile & { created_at: number };
 
-export function useNostrProfile(pubkey?: string, relays?: string[]) {
+export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
   const queryClient = useQueryClient();
   const { getLatestEvent } = useNostrEvents();
 
@@ -22,8 +22,7 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
         since: LAST_QUERY_TIME,
       };
 
-      const event = await getLatestEvent(filter, relays);
-      return event ? decodeProfileMetadata(event) : null;
+      return getLatestEvent(filter, relays);
     },
     staleTime: STALE_TIME,
     gcTime: Infinity,
@@ -64,8 +63,7 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
               authors: [targetPubkey],
             };
 
-            const event = await getLatestEvent(filter, relayList);
-            return event ? decodeProfileMetadata(event) : null;
+            return getLatestEvent(filter, relayList);
           },
           structuralSharing: (prev: any, next: any) => {
             if ("created_at" in next && "created_at" in prev) {
@@ -138,12 +136,15 @@ export function useNostrProfile(pubkey?: string, relays?: string[]) {
     ...queryData,
     getProfileMetadata,
     batchGetProfileMetadata,
+    decodeProfileMetadata,
   };
 }
 
 const decodeProfileMetadata = (
-  event: Event,
+  event?: Event | null,
 ): NostrUserProfileWithTimestamp | null => {
+  if (!event) return null;
+
   try {
     return {
       ...(JSON.parse(event.content) as NostrUserProfile),

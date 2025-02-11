@@ -197,6 +197,7 @@ export interface NostrUserProfile {
   nip05?: string;
   picture?: string;
   // non standard fields below
+  image?: string;
   displayName?: string;
   display_name?: string;
   bio?: string;
