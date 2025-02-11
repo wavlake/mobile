@@ -11,8 +11,9 @@ interface LNURLPayResponse {
 
 // Get the initial LNURL endpoint from lud16 address
 export const getLNURLEndpointFromLUD16 = (lud16: string): string => {
-  // Validate basic format
-  const lud16Regex = /^[a-z0-9-_.]+@[^@]+$/;
+  // Validate basic format, e.g. user@wavlake.com
+  const lud16Regex =
+    /^[a-z0-9-_.]+@([a-z0-9]([a-z0-9-][a-z0-9])?\.)+[a-z0-9]([a-z0-9-][a-z0-9])?$/i;
   if (!lud16Regex.test(lud16)) {
     throw new Error("Invalid lud16 format");
   }
