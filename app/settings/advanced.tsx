@@ -217,7 +217,6 @@ export default function AdvancedSettingsPage() {
   const { userIsLoggedIn: pubkeyLoggedIn } = useAuth();
   const { settings, updateSettings } = useSettingsManager();
   const { catalogUser } = useUser();
-  const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
 
   const handleSettingsUpdate = async (newSettings: Partial<Settings>) => {
     try {
@@ -252,13 +251,14 @@ export default function AdvancedSettingsPage() {
     }
   };
 
+  if (!settings) return null;
+
+  const userIsLoggedIn = !!catalogUser || pubkeyLoggedIn;
   const hasWavlakeWallet =
     catalogUser?.isRegionVerified &&
     !catalogUser?.isLocked &&
     settings?.enableNWC &&
     settings.nwcRelay === WAVLAKE_RELAY;
-
-  if (!settings) return null;
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
