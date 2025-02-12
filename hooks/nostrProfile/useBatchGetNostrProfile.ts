@@ -63,15 +63,16 @@ export const useBatchGetNostrProfile = () => {
               profile.created_at > existingProfile.created_at
             ) {
               queryClient.setQueryData(queryKey, event);
+              profiles.set(event.pubkey, profile);
+            } else {
+              profiles.set(event.pubkey, existingProfile);
             }
-
-            profiles.set(event.pubkey, profile);
           }
         });
       }
 
       return profiles;
     },
-    [queryClient],
+    [queryClient, querySync],
   );
 };
