@@ -9,13 +9,13 @@ import { Event, Filter } from "nostr-tools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getEventById,
-  getLastFetchTime,
-  setLastFetchTime,
   KindEventCache,
   mergeEventsIntoCache,
   getFollowsListMap,
   EventCache,
   getEventArray,
+  getQueryTimestamp,
+  updateQueryTimestamp,
 } from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { pool } from "@/utils/relay-pool";
@@ -97,10 +97,11 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   );
 
   const getEventRelatedEvents = useCallback(
-    async (event: Event) => {
+    async (event: Event, since?: number) => {
       const filter = {
         kinds: [0, 1, 6, 7, 16, 9735],
         ["#e"]: [event.id],
+        since,
       };
 
       return querySyncSince(filter, readRelayList);
@@ -201,6 +202,25 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const querySyncSince = useCallback(
+    async (filter: Filter, readRelayList: string[]) => {
+      const queryKey = ["nostr", "filter", JSON.stringify(filter)];
+      const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
+
+      const updatedFilter = {
+        ...filter,
+        since: lastQueryTime,
+      };
+
+      const events = await pool.querySync(readRelayList, updatedFilter);
+      if (!events?.length) return [];
+
+      updateQueryTimestamp(queryClient, queryKey, events);
+      return events;
+    },
+    [queryClient],
+  );
+
   const { data: comments } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
     enabled: Boolean(pubkey),
@@ -266,22 +286,3 @@ export function useNostrEvents() {
   }
   return context;
 }
-
-const querySyncSince = async (filter: Filter, readRelayList: string[]) => {
-  const queryKey = JSON.stringify(filter);
-  const lastFetch = await getLastFetchTime(queryKey);
-
-  // Only fetch events newer than our last fetch
-  const updatedFilter = {
-    ...filter,
-    since: lastFetch,
-  };
-  console.log("PROVIDER QUERY SYNC EVENT");
-  const events = await pool.querySync(readRelayList, updatedFilter);
-  if (!events) return [];
-
-  // Update the last fetch time after successful query
-  await setLastFetchTime(queryKey);
-
-  return events;
-};

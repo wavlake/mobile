@@ -14,3 +14,4 @@ export * from "./keychainStorage";
 export * from "./signing";
 export * from "./amber";
 export * from "./event-caching";
+export * from "./queryTimestamps";

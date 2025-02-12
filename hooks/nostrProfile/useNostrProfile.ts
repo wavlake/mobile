@@ -3,6 +3,10 @@ import { NostrUserProfile } from "@/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Event } from "nostr-tools";
+import {
+  getQueryTimestamp,
+  updateQueryTimestamp,
+} from "@/utils/queryTimestamps";
 
 export const STALE_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 export type NostrUserProfileWithTimestamp = NostrUserProfile & {
@@ -12,38 +16,32 @@ export type NostrUserProfileWithTimestamp = NostrUserProfile & {
 export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
   const queryClient = useQueryClient();
   const { getLatestEvent } = useNostrEvents();
+  const queryKey = nostrQueryKeys.profile(pubkey ?? "");
 
   const queryData = useQuery({
-    queryKey: nostrQueryKeys.profile(pubkey ?? ""),
+    queryKey,
     queryFn: async () => {
       if (!pubkey) return null;
-      const LAST_QUERY_TIME = 0;
+
+      const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
       const filter = {
         kinds: [0],
         authors: [pubkey],
-        since: LAST_QUERY_TIME,
+        since: lastQueryTime,
       };
 
-      return getLatestEvent(filter, relays);
+      const event = await getLatestEvent(filter, relays);
+
+      if (event) {
+        updateQueryTimestamp(queryClient, queryKey, event);
+      }
+
+      return event;
     },
     staleTime: STALE_TIME,
     gcTime: Infinity,
     enabled: !!pubkey,
     refetchOnMount: false,
-    // structuralSharing: (prev: any, next: any) => {
-    //   if ("created_at" in next && "created_at" in prev) {
-    //     console.log("struct comp", { pubkey, prev, next });
-
-    //     return next.created_at > prev.created_at ? next : prev;
-    //   }
-    //   console.log("nexting", pubkey, next);
-
-    //   return next;
-    // },
-    // placeholderData: (previousData) => {
-    //   console.log("placeholder", { pubkey, previousData });
-    //   return previousData;
-    // },
   });
 
   const getProfileMetadata = useCallback(
@@ -67,12 +65,6 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
 
             return getLatestEvent(filter, relayList);
           },
-          // structuralSharing: (prev: any, next: any) => {
-          //   if ("created_at" in next && "created_at" in prev) {
-          //     return next.created_at > prev.created_at ? next : prev;
-          //   }
-          //   return next;
-          // },
           staleTime: STALE_TIME,
           gcTime: Infinity,
         });

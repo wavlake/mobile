@@ -13,6 +13,8 @@ import {
   hasReplyTag,
   hasRootTag,
   getParentEventId,
+  getQueryTimestamp,
+  updateQueryTimestamp,
 } from "@/utils";
 
 interface UseEventRelatedEvents {
@@ -37,6 +39,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   const queryClient = useQueryClient();
   const queryKey = nostrQueryKeys.eTagEvents(event.id);
   const { pubkey } = useAuth();
+
   const {
     data: eventsCache = {},
     isLoading,
@@ -45,7 +48,13 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   } = useQuery({
     queryKey,
     queryFn: async () => {
-      const events = await getEventRelatedEvents(event);
+      const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
+
+      const events = await getEventRelatedEvents(event, lastQueryTime);
+      if (events.length > 0) {
+        updateQueryTimestamp(queryClient, queryKey, events);
+      }
+
       const oldCache = queryClient.getQueryData<KindEventCache>(queryKey) ?? {};
       return mergeEventsIntoCache(events, oldCache);
     },
@@ -54,11 +63,20 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   });
 
   const replyToEventId = getParentEventId(event);
+  const replyQueryKey = nostrQueryKeys.event(replyToEventId ?? "");
+
   const { data: replyParent, isLoading: replyParentLoading } = useQuery({
-    queryKey: nostrQueryKeys.event(replyToEventId ?? ""),
-    queryFn: () => {
+    queryKey: replyQueryKey,
+    queryFn: async () => {
       if (!replyToEventId) return null;
-      return getEventFromId(replyToEventId);
+
+      const replyEvent = await getEventFromId(replyToEventId);
+
+      if (replyEvent) {
+        updateQueryTimestamp(queryClient, replyQueryKey, replyEvent);
+      }
+
+      return replyEvent;
     },
     enabled: Boolean(event),
   });
@@ -68,6 +86,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
       queryClient.setQueryData<KindEventCache>(queryKey, (old = {}) => {
         return addEventToCache(event, old);
       });
+      updateQueryTimestamp(queryClient, queryKey, event);
     },
     [queryClient, queryKey],
   );

@@ -65,7 +65,7 @@ export type NostrEventContextType = {
   getEventFromId: (id: string, relays?: string[]) => Promise<Event | null>;
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
-  getEventRelatedEvents: (event: Event) => Promise<Event[]>;
+  getEventRelatedEvents: (event: Event, since?: number) => Promise<Event[]>;
   comments: Event[];
   reactions: Event[];
   reposts: Event[];
