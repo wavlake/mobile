@@ -71,7 +71,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
   const querySync = useCallback(
     async (filter: Filter, relays: string[] = readRelayList) => {
-      return pool.querySync(readRelayList, filter);
+      return pool.querySync(relays, filter);
     },
     [readRelayList],
   );
