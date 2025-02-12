@@ -36,7 +36,10 @@ export const updateQueryTimestamp = (
 
   if (validTimestamps.length === 0) return;
 
-  const mostRecentTimestamp = Math.max(...validTimestamps);
+  const mostRecentTimestamp = validTimestamps.reduce(
+    (max, current) => (current > max ? current : max),
+    validTimestamps[0],
+  );
 
   if (mostRecentTimestamp > currentTimestamp) {
     queryClient.setQueryData(timestampKey, mostRecentTimestamp);
