@@ -52,7 +52,8 @@ export const useBatchGetNostrProfile = () => {
           const profile = decodeProfileMetadata(event);
           if (profile) {
             const queryKey = nostrQueryKeys.profile(event.pubkey);
-            queryClient.setQueryData(queryKey, profile);
+            // TODO - only update if the profile has a newer timestamp
+            queryClient.setQueryData(queryKey, event);
             profiles.set(event.pubkey, profile);
           }
         });
