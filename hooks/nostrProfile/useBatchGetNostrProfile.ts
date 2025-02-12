@@ -18,11 +18,12 @@ export const useBatchGetNostrProfile = () => {
       if (!pubkeys.length)
         return new Map<string, NostrUserProfileWithTimestamp>();
 
+      const dedupedPubkeys = Array.from(new Set(pubkeys));
       // Check cache first and collect missing pubkeys
       const profiles = new Map<string, NostrUserProfileWithTimestamp>();
       const missingPubkeys: string[] = [];
 
-      pubkeys.forEach((pubkey) => {
+      dedupedPubkeys.forEach((pubkey) => {
         const queryKey = nostrQueryKeys.profile(pubkey);
         const cachedData = queryClient.getQueryData(queryKey);
         const queryState = queryClient.getQueryState(queryKey);

@@ -1,14 +1,14 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
-import { nostrQueryKeys, useNostrEvents } from "@/providers";
+import {
+  mergeEventsIntoCache,
+  nostrQueryKeys,
+  useNostrEvents,
+} from "@/providers";
 import { useCallback } from "react";
 import { useAuth } from "./useAuth";
 import {
   parseZapRequestFromReceipt,
-  KindEventCache,
-  mergeEventsIntoCache,
-  addEventToCache,
-  getRelatedEventsFromCache,
   isRootReply,
   hasReplyTag,
   hasRootTag,
@@ -41,7 +41,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   const { pubkey } = useAuth();
 
   const {
-    data: eventsCache = {},
+    data: eventsCache = [],
     isLoading,
     error,
     refetch,
@@ -55,7 +55,7 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
         updateQueryTimestamp(queryClient, queryKey, events);
       }
 
-      const oldCache = queryClient.getQueryData<KindEventCache>(queryKey) ?? {};
+      const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
       return mergeEventsIntoCache(events, oldCache);
     },
     enabled: Boolean(event),
@@ -83,15 +83,31 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
 
   const addEventToCacheHandler = useCallback(
     (event: Event) => {
-      queryClient.setQueryData<KindEventCache>(queryKey, (old = {}) => {
-        return addEventToCache(event, old);
+      queryClient.setQueryData<Event[]>(queryKey, (old = []) => {
+        return mergeEventsIntoCache([event], old);
       });
       updateQueryTimestamp(queryClient, queryKey, event);
     },
     [queryClient, queryKey],
   );
-  const { replies, reactions, reposts, genericReposts, zapReceipts } =
-    getRelatedEventsFromCache(eventsCache);
+
+  const eventKindMap = new Map<number, Event[]>();
+
+  eventsCache.forEach((e) => {
+    const kind = e.kind;
+    if (!eventKindMap.has(kind)) {
+      eventKindMap.set(kind, []);
+    }
+    eventKindMap.get(kind)?.push(e);
+  });
+
+  const { replies, reactions, reposts, genericReposts, zapReceipts } = {
+    replies: eventKindMap.get(1) ?? [],
+    reactions: eventKindMap.get(9734) ?? [],
+    reposts: eventKindMap.get(2) ?? [],
+    genericReposts: eventKindMap.get(3) ?? [],
+    zapReceipts: eventKindMap.get(4) ?? [],
+  };
 
   const getChildReplies = (parentId: string): Event[] =>
     replies.filter(

@@ -9,11 +9,7 @@ import { Event, Filter } from "nostr-tools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getEventById,
-  KindEventCache,
-  mergeEventsIntoCache,
   getFollowsListMap,
-  EventCache,
-  getEventArray,
   getQueryTimestamp,
   updateQueryTimestamp,
 } from "@/utils";
@@ -75,8 +71,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
   const querySync = useCallback(
     async (filter: Filter, relays: string[] = readRelayList) => {
-      const events = await querySyncSince(filter, readRelayList);
-      return events;
+      return pool.querySync(readRelayList, filter);
     },
     [readRelayList],
   );
@@ -104,7 +99,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         since,
       };
 
-      return querySyncSince(filter, readRelayList);
+      return querySync(filter, readRelayList);
     },
     [queryClient, readRelayList],
   );
@@ -141,114 +136,112 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
   const loadSecondaryData = async () => {
     try {
+      const socialQueryKey = ["nostr", "social", pubkey];
+      const since = getQueryTimestamp(queryClient, socialQueryKey);
       const socialFilter = {
         ...SOCIAL_NOTES,
         "#p": [pubkey],
+        since,
       };
-      const socialEvents = await querySyncSince(socialFilter, readRelayList);
 
-      setTimeout(() => {
-        // Cache individual events and update kind-specific caches
-        socialEvents.forEach((event) => {
-          queryClient.setQueryData(nostrQueryKeys.event(event.id), event);
-        });
+      const socialEvents = await querySync(socialFilter, readRelayList);
+      if (socialEvents.length > 0) {
+        updateQueryTimestamp(queryClient, socialQueryKey, socialEvents);
+      }
 
-        const kindCache = mergeEventsIntoCache(socialEvents);
+      // cache events individually
+      cacheEventsById(socialEvents);
 
-        // Update queries with Map caches
-        for (const [kind, cache] of Object.entries(kindCache)) {
-          const queryKey = getQueryKeyForKind(Number(kind), pubkey);
-          if (!queryKey) continue;
-          queryClient.setQueryData(queryKey, cache);
-        }
-      }, 0);
+      // sort events
+      const eventsByKind = socialEvents.reduce(
+        (acc, event) => {
+          if (!acc[event.kind]) {
+            acc[event.kind] = [];
+          }
+          acc[event.kind].push(event);
+          return acc;
+        },
+        {} as Record<string, Event[]>,
+      );
 
-      // Handle event-related events
+      // update cache
+      Object.entries(eventsByKind).forEach(([kind, events]) => {
+        const queryKey = getQueryKeyForKind(Number(kind), pubkey);
+        if (!queryKey) return;
+        queryClient.setQueryData(queryKey, events);
+        // we can use the most recent created_at from the initial socialEvents list
+        updateQueryTimestamp(queryClient, queryKey, socialEvents);
+      });
+
+      // fetch event-related events
       const eventSocialFilter = {
         ...SOCIAL_NOTES,
         "#e": socialEvents.map((event) => event.id),
+        since,
       };
 
-      const eventSocialEvents = await querySyncSince(
+      const eventSocialEvents = await querySync(
         eventSocialFilter,
         readRelayList,
       );
 
-      setTimeout(() => {
-        const eventIdMap = new Map<string, Event[]>();
+      const eventIdMap = new Map<string, Event[]>();
 
-        // Group events by their referenced event ID
-        for (const event of eventSocialEvents) {
-          const eTag = event.tags.find(([tag]) => tag === "e");
-          const eventId = eTag?.[1];
-          if (!eventId) continue;
+      // Group events by their referenced event ID
+      for (const event of eventSocialEvents) {
+        const eTag = event.tags.find(([tag]) => tag === "e");
+        const eventId = eTag?.[1];
+        if (!eventId) continue;
 
-          if (!eventIdMap.has(eventId)) {
-            eventIdMap.set(eventId, []);
-          }
-          eventIdMap.get(eventId)!.push(event);
+        if (!eventIdMap.has(eventId)) {
+          eventIdMap.set(eventId, []);
         }
+        eventIdMap.get(eventId)!.push(event);
+      }
 
-        // Update cache for each referenced event
-        for (const [eventId, events] of eventIdMap) {
-          queryClient.setQueryData<KindEventCache>(
-            nostrQueryKeys.eTagEvents(eventId),
-            (oldCache = {}) => mergeEventsIntoCache(events, oldCache),
-          );
-        }
-      }, 0);
+      // Update cache for each referenced event
+      for (const [eventId, events] of eventIdMap) {
+        const eTagQueryKey = nostrQueryKeys.eTagEvents(eventId);
+        queryClient.setQueryData<Event[]>(eTagQueryKey, (oldCache = []) =>
+          mergeEventsIntoCache(events, oldCache),
+        );
+        // we can use the most recent created_at from the initial socialEvents list
+        updateQueryTimestamp(queryClient, eTagQueryKey, socialEvents);
+      }
     } catch (error) {
       console.error("Secondary data load error:", error);
     }
   };
 
-  const querySyncSince = useCallback(
-    async (filter: Filter, readRelayList: string[]) => {
-      const queryKey = ["nostr", "filter", JSON.stringify(filter)];
-      const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
-
-      const updatedFilter = {
-        ...filter,
-        since: lastQueryTime,
-      };
-
-      const events = await pool.querySync(readRelayList, updatedFilter);
-      if (!events?.length) return [];
-
-      updateQueryTimestamp(queryClient, queryKey, events);
-      return events;
-    },
-    [queryClient],
-  );
-
-  const { data: comments } = useQuery<EventCache>({
+  const { data: comments = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: reactions } = useQuery<EventCache>({
+  const { data: reactions = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.pTagReactions(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: reposts } = useQuery<EventCache>({
+  const { data: reposts = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.pTagReposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: genericReposts } = useQuery<EventCache>({
+  const { data: genericReposts = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.pTagGenericReposts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: zapReceipts } = useQuery<EventCache>({
+  const { data: zapReceipts = [] } = useQuery<Event[]>({
     queryKey: nostrQueryKeys.pTagZapReceipts(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
-  const { data: initialData } = useQuery<
-    Partial<NostrEventContextType> & { follows: string[] }
-  >({
+  const { data: initialData } = useQuery<{
+    follows: string[];
+    followsMap: Record<string, string>;
+  }>({
     queryKey: ["initial-load-core", pubkey],
     enabled: Boolean(pubkey),
   });
@@ -262,11 +255,11 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         cacheEventById,
         cacheEventsById,
         getEventRelatedEvents,
-        comments: getEventArray(comments),
-        reactions: getEventArray(reactions),
-        reposts: getEventArray(reposts),
-        genericReposts: getEventArray(genericReposts),
-        zapReceipts: getEventArray(zapReceipts),
+        comments,
+        reactions,
+        reposts,
+        genericReposts,
+        zapReceipts,
         follows: initialData?.follows ?? [],
         followsActivity: [],
         followsMap: initialData?.followsMap ?? {},
@@ -285,4 +278,12 @@ export function useNostrEvents() {
     throw new Error("useNostrEvents must be used within a NostrEventProvider");
   }
   return context;
+}
+
+export function mergeEventsIntoCache(events: Event[], oldCache: Event[] = []) {
+  const newCache = new Map(oldCache.map((event) => [event.id, event]));
+  for (const event of events) {
+    newCache.set(event.id, event);
+  }
+  return Array.from(newCache.values());
 }

@@ -4,11 +4,12 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { PropsWithChildren } from "react";
 
+const MAX_PERSISTENCE_AGE = Infinity;
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // gcTime: 1000 * 60 * 60 * 24, // Cache data for 24 hours
-      // staleTime: 1000 * 60 * 5, // Data remains fresh for 5 minutes
+      gcTime: MAX_PERSISTENCE_AGE, // needs to be the same value as maxAge in the persister
+      staleTime: 1000 * 60 * 10, // Data remains fresh for 10 minutes
     },
   },
 });
@@ -22,7 +23,7 @@ export const QueryProvider: React.FC<PropsWithChildren> = ({ children }) => (
     client={queryClient}
     persistOptions={{
       persister: asyncStoragePersister,
-      maxAge: Infinity,
+      maxAge: MAX_PERSISTENCE_AGE,
     }}
   >
     {children}
