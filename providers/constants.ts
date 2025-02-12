@@ -137,6 +137,11 @@ export const nostrQueryKeys = {
   ],
   // kind 1 with event #e tag
   eTagReplies: (eventId: string) => ["nostr", "replies", "event-list", eventId],
+  unImplementedKind: (kind: number, pubkey: string) => [
+    "nostr",
+    `kind-${kind}`,
+    pubkey,
+  ],
 };
 
 export function getQueryKeyForKind(kind: number, pubkey: string) {
@@ -151,5 +156,7 @@ export function getQueryKeyForKind(kind: number, pubkey: string) {
       return nostrQueryKeys.pTagGenericReposts(pubkey);
     case 9735:
       return nostrQueryKeys.pTagZapReceipts(pubkey);
+    default:
+      return nostrQueryKeys.unImplementedKind(kind, pubkey);
   }
 }
