@@ -63,7 +63,11 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
               authors: [targetPubkey],
             };
 
-            return getLatestEvent(filter, relayList);
+            const event = await getLatestEvent(filter, relayList);
+            if (event) {
+              updateQueryTimestamp(queryClient, queryKey, event);
+            }
+            return event;
           },
           staleTime: STALE_TIME,
           gcTime: Infinity,
