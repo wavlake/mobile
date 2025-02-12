@@ -130,16 +130,19 @@ const EventRenderer = ({
   } = useEventRelatedEvents(comment);
   const router = useRouter();
   const basePathname = useGetBasePathname();
-  const { data: replyToMetadata, isLoading: replyToMetadataIsLoading } =
-    useNostrProfile(replyParent?.pubkey);
+  const {
+    data: parentProfileEvent,
+    decodeProfileMetadata,
+    isLoading: replyToMetadataIsLoading,
+  } = useNostrProfile(replyParent?.pubkey);
+  const replyToMetadata = decodeProfileMetadata(parentProfileEvent);
   const contentId = getITagFromEvent(comment);
   const {
-    data: event,
-    decodeProfileMetadata,
+    data: authorProfileEvent,
     isFetching,
     isLoading,
   } = useNostrProfile(comment?.pubkey);
-  const profile = decodeProfileMetadata(event);
+  const authorProfile = decodeProfileMetadata(authorProfileEvent);
   const metadataIsLoading = isFetching || isLoading;
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -204,7 +207,7 @@ const EventRenderer = ({
             <CommentContent
               associatedContentId={showContentDetails ? contentId : undefined}
               comment={comment}
-              npubMetadata={profile}
+              npubMetadata={authorProfile}
               metadataIsLoading={metadataIsLoading}
               closeParent={closeParent}
             />
@@ -213,7 +216,7 @@ const EventRenderer = ({
           <CommentContent
             associatedContentId={showContentDetails ? contentId : undefined}
             comment={comment}
-            npubMetadata={profile}
+            npubMetadata={authorProfile}
             metadataIsLoading={metadataIsLoading}
             closeParent={closeParent}
           />

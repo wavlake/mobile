@@ -201,78 +201,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // const getPubkeyProfile = useCallback(
-  //   async (pubkey: string, relayList: string[] = readRelayList) => {
-  //     const queryKey = nostrQueryKeys.profile(pubkey);
-  //     const filter = {
-  //       kinds: [0],
-  //       authors: [pubkey],
-  //     };
-
-  //     const event = await queryClient.fetchQuery({
-  //       queryKey,
-  //       queryFn: async () => {
-  //         return getEventSince(filter, relayList);
-  //       },
-  //       staleTime: Infinity,
-  //       gcTime: Infinity,
-  //     });
-
-  //     return event
-  //       ? { ...decodeProfileMetadata(event), created_at: event.created_at }
-  //       : null;
-  //   },
-  //   [queryClient],
-  // );
-
-  // const batchGetPubkeyProfiles = useCallback(async (pubkeys: string[]) => {
-  //   if (!pubkeys.length) return new Map<string, NostrUserProfile>();
-
-  //   //skip profiles that are already in the cache
-  //   const existingProfiles = new Map<string, NostrUserProfile>();
-  //   const missingPubkeys = pubkeys.filter(
-  //     (pubkey) => !queryClient.getQueryData(nostrQueryKeys.profile(pubkey)),
-  //   );
-
-  //   if (missingPubkeys.length === 0) {
-  //     pubkeys.forEach((pubkey) => {
-  //       const profile = queryClient.getQueryData<NostrUserProfile>(
-  //         nostrQueryKeys.profile(pubkey),
-  //       );
-  //       if (profile) {
-  //         existingProfiles.set(pubkey, profile);
-  //       }
-  //     });
-  //     return existingProfiles;
-  //   }
-
-  //   const profiles = new Map<string, NostrUserProfile>();
-  //   const filter = {
-  //     kinds: [0],
-  //     authors: missingPubkeys,
-  //   };
-  //   const events = await querySync(filter);
-  //   events.forEach((event) => {
-  //     const exisitingProfile = profiles.get(event.pubkey);
-  //     // if the existingProfile is newer than the event, don't update
-  //     if (
-  //       !!exisitingProfile?.created_at &&
-  //       event.created_at < exisitingProfile.created_at
-  //     ) {
-  //       return;
-  //     }
-
-  //     const profile = decodeProfileMetadata(event);
-  //     if (profile) {
-  //       profiles.set(event.pubkey, {
-  //         ...profile,
-  //         created_at: event.created_at,
-  //       });
-  //     }
-  //   });
-  //   return profiles;
-  // }, []);
-
   const { data: comments } = useQuery<EventCache>({
     queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
     enabled: Boolean(pubkey),
@@ -356,21 +284,4 @@ const querySyncSince = async (filter: Filter, readRelayList: string[]) => {
   await setLastFetchTime(queryKey);
 
   return events;
-};
-
-// use pool.get
-const getEventSince = async (filter: Filter, readRelayList: string[]) => {
-  const queryKey = JSON.stringify(filter);
-  const lastFetch = await getLastFetchTime(queryKey);
-  const updatedFilter = {
-    ...filter,
-    since: lastFetch,
-  };
-  console.log("PROVIDER GET EVENT");
-
-  const event = await pool.get(readRelayList, updatedFilter);
-  if (!event) return null;
-
-  await setLastFetchTime(queryKey);
-  return event;
 };

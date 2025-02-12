@@ -7,6 +7,7 @@ import { Linking, View } from "react-native";
 import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
+import { useBatchGetNostrProfile } from "@/hooks/nostrProfile/useBatchGetNostrProfile";
 import { useNostrProfile } from "@/hooks";
 
 interface ParsedTextWrapperProps {
@@ -14,7 +15,7 @@ interface ParsedTextWrapperProps {
 }
 
 export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
-  const { getProfileMetadata, batchGetProfileMetadata } = useNostrProfile();
+  const batchGetProfileMetadata = useBatchGetNostrProfile();
   const [profiles, setProfiles] = useState<Map<string, NostrUserProfile>>(
     new Map(),
   );
