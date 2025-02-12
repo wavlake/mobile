@@ -7,7 +7,7 @@ import { useNostrRelayList } from "./nostrRelayList";
 import { useGetInboxLastRead } from "./useGetInboxLastRead";
 import { useAccountTracks } from "./useAccountTracks";
 import { useSetInboxLastRead } from "./useSetInboxLastRead";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useNostrEvents } from "@/providers";
 
 const CONTENT_ID_PREFIX = "podcast:item:guid:";
 

@@ -1,10 +1,10 @@
 import { fetchContentCommentEvents } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
-import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys, useNostrEvents } from "@/providers";
 
 // this returns a list of event IDs for event kinds 1, 1985, and 9735
 export const useContentComments = (contentId: string, limit: number = 20) => {
-  const queryKey = nostrQueryKeys.contentComments(contentId);
+  const queryKey = nostrQueryKeys.iTagComments(contentId);
   const { cacheEventsById } = useNostrEvents();
   return useQuery({
     queryKey,

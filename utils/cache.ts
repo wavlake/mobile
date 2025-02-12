@@ -6,7 +6,6 @@ const isFirstAppLaunchKey = "isFirstAppLaunch";
 const userHasSeenWelcomePopupKey = (userId: string) =>
   "hasSeenWelcomePopup1" + userId;
 const isSkipLoginKey = "skipLogin";
-const makeNostrProfileEventKey = (pubkey: string) => `${pubkey}.profileEvent`;
 const makeNWCInfoEventKey = (pubkey: string) => `${pubkey}.nwcInfoEvent`;
 const makeNostrRelayListEventKey = (pubkey: string) =>
   `${pubkey}.relayListEvent`;
@@ -56,18 +55,6 @@ export const setSkipLogin = async () => {
 
 export const shouldForceLogin = async () => {
   return (await getData(isSkipLoginKey)) !== SKIP_LOGIN;
-};
-
-export const cacheNostrProfileEvent = async (pubkey: string, event: Event) => {
-  const nostrProfileEventKey = makeNostrProfileEventKey(pubkey);
-
-  await storeObjectData(nostrProfileEventKey, event);
-};
-
-export const getCachedNostrProfileEvent = async (pubkey: string) => {
-  const nostrProfileEventKey = makeNostrProfileEventKey(pubkey);
-
-  return getObjectData(nostrProfileEventKey);
 };
 
 export const cacheNWCInfoEvent = async (pubkey: string, event: Event) => {
@@ -156,24 +143,4 @@ export const getAmberPubkey = async () => {
 
 export const setAmberPubkey = async (pubkey: string) => {
   await storeData("amberPubkey", pubkey);
-};
-
-const LAST_FETCH_PREFIX = "@lastFetch:";
-export const getLastFetchTime = async (queryKey: string): Promise<number> => {
-  // disabled for now
-  return 0;
-
-  // try {
-  //   const stored = await AsyncStorage.getItem(LAST_FETCH_PREFIX + queryKey);
-  //   return stored ? parseInt(stored, 10) : 0;
-  // } catch {
-  //   return 0;
-  // }
-};
-
-export const setLastFetchTime = async (queryKey: string): Promise<void> => {
-  // disabled for now
-  return;
-  // const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
-  // await AsyncStorage.setItem(LAST_FETCH_PREFIX + queryKey, now.toString());
 };

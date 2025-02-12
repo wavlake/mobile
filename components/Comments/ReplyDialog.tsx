@@ -10,7 +10,7 @@ import { TextInput } from "../shared/TextInput";
 import { CommentContent } from "./CommentContent";
 import { Button } from "../shared/Button";
 import { useNostrProfile } from "@/hooks";
-import { nostrQueryKeys } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys } from "@/providers";
 
 interface ReplyDialogProps {
   commentId: string;
@@ -52,13 +52,15 @@ const ReplyDialogContents = ({
   const { save: publishReply } = usePublishReply();
   const { colors } = useTheme();
   const queryClient = useQueryClient();
-  const replyQueryKey = nostrQueryKeys.replies(parentComment.id);
+  const replyQueryKey = nostrQueryKeys.eTagReplies(parentComment.id);
   const [comment, setComment] = useState("");
   const {
-    data: npubMetadata,
+    data: event,
+    decodeProfileMetadata,
     isFetching,
     isLoading,
   } = useNostrProfile(parentComment?.pubkey);
+  const profile = decodeProfileMetadata(event);
   const metadataIsLoading = isFetching || isLoading;
 
   const parentCommentId = parentComment.id;
@@ -101,7 +103,7 @@ const ReplyDialogContents = ({
       >
         <CommentContent
           comment={parentComment}
-          npubMetadata={npubMetadata}
+          npubMetadata={profile}
           metadataIsLoading={metadataIsLoading}
         />
         <TextInput

@@ -8,7 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useAuth } from "./useAuth";
-import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys, useNostrEvents } from "@/providers";
 
 const makeKind1Event = (
   pubkey: string,
@@ -56,7 +56,7 @@ export const usePublishComment = () => {
             const contentId = getITagFromEvent(event);
 
             if (contentId) {
-              const queryKey = nostrQueryKeys.contentComments(contentId);
+              const queryKey = nostrQueryKeys.iTagComments(contentId);
               // manually add this new event ID to the cache
               const oldCache = queryClient.getQueryData(queryKey) as string[];
               queryClient.setQueryData(queryKey, [...oldCache, event.id]);

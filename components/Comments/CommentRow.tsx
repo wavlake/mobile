@@ -13,7 +13,7 @@ import { CommentContent } from "./CommentContent";
 import { getITagFromEvent } from "@/utils";
 import { useRouter } from "expo-router";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useNostrEvents } from "@/providers";
 import { CommentActionBar } from "./CommentActionBar";
 import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
 import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
@@ -39,7 +39,7 @@ export const CommentRow = ({
   closeParent,
   onPress,
 }: CommentRowProps) => {
-  const { getEventAsync } = useNostrEvents();
+  const { getEventFromId } = useNostrEvents();
   const [event, setEvent] = useState<Event | undefined | null>(comment);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
@@ -48,7 +48,7 @@ export const CommentRow = ({
     }
 
     if (!commentId) return;
-    getEventAsync(commentId).then((event) => {
+    getEventFromId(commentId).then((event) => {
       setEvent(event);
       setIsLoading(false);
     });
@@ -130,15 +130,19 @@ const EventRenderer = ({
   } = useEventRelatedEvents(comment);
   const router = useRouter();
   const basePathname = useGetBasePathname();
-  const { data: replyToMetadata, isLoading: replyToMetadataIsLoading } =
-    useNostrProfile(replyParent?.pubkey);
+  const {
+    data: parentProfileEvent,
+    decodeProfileMetadata,
+    isLoading: replyToMetadataIsLoading,
+  } = useNostrProfile(replyParent?.pubkey);
+  const replyToMetadata = decodeProfileMetadata(parentProfileEvent);
   const contentId = getITagFromEvent(comment);
   const {
-    data: npubMetadata,
+    data: authorProfileEvent,
     isFetching,
     isLoading,
   } = useNostrProfile(comment?.pubkey);
-
+  const authorProfile = decodeProfileMetadata(authorProfileEvent);
   const metadataIsLoading = isFetching || isLoading;
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -203,7 +207,7 @@ const EventRenderer = ({
             <CommentContent
               associatedContentId={showContentDetails ? contentId : undefined}
               comment={comment}
-              npubMetadata={npubMetadata}
+              npubMetadata={authorProfile}
               metadataIsLoading={metadataIsLoading}
               closeParent={closeParent}
             />
@@ -212,7 +216,7 @@ const EventRenderer = ({
           <CommentContent
             associatedContentId={showContentDetails ? contentId : undefined}
             comment={comment}
-            npubMetadata={npubMetadata}
+            npubMetadata={authorProfile}
             metadataIsLoading={metadataIsLoading}
             closeParent={closeParent}
           />

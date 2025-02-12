@@ -1,6 +1,6 @@
 import { fetchContentCommentEvents, getArtistTracks } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
-import { nostrQueryKeys, useNostrEvents } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys, useNostrEvents } from "@/providers";
 
 // this returns a list of event IDs for event kinds 1, 1985, and 9735
 export const useArtistComments = (artistId: string, limit?: number) => {
@@ -13,7 +13,7 @@ export const useArtistComments = (artistId: string, limit?: number) => {
 
   const contentIds = tracks.map((track) => track.id);
 
-  const queryKey = nostrQueryKeys.contentComments(artistId);
+  const queryKey = nostrQueryKeys.iTagComments(artistId);
   return useQuery({
     queryKey,
     queryFn: async () => {

@@ -36,10 +36,12 @@ const NUM_ACTIVITY_ROWS = 3;
 const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
   const basePath = useGetBasePathname();
   const {
-    data: npubMetadata,
+    data: event,
+    decodeProfileMetadata,
     isFetching,
     refetch: refetchMetadata,
   } = useNostrProfile(pubkey);
+  const profile = decodeProfileMetadata(event);
   const {
     data: activity = [],
     isLoading: activityLoading,
@@ -58,9 +60,7 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
         />
       }
     >
-      {npubMetadata && (
-        <PubkeyProfile pubkey={pubkey} profileData={npubMetadata} />
-      )}
+      {profile && <PubkeyProfile pubkey={pubkey} profileData={profile} />}
       <View
         style={{
           paddingHorizontal: 16,

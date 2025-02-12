@@ -1,18 +1,17 @@
-import {
-  makeProfileEvent,
-  signEvent,
-  publishEvent,
-  cacheNostrProfileEvent,
-} from "@/utils";
+import { makeProfileEvent, signEvent, publishEvent } from "@/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrProfile } from "./useNostrProfile";
-import { useNostrProfileQueryKey } from "./useNostrProfileQueryKey";
 import { NostrUserProfile } from "@/utils/types";
+import { useAuth } from "@/hooks/useAuth";
+import { nostrQueryKeys } from "@/providers";
 
+// TODO - update to update the cache in useNostrProfle
 export const useSaveNostrProfile = () => {
-  const { data: profile } = useNostrProfile();
+  const { pubkey } = useAuth();
+  const { data: event, decodeProfileMetadata } = useNostrProfile(pubkey);
+  const profile = decodeProfileMetadata(event);
   const { writeRelayList } = useNostrRelayList();
   const queryClient = useQueryClient();
   const nostrProfileMutation = useMutation({
@@ -29,9 +28,8 @@ export const useSaveNostrProfile = () => {
       if (event) {
         nostrProfileMutation.mutate(event, {
           onSuccess: async (event) => {
-            const nostrProfileQueryKey = useNostrProfileQueryKey(event.pubkey);
+            const nostrProfileQueryKey = nostrQueryKeys.profile(event.pubkey);
             queryClient.setQueryData(nostrProfileQueryKey, event);
-            await cacheNostrProfileEvent(event.pubkey, event);
             resolve();
           },
           onError: (error) => {

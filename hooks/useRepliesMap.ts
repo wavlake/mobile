@@ -1,4 +1,4 @@
-import { nostrQueryKeys } from "@/providers/NostrEventProvider";
+import { nostrQueryKeys } from "@/providers";
 import { fetchReplies } from "@/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
@@ -26,7 +26,7 @@ export const useRepliesMap = (commentIds: string[]) => {
       // Cache the replies under the parent comment event id
       // the /comment/id page will fetch these replies from the cache
       Object.entries(repliesMap).forEach(([eventId, replies]) => {
-        const queryKey = nostrQueryKeys.replies(eventId);
+        const queryKey = nostrQueryKeys.eTagReplies(eventId);
         queryClient.setQueryData<Event[]>(queryKey, replies);
       });
 

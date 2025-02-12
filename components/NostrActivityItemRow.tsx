@@ -93,10 +93,12 @@ export const NostrActivityItemRow = ({
   };
 
   const {
-    data: npubMetadata,
+    data: event,
     isFetching,
     isLoading,
+    decodeProfileMetadata,
   } = useNostrProfile(nostrEvent?.pubkey);
+  const profile = decodeProfileMetadata(event);
   const metadataIsLoading = isFetching || isLoading;
   const isZap = nostrEvent?.kind === 9734;
   if (!contentId || !contentTitle || !nostrEvent) return null;
@@ -107,9 +109,9 @@ export const NostrActivityItemRow = ({
   const secondLine = isTrack ? item.artist : item.parentContentTitle;
   const title = isZap
     ? zapAmount
-      ? `@${npubMetadata?.name ?? "anon"} sent ${satsFormatter(zapAmount)} sats`
-      : `@${npubMetadata?.name ?? "anon"} sent a zap`
-    : `@${npubMetadata?.name ?? "anon"} shared this track`;
+      ? `@${profile?.name ?? "anon"} sent ${satsFormatter(zapAmount)} sats`
+      : `@${profile?.name ?? "anon"} sent a zap`
+    : `@${profile?.name ?? "anon"} shared this track`;
   const subtitle = nostrEvent.content || "";
   const icon = ICON_MAP[type];
 
@@ -134,7 +136,7 @@ export const NostrActivityItemRow = ({
         >
           <BasicAvatar
             isLoading={metadataIsLoading}
-            uri={npubMetadata?.picture}
+            uri={profile?.picture}
             pubkey={nostrEvent.pubkey}
           />
           <View style={{ marginLeft: 10, flex: 1 }}>

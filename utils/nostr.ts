@@ -182,6 +182,7 @@ export const getProfileMetadata = async (
   });
 };
 
+// returns a map of pubkeys to a relay where you can find their profile
 export const getFollowsListMap = async (
   pubkey: string,
   relayUris: string[],
@@ -210,17 +211,6 @@ export const getFollowsListMap = async (
     {} as Record<string, string>,
   );
   return followsListMap;
-};
-
-export const batchGetProfileMetadata = async (
-  pubkeys: string[],
-  relayUris: string[],
-) => {
-  const filter = {
-    kinds: [0],
-    authors: pubkeys,
-  };
-  return pool.querySync(relayUris, filter);
 };
 
 export const getNWCInfoEvent = async (pubkey: string, relayUri?: string) => {
@@ -612,12 +602,15 @@ export const subscribeToTicket = async (pubkey: string) => {
   });
 };
 
-export const getEventById = (eventId: string) => {
+export const getEventById = (
+  eventId: string,
+  relays: string[] = DEFAULT_READ_RELAY_URIS,
+) => {
   const filter = {
     ids: [eventId],
   };
 
-  return pool.get(DEFAULT_READ_RELAY_URIS, filter);
+  return pool.get(relays, filter);
 };
 
 export const getKind3Event = (

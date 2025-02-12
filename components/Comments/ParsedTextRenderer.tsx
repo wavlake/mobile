@@ -7,14 +7,15 @@ import { Linking, View } from "react-native";
 import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
-import { useNostrEvents } from "@/providers/NostrEventProvider";
+import { useBatchGetNostrProfile } from "@/hooks/nostrProfile/useBatchGetNostrProfile";
+import { useNostrProfile } from "@/hooks";
 
 interface ParsedTextWrapperProps {
   content?: string;
 }
 
 export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
-  const { batchGetPubkeyProfiles, getPubkeyProfile } = useNostrEvents();
+  const batchGetProfileMetadata = useBatchGetNostrProfile();
   const [profiles, setProfiles] = useState<Map<string, NostrUserProfile>>(
     new Map(),
   );
@@ -43,7 +44,7 @@ export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
 
   useEffect(() => {
     const fetchProfiles = async () => {
-      const profiles = await batchGetPubkeyProfiles(
+      const profiles = await batchGetProfileMetadata(
         mentions.map((m) => m.pubkey),
       );
 
@@ -57,7 +58,7 @@ export const ParsedTextWrapper = ({ content = "" }: ParsedTextWrapperProps) => {
     <InternalParsedTextRender
       content={content}
       mentionProfiles={profiles}
-      getPubkeyProfile={getPubkeyProfile}
+      // getPubkeyProfile={getProfileMetadata}
     />
   );
 };
@@ -84,7 +85,7 @@ const renderImage = (matchingString: string, matches: string[]): any => {
 interface InternalParsedTextRenderProps {
   content?: string;
   mentionProfiles: Map<string, NostrUserProfile>;
-  getPubkeyProfile: (pubkey: string) => Promise<NostrUserProfile | null>;
+  // getPubkeyProfile: (pubkey: string) => Promise<NostrUserProfile | null>;
 }
 
 const InternalParsedTextRender = ({
