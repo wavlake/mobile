@@ -27,7 +27,16 @@ export const updateQueryTimestamp = (
   const timestampKey = getTimestampQueryKey(queryKey);
   const currentTimestamp = getQueryTimestamp(queryClient, queryKey);
 
-  const mostRecentTimestamp = Math.max(...eventsArray.map((e) => e.created_at));
+  const validTimestamps = eventsArray
+    .map((e) => e.created_at)
+    .filter(
+      (timestamp): timestamp is number =>
+        typeof timestamp === "number" && !isNaN(timestamp),
+    );
+
+  if (validTimestamps.length === 0) return;
+
+  const mostRecentTimestamp = Math.max(...validTimestamps);
 
   if (mostRecentTimestamp > currentTimestamp) {
     queryClient.setQueryData(timestampKey, mostRecentTimestamp);
