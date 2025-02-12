@@ -56,7 +56,7 @@ export const usePublishComment = () => {
             const contentId = getITagFromEvent(event);
 
             if (contentId) {
-              const queryKey = nostrQueryKeys.contentComments(contentId);
+              const queryKey = nostrQueryKeys.iTagComments(contentId);
               // manually add this new event ID to the cache
               const oldCache = queryClient.getQueryData(queryKey) as string[];
               queryClient.setQueryData(queryKey, [...oldCache, event.id]);

@@ -13,7 +13,7 @@ export const useArtistComments = (artistId: string, limit?: number) => {
 
   const contentIds = tracks.map((track) => track.id);
 
-  const queryKey = nostrQueryKeys.contentComments(artistId);
+  const queryKey = nostrQueryKeys.iTagComments(artistId);
   return useQuery({
     queryKey,
     queryFn: async () => {

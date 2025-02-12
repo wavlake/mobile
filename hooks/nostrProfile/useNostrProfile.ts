@@ -90,7 +90,7 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
   };
 }
 
-const decodeProfileMetadata = (
+export const decodeProfileMetadata = (
   event?: Event | null,
 ): NostrUserProfileWithTimestamp | null => {
   if (!event) return null;

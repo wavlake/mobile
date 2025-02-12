@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import {
+  decodeProfileMetadata,
   NostrUserProfileWithTimestamp,
   STALE_TIME,
-  useNostrProfile,
 } from "./useNostrProfile";
 import { nostrQueryKeys, useNostrEvents } from "@/providers";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,7 +12,6 @@ export const useBatchGetNostrProfile = () => {
   const queryClient = useQueryClient();
   const { querySync } = useNostrEvents();
 
-  const { decodeProfileMetadata } = useNostrProfile();
   return useCallback(
     async (pubkeys: string[], relayList?: string[]) => {
       // Skip empty requests
