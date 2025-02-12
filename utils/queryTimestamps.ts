@@ -27,11 +27,9 @@ export const updateQueryTimestamp = (
   const timestampKey = getTimestampQueryKey(queryKey);
   const currentTimestamp = getQueryTimestamp(queryClient, queryKey);
 
-  // Find the oldest timestamp in the new events
-  const oldestTimestamp = Math.min(...eventsArray.map((e) => e.created_at));
+  const mostRecentTimestamp = Math.max(...eventsArray.map((e) => e.created_at));
 
-  // Update if this is older than what we have
-  if (oldestTimestamp < currentTimestamp || currentTimestamp === 0) {
-    queryClient.setQueryData(timestampKey, oldestTimestamp);
+  if (mostRecentTimestamp > currentTimestamp) {
+    queryClient.setQueryData(timestampKey, mostRecentTimestamp);
   }
 };
