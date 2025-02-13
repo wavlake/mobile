@@ -136,7 +136,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
   const loadSecondaryData = async () => {
     try {
-      const socialQueryKey = ["nostr", "social", pubkey];
+      const socialQueryKey = nostrQueryKeys.pTagComments(pubkey);
       const since = getQueryTimestamp(queryClient, socialQueryKey);
       const socialFilter = {
         ...SOCIAL_NOTES,
@@ -167,8 +167,9 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
       // update cache
       Object.entries(eventsByKind).forEach(([kind, events]) => {
         const queryKey = getQueryKeyForKind(Number(kind), pubkey);
-        if (!queryKey) return;
-        queryClient.setQueryData(queryKey, events);
+        const oldCache = queryClient.getQueryData<Event[]>(queryKey);
+        const newCache = mergeEventsIntoCache(events, oldCache);
+        queryClient.setQueryData(queryKey, newCache);
         // we can use the most recent created_at from the initial socialEvents list
         updateQueryTimestamp(queryClient, queryKey, socialEvents);
       });

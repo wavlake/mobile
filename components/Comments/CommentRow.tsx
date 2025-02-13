@@ -29,10 +29,10 @@ interface CommentRowProps extends ViewProps {
   onPress?: (comment: Event) => void;
 }
 
+// TODO - remove contentId from CommentRow, use comment
 export const CommentRow = ({
   commentId,
   comment,
-  isPressable = true,
   showContentDetails = false,
   lastReadDate,
   showReplyParent = false,
@@ -79,7 +79,6 @@ export const CommentRow = ({
       <EventRenderer
         showReplyParent={showReplyParent}
         comment={event}
-        isPressable={isPressable}
         showContentDetails={showContentDetails}
         lastReadDate={lastReadDate}
         closeParent={closeParent}
@@ -93,7 +92,6 @@ export const CommentRow = ({
     return (
       <EventRenderer
         comment={event}
-        isPressable={isPressable}
         showContentDetails={showContentDetails}
         lastReadDate={lastReadDate}
         closeParent={closeParent}
@@ -148,16 +146,22 @@ const EventRenderer = ({
 
   if (!comment) return null;
 
-  const onCommentPress = () => {
+  const isUnread = lastReadDate ? comment.created_at > lastReadDate : false;
+
+  const onCommentPress = (comment: Event) => {
+    if (!isPressable) return;
+
     if (onPress) {
       onPress(comment);
-    } else {
-      if (replyParent) {
-        router.push(`${basePathname}/comment/${replyParent.id}`);
-      }
+      return;
     }
+
+    // fallback is to navigate to the comment page
+    router.push({
+      pathname: `${basePathname}/comment/${comment.id}`,
+      params: { includeBackButton: "true" },
+    });
   };
-  const isUnread = lastReadDate ? comment.created_at > lastReadDate : false;
 
   return (
     <>
@@ -196,23 +200,13 @@ const EventRenderer = ({
             : "transparent",
         }}
       >
-        {isPressable ? (
-          <TouchableOpacity
-            onPress={onCommentPress}
-            onLongPress={() => {
-              setDialogOpen(true);
-            }}
-            style={{ flex: 1 }}
-          >
-            <CommentContent
-              associatedContentId={showContentDetails ? contentId : undefined}
-              comment={comment}
-              npubMetadata={authorProfile}
-              metadataIsLoading={metadataIsLoading}
-              closeParent={closeParent}
-            />
-          </TouchableOpacity>
-        ) : (
+        <TouchableOpacity
+          onPress={() => onCommentPress(comment)}
+          onLongPress={() => {
+            setDialogOpen(true);
+          }}
+          style={{ flex: 1 }}
+        >
           <CommentContent
             associatedContentId={showContentDetails ? contentId : undefined}
             comment={comment}
@@ -220,7 +214,7 @@ const EventRenderer = ({
             metadataIsLoading={metadataIsLoading}
             closeParent={closeParent}
           />
-        )}
+        </TouchableOpacity>
       </View>
       <CommentActionBar
         comment={comment}
