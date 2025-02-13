@@ -1,18 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useCallback,
-  ReactNode,
-  useState,
-} from "react";
+import { createContext, useContext, useCallback, ReactNode } from "react";
 import { Event, Filter } from "nostr-tools";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getEventById,
-  getFollowsListMap,
-  getQueryTimestamp,
-  updateQueryTimestamp,
-} from "@/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { getEventById, getQueryTimestamp, updateQueryTimestamp } from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
@@ -29,7 +18,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
   const { pubkey } = useAuth();
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
-  const [isLoadingInitial, setIsLoadingInitial] = useState(false);
 
   const getLatestEvent = useCallback(
     async (filter: Filter, relays: string[] = readRelayList) => {
@@ -104,38 +92,11 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     [queryClient, readRelayList],
   );
 
-  const loadInitialData = useCallback(async () => {
+  const updateInboxCache = useCallback(async () => {
     if (!pubkey) return;
-    setIsLoadingInitial(true);
 
     try {
-      // Load critical data
-      const followsMap = await getFollowsListMap(pubkey, readRelayList);
-      const follows = followsMap ? Object.keys(followsMap) : [];
-
-      // Update context with initial data
-      queryClient.setQueryData(["initial-load-core", pubkey], {
-        follows,
-        followsMap,
-        comments: [],
-        reactions: [],
-        reposts: [],
-        genericReposts: [],
-        zapReceipts: [],
-        followsActivity: [],
-      });
-
       // Load secondary data
-      await loadSecondaryData();
-    } catch (error) {
-      console.error("Initial data load error:", error);
-    } finally {
-      setIsLoadingInitial(false);
-    }
-  }, [pubkey, readRelayList, queryClient]);
-
-  const loadSecondaryData = async () => {
-    try {
       const socialQueryKey = nostrQueryKeys.pTagComments(pubkey);
       const since = getQueryTimestamp(queryClient, socialQueryKey);
       const socialFilter = {
@@ -210,42 +171,9 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         updateQueryTimestamp(queryClient, eTagQueryKey, socialEvents);
       }
     } catch (error) {
-      console.error("Secondary data load error:", error);
+      console.error("Initial data load error:", error);
     }
-  };
-
-  const { data: comments = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: reactions = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagReactions(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: reposts = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagReposts(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: genericReposts = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagGenericReposts(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: zapReceipts = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagZapReceipts(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: initialData } = useQuery<{
-    follows: string[];
-    followsMap: Record<string, string>;
-  }>({
-    queryKey: ["initial-load-core", pubkey],
-    enabled: Boolean(pubkey),
-  });
+  }, [pubkey, readRelayList, queryClient]);
 
   return (
     <NostrEventContext.Provider
@@ -256,16 +184,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         cacheEventById,
         cacheEventsById,
         getEventRelatedEvents,
-        comments,
-        reactions,
-        reposts,
-        genericReposts,
-        zapReceipts,
-        follows: initialData?.follows ?? [],
-        followsActivity: [],
-        followsMap: initialData?.followsMap ?? {},
-        loadInitialData,
-        isLoadingInitial,
+        updateInboxCache,
       }}
     >
       {children}
@@ -286,5 +205,8 @@ export function mergeEventsIntoCache(events: Event[], oldCache: Event[] = []) {
   for (const event of events) {
     newCache.set(event.id, event);
   }
-  return Array.from(newCache.values());
+  const orderedByCreatedAt = Array.from(newCache.values()).sort(
+    (a, b) => b.created_at - a.created_at,
+  );
+  return orderedByCreatedAt;
 }
