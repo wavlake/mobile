@@ -66,35 +66,17 @@ export type NostrEventContextType = {
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
   getEventRelatedEvents: (event: Event, since?: number) => Promise<Event[]>;
-  comments: Event[];
-  reactions: Event[];
-  reposts: Event[];
-  genericReposts: Event[];
-  zapReceipts: Event[];
-  follows: string[];
-  followsActivity: string[];
-  // Record<followPubkey, followRelay>
-  followsMap: Record<string, string>;
-  loadInitialData: () => Promise<void>;
-  isLoadingInitial: boolean;
+  updateInboxCache: () => Promise<void>;
 };
 
-export const defaultNostrEventContext: Partial<NostrEventContextType> = {
-  comments: [],
-  reactions: [],
-  reposts: [],
-  genericReposts: [],
-  zapReceipts: [],
-  follows: [],
-  followsActivity: [],
-  followsMap: {},
-};
+export const defaultNostrEventContext: Partial<NostrEventContextType> = {};
 
 export const nostrQueryKeys = {
   event: (id: string) => ["nostr", "event", id],
   profile: (pubkey: string) => ["nostr", "profile", "event", pubkey],
   relayList: (pubkey: string) => ["nostr", "relayList", "event", pubkey],
   // TODO - clean up old follows hooks (add, remove, get)
+  // kind 3 for logged in user
   follows: (pubkey: string | null | undefined) => [
     "nostr",
     "follows",
@@ -134,6 +116,12 @@ export const nostrQueryKeys = {
     "iTag",
     "event-list",
     contentId,
+  ],
+  pubkeyITagComments: (pubkey: string) => [
+    "nostr",
+    "pubkey-iTag",
+    "event-list",
+    pubkey,
   ],
   // kind 1 with event #e tag
   eTagReplies: (eventId: string) => ["nostr", "replies", "event-list", eventId],
