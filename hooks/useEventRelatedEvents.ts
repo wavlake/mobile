@@ -34,6 +34,7 @@ interface UseEventRelatedEvents {
   refetch: () => void;
 }
 
+const STALE_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   const { getEventRelatedEvents, getEventFromId } = useNostrEvents();
   const queryClient = useQueryClient();
@@ -48,15 +49,22 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
   } = useQuery({
     queryKey,
     queryFn: async () => {
-      const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
+      const oldCache = queryClient.getQueryData<Event[]>(queryKey);
+      const queryState = queryClient.getQueryState(queryKey);
+      const dataAge = queryState?.dataUpdatedAt
+        ? Date.now() - queryState.dataUpdatedAt
+        : Infinity;
 
-      const events = await getEventRelatedEvents(event, lastQueryTime);
-      if (events.length > 0) {
-        updateQueryTimestamp(queryClient, queryKey, events);
+      if (!oldCache || dataAge > STALE_TIME) {
+        const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
+        const events = await getEventRelatedEvents(event, lastQueryTime);
+        if (events.length > 0) {
+          updateQueryTimestamp(queryClient, queryKey, events);
+        }
+
+        return mergeEventsIntoCache(events, oldCache ?? []);
       }
-
-      const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
-      return mergeEventsIntoCache(events, oldCache);
+      return oldCache;
     },
     enabled: Boolean(event),
     refetchOnMount: "always",

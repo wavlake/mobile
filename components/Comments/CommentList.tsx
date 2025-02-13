@@ -1,5 +1,4 @@
 import { CommentRow } from "./CommentRow";
-import { useRepliesMap } from "@/hooks/useRepliesMap";
 import {
   ActivityIndicator,
   FlatList,
@@ -38,7 +37,6 @@ export const CommentList = ({
   onClose?: () => void;
 }) => {
   const router = useRouter();
-  const { data: repliesMap = {} } = useRepliesMap(commentIds);
   const handleLoadMore = () => {
     if (!showMoreLink) {
       return;
@@ -47,20 +45,15 @@ export const CommentList = ({
   };
 
   const MemoizedCommentRow = memo(CommentRow);
-  const renderItem = useCallback(
-    ({ item: commentId, index }: { item: string; index: number }) => {
-      const replies = commentId ? repliesMap[commentId] ?? [] : [];
-      return (
-        <MemoizedCommentRow
-          commentId={commentId}
-          key={commentId}
-          replies={replies}
-          closeParent={onClose}
-        />
-      );
-    },
-    [repliesMap],
-  );
+  const renderItem = useCallback(({ item: commentId }: { item: string }) => {
+    return (
+      <MemoizedCommentRow
+        commentId={commentId}
+        key={commentId}
+        closeParent={onClose}
+      />
+    );
+  }, []);
 
   return (
     <FlatList

@@ -48,9 +48,9 @@ export const NonContentTab = ({
       keyExtractor={(item) => item.id}
       ListFooterComponent={<ListFooter numberOfItems={events.length} />}
       scrollEnabled={true}
-      windowSize={12}
+      windowSize={4}
       removeClippedSubviews={true}
-      maxToRenderPerBatch={8}
+      maxToRenderPerBatch={2}
       ItemSeparatorComponent={ItemSeparator}
     />
   );

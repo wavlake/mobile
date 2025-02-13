@@ -3,10 +3,6 @@ import { NostrUserProfile } from "@/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Event } from "nostr-tools";
-import {
-  getQueryTimestamp,
-  updateQueryTimestamp,
-} from "@/utils/queryTimestamps";
 
 export const STALE_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 export type NostrUserProfileWithTimestamp = NostrUserProfile & {
@@ -23,20 +19,12 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
     queryFn: async () => {
       if (!pubkey) return null;
 
-      const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
       const filter = {
         kinds: [0],
         authors: [pubkey],
-        since: lastQueryTime,
       };
 
-      const event = await getLatestEvent(filter, relays);
-
-      if (event) {
-        updateQueryTimestamp(queryClient, queryKey, event);
-      }
-
-      return event;
+      return getLatestEvent(filter, relays);
     },
     staleTime: STALE_TIME,
     gcTime: Infinity,
@@ -63,11 +51,7 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
               authors: [targetPubkey],
             };
 
-            const event = await getLatestEvent(filter, relayList);
-            if (event) {
-              updateQueryTimestamp(queryClient, queryKey, event);
-            }
-            return event;
+            return getLatestEvent(filter, relayList);
           },
           staleTime: STALE_TIME,
           gcTime: Infinity,

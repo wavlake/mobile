@@ -25,6 +25,7 @@ export const ContentTab = ({
   const MemoizedCommentRow = memo(CommentRow);
   const { fetchContentDetails } = useContentDetails();
   const renderItem = useCallback(({ item: event }: { item: Event }) => {
+    // navigate to related content
     const onPress = async (event: Event) => {
       try {
         const contentId = getITagFromEvent(event);
@@ -75,9 +76,9 @@ export const ContentTab = ({
       }
       ListFooterComponent={<ListFooter numberOfItems={data.length} />}
       scrollEnabled={true}
-      windowSize={12}
+      windowSize={4}
       removeClippedSubviews={true}
-      maxToRenderPerBatch={8}
+      maxToRenderPerBatch={2}
       ItemSeparatorComponent={ItemSeparator}
     />
   );
