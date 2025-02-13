@@ -4,13 +4,10 @@ import { PillTabView } from "../PillTabView";
 import { ContentTab } from "./ContentTab";
 import { NonContentTab } from "./NonContentTab";
 import { useInbox } from "@/hooks";
-import { useNostrEvents } from "@/providers";
 import { Center } from "../shared/Center";
 
 export const InboxPage = () => {
   const {
-    loadInitialData,
-    isLoadingInitial,
     updateLastRead,
     comments,
     contentComments,
@@ -23,11 +20,10 @@ export const InboxPage = () => {
   } = useInbox();
 
   useEffect(() => {
-    loadInitialData();
     updateLastRead();
   }, []);
 
-  if (isLoadingInitial) {
+  if (isLoading) {
     return (
       <Center>
         <ActivityIndicator size="large" />

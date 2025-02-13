@@ -19,7 +19,8 @@ export const useNostrFollows = (pubkey?: string | null) => {
       if (!isValid) {
         return [];
       }
-
+      // TODO - also store this map in the cache
+      // Record<followPubkey, followRelay>
       const followsMap = await getFollowsListMap(pubkey, readRelayList);
 
       return followsMap ? Object.keys(followsMap) : [];

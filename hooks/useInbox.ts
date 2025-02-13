@@ -1,128 +1,143 @@
 import { Event } from "nostr-tools";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
-import { pool } from "@/utils/relay-pool";
-import { useNostrRelayList } from "./nostrRelayList";
 import { useGetInboxLastRead } from "./useGetInboxLastRead";
 import { useAccountTracks } from "./useAccountTracks";
 import { useSetInboxLastRead } from "./useSetInboxLastRead";
-import { useNostrEvents } from "@/providers";
+import {
+  mergeEventsIntoCache,
+  nostrQueryKeys,
+  useNostrEvents,
+} from "@/providers";
+import { getQueryTimestamp, updateQueryTimestamp } from "@/utils";
+import { useEffect } from "react";
 
 const CONTENT_ID_PREFIX = "podcast:item:guid:";
 
-// contentIds is a list of content owned by the logged in user
-export const useInbox = (
-  options = {
-    enabled: true,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  },
-) => {
-  const [isLoadingInitial, setIsLoadingInitial] = useState(false);
-  const {
-    comments,
-    reactions,
-    zapReceipts,
-    cacheEventsById,
-    loadInitialData: loadNostrEvents,
-  } = useNostrEvents();
-
-  const {
-    data: tracks = [],
-    isLoading: isLoadingAccountTracks,
-    refetch: refetchAccountTracks,
-  } = useAccountTracks();
-  const contentIds = tracks.map((track) => track.id);
-  const { readRelayList } = useNostrRelayList();
+export const useInbox = () => {
   const { pubkey } = useAuth();
+  const queryClient = useQueryClient();
+  const { querySync, cacheEventsById, updateInboxCache } = useNostrEvents();
+
+  useEffect(() => {
+    updateInboxCache();
+  }, [pubkey]);
 
   // Fetch last read date
   const { refetch: getLastRead, data: lastReadDate } = useGetInboxLastRead();
-  const { mutateAsync: updateLastRead } = useSetInboxLastRead();
-
-  //convert lastReadDate from datetime string to number
+  // convert lastReadDate from datetime string to number
   const lastReadDateNumber = lastReadDate
     ? Math.trunc(new Date(lastReadDate).getTime() / 1000)
     : undefined;
+  const { mutateAsync: updateLastRead } = useSetInboxLastRead();
 
-  // Format content IDs with prefix for I tag
-  const formattedContentIds = useMemo(
-    () => contentIds.map((id) => `${CONTENT_ID_PREFIX}${id}`),
-    [contentIds],
+  // tracks is a list of tracks owned by the logged in user
+  const {
+    data: tracks = [],
+    isPending: loadingAccountTracks,
+    refetch: refetchAccountTracks,
+  } = useAccountTracks();
+
+  const { data: comments = [] } = useQuery<Event[]>({
+    queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  const contentCommentQueryKey = nostrQueryKeys.pubkeyITagComments(
+    pubkey ?? "",
   );
-  const validateMentions = (events: Event[]): Event[] => {
-    return events.filter((event) => {
-      const mentionTagIndices = event.tags
-        .map((tag, index) => (tag[0] === "p" && tag[1] === pubkey ? index : -1))
-        .filter((index) => index !== -1);
-
-      return mentionTagIndices.some((index) =>
-        event.content.includes(`#[${index}]`),
-      );
-    });
-  };
-
-  const userHasContent = contentIds.length > 0;
-
-  // Only add content replies query if there are contentIds
+  const userHasContent = tracks.length > 0;
   const {
     data: contentComments = [],
     refetch: refetchContentComments,
-    isFetching,
+    isPending: loadingContentComments,
   } = useQuery({
-    queryKey: ["nostr", "content-replies", contentIds],
+    queryKey: contentCommentQueryKey,
     queryFn: async () => {
+      if (!userHasContent) {
+        return [];
+      }
+
+      // Format content IDs with prefix for I tag
+      const contentIds = tracks.map((track) => track.id);
+      const iTagFormattedIds = contentIds.map(
+        (id) => `${CONTENT_ID_PREFIX}${id}`,
+      );
       // skip an empty filter
-      if (!userHasContent) return [];
-      const events = await pool.querySync(readRelayList, {
+      const since = getQueryTimestamp(queryClient, contentCommentQueryKey);
+      const filter = {
         kinds: [1],
         limit: 100,
-        "#i": formattedContentIds,
-      });
+        "#i": iTagFormattedIds,
+        since,
+      };
+
+      const events = await querySync(filter);
+
       cacheEventsById(events);
-      return events;
+
+      const contentIdEventListMap = events.reduce(
+        (acc, event) => {
+          const contentId = event.tags.find((tag) => tag[0] === "i")?.[1];
+          if (contentId) {
+            acc[contentId] = acc[contentId] || [];
+            acc[contentId].push(event);
+          }
+          return acc;
+        },
+        {} as Record<string, Event[]>,
+      );
+      Object.entries(contentIdEventListMap).forEach(([contentId, events]) => {
+        const queryKey = nostrQueryKeys.iTagComments(contentId);
+        updateQueryTimestamp(queryClient, queryKey, events);
+        const oldCache = queryClient.getQueryData<Event[]>(queryKey);
+        const newCache = mergeEventsIntoCache(events, oldCache);
+        queryClient.setQueryData(queryKey, newCache);
+      });
+      const oldCache = queryClient.getQueryData<Event[]>(
+        contentCommentQueryKey,
+      );
+
+      return mergeEventsIntoCache(events, oldCache);
     },
-    ...options,
-    enabled: userHasContent,
   });
 
-  const loadInitialData = async () => {
-    setIsLoadingInitial(true);
-    try {
-      await loadNostrEvents();
-      await refetchAccountTracks();
-      await refetchContentComments();
-      await getLastRead();
-    } catch (error) {
-      console.error("Error loading initial inbox data:", error);
-    } finally {
-      setIsLoadingInitial(false);
-    }
-  };
+  const { data: reactions = [] } = useQuery<Event[]>({
+    queryKey: nostrQueryKeys.pTagReactions(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
 
-  // Cleanup function
-  const cleanup = () => {
-    pool.close(readRelayList);
-  };
+  const { data: zapReceipts = [] } = useQuery<Event[]>({
+    queryKey: nostrQueryKeys.pTagZapReceipts(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  const { data: reposts = [] } = useQuery<Event[]>({
+    queryKey: nostrQueryKeys.pTagReposts(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
+
+  const { data: genericReposts = [] } = useQuery<Event[]>({
+    queryKey: nostrQueryKeys.pTagGenericReposts(pubkey ?? ""),
+    enabled: Boolean(pubkey),
+  });
 
   return {
-    comments: comments,
-    contentComments: contentComments,
-    reactions: reactions,
-    zapReceipts: zapReceipts,
-    cleanup,
-    // Expose mention validation helper
-    validateMentions,
+    comments,
+    contentComments,
+    reactions,
+    zapReceipts,
+    reposts,
+    genericReposts,
     refetch: async () => {
       refetchAccountTracks();
       refetchContentComments();
       getLastRead();
+      updateInboxCache();
     },
-    isLoading: isLoadingInitial || isLoadingAccountTracks || isFetching,
+    isLoading: loadingAccountTracks || loadingContentComments,
     updateLastRead,
     lastReadDate: lastReadDateNumber,
-    userHasContent: contentIds.length > 0,
-    loadInitialData,
-    isLoadingInitial,
+    userHasContent,
   };
 };

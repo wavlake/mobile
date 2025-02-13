@@ -7,7 +7,7 @@ import {
 import { CommentRow } from "./CommentRow";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { ReplyDialog } from "./ReplyDialog";
 import { Text } from "../shared/Text";
 import { useLocalSearchParams } from "expo-router";
@@ -57,6 +57,10 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
   const onReplyPress = () => {
     setDialogOpen(true);
   };
+  const MemoizedCommentRow = memo(CommentRow);
+  const renderItem = useCallback(({ item: event }: { item: Event }) => {
+    return <MemoizedCommentRow comment={event} key={event.id} />;
+  }, []);
 
   return (
     <FlatList
@@ -77,7 +81,7 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
       // TODO - improve rendering replies and indentation
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
       data={directReplies}
-      renderItem={({ item }) => <CommentRow comment={item} />}
+      renderItem={renderItem}
       ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
