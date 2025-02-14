@@ -1,13 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
 import { Event } from "nostr-tools";
 import { nostrQueryKeys, useNostrEvents } from "@/providers";
+import { useNostrQuery } from "./useNostrQuery";
 
-export const useNostrEvent = (eventId: string) => {
+export const useNostrEvent = (eventId?: string | null) => {
   const { getEventFromId } = useNostrEvents();
 
-  return useQuery<Event | null>({
-    queryKey: nostrQueryKeys.event(eventId),
-    queryFn: () => getEventFromId(eventId),
+  return useNostrQuery<Event | null>({
+    queryKey: nostrQueryKeys.event(eventId ?? ""),
+    queryFn: () =>
+      typeof eventId === "string" ? getEventFromId(eventId) : null,
     enabled: Boolean(eventId),
   });
 };

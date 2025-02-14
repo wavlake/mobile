@@ -11,6 +11,7 @@ import {
 } from "@/providers";
 import { getQueryTimestamp, updateQueryTimestamp } from "@/utils";
 import { useEffect } from "react";
+import { useNostrQuery } from "./useNostrQuery";
 
 const CONTENT_ID_PREFIX = "podcast:item:guid:";
 
@@ -38,8 +39,8 @@ export const useInbox = () => {
     refetch: refetchAccountTracks,
   } = useAccountTracks();
 
-  const { data: comments = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagComments(pubkey ?? ""),
+  const { data: socialEvents = [] } = useQuery<Event[]>({
+    queryKey: nostrQueryKeys.pTagEvents(pubkey ?? ""),
     enabled: Boolean(pubkey),
   });
 
@@ -51,7 +52,7 @@ export const useInbox = () => {
     data: contentComments = [],
     refetch: refetchContentComments,
     isPending: loadingContentComments,
-  } = useQuery({
+  } = useNostrQuery({
     queryKey: contentCommentQueryKey,
     queryFn: async () => {
       if (!userHasContent) {
@@ -100,35 +101,12 @@ export const useInbox = () => {
 
       return mergeEventsIntoCache(events, oldCache);
     },
-  });
-
-  const { data: reactions = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagReactions(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: zapReceipts = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagZapReceipts(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: reposts = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagReposts(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
-
-  const { data: genericReposts = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagGenericReposts(pubkey ?? ""),
-    enabled: Boolean(pubkey),
+    refetchOnMount: "always",
   });
 
   return {
-    comments,
+    socialEvents,
     contentComments,
-    reactions,
-    zapReceipts,
-    reposts,
-    genericReposts,
     refetch: async () => {
       refetchAccountTracks();
       refetchContentComments();

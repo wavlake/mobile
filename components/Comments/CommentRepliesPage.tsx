@@ -76,13 +76,21 @@ const CommentRepliesPageContents = ({ comment }: { comment: Event }) => {
         transform: [{ translateX: -LEFT_INDENTATION }],
       }}
       ListEmptyComponent={
-        isLoading ? <ActivityIndicator /> : <Text>No replies yet</Text>
+        isLoading ? (
+          <ActivityIndicator />
+        ) : comment.kind === 1 ? (
+          <Text>No replies yet</Text>
+        ) : null
       }
       // TODO - improve rendering replies and indentation
       contentContainerStyle={{ paddingLeft: LEFT_INDENTATION, paddingTop: 16 }}
       data={directReplies}
       renderItem={renderItem}
-      ListFooterComponent={<ListFooterComp onReplyPress={onReplyPress} />}
+      ListFooterComponent={
+        comment.kind === 1 ? (
+          <ListFooterComp onReplyPress={onReplyPress} />
+        ) : null
+      }
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }

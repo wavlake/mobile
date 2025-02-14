@@ -9,10 +9,8 @@ import { Center } from "../shared/Center";
 export const InboxPage = () => {
   const {
     updateLastRead,
-    comments,
+    socialEvents,
     contentComments,
-    reactions,
-    zapReceipts,
     isLoading,
     refetch,
     userHasContent,
@@ -43,9 +41,7 @@ export const InboxPage = () => {
       </PillTabView.Item>
       <PillTabView.Item style={{ width: "100%" }}>
         <NonContentTab
-          comments={comments}
-          reactions={reactions}
-          zapReceipts={zapReceipts}
+          socialEvents={socialEvents}
           isLoading={isLoading}
           refetch={refetch}
           lastReadDate={lastReadDate}
@@ -54,9 +50,7 @@ export const InboxPage = () => {
     </PillTabView>
   ) : (
     <NonContentTab
-      comments={comments}
-      reactions={reactions}
-      zapReceipts={zapReceipts}
+      socialEvents={socialEvents}
       isLoading={isLoading}
       refetch={refetch}
       lastReadDate={lastReadDate}
