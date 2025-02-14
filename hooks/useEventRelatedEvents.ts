@@ -61,7 +61,6 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
       return mergeEventsIntoCache(events, oldCache ?? []);
     },
     enabled: Boolean(event),
-    staleTime: 1000 * 60 * 5,
   });
 
   const { data: replyParent, isLoading: replyParentLoading } = useNostrEvent(
@@ -70,9 +69,9 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
 
   const addEventToCacheHandler = useCallback(
     (event: Event) => {
-      queryClient.setQueryData<Event[]>(queryKey, (old = []) => {
-        return mergeEventsIntoCache([event], old);
-      });
+      const oldCache = queryClient.getQueryData<Event[]>(queryKey);
+      const newCache = mergeEventsIntoCache([event], oldCache ?? []);
+      queryClient.setQueryData<Event[]>(queryKey, newCache);
     },
     [queryClient, queryKey],
   );
@@ -89,10 +88,10 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
 
   const { replies, reactions, reposts, genericReposts, zapReceipts } = {
     replies: eventKindMap.get(1) ?? [],
-    reactions: eventKindMap.get(9734) ?? [],
-    reposts: eventKindMap.get(2) ?? [],
-    genericReposts: eventKindMap.get(3) ?? [],
-    zapReceipts: eventKindMap.get(4) ?? [],
+    reactions: eventKindMap.get(7) ?? [],
+    reposts: eventKindMap.get(6) ?? [],
+    genericReposts: eventKindMap.get(16) ?? [],
+    zapReceipts: eventKindMap.get(9735) ?? [],
   };
 
   const getChildReplies = (parentId: string): Event[] =>
