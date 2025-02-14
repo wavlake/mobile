@@ -1,5 +1,5 @@
 import { Event } from "nostr-tools";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 import { useGetInboxLastRead } from "./useGetInboxLastRead";
 import { useAccountTracks } from "./useAccountTracks";
@@ -10,39 +10,31 @@ import {
   useNostrEvents,
 } from "@/providers";
 import { getQueryTimestamp, updateQueryTimestamp } from "@/utils";
-import { useEffect } from "react";
 import { useNostrQuery } from "./useNostrQuery";
+import { useSocialEvents } from "./useSocialEvents";
 
 const CONTENT_ID_PREFIX = "podcast:item:guid:";
 
 export const useInbox = () => {
   const { pubkey } = useAuth();
   const queryClient = useQueryClient();
-  const { querySync, cacheEventsById, updateInboxCache } = useNostrEvents();
+  const { querySync, cacheEventsById } = useNostrEvents();
 
-  useEffect(() => {
-    updateInboxCache();
-  }, [pubkey]);
+  const { data: socialEvents = [], refetch: refetchSocialEvents } =
+    useSocialEvents(pubkey);
 
   // Fetch last read date
   const { refetch: getLastRead, data: lastReadDate } = useGetInboxLastRead();
-  // convert lastReadDate from datetime string to number
   const lastReadDateNumber = lastReadDate
     ? Math.trunc(new Date(lastReadDate).getTime() / 1000)
     : undefined;
   const { mutateAsync: updateLastRead } = useSetInboxLastRead();
 
-  // tracks is a list of tracks owned by the logged in user
   const {
     data: tracks = [],
     isPending: loadingAccountTracks,
     refetch: refetchAccountTracks,
   } = useAccountTracks();
-
-  const { data: socialEvents = [] } = useQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagEvents(pubkey ?? ""),
-    enabled: Boolean(pubkey),
-  });
 
   const contentCommentQueryKey = nostrQueryKeys.pubkeyITagComments(
     pubkey ?? "",
@@ -59,12 +51,10 @@ export const useInbox = () => {
         return [];
       }
 
-      // Format content IDs with prefix for I tag
       const contentIds = tracks.map((track) => track.id);
       const iTagFormattedIds = contentIds.map(
         (id) => `${CONTENT_ID_PREFIX}${id}`,
       );
-      // skip an empty filter
       const since = getQueryTimestamp(queryClient, contentCommentQueryKey);
       const filter = {
         kinds: [1],
@@ -74,7 +64,6 @@ export const useInbox = () => {
       };
 
       const events = await querySync(filter);
-
       cacheEventsById(events);
 
       const contentIdEventListMap = events.reduce(
@@ -88,6 +77,7 @@ export const useInbox = () => {
         },
         {} as Record<string, Event[]>,
       );
+
       Object.entries(contentIdEventListMap).forEach(([contentId, events]) => {
         const queryKey = nostrQueryKeys.iTagComments(contentId);
         updateQueryTimestamp(queryClient, queryKey, events);
@@ -95,10 +85,10 @@ export const useInbox = () => {
         const newCache = mergeEventsIntoCache(events, oldCache);
         queryClient.setQueryData(queryKey, newCache);
       });
+
       const oldCache = queryClient.getQueryData<Event[]>(
         contentCommentQueryKey,
       );
-
       return mergeEventsIntoCache(events, oldCache);
     },
     refetchOnMount: "always",
@@ -111,7 +101,7 @@ export const useInbox = () => {
       refetchAccountTracks();
       refetchContentComments();
       getLastRead();
-      updateInboxCache();
+      refetchSocialEvents();
     },
     isLoading: loadingAccountTracks || loadingContentComments,
     updateLastRead,

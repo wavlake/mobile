@@ -1,16 +1,11 @@
 import { createContext, useContext, useCallback, ReactNode } from "react";
 import { Event, Filter } from "nostr-tools";
 import { useQueryClient } from "@tanstack/react-query";
-import { getEventById, getQueryTimestamp, updateQueryTimestamp } from "@/utils";
+import { getEventById } from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { pool } from "@/utils/relay-pool";
 import { useAuth } from "@/hooks";
-import {
-  getQueryKeyForKind,
-  NostrEventContextType,
-  nostrQueryKeys,
-  SOCIAL_NOTES,
-} from "./constants";
+import { NostrEventContextType, nostrQueryKeys } from "./constants";
 
 const NostrEventContext = createContext<NostrEventContextType | null>(null);
 
@@ -92,89 +87,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     [queryClient, readRelayList],
   );
 
-  const updateInboxCache = useCallback(async () => {
-    if (!pubkey) return;
-
-    try {
-      // Load secondary data
-      const socialQueryKey = nostrQueryKeys.pTagComments(pubkey);
-      const since = getQueryTimestamp(queryClient, socialQueryKey);
-      const socialFilter = {
-        ...SOCIAL_NOTES,
-        "#p": [pubkey],
-        since,
-      };
-
-      const socialEvents = await querySync(socialFilter, readRelayList);
-      if (socialEvents.length > 0) {
-        updateQueryTimestamp(queryClient, socialQueryKey, socialEvents);
-      }
-
-      // cache events individually
-      cacheEventsById(socialEvents);
-
-      // sort events
-      const eventsByKind = socialEvents.reduce(
-        (acc, event) => {
-          if (!acc[event.kind]) {
-            acc[event.kind] = [];
-          }
-          acc[event.kind].push(event);
-          return acc;
-        },
-        {} as Record<string, Event[]>,
-      );
-
-      // update cache
-      Object.entries(eventsByKind).forEach(([kind, events]) => {
-        const queryKey = getQueryKeyForKind(Number(kind), pubkey);
-        const oldCache = queryClient.getQueryData<Event[]>(queryKey);
-        const newCache = mergeEventsIntoCache(events, oldCache);
-        queryClient.setQueryData(queryKey, newCache);
-        // we can use the most recent created_at from the initial socialEvents list
-        updateQueryTimestamp(queryClient, queryKey, socialEvents);
-      });
-
-      // fetch event-related events
-      const eventSocialFilter = {
-        ...SOCIAL_NOTES,
-        "#e": socialEvents.map((event) => event.id),
-        since,
-      };
-
-      const eventSocialEvents = await querySync(
-        eventSocialFilter,
-        readRelayList,
-      );
-
-      const eventIdMap = new Map<string, Event[]>();
-
-      // Group events by their referenced event ID
-      for (const event of eventSocialEvents) {
-        const eTag = event.tags.find(([tag]) => tag === "e");
-        const eventId = eTag?.[1];
-        if (!eventId) continue;
-
-        if (!eventIdMap.has(eventId)) {
-          eventIdMap.set(eventId, []);
-        }
-        eventIdMap.get(eventId)!.push(event);
-      }
-
-      // Update cache for each referenced event
-      for (const [eventId, events] of eventIdMap) {
-        const eTagQueryKey = nostrQueryKeys.eTagEvents(eventId);
-        queryClient.setQueryData<Event[]>(eTagQueryKey, (oldCache = []) =>
-          mergeEventsIntoCache(events, oldCache),
-        );
-        // we can use the most recent created_at from the initial socialEvents list
-        updateQueryTimestamp(queryClient, eTagQueryKey, socialEvents);
-      }
-    } catch (error) {
-      console.error("Initial data load error:", error);
-    }
-  }, [pubkey, readRelayList, queryClient]);
-
   return (
     <NostrEventContext.Provider
       value={{
@@ -184,7 +96,6 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         cacheEventById,
         cacheEventsById,
         getEventRelatedEvents,
-        updateInboxCache,
       }}
     >
       {children}

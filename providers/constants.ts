@@ -65,7 +65,6 @@ export type NostrEventContextType = {
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
   getEventRelatedEvents: (event: Event, since?: number) => Promise<Event[]>;
-  updateInboxCache: () => Promise<void>;
 };
 
 export const defaultNostrEventContext: Partial<NostrEventContextType> = {};

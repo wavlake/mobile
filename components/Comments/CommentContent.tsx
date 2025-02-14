@@ -178,11 +178,7 @@ const ReactionInfo = ({ comment }: { comment: Event }) => {
         width: "100%",
       }}
     >
-      <Text>
-        {content.length > 0
-          ? `Reacted with ${content === "+" ? "🎶" : content}`
-          : "Reacted"}
-      </Text>
+      <Text>{content.length > 0 ? `Reacted with ${content}` : "Reacted"}</Text>
       <View
         style={{
           width: "100%",
