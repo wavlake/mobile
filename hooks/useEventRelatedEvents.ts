@@ -16,6 +16,8 @@ import {
   getQueryTimestamp,
   updateQueryTimestamp,
 } from "@/utils";
+import { useNostrQuery } from "./useNostrQuery";
+import { useNostrEvent } from "./useNostrEvent";
 
 interface UseEventRelatedEvents {
   reactions: Event[];
@@ -34,9 +36,8 @@ interface UseEventRelatedEvents {
   refetch: () => void;
 }
 
-const STALE_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
-  const { getEventRelatedEvents, getEventFromId } = useNostrEvents();
+  const { getEventRelatedEvents } = useNostrEvents();
   const queryClient = useQueryClient();
   const queryKey = nostrQueryKeys.eTagEvents(event.id);
   const { pubkey } = useAuth();
@@ -46,55 +47,31 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
     isLoading,
     error,
     refetch,
-  } = useQuery({
+  } = useNostrQuery({
     queryKey,
     queryFn: async () => {
       const oldCache = queryClient.getQueryData<Event[]>(queryKey);
-      const queryState = queryClient.getQueryState(queryKey);
-      const dataAge = queryState?.dataUpdatedAt
-        ? Date.now() - queryState.dataUpdatedAt
-        : Infinity;
 
-      if (!oldCache || dataAge > STALE_TIME) {
-        const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
-        const events = await getEventRelatedEvents(event, lastQueryTime);
-        if (events.length > 0) {
-          updateQueryTimestamp(queryClient, queryKey, events);
-        }
-
-        return mergeEventsIntoCache(events, oldCache ?? []);
-      }
-      return oldCache;
-    },
-    enabled: Boolean(event),
-    refetchOnMount: "always",
-  });
-
-  const replyToEventId = getParentEventId(event);
-  const replyQueryKey = nostrQueryKeys.event(replyToEventId ?? "");
-
-  const { data: replyParent, isLoading: replyParentLoading } = useQuery({
-    queryKey: replyQueryKey,
-    queryFn: async () => {
-      if (!replyToEventId) return null;
-
-      const replyEvent = await getEventFromId(replyToEventId);
-
-      if (replyEvent) {
-        updateQueryTimestamp(queryClient, replyQueryKey, replyEvent);
+      const lastQueryTime = getQueryTimestamp(queryClient, queryKey);
+      const events = await getEventRelatedEvents(event, lastQueryTime);
+      if (events.length > 0) {
+        updateQueryTimestamp(queryClient, queryKey, events);
       }
 
-      return replyEvent;
+      return mergeEventsIntoCache(events, oldCache ?? []);
     },
     enabled: Boolean(event),
   });
+
+  const { data: replyParent, isLoading: replyParentLoading } = useNostrEvent(
+    getParentEventId(event),
+  );
 
   const addEventToCacheHandler = useCallback(
     (event: Event) => {
-      queryClient.setQueryData<Event[]>(queryKey, (old = []) => {
-        return mergeEventsIntoCache([event], old);
-      });
-      updateQueryTimestamp(queryClient, queryKey, event);
+      const oldCache = queryClient.getQueryData<Event[]>(queryKey);
+      const newCache = mergeEventsIntoCache([event], oldCache ?? []);
+      queryClient.setQueryData<Event[]>(queryKey, newCache);
     },
     [queryClient, queryKey],
   );
@@ -111,10 +88,10 @@ export const useEventRelatedEvents = (event: Event): UseEventRelatedEvents => {
 
   const { replies, reactions, reposts, genericReposts, zapReceipts } = {
     replies: eventKindMap.get(1) ?? [],
-    reactions: eventKindMap.get(9734) ?? [],
-    reposts: eventKindMap.get(2) ?? [],
-    genericReposts: eventKindMap.get(3) ?? [],
-    zapReceipts: eventKindMap.get(4) ?? [],
+    reactions: eventKindMap.get(7) ?? [],
+    reposts: eventKindMap.get(6) ?? [],
+    genericReposts: eventKindMap.get(16) ?? [],
+    zapReceipts: eventKindMap.get(9735) ?? [],
   };
 
   const getChildReplies = (parentId: string): Event[] =>

@@ -9,7 +9,6 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       gcTime: MAX_PERSISTENCE_AGE, // needs to be the same value as maxAge in the persister
-      staleTime: MAX_PERSISTENCE_AGE,
     },
   },
 });

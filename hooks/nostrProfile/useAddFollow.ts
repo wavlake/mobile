@@ -3,8 +3,8 @@ import { useNostrRelayList } from "../nostrRelayList";
 import { useAuth } from "../useAuth";
 import { Contacts, getKind3Event, publishEvent, signEvent } from "@/utils";
 import { EventTemplate } from "nostr-tools";
-import { getNostrFollowsQueryKey } from "./useNostrFollows";
 import { useToast } from "../useToast";
+import { nostrQueryKeys } from "@/providers";
 
 const followerTag = "p";
 
@@ -15,7 +15,7 @@ export const useAddFollow = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (pubkey?: string) => {
-      const queryKey = getNostrFollowsQueryKey(loggedInPubkey);
+      const queryKey = nostrQueryKeys.follows(loggedInPubkey);
       queryClient.invalidateQueries({ queryKey });
 
       let currentKind3Event: Event | EventTemplate | null = await getKind3Event(

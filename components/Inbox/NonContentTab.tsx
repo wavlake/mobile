@@ -7,16 +7,12 @@ import { Event } from "nostr-tools";
 
 export const NonContentTab = ({
   isLoading,
-  comments,
-  reactions,
-  zapReceipts,
+  socialEvents,
   lastReadDate,
   refetch,
 }: {
   isLoading: boolean;
-  comments: Event[];
-  reactions: Event[];
-  zapReceipts: Event[];
+  socialEvents: Event[];
   lastReadDate?: number;
   refetch: () => void;
 }) => {
@@ -31,22 +27,18 @@ export const NonContentTab = ({
       />
     );
   }, []);
-  const events = useMemo(
-    () => [...comments, ...reactions, ...zapReceipts],
-    [comments, reactions, zapReceipts],
-  );
 
   return (
     <FlatList
       ListEmptyComponent={<ListEmpty isLoading={isLoading} />}
-      data={events}
+      data={socialEvents}
       ListHeaderComponent={() => <SectionHeader title="Inbox" />}
       renderItem={renderItem}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
       keyExtractor={(item) => item.id}
-      ListFooterComponent={<ListFooter numberOfItems={events.length} />}
+      ListFooterComponent={<ListFooter numberOfItems={socialEvents.length} />}
       scrollEnabled={true}
       windowSize={4}
       removeClippedSubviews={true}

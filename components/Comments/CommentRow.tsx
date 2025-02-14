@@ -101,8 +101,24 @@ export const CommentRow = ({
     );
   }
 
-  console.log("event kind not yet supported", event.kind, event.content);
-  return null;
+  if (event.kind === 9735) {
+    // TODO - implement zap rendering in the feed
+    return null;
+  }
+
+  if (event.kind === 6 || event.kind === 16) {
+    // TODO - implement reposts/generic reposts rendering in the feed
+    return null;
+  }
+  return (
+    <EventRenderer
+      comment={event}
+      lastReadDate={lastReadDate}
+      closeParent={closeParent}
+      key={event.id}
+      isPressable={false}
+    />
+  );
 };
 
 const EventRenderer = ({
@@ -126,6 +142,7 @@ const EventRenderer = ({
     userHasZapped,
     replyParent,
   } = useEventRelatedEvents(comment);
+
   const router = useRouter();
   const basePathname = useGetBasePathname();
   const {
@@ -203,7 +220,9 @@ const EventRenderer = ({
         <TouchableOpacity
           onPress={() => onCommentPress(comment)}
           onLongPress={() => {
-            setDialogOpen(true);
+            if (comment.kind === 1) {
+              setDialogOpen(true);
+            }
           }}
           style={{ flex: 1 }}
         >
@@ -216,17 +235,19 @@ const EventRenderer = ({
           />
         </TouchableOpacity>
       </View>
-      <CommentActionBar
-        comment={comment}
-        reposts={reposts}
-        replies={directReplies}
-        reactions={reactions}
-        zapReceipts={zapReceipts}
-        genericReposts={genericReposts}
-        zapTotal={zapTotal}
-        userHasReacted={userHasReacted}
-        userHasZapped={userHasZapped}
-      />
+      {comment.kind === 1 && (
+        <CommentActionBar
+          comment={comment}
+          reposts={reposts}
+          replies={directReplies}
+          reactions={reactions}
+          zapReceipts={zapReceipts}
+          genericReposts={genericReposts}
+          zapTotal={zapTotal}
+          userHasReacted={userHasReacted}
+          userHasZapped={userHasZapped}
+        />
+      )}
     </>
   );
 };

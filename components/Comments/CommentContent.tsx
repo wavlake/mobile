@@ -1,18 +1,21 @@
-import { View, ViewProps } from "react-native";
+import { ActivityIndicator, View, ViewProps } from "react-native";
 import { Text } from "../shared/Text";
 import { Event } from "nostr-tools";
-import { msatsToSatsWithCommas } from "../WalletLabel";
+import { msatsToSatsWithCommas, satsFormatter } from "../WalletLabel";
 import { ParsedTextRender } from "./ParsedTextRenderer";
 import { PulsatingEllipsisLoader } from "../PulsatingEllipsisLoader";
 import { BasicAvatar } from "../BasicAvatar";
-import { NostrUserProfile } from "@/utils";
+import { NostrUserProfile, parseZapRequestFromReceipt } from "@/utils";
 import MosaicImage from "../Mosaic";
 import { useContentDetails } from "@/hooks/useContentDetails";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { useNostrProfile } from "@/hooks";
 
 interface CommentContentProps extends ViewProps {
   comment: Event;
+  isReaction?: boolean;
   npubMetadata?: NostrUserProfile | null;
-  metadataIsLoading: boolean;
+  metadataIsLoading?: boolean;
   associatedContentId?: string | null;
   closeParent?: () => void;
 }
@@ -62,8 +65,9 @@ export const getCommentText = (
 
 export const CommentContent = ({
   comment,
+  isReaction = false,
   npubMetadata,
-  metadataIsLoading,
+  metadataIsLoading = false,
   associatedContentId,
   closeParent,
 }: CommentContentProps) => {
@@ -73,11 +77,7 @@ export const CommentContent = ({
   const artist = contentDetails?.metadata?.artist;
   const { picture, name } = npubMetadata || {};
   const { content, pubkey, kind } = comment;
-
-  const isZap = kind === 9734;
-  if (content.length === 0 && !isZap) {
-    return null;
-  }
+  const isZap = comment.kind === 9735;
   const commentText = getCommentText(comment, npubMetadata);
 
   if (!commentText) {
@@ -149,10 +149,90 @@ export const CommentContent = ({
             ) : (
               <Text bold>{name ?? "anonymous"}</Text>
             )}
-            <ParsedTextRender content={commentText} />
+            <View style={{ flexDirection: "row", gap: 4 }}>
+              {comment.kind === 7 && <ReactionInfo comment={comment} />}
+              {comment.kind === 9735 && <ZapInfo comment={comment} />}
+              {/* TODO - refactor/remove this backwards compatibility with 9734 events rendered in the app */}
+              {(comment.kind === 1 || comment.kind === 9734) && (
+                <ParsedTextRender content={commentText} />
+              )}
+            </View>
           </View>
         )}
       </View>
+    </View>
+  );
+};
+
+const ReactionInfo = ({ comment }: { comment: Event }) => {
+  const { content } = comment;
+
+  const [eTag, eventId] = comment.tags.find(([tag]) => tag === "e") ?? [];
+
+  const { data: eventReactedTo, isLoading } = useNostrEvent(eventId);
+  const {
+    data: authorProfileEvent,
+    isPending,
+    decodeProfileMetadata,
+  } = useNostrProfile(eventReactedTo?.pubkey);
+  const authorProfile = decodeProfileMetadata(authorProfileEvent);
+
+  if (!content) {
+    return <Text>Reacted</Text>;
+  }
+
+  return (
+    <View
+      style={{
+        flexDirection: "column",
+        width: "100%",
+      }}
+    >
+      <Text>{content.length > 0 ? `Reacted with ${content}` : "Reacted"}</Text>
+      <View
+        style={{
+          width: "100%",
+          overflow: "hidden",
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          padding: 8,
+          borderRadius: 8,
+          marginVertical: 8,
+        }}
+      >
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : eventReactedTo ? (
+          <CommentContent
+            npubMetadata={authorProfile}
+            metadataIsLoading={isPending}
+            comment={eventReactedTo}
+          />
+        ) : (
+          <Text>Event not found</Text>
+        )}
+      </View>
+    </View>
+  );
+};
+
+const ZapInfo = ({ comment }: { comment: Event }) => {
+  const { receipt, amount } = parseZapRequestFromReceipt(comment);
+  if (!receipt || !amount) {
+    return <Text>Zapped you</Text>;
+  }
+  return (
+    <View>
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 4,
+          alignItems: "center",
+        }}
+      >
+        <Text>Zapped </Text>
+        <Text bold>{satsFormatter(amount * 1000)} sats</Text>
+      </View>
+      {receipt.content && <Text>{receipt.content}</Text>}
     </View>
   );
 };
