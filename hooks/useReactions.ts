@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { Event } from "nostr-tools";
+import { Event, UnsignedEvent } from "nostr-tools";
 import { useNostrRelayList } from "./nostrRelayList";
 import { useAuth } from "./useAuth";
 import { signEvent, publishEvent } from "@/utils";
@@ -14,7 +14,7 @@ const makeReactionEvent = (
   eventId: string,
   reaction: string,
   authorPubkey: string,
-) => {
+): UnsignedEvent => {
   return {
     kind: 7,
     pubkey,

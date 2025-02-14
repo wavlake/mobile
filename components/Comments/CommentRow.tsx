@@ -142,6 +142,7 @@ const EventRenderer = ({
     userHasZapped,
     replyParent,
   } = useEventRelatedEvents(comment);
+
   const router = useRouter();
   const basePathname = useGetBasePathname();
   const {
