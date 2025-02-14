@@ -9,9 +9,11 @@ import { NostrUserProfile, parseZapRequestFromReceipt } from "@/utils";
 import MosaicImage from "../Mosaic";
 import { useContentDetails } from "@/hooks/useContentDetails";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { useNostrProfile } from "@/hooks";
 
 interface CommentContentProps extends ViewProps {
   comment: Event;
+  isReaction?: boolean;
   npubMetadata?: NostrUserProfile | null;
   metadataIsLoading?: boolean;
   associatedContentId?: string | null;
@@ -63,6 +65,7 @@ export const getCommentText = (
 
 export const CommentContent = ({
   comment,
+  isReaction = false,
   npubMetadata,
   metadataIsLoading = false,
   associatedContentId,
@@ -167,6 +170,13 @@ const ReactionInfo = ({ comment }: { comment: Event }) => {
   const [eTag, eventId] = comment.tags.find(([tag]) => tag === "e") ?? [];
 
   const { data: eventReactedTo, isLoading } = useNostrEvent(eventId);
+  const {
+    data: authorProfileEvent,
+    isPending,
+    decodeProfileMetadata,
+  } = useNostrProfile(eventReactedTo?.pubkey);
+  const authorProfile = decodeProfileMetadata(authorProfileEvent);
+
   if (!content) {
     return <Text>Reacted</Text>;
   }
@@ -192,7 +202,11 @@ const ReactionInfo = ({ comment }: { comment: Event }) => {
         {isLoading ? (
           <ActivityIndicator />
         ) : eventReactedTo ? (
-          <CommentContent comment={eventReactedTo} />
+          <CommentContent
+            npubMetadata={authorProfile}
+            metadataIsLoading={isPending}
+            comment={eventReactedTo}
+          />
         ) : (
           <Text>Event not found</Text>
         )}
