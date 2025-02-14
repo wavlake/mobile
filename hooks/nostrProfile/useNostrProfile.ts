@@ -1,8 +1,9 @@
 import { nostrQueryKeys, useNostrEvents } from "@/providers";
 import { NostrUserProfile } from "@/utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Event } from "nostr-tools";
+import { useNostrQuery } from "../useNostrQuery";
 
 export const STALE_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 export type NostrUserProfileWithTimestamp = NostrUserProfile & {
@@ -14,7 +15,7 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
   const { getLatestEvent } = useNostrEvents();
   const queryKey = nostrQueryKeys.profile(pubkey ?? "");
 
-  const queryData = useQuery({
+  const queryData = useNostrQuery({
     queryKey,
     queryFn: async () => {
       if (!pubkey) return null;
@@ -26,9 +27,7 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
 
       return getLatestEvent(filter, relays);
     },
-    staleTime: STALE_TIME,
-    gcTime: Infinity,
-    enabled: !!pubkey,
+    enabled: Boolean(pubkey),
     refetchOnMount: false,
   });
 

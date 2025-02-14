@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNostrRelayList } from "../nostrRelayList";
 import { useAuth } from "../useAuth";
 import { Contacts, getKind3Event, publishEvent, signEvent } from "@/utils";
-import { getNostrFollowsQueryKey } from "./useNostrFollows";
 import { useToast } from "../useToast";
+import { nostrQueryKeys } from "@/providers";
 
 export const useRemoveFollow = () => {
   const { writeRelayList } = useNostrRelayList();
@@ -38,8 +38,7 @@ export const useRemoveFollow = () => {
         toast.show("Failed to sign event");
         return;
       }
-
-      const queryKey = getNostrFollowsQueryKey(loggedInPubkey);
+      const queryKey = nostrQueryKeys.follows(loggedInPubkey);
       await publishEvent(writeRelayList, signed);
       queryClient.setQueryData(queryKey, (data: string[]) => {
         return newFollows.map((follow) => follow[1]);
