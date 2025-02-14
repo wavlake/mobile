@@ -494,6 +494,7 @@ export const fetchInvoice = async ({
   }
 };
 
+// amount is in sats
 export const parseZapRequestFromReceipt = (event: Event) => {
   try {
     const [descTag, zapRequest] =
@@ -503,7 +504,6 @@ export const parseZapRequestFromReceipt = (event: Event) => {
     const [bolt11Tag, bolt11Invoice] =
       event.tags.find((tag) => tag[0] === "bolt11") ?? [];
     const amountFromInvoice = parseInvoice(bolt11Invoice);
-
     return { receipt, amount: amountFromInvoice ?? 0 };
   } catch (e) {
     return { receipt: null, amount: null };
