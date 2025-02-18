@@ -1,7 +1,7 @@
 import { View, ActivityIndicator } from "react-native";
 import { Event } from "nostr-tools";
 import { Text } from "../shared/Text";
-import { useNostrProfile } from "@/hooks";
+import { useDecodedProfile, useNostrProfile } from "@/hooks";
 import { CommentContent } from "./CommentContent";
 import { parseZapRequestFromReceipt } from "@/utils";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
@@ -17,12 +17,10 @@ export const ReactionInfo = ({ comment }: InteractionBaseProps) => {
 
   const { data: event, isLoading } = useNostrEvent(eventId);
   const {
-    data: authorProfileEvent,
-    isPending,
-    decodeProfileMetadata,
-  } = useNostrProfile(event?.pubkey);
-  const authorProfile = decodeProfileMetadata(authorProfileEvent);
-
+    data: authorProfile,
+    isLoading: metadataIsLoading,
+    refetch: refetchMetadata,
+  } = useDecodedProfile(event?.pubkey);
   return (
     <View style={{ flexDirection: "column", width: "100%", gap: 4 }}>
       <Text>{content ? `Reacted with ${content}` : "Reacted"}</Text>
@@ -30,7 +28,7 @@ export const ReactionInfo = ({ comment }: InteractionBaseProps) => {
         isLoading={isLoading}
         event={event}
         authorProfile={authorProfile}
-        isPending={isPending}
+        isPending={metadataIsLoading}
       />
     </View>
   );
@@ -103,12 +101,8 @@ export const Repost = ({ comment }: InteractionBaseProps) => {
   const { tags } = comment;
   const [, eventId, relay] = tags.find(([tag]) => tag === "e") ?? [];
   const { data: event, isLoading } = useNostrEvent(eventId, [relay]);
-  const {
-    data: authorProfileEvent,
-    isPending,
-    decodeProfileMetadata,
-  } = useNostrProfile(event?.pubkey);
-  const authorProfile = decodeProfileMetadata(authorProfileEvent);
+  const { data: authorProfile, isLoading: metadataIsLoading } =
+    useDecodedProfile(event?.pubkey);
   return (
     <View style={{ flexDirection: "column", width: "100%" }}>
       <Text>Reposted 🔁</Text>
@@ -116,7 +110,7 @@ export const Repost = ({ comment }: InteractionBaseProps) => {
         isLoading={isLoading}
         event={event}
         authorProfile={authorProfile}
-        isPending={isPending}
+        isPending={metadataIsLoading}
       />
     </View>
   );

@@ -2,7 +2,7 @@ import { ScrollView, View, RefreshControl } from "react-native";
 import { SectionHeader } from "./SectionHeader";
 import { useLocalSearchParams } from "expo-router";
 import { usePubkeyActivity } from "@/hooks/usePubkeyActivity";
-import { useAuth, useNostrProfile } from "@/hooks";
+import { useAuth, useDecodedProfile, useNostrProfile } from "@/hooks";
 import { useGetBasePathname } from "@/hooks/useGetBasePathname";
 import { Text } from "./shared/Text";
 import { PubkeyProfile } from "./PubkeyProfile";
@@ -36,12 +36,10 @@ const NUM_ACTIVITY_ROWS = 3;
 const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
   const basePath = useGetBasePathname();
   const {
-    data: event,
-    decodeProfileMetadata,
-    isFetching,
+    data: profile,
+    isLoading: metadataIsLoading,
     refetch: refetchMetadata,
-  } = useNostrProfile(pubkey);
-  const profile = decodeProfileMetadata(event);
+  } = useDecodedProfile(pubkey);
   const {
     data: activity = [],
     isLoading: activityLoading,
@@ -52,7 +50,7 @@ const PubkeyProfilePage = ({ pubkey }: { pubkey: string }) => {
     <ScrollView
       refreshControl={
         <RefreshControl
-          refreshing={isFetching || activityLoading}
+          refreshing={metadataIsLoading || activityLoading}
           onRefresh={() => {
             refetchMetadata();
             refetchActivity();

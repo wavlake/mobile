@@ -2,7 +2,7 @@ import { Alert, ScrollView, View } from "react-native";
 import { useState } from "react";
 import {
   useAuth,
-  useNostrProfile,
+  useDecodedProfile,
   useSaveNostrProfile,
   useToast,
 } from "@/hooks";
@@ -19,8 +19,8 @@ export const ProfileEditPage = () => {
   const toast = useToast();
   const { pubkey = "" } = useAuth();
   const npub = encodeNpub(pubkey) ?? "";
-  const { data: event, decodeProfileMetadata } = useNostrProfile(pubkey);
-  const profile = decodeProfileMetadata(event);
+  const { data: profile, isLoading: metadataIsLoading } =
+    useDecodedProfile(pubkey);
   const { save, isSaving } = useSaveNostrProfile();
   const [name, setName] = useState(profile?.name ?? "");
   const isSaveDisabled =

@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { TextInput } from "../shared/TextInput";
 import { CommentContent } from "./CommentContent";
 import { Button } from "../shared/Button";
-import { useNostrProfile } from "@/hooks";
+import { useDecodedProfile } from "@/hooks";
 import { nostrQueryKeys } from "@/providers";
 
 interface ReplyDialogProps {
@@ -54,14 +54,9 @@ const ReplyDialogContents = ({
   const queryClient = useQueryClient();
   const replyQueryKey = nostrQueryKeys.eTagReplies(parentComment.id);
   const [comment, setComment] = useState("");
-  const {
-    data: event,
-    decodeProfileMetadata,
-    isFetching,
-    isLoading,
-  } = useNostrProfile(parentComment?.pubkey);
-  const profile = decodeProfileMetadata(event);
-  const metadataIsLoading = isFetching || isLoading;
+  const { data: profile, isLoading: metadataIsLoading } = useDecodedProfile(
+    parentComment?.pubkey,
+  );
 
   const parentCommentId = parentComment.id;
   const [tag, rootEventId, relay, replyType] =

@@ -7,7 +7,7 @@ import { Event } from "nostr-tools";
 import { getCommentText } from "./utils";
 import { AssociatedContent } from "./AssociatedContent";
 import { ReactionInfo, Repost, ZapInfo } from "./InteractionComponents";
-import { useNostrProfile } from "@/hooks";
+import { useDecodedProfile } from "@/hooks";
 import { useState, useCallback } from "react";
 import { parseZapRequestFromReceipt } from "@/utils";
 
@@ -25,12 +25,7 @@ export const CommentContent = ({
     ? parseZapRequestFromReceipt(comment)?.receipt?.pubkey
     : comment.pubkey;
   const [containerWidth, setContainerWidth] = useState<number>(0);
-  const {
-    data: authorProfileEvent,
-    isPending,
-    decodeProfileMetadata,
-  } = useNostrProfile(authorPubkey);
-  const authorProfile = decodeProfileMetadata(authorProfileEvent);
+  const { data: authorProfile, isLoading } = useDecodedProfile(authorPubkey);
 
   const commentText = getCommentText(comment, npubMetadata);
 
@@ -62,12 +57,12 @@ export const CommentContent = ({
         <AssociatedContent
           contentId={associatedContentId}
           npubMetadata={authorProfile}
-          metadataIsLoading={isPending}
+          metadataIsLoading={isLoading}
         />
       ) : (
         <CommentMetadata
           npubMetadata={authorProfile}
-          metadataIsLoading={isPending}
+          metadataIsLoading={isLoading}
           pubkey={comment.pubkey}
           closeParent={closeParent}
         />

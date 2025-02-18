@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Event } from "nostr-tools";
 import { Text } from "../shared/Text";
-import { useNostrProfile } from "@/hooks";
+import { useDecodedProfile } from "@/hooks";
 import { useEventRelatedEvents } from "@/hooks/useEventRelatedEvents";
 import { CommentContent } from "./CommentContent";
 import { CommentActionBar } from "./CommentActionBar";
@@ -56,12 +56,8 @@ export const EventRenderer = ({
     replyParent,
   } = useEventRelatedEvents(comment);
 
-  const {
-    data: parentProfileEvent,
-    decodeProfileMetadata,
-    isLoading: replyToMetadataIsLoading,
-  } = useNostrProfile(replyParent?.pubkey);
-  const replyToMetadata = decodeProfileMetadata(parentProfileEvent);
+  const { data: replyToMetadata, isLoading: replyToMetadataIsLoading } =
+    useDecodedProfile(replyParent?.pubkey);
   const contentId = getITagFromEvent(comment);
   const isUnread = lastReadDate ? comment.created_at > lastReadDate : false;
 

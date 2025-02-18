@@ -12,7 +12,7 @@ import {
   generateOverflowMenuProps,
   ICON_MAP,
 } from "./ActivityItemRow";
-import { useNostrProfile } from "@/hooks";
+import { useDecodedProfile, useNostrProfile } from "@/hooks";
 import { satsFormatter } from "./WalletLabel";
 
 export const NostrActivityItemRow = ({
@@ -92,14 +92,9 @@ export const NostrActivityItemRow = ({
     }
   };
 
-  const {
-    data: event,
-    isFetching,
-    isLoading,
-    decodeProfileMetadata,
-  } = useNostrProfile(nostrEvent?.pubkey);
-  const profile = decodeProfileMetadata(event);
-  const metadataIsLoading = isFetching || isLoading;
+  const { data: profile, isLoading: metadataIsLoading } = useDecodedProfile(
+    nostrEvent?.pubkey,
+  );
   const isZap = nostrEvent?.kind === 9734;
   if (!contentId || !contentTitle || !nostrEvent) return null;
   const amountTag = nostrEvent.tags.find(([tag]) => tag === "amount");
