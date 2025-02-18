@@ -4,13 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getEventById } from "@/utils";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { pool } from "@/utils/relay-pool";
-import { useAuth } from "@/hooks";
 import { NostrEventContextType, nostrQueryKeys } from "./constants";
 
 const NostrEventContext = createContext<NostrEventContextType | null>(null);
 
 export function NostrEventProvider({ children }: { children: ReactNode }) {
-  const { pubkey } = useAuth();
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
 

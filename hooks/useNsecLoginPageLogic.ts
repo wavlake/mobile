@@ -16,7 +16,7 @@ import {
   DEFAULT_CONNECTION_SETTINGS,
   useAutoConnectNWC,
 } from "./useAutoConnectNWC";
-import { useNostrProfile } from "./nostrProfile";
+import { useDecodedProfile } from "./nostrProfile";
 import { useCreateNewNostrAccount } from "./useCreateNewNostrAccount";
 
 type NsecPageParams = {
@@ -40,16 +40,10 @@ export const useNsecLoginPageLogic = () => {
   const { connectWallet } = useAutoConnectNWC();
   const { pubkey: nsecInputPubkey } = getKeysFromNostrSecret(nsec) || {};
 
-  const {
-    data: nsecInputEvent,
-    isFetching: nsecInputMetadataLoading,
-    decodeProfileMetadata,
-  } = useNostrProfile(nsecInputPubkey);
-  const nsecInputMetadata = decodeProfileMetadata(nsecInputEvent);
-  const { data: associatedEvent, isFetching: associatedMetadataLoading } =
-    useNostrProfile(userAssociatedPubkey);
-  const assoicatedMetadata = decodeProfileMetadata(associatedEvent);
-
+  const { data: nsecInputMetadata, isLoading: nsecInputMetadataLoading } =
+    useDecodedProfile(nsecInputPubkey);
+  const { data: assoicatedMetadata, isLoading: associatedMetadataLoading } =
+    useDecodedProfile(userAssociatedPubkey);
   const createRandomNsec = useCallback(() => {
     const privateKey = bytesToHex(generateSecretKey());
     setNsec(encodeNsec(privateKey) ?? "");

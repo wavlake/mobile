@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { LoggedInUserAvatar } from "@/components/LoggedInUserAvatar";
 import { useEffect } from "react";
 import { setSkipLogin } from "@/utils";
-import { useAuth, useNostrProfile, usePopup, useUser } from "@/hooks";
+import { useAuth, useDecodedProfile, usePopup, useUser } from "@/hooks";
 
 export default function WelcomePage() {
   // the user has successfully logged in
@@ -21,19 +21,14 @@ export default function WelcomePage() {
   const router = useRouter();
   const { catalogUser } = useUser();
   const { pubkey } = useAuth();
-  const {
-    data: event,
-    isFetching,
-    decodeProfileMetadata,
-  } = useNostrProfile(pubkey);
-  const profile = decodeProfileMetadata(event);
+  const { data: profile, isLoading } = useDecodedProfile(pubkey);
   const userName = nostrOnlyLogin ? profile?.name : catalogUser?.name;
   const goToHomePage = async () => {
     router.replace("/");
     catalogUser && showWelcomePopup(catalogUser);
   };
 
-  if (isFetching) {
+  if (isLoading) {
     return (
       <Center>
         <ActivityIndicator />

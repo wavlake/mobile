@@ -7,8 +7,6 @@ export const SOCIAL_NOTES: Filter = {
     1,
     // repost
     6,
-    // generic repost
-    16,
     // reaction
     7,
     // zap receipt
@@ -23,8 +21,6 @@ export const FOLLOWS_SOCIAL_NOTES: Filter = {
     1,
     // repost
     6,
-    // generic repost
-    16,
   ],
   limit: 52,
 };
@@ -33,8 +29,6 @@ export const RECENT_COMMENT_ACTIVITY: Filter = {
   kinds: [
     // repost
     6,
-    // generic repost
-    16,
     // reaction
     7,
     // zap receipt

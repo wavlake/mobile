@@ -8,7 +8,6 @@ import ParsedText from "react-native-parsed-text";
 import { NostrUserProfile } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useBatchGetNostrProfile } from "@/hooks/nostrProfile/useBatchGetNostrProfile";
-import { useNostrProfile } from "@/hooks";
 
 interface ParsedTextWrapperProps {
   content?: string;
@@ -74,7 +73,7 @@ const renderImage = (matchingString: string, matches: string[]): any => {
     <View style={{ width: "100%" }}>
       <Image
         source={{ uri: urlParamsRemoved }}
-        style={{ width: "100%", aspectRatio: 1, marginVertical: 10 }}
+        style={{ width: "100%", aspectRatio: 1 }}
         cachePolicy="memory-disk"
         contentFit="cover"
       />
