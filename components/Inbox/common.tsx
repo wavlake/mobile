@@ -25,7 +25,7 @@ export const ItemSeparator = () => (
     style={{
       height: 1,
       backgroundColor: "rgba(255, 255, 255, 0.3)",
-      marginVertical: 0,
+      marginVertical: 6,
     }}
   />
 );

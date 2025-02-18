@@ -122,8 +122,6 @@ export const CommentActionBar = ({
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingVertical: 8,
-          paddingHorizontal: 16,
           gap: 24,
         }}
       >
