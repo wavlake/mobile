@@ -151,6 +151,7 @@ export const CommentContent = ({
             )}
             <View style={{ flexDirection: "row", gap: 4 }}>
               {comment.kind === 7 && <ReactionInfo comment={comment} />}
+              {comment.kind === 6 && <Repost comment={comment} />}
               {comment.kind === 9735 && <ZapInfo comment={comment} />}
               {/* TODO - refactor/remove this backwards compatibility with 9734 events rendered in the app */}
               {(comment.kind === 1 || comment.kind === 9734) && (
@@ -233,6 +234,39 @@ const ZapInfo = ({ comment }: { comment: Event }) => {
         <Text bold>{satsFormatter(amount * 1000)} sats</Text>
       </View>
       {receipt.content && <Text>{receipt.content}</Text>}
+    </View>
+  );
+};
+
+const Repost = ({ comment }: { comment: Event }) => {
+  const { tags } = comment;
+  const [eTag, eventId, relay] = tags.find(([tag]) => tag === "e") ?? [];
+  const { data: event, isLoading } = useNostrEvent(eventId, [relay]);
+  const {
+    data: repostedProfileEvent,
+    isPending,
+    decodeProfileMetadata,
+  } = useNostrProfile(event?.pubkey);
+  const repostedProfile = decodeProfileMetadata(repostedProfileEvent);
+  return (
+    <View
+      style={{
+        flexDirection: "column",
+        width: "100%",
+      }}
+    >
+      <Text>Reposted</Text>
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : event ? (
+        <CommentContent
+          npubMetadata={repostedProfile}
+          metadataIsLoading={isPending}
+          comment={event}
+        />
+      ) : (
+        <Text>Event not found</Text>
+      )}
     </View>
   );
 };

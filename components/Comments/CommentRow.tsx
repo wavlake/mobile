@@ -102,13 +102,29 @@ export const CommentRow = ({
   }
 
   if (event.kind === 9735) {
-    // TODO - implement zap rendering in the feed
-    return null;
+    return (
+      <EventRenderer
+        comment={event}
+        showContentDetails={showContentDetails}
+        lastReadDate={lastReadDate}
+        closeParent={closeParent}
+        onPress={onPress}
+        key={event.id}
+      />
+    );
   }
 
-  if (event.kind === 6 || event.kind === 16) {
-    // TODO - implement reposts/generic reposts rendering in the feed
-    return null;
+  if (event.kind === 6) {
+    return (
+      <EventRenderer
+        comment={event}
+        showContentDetails={showContentDetails}
+        lastReadDate={lastReadDate}
+        closeParent={closeParent}
+        onPress={onPress}
+        key={event.id}
+      />
+    );
   }
   return (
     <EventRenderer
@@ -181,7 +197,11 @@ const EventRenderer = ({
   };
 
   return (
-    <>
+    <View
+      style={{
+        backgroundColor: isUnread ? "rgba(255, 255, 255, 0.2)" : "transparent",
+      }}
+    >
       <ReplyDialog
         setIsOpen={setDialogOpen}
         commentId={comment.id}
@@ -212,9 +232,6 @@ const EventRenderer = ({
           flexDirection: "row",
           paddingHorizontal: 16,
           paddingTop: 8,
-          backgroundColor: isUnread
-            ? "rgba(255, 255, 255, 0.2)"
-            : "transparent",
         }}
       >
         <TouchableOpacity
@@ -248,6 +265,6 @@ const EventRenderer = ({
           userHasZapped={userHasZapped}
         />
       )}
-    </>
+    </View>
   );
 };
