@@ -781,8 +781,11 @@ const getMentionTag = (event: Event): string | null => {
   return mentionTag ? mentionTag[1] : null;
 };
 
-// Determine parent event ID
+// Determine parent event ID for replies (kind 1 only)
 export const getParentEventId = (event: Event): string | null => {
+  const isKind1 = event.kind === 1;
+  if (!isKind1) return null;
+
   // Strategy 1: Explicit reply tag
   const replyTag = getETags(event).find(([, , , marker]) => marker === "reply");
   if (replyTag) return replyTag[1];
