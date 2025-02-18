@@ -77,6 +77,8 @@ export const EventRenderer = ({
       setDialogOpen(true);
     }
   };
+  const showReplyParentLink =
+    showReplyParent && replyParent && comment.kind === 1;
 
   return (
     <View
@@ -92,8 +94,8 @@ export const EventRenderer = ({
         isOpen={dialogOpen}
       />
 
-      {showReplyParent && replyParent && (
-        <ReplyParentInfo
+      {showReplyParentLink && (
+        <ReplyParentLink
           replyParent={replyParent}
           replyToMetadata={replyToMetadata}
           isLoading={replyToMetadataIsLoading}
@@ -132,19 +134,19 @@ export const EventRenderer = ({
   );
 };
 
-interface ReplyParentInfoProps {
+interface ReplyParentLinkProps {
   replyParent: Event;
   replyToMetadata: any; // Type should match your metadata structure
   isLoading: boolean;
   onPress: () => void;
 }
 
-const ReplyParentInfo = ({
+const ReplyParentLink = ({
   replyParent,
   replyToMetadata,
   isLoading,
   onPress,
-}: ReplyParentInfoProps) => (
+}: ReplyParentLinkProps) => (
   <TouchableOpacity
     style={{
       display: "flex",
