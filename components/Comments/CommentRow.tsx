@@ -30,6 +30,7 @@ export const CommentRow = ({
         <ActivityIndicator />
       </View>
     );
+
   if (!event) return null;
 
   const supportedKinds = [1, 6, 9734, 9735];

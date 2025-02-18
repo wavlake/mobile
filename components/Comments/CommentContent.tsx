@@ -20,7 +20,6 @@ export const CommentContent = ({
   closeParent,
 }: CommentContentProps) => {
   const isZap = comment.kind === 9735;
-
   const authorPubkey = isZap
     ? parseZapRequestFromReceipt(comment)?.receipt?.pubkey
     : comment.pubkey;
@@ -97,7 +96,7 @@ const CommentBody = ({
     {comment.kind === 7 && <ReactionInfo comment={comment} />}
     {comment.kind === 6 && <Repost comment={comment} />}
     {comment.kind === 9735 && <ZapInfo comment={comment} />}
-    {(comment.kind === 1 || comment.kind === 9734) && (
+    {(comment.kind === 1 || comment.kind === 9734 || comment.kind === 20) && (
       <ParsedTextRender content={commentText} />
     )}
   </View>
