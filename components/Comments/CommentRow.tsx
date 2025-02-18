@@ -1,9 +1,7 @@
-import { Event } from "nostr-tools";
-import { useState, useEffect } from "react";
 import { CommentRowProps } from "./types";
-import { useNostrEvents } from "@/providers";
 import { ActivityIndicator, View } from "react-native";
 import { EventRenderer } from "./EventRenderer";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 export const CommentRow = ({
   commentId,
@@ -14,26 +12,9 @@ export const CommentRow = ({
   closeParent,
   onPress,
 }: CommentRowProps) => {
-  const { getEventFromId } = useNostrEvents();
-  const [event, setEvent] = useState<Event | undefined | null>(comment);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (comment) {
-      setIsLoading(false);
-      return;
-    }
-
-    if (!commentId) return;
-
-    const fetchEvent = async () => {
-      const fetchedEvent = await getEventFromId(commentId);
-      setEvent(fetchedEvent);
-      setIsLoading(false);
-    };
-
-    fetchEvent();
-  }, [commentId, comment]);
+  const { data: event, isPending: isLoading } = useNostrEvent(
+    comment?.id ?? commentId,
+  );
 
   if (isLoading)
     return (
