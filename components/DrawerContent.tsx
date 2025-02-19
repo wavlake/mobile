@@ -80,7 +80,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
             }}
           />
         )}
-        {pubkey && (
+        {/* {pubkey && (
           <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Inbox</Text>}
             icon={({ color, size }) => (
@@ -109,7 +109,7 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
               props.navigation.closeDrawer();
             }}
           />
-        )}
+        )} */}
         {/* <DrawerItem
           label={() => <Text style={{ fontSize: 24 }}>Events</Text>}
           icon={({ color, size }) => (
