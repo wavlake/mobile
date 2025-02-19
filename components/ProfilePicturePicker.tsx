@@ -1,5 +1,5 @@
-import { TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { Modal, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
 import { View, ActivityIndicator, Image, StyleSheet } from "react-native";
 import { Text } from "./shared/Text";
 import { LoggedInUserAvatar } from "./LoggedInUserAvatar";
@@ -8,6 +8,7 @@ import { brandColors } from "@/constants";
 import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
 import { useEditUser, useToast, useUser } from "@/hooks";
+import { getImageDisclosure, setImageDisclosure } from "@/utils";
 
 export const ProfileImagePicker = () => {
   const refreshWithKey = () => {
@@ -19,6 +20,48 @@ export const ProfileImagePicker = () => {
   const [isUploading, setIsUploading] = useState(false);
   const { mutateAsync: savePicture } = useEditUser();
   const toast = useToast();
+  const [showDisclosure, setShowDisclosure] = useState(false);
+  const [hasAcceptedDisclosure, setHasAcceptedDisclosure] = useState(false);
+
+  useEffect(() => {
+    checkDisclosureStatus();
+  }, []);
+
+  const checkDisclosureStatus = async () => {
+    try {
+      const hasAccepted = await getImageDisclosure();
+      setHasAcceptedDisclosure(!!hasAccepted);
+    } catch (error) {
+      console.error("Error checking disclosure status:", error);
+    }
+  };
+
+  const handleDisclosureAccept = async () => {
+    try {
+      await setImageDisclosure();
+      setHasAcceptedDisclosure(true);
+      setShowDisclosure(false);
+      pickImage();
+    } catch (error) {
+      console.error("Error saving disclosure status:", error);
+    }
+  };
+
+  const handleDisclosureDecline = () => {
+    setShowDisclosure(false);
+    toast.show(
+      "Profile picture upload requires acceptance of data collection notice",
+    );
+  };
+
+  const initiateImagePick = () => {
+    if (hasAcceptedDisclosure) {
+      pickImage();
+    } else {
+      setShowDisclosure(true);
+    }
+  };
+
   const pickImage = async () => {
     try {
       const permissionResult =
@@ -50,7 +93,6 @@ export const ProfileImagePicker = () => {
 
         setIsUploading(true);
         try {
-          // Create image object for FormData
           const imageFile = {
             uri: uri,
             type: "image/jpeg",
@@ -60,7 +102,6 @@ export const ProfileImagePicker = () => {
           await savePicture({
             artwork: imageFile,
           });
-          // we need a setTimeout here to ensure the image cache is invalidated
           toast.show("Picture updated successfully");
           await setTimeout(refreshWithKey, 1000);
         } catch (error) {
@@ -87,7 +128,7 @@ export const ProfileImagePicker = () => {
   return (
     <View style={styles.imagePickerContainer}>
       <TouchableOpacity
-        onPress={pickImage}
+        onPress={initiateImagePick}
         disabled={isUploading}
         style={styles.imageContainer}
       >
@@ -112,11 +153,97 @@ export const ProfileImagePicker = () => {
           <Text style={styles.uploadingText}>Updating picture...</Text>
         </View>
       )}
+
+      <Modal
+        visible={showDisclosure}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDisclosure(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Profile Picture Upload</Text>
+            <Text style={styles.modalText}>
+              This app collects and stores your profile picture image to enable
+              profile customization. When you upload a profile picture, the
+              image will be stored on our secure servers.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonSecondary]}
+                onPress={handleDisclosureDecline}
+              >
+                <Text style={styles.buttonTextSecondary}>Not Now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonPrimary]}
+                onPress={handleDisclosureAccept}
+              >
+                <Text style={styles.buttonTextPrimary}>
+                  I Understand and Accept
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // ... existing styles ...
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    width: "90%",
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center",
+    color: brandColors.black.DEFAULT,
+  },
+  modalText: {
+    fontSize: 16,
+    color: brandColors.black.DEFAULT,
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  buttonPrimary: {
+    backgroundColor: brandColors.pink.DEFAULT,
+  },
+  buttonSecondary: {
+    backgroundColor: "#f1f1f1",
+  },
+  buttonTextPrimary: {
+    color: "white",
+    fontWeight: "600",
+  },
+  buttonTextSecondary: {
+    color: "#666",
+    fontWeight: "600",
+  },
   imagePickerContainer: {
     position: "relative",
     width: 100,
