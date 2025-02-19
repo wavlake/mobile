@@ -144,3 +144,9 @@ export const getAmberPubkey = async () => {
 export const setAmberPubkey = async (pubkey: string) => {
   await storeData("amberPubkey", pubkey);
 };
+
+const DISCLOSURE_KEY = "profile_picture_disclosure_accepted";
+
+export const setImageDisclosure = () =>
+  AsyncStorage.setItem(DISCLOSURE_KEY, "true");
+export const getImageDisclosure = () => AsyncStorage.getItem(DISCLOSURE_KEY);
