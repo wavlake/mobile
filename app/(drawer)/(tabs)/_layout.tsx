@@ -28,7 +28,6 @@ export default function TabLayout() {
   const { loadTrackList, reset } = useMusicPlayer();
   const tabsBarHeight = 88;
   const { logout } = useAuth();
-  const { signOut } = useUser();
   const router = useRouter();
   const isNavigationReady = useIsNavigationReady();
 
@@ -44,8 +43,6 @@ export default function TabLayout() {
 
         // make sure to delete stored private key if any on first app launch.
         await logout();
-        // ensure user is logged out of firebase
-        await signOut();
 
         await router.push("/auth");
         return;
