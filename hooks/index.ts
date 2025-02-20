@@ -42,3 +42,4 @@ export * from "./useCreateConnection";
 export * from "./usePrivateUserData";
 export * from "./useFollowerCount";
 export * from "./useReposts";
+export * from "./useAdvertisements";
