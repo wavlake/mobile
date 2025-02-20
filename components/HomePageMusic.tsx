@@ -16,7 +16,7 @@ import { SectionHeader } from "./SectionHeader";
 import { Text } from "./shared/Text";
 import { VercelImage } from "./VercelImage";
 import { Center } from "./shared/Center";
-import { EarnSection } from "./EarnSection";
+import { AdCarousel } from "./AdCarousel";
 
 interface TopMusicRowProps {
   trackList: Track[];
@@ -106,7 +106,7 @@ export const HomePageMusic = () => {
           ? null
           : () => (
               <View>
-                <EarnSection />
+                <AdCarousel />
                 <FeaturedSection data={featured} />
                 <ForYouSection data={forYou} />
                 <NewMusicSection data={newTracks} />
