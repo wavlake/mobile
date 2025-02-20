@@ -6,20 +6,9 @@ interface AmountProps extends TextProps {
   sats: number;
 }
 
-const SATS_PER_BTC = 100000000;
-
 const Amount: React.FC<AmountProps> = ({ sats, style, ...textProps }) => {
-  const { bitcoinPrice, isLoading, error } = useBitcoinPrice();
-
-  const { usdAmount, btcAmount } = useMemo(() => {
-    const btc = sats / SATS_PER_BTC;
-    const usd = bitcoinPrice ? btc * bitcoinPrice : 0;
-
-    return {
-      btcAmount: btc,
-      usdAmount: usd,
-    };
-  }, [sats, bitcoinPrice]);
+  const { isLoading, error, convertSatsToUSD } = useBitcoinPrice();
+  const usdAmount = convertSatsToUSD(sats);
 
   const baseStyle = {
     fontSize: 18,
@@ -38,7 +27,12 @@ const Amount: React.FC<AmountProps> = ({ sats, style, ...textProps }) => {
   }
 
   // Handle error state
-  if (error || !Number.isFinite(sats)) {
+  if (
+    error ||
+    !Number.isFinite(sats) ||
+    !Number.isFinite(usdAmount) ||
+    usdAmount === null
+  ) {
     return (
       <Text style={[baseStyle, { opacity: 0.7 }, style]} {...textProps}>
         --
