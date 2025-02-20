@@ -7,6 +7,7 @@ import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useRouter } from "expo-router";
 import { ItemRow } from "./common";
 import { Center } from "../shared/Center";
+import { useBitcoinPrice } from "../BitcoinPriceProvider";
 
 const EventRow = ({
   event,
@@ -22,7 +23,10 @@ const EventRow = ({
   const [shortLocationTag, shortLocation] =
     event.tags.find((tag) => tag[0] === "location_short") || [];
   const [startTag, start] = event.tags.find((tag) => tag[0] === "start") || [];
-  const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
+  const [feeTag, fee, unit] =
+    event.tags.find((tag) => tag[0] === "price") || [];
+  const { convertUSDToSats } = useBitcoinPrice();
+  const satAmount = convertUSDToSats(Number(fee));
   const [imageTag, image] = event.tags.find((tag) => tag[0] === "image") || [];
   const [dTag, id] = event.tags.find((tag) => tag[0] === "d") || [];
 
@@ -71,7 +75,9 @@ const EventRow = ({
         </Text>
         <Text>{formattedDate}</Text>
         <Text>{shortLocation}</Text>
-        <Text>{fee} sats</Text>
+        <Text>
+          {fee} USD ({satAmount} sats)
+        </Text>
       </ItemRow>
     </TouchableOpacity>
   );

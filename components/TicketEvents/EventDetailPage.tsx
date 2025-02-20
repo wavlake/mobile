@@ -14,6 +14,7 @@ import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
 import { Text } from "../shared/Text";
 import { SlimButton } from "../shared/SlimButton";
+import { useBitcoinPrice } from "../BitcoinPriceProvider";
 
 interface ArtistMetadata {
   image: string;
@@ -68,7 +69,10 @@ export const EventDetailPage = () => {
     );
   }
   const [imageTag, image] = event.tags.find((tag) => tag[0] === "image") || [];
-  const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
+  const [feeTag, fee, unit] =
+    event.tags.find((tag) => tag[0] === "price") || [];
+  const { convertUSDToSats } = useBitcoinPrice();
+  const satAmount = convertUSDToSats(Number(fee));
   const artistPubkeys =
     event.tags
       .filter((tag) => tag[0] === "p")
@@ -133,7 +137,7 @@ export const EventDetailPage = () => {
         }}
       >
         <Text style={{ fontSize: 16 }} bold>
-          {fee} sats
+          {fee} USD ({satAmount} sats)
         </Text>
         <SlimButton
           title="RSVP"

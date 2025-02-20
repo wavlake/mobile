@@ -17,6 +17,7 @@ import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
 import { Text } from "../shared/Text";
 import { TextInput } from "../shared/TextInput";
+import { useBitcoinPrice } from "../BitcoinPriceProvider";
 
 export const EventRSVPPage = () => {
   const { pubkey } = useAuth();
@@ -48,7 +49,10 @@ export const EventRSVPPage = () => {
     );
   }
 
-  const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
+  const [feeTag, fee, unit] =
+    event.tags.find((tag) => tag[0] === "price") || [];
+  const { convertUSDToSats } = useBitcoinPrice();
+  const satAmount = convertUSDToSats(Number(fee));
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState("");
@@ -57,7 +61,7 @@ export const EventRSVPPage = () => {
   const onSubmit = async () => {
     setAmountError("");
     const parsedZapAmount = parseInt(zapAmount);
-    const parsedFee = parseInt(fee);
+    const parsedFee = parseFloat(fee);
     if (parsedZapAmount < parsedFee) {
       setAmountError(`Must be more than ${fee} sats`);
       return;
@@ -119,9 +123,8 @@ export const EventRSVPPage = () => {
           >
             <EventHeader />
             <Text style={{ marginBottom: 4, opacity: 0.8 }}>
-              This event requires a min of {fee} sats to RSVP, though you're
-              free to zap whatever amount you choose. Limit 2 tickets per
-              account.
+              This event requires a min of {satAmount} sats to RSVP ({fee} USD),
+              though you're free to zap whatever amount you choose.
             </Text>
             <View
               style={{
