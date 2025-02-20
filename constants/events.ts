@@ -1,6 +1,79 @@
 import { Event } from "nostr-tools";
 
-export const ShowEvents: Event[] = [];
+export const ShowEvents: Event[] = [
+  {
+    pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
+    created_at: 1713818000,
+    kind: 31923,
+    id: "test-event-id-4",
+    sig: "3045022100f4",
+    content: "21+ Event, $15 USD Tickets, Doors 7PM",
+    tags: [
+      ["d", "4"],
+      ["title", "Seattle, WA (Barboza)"],
+      ["summary", "May 2, 2025 - Seattle, WA (Barboza)"],
+      // ["start", "1746144000"],
+      ["location_short", "Seattle, WA"],
+      ["location_link", "https://maps.app.goo.gl/VTcgPXjgGUi6fqvJA"],
+      ["t", "concert"],
+      ["price", "15", "USD"],
+    ],
+  },
+  {
+    pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
+    created_at: 1713818000,
+    kind: 31923,
+    id: "test-event-id-5",
+    sig: "3045022100f5",
+    content: "All Ages, $21.25 USD Tickets, Doors 6:30PM",
+    tags: [
+      ["d", "5"],
+      ["title", "Los Angeles, CA (Moroccan Lounge)"],
+      ["summary", "May 4, 2025 - Los Angeles, CA (Moroccan Lounge)"],
+      // ["start", "1746316800"],
+      ["location_short", "Los Angeles, CA"],
+      ["location_link", "https://maps.app.goo.gl/hjXBboMXFfGmfGfJA"],
+      ["t", "concert"],
+      ["price", "21.25", "USD"],
+    ],
+  },
+  {
+    pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
+    created_at: 1713818000,
+    kind: 31923,
+    id: "test-event-id-2",
+    sig: "3045022100f2",
+    content: "16+ Event, $29.81 USD Tickets, Doors 7PM",
+    tags: [
+      ["d", "2"],
+      ["title", "Brooklyn, NY (Elsewhere)"],
+      ["summary", "May 11, 2025 - Brooklyn, NY (Elsewhere)"],
+      // ["start", "1746921600"],
+      ["location_short", "Brooklyn, NY"],
+      ["location_link", "https://maps.app.goo.gl/EtWShkrX4VQdeQgR7"],
+      ["t", "concert"],
+      ["price", "29.81", "USD"],
+    ],
+  },
+  {
+    pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
+    created_at: 1713818000,
+    kind: 31923,
+    id: "test-event-id-3",
+    sig: "3045022100f3",
+    content: "14+ Event, £17 or $21.40 USD Tickets, Doors 7PM",
+    tags: [
+      ["d", "3"],
+      ["title", "London, England (The Grace)"],
+      ["summary", "October 17, 2025 - London, England (The Grace)"],
+      ["start", "1758057600"],
+      ["location_short", "London, England"],
+      ["location_link", "https://maps.app.goo.gl/FJLP6tHR6xuDMmmf8"],
+      ["t", "concert"],
+      ["price", "21.4", "USD"],
+    ],
+  },
+];
 // Past Events
 // [
 //   {
@@ -26,7 +99,7 @@ export const ShowEvents: Event[] = [];
 //       // July 25, 2024 10pm CST
 //       ["end", "1721962800"],
 //       // rsvp fee in sats
-//       ["fee", "1"],
+//       ["price", "50", "USD"]
 //       // replace with pubkeys of artists
 //       [
 //         "p",
