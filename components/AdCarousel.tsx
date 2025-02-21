@@ -1,11 +1,5 @@
 import { useRouter } from "expo-router";
-import {
-  FlatList,
-  TouchableOpacity,
-  View,
-  // Image,
-  Dimensions,
-} from "react-native";
+import { FlatList, TouchableOpacity, View, Dimensions } from "react-native";
 import { Image } from "expo-image";
 
 import * as Linking from "expo-linking";
