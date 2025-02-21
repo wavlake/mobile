@@ -40,6 +40,12 @@ export const EventRSVPPage = () => {
       refetchTix();
     }
   }, [isPaid]);
+  const { convertUSDToSats } = useBitcoinPrice();
+
+  const [quantity, setQuantity] = useState(1);
+  const [message, setMessage] = useState("");
+  const [zapAmount, setZapAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
 
   if (!event) {
     return (
@@ -51,19 +57,19 @@ export const EventRSVPPage = () => {
 
   const [feeTag, fee, unit] =
     event.tags.find((tag) => tag[0] === "price") || [];
-  const { convertUSDToSats } = useBitcoinPrice();
   const satAmount = convertUSDToSats(Number(fee));
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
-  const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState("");
-  const [zapAmount, setZapAmount] = useState("");
-  const [amountError, setAmountError] = useState("");
+
   const onSubmit = async () => {
+    if (!satAmount) {
+      setAmountError("Something went wrong, please try again later");
+      return;
+    }
     setAmountError("");
     const parsedZapAmount = parseInt(zapAmount);
-    const parsedFee = parseFloat(fee);
-    if (parsedZapAmount < parsedFee) {
-      setAmountError(`Must be more than ${fee} sats`);
+    const total = satAmount * quantity;
+    if (parsedZapAmount < total) {
+      setAmountError(`Must be more than ${total} sats`);
       return;
     }
 
