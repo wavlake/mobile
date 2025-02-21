@@ -56,12 +56,15 @@ export const BitcoinPriceProvider: React.FC<{ children: React.ReactNode }> = ({
     convertSatsToUSD: (sats: number) => {
       if (!bitcoinPrice) return null;
       const btc = sats / SATS_PER_BTC;
-      return btc * bitcoinPrice;
+      const rawUSD = btc * bitcoinPrice;
+      // two decimal places
+      return Math.round(rawUSD * 100) / 100;
     },
     convertUSDToSats: (usd: number) => {
       if (!bitcoinPrice) return null;
       const btc = usd / bitcoinPrice;
-      return btc * SATS_PER_BTC;
+      const rawSats = btc * SATS_PER_BTC;
+      return Math.round(rawSats);
     },
     isLoading,
     error,
