@@ -167,21 +167,6 @@ const getEventFromPool = async ({
   }
 };
 
-export const getProfileMetadata = async (
-  pubkey: string,
-  relayUris: string[] = DEFAULT_READ_RELAY_URIS,
-) => {
-  const filter = {
-    kinds: [0],
-    authors: [pubkey],
-  };
-  return getEventFromPool({
-    pubkey,
-    filter,
-    relayUris,
-  });
-};
-
 // returns a map of pubkeys to a relay where you can find their profile
 export const getFollowsListMap = async (
   pubkey: string,
