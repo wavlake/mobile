@@ -2,6 +2,9 @@ import { usePromos } from "./usePromos";
 import { useUser } from "./useUser";
 
 export type ImageSource = { uri: string } | number;
+export const OLLIE_TOUR_IMAGE: ImageSource = {
+  uri: "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
+};
 
 export type Advertisement = {
   eventId?: string;
@@ -22,11 +25,10 @@ export const useAdvertisements = () => {
     promos.length > 0;
 
   const advertisements: Advertisement[] = [
+    // ollie events
     {
       path: "/events",
-      source: {
-        uri: "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
-      },
+      source: OLLIE_TOUR_IMAGE,
     },
     ...(userIsEligibleToEarn
       ? [

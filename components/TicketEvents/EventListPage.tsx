@@ -22,7 +22,8 @@ const EventRow = ({
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
   const [shortLocationTag, shortLocation] =
     event.tags.find((tag) => tag[0] === "location_short") || [];
-  const [startTag, start] = event.tags.find((tag) => tag[0] === "start") || [];
+  const [startTag, startTimestamp] =
+    event.tags.find((tag) => tag[0] === "start") || [];
   const [feeTag, fee, unit] =
     event.tags.find((tag) => tag[0] === "price") || [];
   const { convertUSDToSats } = useBitcoinPrice();
@@ -42,15 +43,9 @@ const EventRow = ({
   const { height } = useMiniMusicPlayer();
   const isLastRow = index === eventList.length - 1;
   const marginBottom = isLastRow ? height + 16 : 16;
-  const timestamp = new Date(parseInt(start) * 1000);
-  const formattedDate = timestamp.toLocaleDateString("en-US", {
-    weekday: "long",
-    // year: "numeric",
-    month: "long",
-    day: "numeric",
-    // hour: "numeric",
-    // minute: "numeric",
-  });
+  const timestamp = new Date(startTimestamp);
+  const formattedDate = timestamp.toDateString();
+
   return (
     <TouchableOpacity onPress={() => onPress(index)}>
       <ItemRow
@@ -75,9 +70,7 @@ const EventRow = ({
         </Text>
         <Text>{formattedDate}</Text>
         <Text>{shortLocation}</Text>
-        <Text>
-          {fee} USD ({satAmount} sats)
-        </Text>
+        <Text>${fee}</Text>
       </ItemRow>
     </TouchableOpacity>
   );
