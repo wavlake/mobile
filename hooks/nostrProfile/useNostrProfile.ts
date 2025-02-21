@@ -13,6 +13,7 @@ export type NostrUserProfileWithTimestamp = NostrUserProfile & {
 export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
   const queryClient = useQueryClient();
   const { getLatestEvent } = useNostrEvents();
+
   const queryKey = nostrQueryKeys.profile(pubkey ?? "");
 
   const queryData = useNostrQuery({
@@ -35,7 +36,7 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
     async (targetPubkey: string, relayList?: string[]) => {
       const queryKey = nostrQueryKeys.profile(targetPubkey);
 
-      const cachedData = queryClient.getQueryData(queryKey);
+      const cachedData = queryClient.getQueryData<Event>(queryKey);
       const queryState = queryClient.getQueryState(queryKey);
       const dataAge = queryState?.dataUpdatedAt
         ? Date.now() - queryState.dataUpdatedAt
@@ -57,7 +58,7 @@ export function useNostrProfile(pubkey?: string | null, relays?: string[]) {
         });
       }
 
-      return cachedData as NostrUserProfileWithTimestamp | null;
+      return cachedData;
     },
     [queryClient, getLatestEvent],
   );
