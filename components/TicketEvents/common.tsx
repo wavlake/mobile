@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ShowEvents } from "@/constants/events";
 import { useLocalSearchParams } from "expo-router";
 import { LogoIcon } from "../icons/";
-import { openURL } from "expo-linking";
+import { canOpenURL, openURL } from "expo-linking";
 
 export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   title,
@@ -50,6 +50,11 @@ export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
 
   const timestamp = new Date(startTimestamp);
   const formattedDate = timestamp.toDateString();
+  const onLocationLinkPress = async () => {
+    if (await canOpenURL(locationLink)) {
+      openURL(locationLink);
+    }
+  };
 
   return (
     <>
@@ -79,7 +84,7 @@ export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
             fontSize: 18,
             marginVertical: 8,
           }}
-          onPress={() => openURL(locationLink)}
+          onPress={onLocationLinkPress}
         >
           {location}
         </Text>
