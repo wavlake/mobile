@@ -2,10 +2,9 @@ import React, { PropsWithChildren } from "react";
 import { View, ViewProps, Image } from "react-native";
 import { Text } from "../shared/Text";
 import { Ionicons } from "@expo/vector-icons";
-import { ShowEvents } from "@/constants/events";
-import { useLocalSearchParams } from "expo-router";
 import { LogoIcon } from "../icons/";
 import { canOpenURL, openURL } from "expo-linking";
+import { Event } from "nostr-tools";
 
 export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   title,
@@ -28,18 +27,7 @@ export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   );
 };
 
-export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
-  const { eventId: paramsId } = useLocalSearchParams();
-  const id = eventId ?? (paramsId as string);
-  const event = ShowEvents.find((event) => {
-    const [dTag, dTagId] = event.tags.find((tag) => tag[0] === "d") || [];
-    return dTagId === id.trim();
-  });
-
-  if (!event) {
-    return <Text>Event not found</Text>;
-  }
-
+export const EventHeader: React.FC<{ event: Event }> = ({ event }) => {
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
   const [locationTag, location] =
     event.tags.find((tag) => tag[0] === "location") || [];
