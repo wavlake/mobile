@@ -67,14 +67,16 @@ export const EventDetailPage = () => {
           width: "100%",
         }}
       >
-        <Image
-          source={OLLIE_TOUR_IMAGE}
-          style={{
-            width: screenWidth,
-            height: screenWidth * 0.34,
-            marginBottom: 8,
-          }}
-        />
+        {image && (
+          <Image
+            source={{ uri: image }}
+            style={{
+              width: screenWidth,
+              height: screenWidth * 0.34,
+              marginBottom: 8,
+            }}
+          />
+        )}
         <EventHeader />
         {description && (
           <EventSection title="Event Info">

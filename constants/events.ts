@@ -102,7 +102,7 @@ export const ShowEvents: Event[] = [
       ["g", "c23nbecd"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-cropped.jpg?alt=media&token=0e44c6fb-b810-4503-9f77-f574b1501cf8",
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
     ],
   },
@@ -128,7 +128,7 @@ export const ShowEvents: Event[] = [
       ["g", "9q5ctw2g"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-cropped.jpg?alt=media&token=0e44c6fb-b810-4503-9f77-f574b1501cf8",
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
     ],
   },
@@ -154,7 +154,7 @@ export const ShowEvents: Event[] = [
       ["g", "dr5rtffv"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-cropped.jpg?alt=media&token=0e44c6fb-b810-4503-9f77-f574b1501cf8",
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
     ],
   },
@@ -180,7 +180,7 @@ export const ShowEvents: Event[] = [
       ["g", "gcpvjxu1"],
       [
         "image",
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-cropped.jpg?alt=media&token=0e44c6fb-b810-4503-9f77-f574b1501cf8",
+        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
     ],
   },
