@@ -5,32 +5,37 @@ import {
   Keyboard,
   ScrollView,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import { Button } from "../shared/Button";
 import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
-import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
-import { useAuth, useTicketRSVP, useTicketZap, useTickets } from "@/hooks";
+import { useAuth, useTicketRSVP, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
 import { Text } from "../shared/Text";
 import { TextInput } from "../shared/TextInput";
 import { useBitcoinPrice } from "../BitcoinPriceProvider";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 export const EventRSVPPage = () => {
+  const { convertUSDToSats } = useBitcoinPrice();
+  const [quantity, setQuantity] = useState(1);
+  const [message, setMessage] = useState("");
+  const [zapAmount, setZapAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
   const { pubkey } = useAuth();
   const { height } = useMiniMusicPlayer();
   const { refetch: refetchTix } = useTickets();
   const [ticketSuccess, setTicketSuccess] = useState(false);
   const router = useRouter();
   const { eventId } = useLocalSearchParams();
-  const event = ShowEvents.find((event) => {
-    const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
-    return showDTag === eventId;
-  });
-  const [dTag, showDTag] = event?.tags.find((tag) => tag[0] === "d") || [];
+  const { data: event, isLoading: isLoadingTicketEvent } = useNostrEvent(
+    eventId as string,
+  );
+
   const { submitRSVP, formatCalendarEventCoordinates, isLoading, lastResult } =
     useTicketRSVP();
 
@@ -41,12 +46,22 @@ export const EventRSVPPage = () => {
       refetchTix();
     }
   }, [lastResult]);
-  const { convertUSDToSats } = useBitcoinPrice();
 
-  const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState("");
-  const [zapAmount, setZapAmount] = useState("");
-  const [amountError, setAmountError] = useState("");
+  if (!pubkey) {
+    return (
+      <Center>
+        <Text>you must login to RSVP to events</Text>
+      </Center>
+    );
+  }
+
+  if (isLoadingTicketEvent) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
 
   if (!event) {
     return (
@@ -60,6 +75,7 @@ export const EventRSVPPage = () => {
     event.tags.find((tag) => tag[0] === "price") || [];
   const satAmount = convertUSDToSats(Number(fee));
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
+  const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
 
   const onSubmit = async () => {
     if (!satAmount) {
@@ -83,14 +99,6 @@ export const EventRSVPPage = () => {
       note: message,
     });
   };
-
-  if (!pubkey) {
-    return (
-      <Center>
-        <Text>you must login to RSVP to events</Text>
-      </Center>
-    );
-  }
 
   return (
     <>
@@ -131,7 +139,7 @@ export const EventRSVPPage = () => {
               paddingBottom: height + 16,
             }}
           >
-            <EventHeader />
+            <EventHeader event={event} />
             <Text style={{ marginBottom: 4, opacity: 0.8 }}>
               This event requires a min of {satAmount} sats to RSVP ({fee} USD),
               per ticket.

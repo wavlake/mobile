@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "./useAuth";
 import { publishEvent, signEvent } from "@/utils";
 import { useNostrRelayList } from "./nostrRelayList";
+import { WAVLAKE_RELAY } from "@/utils/shared";
 
 type RSVPStatus = "accepted" | "declined" | "tentative";
 type FreeOrBusy = "free" | "busy";
@@ -78,7 +79,7 @@ export const useTicketRSVP = () => {
         }
 
         if (calendarEventAuthorPubkey) {
-          tags.push(["p", calendarEventAuthorPubkey]);
+          tags.push(["p", calendarEventAuthorPubkey, WAVLAKE_RELAY]);
         }
 
         // Create the unsigned event

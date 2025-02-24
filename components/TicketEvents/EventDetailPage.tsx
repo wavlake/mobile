@@ -1,17 +1,22 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ScrollView, View, Dimensions, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { Image } from "expo-image";
-import { ShowEvents } from "@/constants/events";
 import React from "react";
 import { EventSection, EventHeader } from "./common";
-import { brandColors } from "@/constants";
+import { brandColors, WAVLAKE_AD } from "@/constants";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
 import { Text } from "../shared/Text";
 import { SlimButton } from "../shared/SlimButton";
 import { useBitcoinPrice } from "../BitcoinPriceProvider";
 import { satsFormatter } from "../WalletLabel";
-import { OLLIE_TOUR_IMAGE } from "@/hooks";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 interface ArtistMetadata {
   image: string;
@@ -26,10 +31,15 @@ export const EventDetailPage = () => {
 
   const { eventId } = useLocalSearchParams();
   const router = useRouter();
-  const event = ShowEvents.find((event) => {
-    const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
-    return showDTag === eventId;
-  });
+  const { data: event, isLoading } = useNostrEvent(eventId as string);
+
+  if (isLoading) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
 
   if (!event) {
     return (
@@ -38,6 +48,7 @@ export const EventDetailPage = () => {
       </Center>
     );
   }
+
   const [imageTag, image] = event.tags.find((tag) => tag[0] === "image") || [];
   const [feeTag, fee, unit] =
     event.tags.find((tag) => tag[0] === "price") || [];
@@ -47,7 +58,12 @@ export const EventDetailPage = () => {
     event.tags
       .filter((tag) => tag[0] === "p")
       .map(([pTag, pubkey]) => pubkey) || [];
-  const description = event.content;
+
+  // strip out any Wavlake app advertisements
+  const description = WAVLAKE_AD.reduce(
+    (adText, newDesc) => newDesc.replace(adText, ""),
+    event.content,
+  );
 
   return (
     <View
@@ -77,7 +93,7 @@ export const EventDetailPage = () => {
             }}
           />
         )}
-        <EventHeader />
+        <EventHeader event={event} />
         {description && (
           <EventSection title="Event Info">
             <Text

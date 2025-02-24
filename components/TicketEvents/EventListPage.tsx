@@ -1,12 +1,13 @@
 import { Text } from "../shared/Text";
 import { ShowEvents } from "@/constants/events";
 import { Event } from "nostr-tools";
-import { TouchableOpacity } from "react-native";
+import { RefreshControl, TouchableOpacity } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useRouter } from "expo-router";
 import { ItemRow } from "./common";
 import { Center } from "../shared/Center";
+import { useTicketEvents } from "@/hooks/useTicketEvents";
 
 const EventRow = ({
   event,
@@ -30,7 +31,7 @@ const EventRow = ({
 
   const onPress = (index: number) => {
     router.push({
-      pathname: `/events/${id}`,
+      pathname: `/events/${event.id}`,
       params: {
         includeBackButton: "true",
       },
@@ -73,7 +74,7 @@ const EventRow = ({
   );
 };
 export const EventListPage = () => {
-  const eventList = ShowEvents;
+  const { data: eventList = [], refetch, isLoading } = useTicketEvents();
 
   return (
     <FlatList
@@ -96,6 +97,9 @@ export const EventListPage = () => {
       keyExtractor={(item) => item.id}
       scrollEnabled
       showsHorizontalScrollIndicator={true}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
     />
   );
 };
