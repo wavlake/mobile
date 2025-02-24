@@ -106,12 +106,17 @@ export const EventDetailPage = () => {
             gap: 4,
           }}
         >
-          <Text style={{ fontSize: 16 }} bold>
-            {fee} USD
-          </Text>
-          <Text style={{ fontSize: 16 }} bold>
-            {satAmount ? `(${satsFormatter(1000 * satAmount)} sats)` : ""}
-          </Text>
+          {Boolean(fee) && (
+            <>
+              <Text style={{ fontSize: 16 }} bold>
+                {fee}
+                {unit ? ` USD` : ""}
+              </Text>
+              <Text style={{ fontSize: 16 }} bold>
+                {satAmount ? `(${satsFormatter(1000 * satAmount)} sats)` : ""}
+              </Text>
+            </>
+          )}
         </View>
         <SlimButton
           title="RSVP"

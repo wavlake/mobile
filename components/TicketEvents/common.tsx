@@ -48,7 +48,7 @@ export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
   const [startTag, startTimestamp] =
     event.tags.find((tag) => tag[0] === "start") || [];
 
-  const timestamp = new Date(startTimestamp);
+  const timestamp = new Date(parseInt(startTimestamp) * 1000);
   const formattedDate = timestamp.toDateString();
   const onLocationLinkPress = async () => {
     if (await canOpenURL(locationLink)) {

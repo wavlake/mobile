@@ -43,7 +43,7 @@ const EventRow = ({
   const { height } = useMiniMusicPlayer();
   const isLastRow = index === eventList.length - 1;
   const marginBottom = isLastRow ? height + 16 : 16;
-  const timestamp = new Date(startTimestamp);
+  const timestamp = new Date(parseInt(startTimestamp) * 1000);
   const formattedDate = timestamp.toDateString();
 
   return (
@@ -70,7 +70,7 @@ const EventRow = ({
         </Text>
         <Text>{formattedDate}</Text>
         <Text>{shortLocation}</Text>
-        <Text>${fee}</Text>
+        {fee && <Text>${fee}</Text>}
       </ItemRow>
     </TouchableOpacity>
   );
