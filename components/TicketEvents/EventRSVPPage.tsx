@@ -11,7 +11,7 @@ import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
 import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
-import { useAuth, useTicketZap, useTickets } from "@/hooks";
+import { useAuth, useTicketRSVP, useTicketZap, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
@@ -31,15 +31,16 @@ export const EventRSVPPage = () => {
     return showDTag === eventId;
   });
   const [dTag, showDTag] = event?.tags.find((tag) => tag[0] === "d") || [];
-  const { sendZap, isLoading, isPaid } = useTicketZap(showDTag);
+  const { submitRSVP, formatCalendarEventCoordinates, isLoading, lastResult } =
+    useTicketRSVP();
 
   useEffect(() => {
-    if (isPaid) {
+    if (lastResult?.success) {
       // show success dialog
       setTicketSuccess(true);
       refetchTix();
     }
-  }, [isPaid]);
+  }, [lastResult]);
   const { convertUSDToSats } = useBitcoinPrice();
 
   const [quantity, setQuantity] = useState(1);
@@ -73,10 +74,13 @@ export const EventRSVPPage = () => {
       return;
     }
 
-    await sendZap({
-      amount: parsedZapAmount,
-      comment: message,
-      quantity,
+    await submitRSVP({
+      calendarEventCoordinates: formatCalendarEventCoordinates(event),
+      calendarEventId: showDTag,
+      calendarEventAuthorPubkey: event.pubkey,
+      status: "accepted",
+      freeOrBusy: "busy",
+      note: message,
     });
   };
 
