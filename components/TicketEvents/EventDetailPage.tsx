@@ -76,16 +76,18 @@ export const EventDetailPage = () => {
           }}
         />
         <EventHeader />
-        <EventSection title="Event Info">
-          <Text
-            style={{
-              fontSize: 16,
-              color: "gray",
-            }}
-          >
-            {description}
-          </Text>
-        </EventSection>
+        {description && (
+          <EventSection title="Event Info">
+            <Text
+              style={{
+                fontSize: 16,
+                color: "gray",
+              }}
+            >
+              {description}
+            </Text>
+          </EventSection>
+        )}
       </ScrollView>
       <View
         style={{
