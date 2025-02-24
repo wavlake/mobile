@@ -13,7 +13,6 @@ import { useSettings } from "./useSettings";
 import { useWalletBalance } from "./useWalletBalance";
 import { Event, nip57 } from "nostr-tools";
 import { useUser } from "./useUser";
-import { useNostrEvents } from "@/providers";
 import { fetchLNURLPaymentInfo, validateLNURLPayAmount } from "@/utils/luds";
 import { DEFAULT_WRITE_RELAY_URIS } from "@/utils/shared";
 import { useNostrProfile } from "./nostrProfile";
@@ -37,7 +36,7 @@ export const useZapEvent = (): {
   const { max_payment: maxNWCPayment } = data || {};
   const { pubkey, userIsLoggedIn } = useAuth();
   const { catalogUser } = useUser();
-  const { getProfileMetadata } = useNostrProfile();
+  const { getProfileMetadata, decodeProfileMetadata } = useNostrProfile();
 
   // clear success state after 5 seconds
   useEffect(() => {
@@ -66,7 +65,8 @@ export const useZapEvent = (): {
       return;
     }
 
-    const userProfile = await getProfileMetadata(event.pubkey);
+    const userProfileEvent = await getProfileMetadata(event.pubkey);
+    const userProfile = decodeProfileMetadata(userProfileEvent);
     if (!userProfile?.lud16) {
       toast.show("Unable to find author's LNURL.");
       return;

@@ -1,44 +1,30 @@
 import { useRouter } from "expo-router";
-import {
-  FlatList,
-  TouchableOpacity,
-  View,
-  Image,
-  Dimensions,
-} from "react-native";
+import { FlatList, TouchableOpacity, View, Dimensions } from "react-native";
+import { Image } from "expo-image";
+
 import * as Linking from "expo-linking";
-import { ShowEvents } from "@/constants/events";
 import { brandColors } from "@/constants";
 import { useState } from "react";
+import { Advertisement, useAdvertisements } from "@/hooks";
 
-export const AdCarousel = () => {
+type AdCarouselProps = {
+  className?: string;
+};
+
+type DotsProps = {
+  count: number;
+  activeIndex: number;
+};
+
+const IMAGE_HEIGHT = 143;
+
+export const AdCarousel: React.FC<AdCarouselProps> = () => {
   const router = useRouter();
   const screenWidth = Dimensions.get("window").width;
   const [scrollIndex, setScrollIndex] = useState(0);
+  const advertisements = useAdvertisements();
 
-  const advertisements: Array<{
-    eventId?: string;
-    href?: string;
-    artworkUrl: string;
-  }> = [
-    ...ShowEvents.map((event) => {
-      const [dTag, id] = event.tags.find((tag) => tag[0] === "d") || [];
-
-      return {
-        eventId: id,
-        artworkUrl:
-          "https://d12wklypp119aj.cloudfront.net/image/c03bf014-3a8b-47d8-8302-47cbff03cbcd.png",
-      };
-    }),
-    // hardcoded advertisements
-    {
-      href: "https://zine.wavlake.com/bring-your-own-lightning-address/",
-      artworkUrl:
-        "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Fbanner2.png?alt=media&token=0810b01f-695d-4cf5-80eb-63df863b3e7e",
-    },
-  ];
-
-  const onPress = (index: number) => {
+  const handlePress = (index: number) => {
     const advertisement = advertisements[index];
 
     if (advertisement.eventId) {
@@ -51,7 +37,23 @@ export const AdCarousel = () => {
       });
     } else if (advertisement.href) {
       Linking.openURL(advertisement.href);
+    } else if (advertisement.path) {
+      router.push({
+        pathname: advertisement.path,
+      });
     }
+  };
+
+  const handleScroll = (event: {
+    nativeEvent: {
+      contentOffset: { x: number };
+      layoutMeasurement: { width: number };
+    };
+  }) => {
+    const x = event.nativeEvent.contentOffset.x;
+    const viewWidth = event.nativeEvent.layoutMeasurement.width;
+    const index = Math.round(x / viewWidth);
+    setScrollIndex(index);
   };
 
   return (
@@ -61,61 +63,74 @@ export const AdCarousel = () => {
         pagingEnabled
         data={advertisements}
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(event) => {
-          const x = event.nativeEvent.contentOffset.x;
-          const viewWidth = event.nativeEvent.layoutMeasurement.width;
-          const index = Math.round(x / viewWidth);
-          setScrollIndex(index);
-        }}
-        renderItem={({ item, index }) => {
-          return (
-            <TouchableOpacity onPress={() => onPress(index)}>
-              <View
-                style={{
-                  width: screenWidth,
-                }}
-              >
-                <Image
-                  source={{ uri: item.artworkUrl }}
-                  style={{ width: screenWidth, height: 172 }}
-                />
-              </View>
-            </TouchableOpacity>
-          );
-        }}
+        onMomentumScrollEnd={handleScroll}
+        renderItem={({ item, index }) => (
+          <AdCarouselItem
+            item={item}
+            width={screenWidth}
+            height={IMAGE_HEIGHT}
+            onPress={() => handlePress(index)}
+          />
+        )}
       />
-      {advertisements.length > 1 && (
-        <View
-          style={{
-            flex: 1,
-            marginTop: 4,
-          }}
-        >
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              gap: 4,
-            }}
-          >
-            {advertisements.map((_, index) => (
-              <View
-                key={index}
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor:
-                    index === scrollIndex
-                      ? brandColors.beige.DEFAULT
-                      : brandColors.black.light,
-                }}
-              />
-            ))}
-          </View>
-        </View>
-      )}
+      <AdCarouselDots count={advertisements.length} activeIndex={scrollIndex} />
     </View>
+  );
+};
+
+const AdCarouselDots: React.FC<DotsProps> = ({ count, activeIndex }) => {
+  if (count <= 1) return null;
+
+  return (
+    <View style={{ flex: 1, marginTop: 4 }}>
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          gap: 4,
+        }}
+      >
+        {Array.from({ length: count }).map((_, index) => (
+          <View
+            key={index}
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor:
+                index === activeIndex
+                  ? brandColors.beige.DEFAULT
+                  : brandColors.black.light,
+            }}
+          />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+type ItemProps = {
+  item: Advertisement;
+  width: number;
+  height: number;
+  onPress: () => void;
+};
+
+const AdCarouselItem: React.FC<ItemProps> = ({
+  item,
+  width,
+  height,
+  onPress,
+}) => {
+  const imageSource =
+    typeof item.source === "object" ? item.source : item.source;
+
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <View style={{ width, height }}>
+        <Image source={imageSource} style={{ width, height }} />
+      </View>
+    </TouchableOpacity>
   );
 };

@@ -1,41 +1,45 @@
 import { Event, Filter } from "nostr-tools";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryTimestamp, updateQueryTimestamp } from "@/utils";
-import { nostrQueryKeys, SOCIAL_NOTES } from "@/providers/constants";
+import { nostrQueryKeys } from "@/providers/constants";
 import { mergeEventsIntoCache, useNostrEvents } from "@/providers";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrQuery } from "./useNostrQuery";
+import { ShowEvents } from "@/constants";
 
-export function useSocialEvents(pubkey: string | undefined) {
+const ticketBotPubkey = process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY;
+export const useTicketEvents = (pubkey: string | undefined) => {
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
   const { querySync, cacheEventsById } = useNostrEvents();
+  const queryKey = nostrQueryKeys.ticketedEvents();
 
   return useNostrQuery<Event[]>({
-    queryKey: nostrQueryKeys.pTagEvents(pubkey ?? ""),
-    enabled: Boolean(pubkey),
+    queryKey,
     refetchOnMount: "always",
     queryFn: async () => {
-      if (!pubkey) return [];
+      if (!ticketBotPubkey) {
+        console.error("No ticket bot pubkey found");
+        return [];
+      }
 
-      const queryKey = nostrQueryKeys.pTagEvents(pubkey);
       const since = getQueryTimestamp(queryClient, queryKey);
 
-      const socialFilter: Filter = {
-        ...SOCIAL_NOTES,
-        "#p": [pubkey],
+      const ticketFilter: Filter = {
+        kinds: [31923],
+        authors: [ticketBotPubkey],
         since,
       };
 
-      const socialEvents = await querySync(socialFilter, readRelayList);
+      const ticketEvents = ShowEvents; //await querySync(ticketFilter, readRelayList);
       const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
 
-      if (socialEvents.length > 0) {
-        updateQueryTimestamp(queryClient, queryKey, socialEvents);
-        const newCache = mergeEventsIntoCache(socialEvents, oldCache);
+      if (ticketEvents.length > 0) {
+        updateQueryTimestamp(queryClient, queryKey, ticketEvents);
+        const newCache = mergeEventsIntoCache(ticketEvents, oldCache);
 
         // Cache events individually
-        cacheEventsById(socialEvents);
+        cacheEventsById(ticketEvents);
 
         return newCache;
       }
@@ -43,4 +47,4 @@ export function useSocialEvents(pubkey: string | undefined) {
       return oldCache;
     },
   });
-}
+};

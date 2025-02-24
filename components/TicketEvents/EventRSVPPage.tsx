@@ -11,12 +11,13 @@ import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
 import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
-import { useAuth, useTicketZap, useTickets } from "@/hooks";
+import { useAuth, useTicketRSVP, useTicketZap, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
 import { Text } from "../shared/Text";
 import { TextInput } from "../shared/TextInput";
+import { useBitcoinPrice } from "../BitcoinPriceProvider";
 
 export const EventRSVPPage = () => {
   const { pubkey } = useAuth();
@@ -30,15 +31,22 @@ export const EventRSVPPage = () => {
     return showDTag === eventId;
   });
   const [dTag, showDTag] = event?.tags.find((tag) => tag[0] === "d") || [];
-  const { sendZap, isLoading, isPaid } = useTicketZap(showDTag);
+  const { submitRSVP, formatCalendarEventCoordinates, isLoading, lastResult } =
+    useTicketRSVP();
 
   useEffect(() => {
-    if (isPaid) {
+    if (lastResult?.success) {
       // show success dialog
       setTicketSuccess(true);
       refetchTix();
     }
-  }, [isPaid]);
+  }, [lastResult]);
+  const { convertUSDToSats } = useBitcoinPrice();
+
+  const [quantity, setQuantity] = useState(1);
+  const [message, setMessage] = useState("");
+  const [zapAmount, setZapAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
 
   if (!event) {
     return (
@@ -48,25 +56,31 @@ export const EventRSVPPage = () => {
     );
   }
 
-  const [feeTag, fee] = event.tags.find((tag) => tag[0] === "fee") || [];
+  const [feeTag, fee, unit] =
+    event.tags.find((tag) => tag[0] === "price") || [];
+  const satAmount = convertUSDToSats(Number(fee));
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
-  const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState("");
-  const [zapAmount, setZapAmount] = useState("");
-  const [amountError, setAmountError] = useState("");
+
   const onSubmit = async () => {
+    if (!satAmount) {
+      setAmountError("Something went wrong, please try again later");
+      return;
+    }
     setAmountError("");
     const parsedZapAmount = parseInt(zapAmount);
-    const parsedFee = parseInt(fee);
-    if (parsedZapAmount < parsedFee) {
-      setAmountError(`Must be more than ${fee} sats`);
+    const total = satAmount * quantity;
+    if (parsedZapAmount < total) {
+      setAmountError(`Must be more than ${total} sats`);
       return;
     }
 
-    await sendZap({
-      amount: parsedZapAmount,
-      comment: message,
-      quantity,
+    await submitRSVP({
+      calendarEventCoordinates: formatCalendarEventCoordinates(event),
+      calendarEventId: showDTag,
+      calendarEventAuthorPubkey: event.pubkey,
+      status: "accepted",
+      freeOrBusy: "busy",
+      note: message,
     });
   };
 
@@ -119,9 +133,8 @@ export const EventRSVPPage = () => {
           >
             <EventHeader />
             <Text style={{ marginBottom: 4, opacity: 0.8 }}>
-              This event requires a min of {fee} sats to RSVP, though you're
-              free to zap whatever amount you choose. Limit 2 tickets per
-              account.
+              This event requires a min of {satAmount} sats to RSVP ({fee} USD),
+              per ticket.
             </Text>
             <View
               style={{

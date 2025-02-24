@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ShowEvents } from "@/constants/events";
 import { useLocalSearchParams } from "expo-router";
 import { LogoIcon } from "../icons/";
-import { openURL } from "expo-linking";
+import { canOpenURL, openURL } from "expo-linking";
 
 export const EventSection: React.FC<PropsWithChildren<{ title: string }>> = ({
   title,
@@ -43,17 +43,18 @@ export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
   const [locationTag, location] =
     event.tags.find((tag) => tag[0] === "location") || [];
-  const [startTag, start] = event.tags.find((tag) => tag[0] === "start") || [];
+  const [locationLinkTag, locationLink] =
+    event.tags.find((tag) => tag[0] === "location_link") || [];
+  const [startTag, startTimestamp] =
+    event.tags.find((tag) => tag[0] === "start") || [];
 
-  const timestamp = new Date(parseInt(start) * 1000);
-  const formattedDate = timestamp.toLocaleDateString("en-US", {
-    weekday: "long",
-    // year: "numeric",
-    month: "long",
-    day: "numeric",
-    // hour: "numeric",
-    // minute: "numeric",
-  });
+  const timestamp = new Date(parseInt(startTimestamp) * 1000);
+  const formattedDate = timestamp.toDateString();
+  const onLocationLinkPress = async () => {
+    if (await canOpenURL(locationLink)) {
+      openURL(locationLink);
+    }
+  };
 
   return (
     <>
@@ -83,7 +84,7 @@ export const EventHeader: React.FC<{ eventId?: string }> = ({ eventId }) => {
             fontSize: 18,
             marginVertical: 8,
           }}
-          onPress={() => openURL(`https://maps.app.goo.gl/Rmy1aL2snpENwJZ68`)}
+          onPress={onLocationLinkPress}
         >
           {location}
         </Text>
