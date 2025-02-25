@@ -61,7 +61,7 @@ export const EventDetailPage = () => {
 
   // strip out any Wavlake app advertisements
   const description = WAVLAKE_AD.reduce(
-    (adText, newDesc) => newDesc.replace(adText, ""),
+    (newDesc, adText) => newDesc.replace(adText, ""),
     event.content,
   );
 
