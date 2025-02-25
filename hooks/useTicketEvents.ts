@@ -5,10 +5,11 @@ import { nostrQueryKeys } from "@/providers/constants";
 import { mergeEventsIntoCache, useNostrEvents } from "@/providers";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrQuery } from "./useNostrQuery";
-import { ShowEvents } from "@/constants";
 
-const ticketBotPubkey = process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY;
-export const useTicketEvents = (pubkey: string | undefined) => {
+const ticketBotPubkey =
+  "6cb676fbb6bd0ac797875020eabda3079a0db0527962e27451447e75390ef8e9";
+//"92bb411b1687a90d2fac9aa7e2db1593d186021bffc0abe2794630d6d57c2a46"; //process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY;
+export const useTicketEvents = () => {
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
   const { querySync, cacheEventsById } = useNostrEvents();
@@ -31,7 +32,7 @@ export const useTicketEvents = (pubkey: string | undefined) => {
         since,
       };
 
-      const ticketEvents = ShowEvents; //await querySync(ticketFilter, readRelayList);
+      const ticketEvents = await querySync(ticketFilter, readRelayList);
       const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
 
       if (ticketEvents.length > 0) {

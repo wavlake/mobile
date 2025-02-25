@@ -1,7 +1,12 @@
+import { Event, Filter, nip04 } from "nostr-tools";
+import { useQueryClient } from "@tanstack/react-query";
+import { getSeckey, getQueryTimestamp, updateQueryTimestamp } from "@/utils";
+import { nostrQueryKeys } from "@/providers/constants";
+import { mergeEventsIntoCache, useNostrEvents } from "@/providers";
+import { useNostrRelayList } from "@/hooks/nostrRelayList";
+import { useNostrQuery } from "./useNostrQuery";
 import { useAuth } from "./useAuth";
-import { getSeckey, subscribeToTicket } from "@/utils";
 import { useEffect, useState } from "react";
-import { nip04 } from "nostr-tools";
 
 export interface Ticket {
   id: string;
@@ -13,53 +18,94 @@ const DELIMITER = " | ";
 
 export const useTickets = () => {
   const { pubkey } = useAuth();
+  const queryClient = useQueryClient();
+  const { readRelayList } = useNostrRelayList();
+  const { querySync, cacheEventsById } = useNostrEvents();
+  const queryKey = nostrQueryKeys.userTickets(pubkey || "");
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const fetchTickets = async () => {
-    setIsLoading(true);
-    if (!pubkey) {
-      setTickets([]);
-      setIsLoading(false);
-      return;
-    }
 
-    const ticket = await subscribeToTicket(pubkey);
-    if (!ticket) {
-      setTickets([]);
-      setIsLoading(false);
-      return;
-    }
+  const {
+    data: ticketEvents = [],
+    isLoading,
+    refetch,
+  } = useNostrQuery<Event[]>({
+    queryKey,
+    refetchOnMount: "always",
+    enabled: !!pubkey,
+    queryFn: async () => {
+      if (!pubkey) {
+        return [];
+      }
 
-    const loggedInUserSeckey = await getSeckey();
-    const ticketDM = await nip04
-      .decrypt(loggedInUserSeckey ?? "", ticket.pubkey, ticket.content)
-      .catch((e) => {
-        console.error("Error decrypting ticket", e);
-        return null;
-      });
-    if (!ticketDM) return;
+      const since = getQueryTimestamp(queryClient, queryKey);
 
-    const [
-      message,
-      title,
-      timestamp,
-      location,
-      ticketId = "failed-to-get-ticket-id",
-      quantity = "1",
-      eventId = "1",
-    ] = ticketDM.split(DELIMITER);
-    const newTicket: Ticket = {
-      id: ticketId,
-      eventId: eventId,
-      quantity: parseInt(quantity),
-    };
-    setTickets([newTicket]);
-    setIsLoading(false);
-  };
+      const ticketFilter: Filter = {
+        kinds: [4], // Assuming 4 is the kind for encrypted DMs
+        "#p": [pubkey],
+        since,
+      };
+
+      const ticketEvents = await querySync(ticketFilter, readRelayList);
+      const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
+
+      if (ticketEvents.length > 0) {
+        updateQueryTimestamp(queryClient, queryKey, ticketEvents);
+        const newCache = mergeEventsIntoCache(ticketEvents, oldCache);
+
+        cacheEventsById(ticketEvents);
+        return newCache;
+      }
+
+      return oldCache;
+    },
+  });
 
   useEffect(() => {
-    fetchTickets();
-  }, [pubkey]);
+    const decryptTickets = async () => {
+      // Process and decrypt tickets
+      const loggedInUserSeckey = await getSeckey();
+      if (!loggedInUserSeckey) return;
 
-  return { tickets, refetch: fetchTickets, isLoading };
+      const newTickets = await Promise.all(
+        ticketEvents.map(async (event) => {
+          try {
+            const decrypted = await nip04.decrypt(
+              loggedInUserSeckey,
+              event.pubkey,
+              event.content,
+            );
+
+            // Parse the ticket data
+            const [
+              message,
+              title,
+              timestamp,
+              location,
+              ticketId = "failed-to-get-ticket-id",
+              quantity = "1",
+              eventId = "1",
+            ] = decrypted.split(DELIMITER);
+
+            return {
+              id: ticketId,
+              eventId: eventId,
+              quantity: parseInt(quantity),
+            };
+          } catch (e) {
+            console.error("Error decrypting ticket", e);
+            return null;
+          }
+        }),
+      );
+
+      // Filter out failed decryptions
+      const validTickets = newTickets.filter(
+        (ticket): ticket is Ticket => ticket !== null,
+      );
+      setTickets(validTickets);
+    };
+    decryptTickets();
+  }, [ticketEvents]);
+
+  return { tickets, isLoading, refetch };
 };

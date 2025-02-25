@@ -5,48 +5,63 @@ import {
   Keyboard,
   ScrollView,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import { Button } from "../shared/Button";
 import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
-import { ShowEvents } from "@/constants/events";
 import { Picker } from "@react-native-picker/picker";
-import { useAuth, useTicketRSVP, useTicketZap, useTickets } from "@/hooks";
+import { useAuth, useTicketRSVP, useTickets } from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
 import { Text } from "../shared/Text";
 import { TextInput } from "../shared/TextInput";
 import { useBitcoinPrice } from "../BitcoinPriceProvider";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 export const EventRSVPPage = () => {
+  const { convertUSDToSats } = useBitcoinPrice();
+  const [quantity, setQuantity] = useState(1);
+  const [message, setMessage] = useState("");
+  const [zapAmount, setZapAmount] = useState("");
+  const [amountError, setAmountError] = useState("");
   const { pubkey } = useAuth();
   const { height } = useMiniMusicPlayer();
   const { refetch: refetchTix } = useTickets();
   const [ticketSuccess, setTicketSuccess] = useState(false);
   const router = useRouter();
   const { eventId } = useLocalSearchParams();
-  const event = ShowEvents.find((event) => {
-    const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
-    return showDTag === eventId;
-  });
-  const [dTag, showDTag] = event?.tags.find((tag) => tag[0] === "d") || [];
-  const { submitRSVP, formatCalendarEventCoordinates, isLoading, lastResult } =
+  const { data: event, isLoading: isLoadingTicketEvent } = useNostrEvent(
+    eventId as string,
+  );
+
+  const { submitRSVP, isSubmitting, isZapSuccess, lastResult } =
     useTicketRSVP();
 
   useEffect(() => {
-    if (lastResult?.success) {
+    if (lastResult?.success && isZapSuccess) {
       // show success dialog
       setTicketSuccess(true);
       refetchTix();
     }
-  }, [lastResult]);
-  const { convertUSDToSats } = useBitcoinPrice();
+  }, [lastResult, isZapSuccess]);
 
-  const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState("");
-  const [zapAmount, setZapAmount] = useState("");
-  const [amountError, setAmountError] = useState("");
+  if (!pubkey) {
+    return (
+      <Center>
+        <Text>you must login to RSVP to events</Text>
+      </Center>
+    );
+  }
+
+  if (isLoadingTicketEvent) {
+    return (
+      <Center>
+        <ActivityIndicator />
+      </Center>
+    );
+  }
 
   if (!event) {
     return (
@@ -75,22 +90,14 @@ export const EventRSVPPage = () => {
     }
 
     await submitRSVP({
-      calendarEventCoordinates: formatCalendarEventCoordinates(event),
-      calendarEventId: showDTag,
-      calendarEventAuthorPubkey: event.pubkey,
+      calendarEvent: event,
       status: "accepted",
       freeOrBusy: "busy",
-      note: message,
+      comment: message,
+      paymentAmountInSats: parsedZapAmount,
+      paymentComment: `Ticket payment for event id: ${event.id}`,
     });
   };
-
-  if (!pubkey) {
-    return (
-      <Center>
-        <Text>you must login to RSVP to events</Text>
-      </Center>
-    );
-  }
 
   return (
     <>
@@ -131,7 +138,7 @@ export const EventRSVPPage = () => {
               paddingBottom: height + 16,
             }}
           >
-            <EventHeader />
+            <EventHeader event={event} />
             <Text style={{ marginBottom: 4, opacity: 0.8 }}>
               This event requires a min of {satAmount} sats to RSVP ({fee} USD),
               per ticket.
@@ -182,7 +189,11 @@ export const EventRSVPPage = () => {
                   gap: 12,
                 }}
               >
-                <Button title="Submit" onPress={onSubmit} loading={isLoading}>
+                <Button
+                  title="Submit"
+                  onPress={onSubmit}
+                  loading={isSubmitting}
+                >
                   Submit
                 </Button>
                 <Button title="Cancel" onPress={() => router.back()}>
