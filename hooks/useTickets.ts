@@ -105,6 +105,7 @@ export const useTickets = () => {
       setTickets(validTickets);
     };
     decryptTickets();
-  });
+  }, [ticketEvents]);
+
   return { tickets, isLoading, refetch };
 };
