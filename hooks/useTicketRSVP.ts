@@ -1,52 +1,53 @@
 import { useState, useCallback } from "react";
-import { Event, UnsignedEvent } from "nostr-tools";
+import { UnsignedEvent, Event } from "nostr-tools";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "./useAuth";
 import { publishEvent, signEvent } from "@/utils";
 import { useNostrRelayList } from "./nostrRelayList";
-import { WAVLAKE_RELAY } from "@/utils/shared";
+import { useZapEvent } from "./useZapEvent";
 
 type RSVPStatus = "accepted" | "declined" | "tentative";
 type FreeOrBusy = "free" | "busy";
 
 interface RSVPParams {
-  calendarEventId?: string; // Optional event ID (e tag)
-  calendarEventCoordinates: string; // Required event coordinates (a tag) in format "kind:pubkey:d-identifier"
-  calendarEventAuthorPubkey?: string; // Optional author pubkey (p tag)
   status: RSVPStatus; // Required status
   freeOrBusy?: FreeOrBusy; // Optional free/busy indicator
-  note?: string; // Optional note for the content field
+  comment?: string; // Optional comment for the content field
+  calendarEvent: Event; // The original calendar event for zapping
+  paymentAmountInSats?: number; // Amount to zap if payment is required
+  paymentComment?: string; // Comment for the payment zap
 }
 
 interface RSVPResult {
   success: boolean;
   eventId?: string;
   error?: string;
+  paymentSuccess?: boolean;
+  paymentError?: string;
 }
 
 export const useTicketRSVP = () => {
   const { pubkey } = useAuth();
   const { writeRelayList } = useNostrRelayList();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastResult, setLastResult] = useState<RSVPResult | null>(null);
+  const {
+    sendZap,
+    isLoading: isZapLoading,
+    isSuccess: isZapSuccess,
+  } = useZapEvent();
 
   const submitRSVP = useCallback(
     async ({
-      calendarEventId,
-      calendarEventCoordinates,
-      calendarEventAuthorPubkey,
       status,
       freeOrBusy,
-      note = "",
+      comment = "",
+      calendarEvent,
+      paymentAmountInSats,
+      paymentComment = "Ticket payment for event id: " + calendarEvent.id,
     }: RSVPParams): Promise<RSVPResult> => {
-      if (!calendarEventCoordinates) {
-        const result = {
-          success: false,
-          error: "Calendar event coordinates are required",
-        };
-        setLastResult(result);
-        return result;
-      }
+      const calendarEventCoordinates =
+        formatCalendarEventCoordinates(calendarEvent);
 
       if (!status) {
         const result = { success: false, error: "RSVP status is required" };
@@ -59,27 +60,51 @@ export const useTicketRSVP = () => {
         freeOrBusy = undefined;
       }
 
-      setIsLoading(true);
+      setIsSubmitting(true);
+      const result: RSVPResult = { success: false };
 
       try {
+        // If payment is required and status is 'accepted', process the zap first
+        let paymentSuccess = false;
+        if (
+          status === "accepted" &&
+          paymentAmountInSats &&
+          paymentAmountInSats > 0
+        ) {
+          try {
+            // await sendZap({
+            //   event: calendarEvent,
+            //   comment: paymentComment,
+            //   amountInSats: paymentAmountInSats,
+            // });
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : "Unknown payment error";
+            result.paymentSuccess = false;
+            result.paymentError = errorMessage;
+          }
+        }
+
         // Create the RSVP event
         const tags = [
           ["a", calendarEventCoordinates],
           ["d", uuidv4()],
           ["status", status],
+          ["e", calendarEvent.id],
+          ["p", calendarEvent.pubkey],
         ];
-
-        // Add optional tags if provided
-        if (calendarEventId) {
-          tags.push(["e", calendarEventId]);
-        }
 
         if (freeOrBusy) {
           tags.push(["fb", freeOrBusy]);
         }
 
-        if (calendarEventAuthorPubkey) {
-          tags.push(["p", calendarEventAuthorPubkey, WAVLAKE_RELAY]);
+        // Add payment information to the RSVP if applicable
+        if (paymentAmountInSats && paymentAmountInSats > 0) {
+          tags.push(["payment", paymentAmountInSats.toString()]);
+          tags.push([
+            "payment_status",
+            result.paymentSuccess ? "completed" : "pending",
+          ]);
         }
 
         // Create the unsigned event
@@ -87,14 +112,14 @@ export const useTicketRSVP = () => {
           kind: 31925,
           created_at: Math.floor(Date.now() / 1000),
           tags,
-          content: note,
+          content: comment,
           pubkey,
         };
 
         const signedEvent = await signEvent(unsignedEvent);
 
         if (!signedEvent) {
-          const result = { success: false, error: "Failed to sign event" };
+          result.error = "Failed to sign event";
           setLastResult(result);
           return result;
         }
@@ -102,21 +127,22 @@ export const useTicketRSVP = () => {
         // Publish to relays
         await publishEvent(writeRelayList, signedEvent);
 
-        const result = { success: true, eventId: signedEvent.id };
+        result.success = true;
+        result.eventId = signedEvent.id;
 
         setLastResult(result);
         return result;
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        const result = { success: false, error: errorMessage };
+        result.error = errorMessage;
         setLastResult(result);
         return result;
       } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
       }
     },
-    [writeRelayList, pubkey],
+    [writeRelayList, pubkey, sendZap, isZapLoading, isZapSuccess],
   );
 
   // Helper function to format calendar event coordinates from its components
@@ -132,7 +158,9 @@ export const useTicketRSVP = () => {
   return {
     submitRSVP,
     formatCalendarEventCoordinates,
-    isLoading,
+    isSubmitting,
+    isZapLoading,
+    isZapSuccess,
     lastResult,
   };
 };

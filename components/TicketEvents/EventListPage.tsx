@@ -1,5 +1,4 @@
 import { Text } from "../shared/Text";
-import { ShowEvents } from "@/constants/events";
 import { Event } from "nostr-tools";
 import { RefreshControl, TouchableOpacity } from "react-native";
 import { FlatList } from "react-native-gesture-handler";

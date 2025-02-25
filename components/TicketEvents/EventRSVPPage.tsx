@@ -36,16 +36,16 @@ export const EventRSVPPage = () => {
     eventId as string,
   );
 
-  const { submitRSVP, formatCalendarEventCoordinates, isLoading, lastResult } =
+  const { submitRSVP, isSubmitting, isZapSuccess, lastResult } =
     useTicketRSVP();
 
   useEffect(() => {
-    if (lastResult?.success) {
+    if (lastResult?.success && isZapSuccess) {
       // show success dialog
       setTicketSuccess(true);
       refetchTix();
     }
-  }, [lastResult]);
+  }, [lastResult, isZapSuccess]);
 
   if (!pubkey) {
     return (
@@ -75,7 +75,6 @@ export const EventRSVPPage = () => {
     event.tags.find((tag) => tag[0] === "price") || [];
   const satAmount = convertUSDToSats(Number(fee));
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
-  const [dTag, showDTag] = event.tags.find((tag) => tag[0] === "d") || [];
 
   const onSubmit = async () => {
     if (!satAmount) {
@@ -91,12 +90,12 @@ export const EventRSVPPage = () => {
     }
 
     await submitRSVP({
-      calendarEventCoordinates: formatCalendarEventCoordinates(event),
-      calendarEventId: showDTag,
-      calendarEventAuthorPubkey: event.pubkey,
+      calendarEvent: event,
       status: "accepted",
       freeOrBusy: "busy",
-      note: message,
+      comment: message,
+      paymentAmountInSats: parsedZapAmount,
+      paymentComment: `Ticket payment for event id: ${event.id}`,
     });
   };
 
@@ -190,7 +189,11 @@ export const EventRSVPPage = () => {
                   gap: 12,
                 }}
               >
-                <Button title="Submit" onPress={onSubmit} loading={isLoading}>
+                <Button
+                  title="Submit"
+                  onPress={onSubmit}
+                  loading={isSubmitting}
+                >
                   Submit
                 </Button>
                 <Button title="Cancel" onPress={() => router.back()}>
