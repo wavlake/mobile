@@ -11,7 +11,10 @@ export const ShowEvents: UnsignedEvent[] = [
     content: `21+ Event, $15 USD Tickets, Doors 7PM${WAVLAKE_AD}`,
     tags: [
       ["title", "Seattle, WA (Barboza)"],
-      ["summary", "May 2, 2025 - Seattle, WA (Barboza)"],
+      [
+        "summary",
+        "May 2, 2025 - Seattle, WA (Barboza)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
+      ],
       ["start", "1746237600"],
       ["end", "1746252000"],
       ["start_tzid", "America/Los_Angeles"],
@@ -34,7 +37,10 @@ export const ShowEvents: UnsignedEvent[] = [
     content: `All Ages, $21.25 USD Tickets, Doors 6:30PM${WAVLAKE_AD}`,
     tags: [
       ["title", "Los Angeles, CA (Moroccan Lounge)"],
-      ["summary", "May 4, 2025 - Los Angeles, CA (Moroccan Lounge)"],
+      [
+        "summary",
+        "May 4, 2025 - Los Angeles, CA (Moroccan Lounge)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
+      ],
       ["start", "1746409800"],
       ["end", "1746424200"],
       ["start_tzid", "America/Los_Angeles"],
@@ -57,7 +63,10 @@ export const ShowEvents: UnsignedEvent[] = [
     content: `16+ Event, £17 or $29.81 USD Tickets, Doors 7PM${WAVLAKE_AD}`,
     tags: [
       ["title", "Brooklyn, NY (Elsewhere)"],
-      ["summary", "May 11, 2025 - Brooklyn, NY (Elsewhere)"],
+      [
+        "summary",
+        "May 11, 2025 - Brooklyn, NY (Elsewhere)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
+      ],
       ["start", "1746985200"],
       ["end", "1746999600"],
       ["start_tzid", "America/New_York"],
@@ -80,7 +89,10 @@ export const ShowEvents: UnsignedEvent[] = [
     content: `14+ Event, £17 or $21.40 USD Tickets, Doors 7PM${WAVLAKE_AD}`,
     tags: [
       ["title", "London, England (The Grace)"],
-      ["summary", "October 17, 2025 - London, England (The Grace)"],
+      [
+        "summary",
+        "October 17, 2025 - London, England (The Grace)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
+      ],
       ["start", "1760685600"],
       ["end", "1760700000"],
       ["start_tzid", "Europe/London"],
