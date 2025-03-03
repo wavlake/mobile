@@ -104,7 +104,11 @@ export const ItemRow: React.FC<ItemRowProps> = ({
         }}
       >
         {image ? (
-          <Image source={{ uri: image }} style={{ width: 80, height: 80 }} />
+          // <Image source={{ uri: image }} style={{ width: 80, height: 80 }} />
+          <Image
+            source={require("@/assets/ollie-show.jpg")}
+            style={{ width: 80, height: 80 }}
+          />
         ) : (
           <LogoIcon fill="white" width={37} height={31} />
         )}
