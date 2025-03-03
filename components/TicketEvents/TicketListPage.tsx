@@ -1,15 +1,21 @@
 import { Text } from "../shared/Text";
-import { View, TouchableOpacity, FlatList, RefreshControl } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { useState } from "react";
 import { DialogWrapper } from "../DialogWrapper";
 import { Ticket, useAuth, useTickets } from "@/hooks";
-import { ShowEvents } from "@/constants/events";
 import { brandColors } from "@/constants";
 import { EventHeader, ItemRow } from "./common";
 import { TicketQR } from "./TicketQR";
 import { Button } from "../shared/Button";
 import { Center } from "../shared/Center";
+import { useNostrEvent } from "@/hooks/useNostrEvent";
 
 const Ticketrow = ({
   ticket,
@@ -20,23 +26,26 @@ const Ticketrow = ({
   index: number;
   ticketList: Ticket[];
 }) => {
-  const event = ShowEvents.find((event) => {
-    const [dTag, id] = event.tags.find((tag) => tag[0] === "d") || [];
-
-    return id == ticket.eventId.trim();
-  });
+  const { data: ticketedEvent, isLoading } = useNostrEvent(
+    ticket.ticketedEventId,
+  );
 
   const [showQRDialog, setShowQRDialog] = useState(false);
+  const { height } = useMiniMusicPlayer();
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
 
   // if there is no event, we render some defaults
-  const [titleTag, title] = event?.tags.find((tag) => tag[0] === "title") || [
-    "",
-    `Event not found for id: ${ticket.eventId}`,
-  ];
+  const [titleTag, title] = ticketedEvent?.tags.find(
+    (tag) => tag[0] === "title",
+  ) || ["", `Event not found for id: ${ticket.eventId}`];
 
-  const [startTag, start] = event?.tags.find((tag) => tag[0] === "start") || [];
-  const [imageTag, image] = event?.tags.find((tag) => tag[0] === "image") || [];
-  const { height } = useMiniMusicPlayer();
+  const [startTag, start] =
+    ticketedEvent?.tags.find((tag) => tag[0] === "start") || [];
+  const [imageTag, image] =
+    ticketedEvent?.tags.find((tag) => tag[0] === "image") || [];
   const isLastRow = index === ticketList.length - 1;
   const marginBottom = isLastRow ? height + 16 : 16;
   const onPress = (index: number) => {
@@ -56,7 +65,7 @@ const Ticketrow = ({
   return (
     <>
       <DialogWrapper isOpen={showQRDialog} setIsOpen={setShowQRDialog}>
-        <EventHeader eventId={ticket.eventId} />
+        {ticketedEvent && <EventHeader event={ticketedEvent} />}
         <TicketQR ticket={ticket} />
         <View
           style={{
