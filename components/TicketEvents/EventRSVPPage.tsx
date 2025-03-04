@@ -37,7 +37,7 @@ export const EventRSVPPage = () => {
   const [feeTag, fee, unit] =
     event?.tags.find((tag) => tag[0] === "price") || [];
   const satAmount = convertUSDToSats(Number(fee));
-  const [zapAmount, setZapAmount] = useState(satAmount?.toString() || "");
+  const [zapAmount, setZapAmount] = useState("3"); // satAmount?.toString() || "");
   const { submitRSVP, isSubmitting, isZapSuccess, lastResult } =
     useTicketRSVP();
 
