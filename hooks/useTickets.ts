@@ -55,11 +55,10 @@ export const useTickets = () => {
 
       const ticketEvents = await querySync(ticketFilter, readRelayList);
       const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
-      console.log("ticketEvents", ticketEvents);
+
       if (ticketEvents.length > 0) {
         updateQueryTimestamp(queryClient, queryKey, ticketEvents);
         const newCache = mergeEventsIntoCache(ticketEvents, oldCache);
-        console.log("newCache", newCache);
         cacheEventsById(ticketEvents);
         return newCache;
       }
@@ -83,7 +82,7 @@ export const useTickets = () => {
                 event.pubkey,
                 event.content,
               );
-              console.log(decrypted);
+
               // Parse the ticket data
               const [
                 message,

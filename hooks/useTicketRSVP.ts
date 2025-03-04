@@ -95,7 +95,6 @@ export const useTicketRSVP = () => {
           ["status", status],
           ["e", calendarEvent.id],
           ["p", calendarEvent.pubkey],
-          ["count", ticketCount.toString()],
         ];
 
         if (freeOrBusy) {
