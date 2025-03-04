@@ -6,13 +6,13 @@ import { mergeEventsIntoCache, useNostrEvents } from "@/providers";
 import { useNostrRelayList } from "@/hooks/nostrRelayList";
 import { useNostrQuery } from "./useNostrQuery";
 
-const ticketBotPubkey = process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY;
+const ticketBotPubkey = process.env.EXPO_PUBLIC_TICKETBOT_PUBKEY;
 
 export const useTicketEvents = () => {
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
   const { querySync, cacheEventsById } = useNostrEvents();
-  const queryKey = nostrQueryKeys.ticketedEvents();
+  const queryKey = nostrQueryKeys.ticketedEvents(ticketBotPubkey || "");
 
   return useNostrQuery<Event[]>({
     queryKey,

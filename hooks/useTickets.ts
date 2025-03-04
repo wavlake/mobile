@@ -17,13 +17,16 @@ export interface Ticket {
 }
 
 const DELIMITER = " | ";
-const ticketBotPubkey = process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY;
+const ticketBotPubkey = process.env.EXPO_PUBLIC_TICKETBOT_PUBKEY;
 export const useTickets = () => {
   const { pubkey } = useAuth();
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
   const { querySync, cacheEventsById } = useNostrEvents();
-  const queryKey = nostrQueryKeys.userTickets(pubkey || "");
+  const queryKey = nostrQueryKeys.userTickets(
+    pubkey || "",
+    ticketBotPubkey || "",
+  );
   const [tickets, setTickets] = useState<Ticket[]>([]);
 
   const {
