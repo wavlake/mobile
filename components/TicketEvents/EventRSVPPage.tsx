@@ -76,11 +76,11 @@ export const EventRSVPPage = () => {
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
 
   const onSubmit = async () => {
-    if (!satAmount) {
-      setAmountError("Something went wrong, please try again later");
-      return;
-    }
-    setAmountError("");
+    // if (!satAmount) {
+    //   setAmountError("Something went wrong, please try again later");
+    //   return;
+    // }
+    // setAmountError("");
 
     const parsedZapAmount = Number.isNaN(parseInt(zapAmount, 10))
       ? 0
@@ -90,11 +90,11 @@ export const EventRSVPPage = () => {
       return;
     }
 
-    const total = satAmount * quantity;
-    if (parsedZapAmount < total) {
-      setAmountError(`Must be more than ${total} sats`);
-      return;
-    }
+    // const total = satAmount * quantity;
+    // if (parsedZapAmount < total) {
+    //   setAmountError(`Must be more than ${total} sats`);
+    //   return;
+    // }
 
     await submitRSVP({
       calendarEvent: event,
