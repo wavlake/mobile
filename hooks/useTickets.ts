@@ -35,7 +35,12 @@ export const useTickets = () => {
     refetchOnMount: "always",
     enabled: !!pubkey,
     queryFn: async () => {
-      if (!pubkey || !ticketBotPubkey) {
+      if (!ticketBotPubkey) {
+        console.error("No ticket bot pubkey found");
+        return [];
+      }
+
+      if (!pubkey) {
         return [];
       }
 
