@@ -82,7 +82,14 @@ export const EventRSVPPage = () => {
     }
     setAmountError("");
 
-    const parsedZapAmount = parseInt(zapAmount);
+    const parsedZapAmount = Number.isNaN(parseInt(zapAmount, 10))
+      ? 0
+      : parseInt(zapAmount, 10);
+    if (parsedZapAmount === 0) {
+      setAmountError("Please enter a valid number");
+      return;
+    }
+
     const total = satAmount * quantity;
     if (parsedZapAmount < total) {
       setAmountError(`Must be more than ${total} sats`);
