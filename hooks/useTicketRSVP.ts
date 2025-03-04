@@ -101,15 +101,6 @@ export const useTicketRSVP = () => {
           tags.push(["fb", freeOrBusy]);
         }
 
-        // Add payment information to the RSVP if applicable
-        if (paymentAmountInSats && paymentAmountInSats > 0) {
-          tags.push(["payment", paymentAmountInSats.toString()]);
-          tags.push([
-            "payment_status",
-            result.paymentSuccess ? "completed" : "pending",
-          ]);
-        }
-
         // Create the unsigned event
         const unsignedEvent: UnsignedEvent = {
           kind: 31925,
