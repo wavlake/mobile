@@ -26,16 +26,10 @@ const Ticketrow = ({
   index: number;
   ticketList: Ticket[];
 }) => {
-  const { data: ticketedEvent, isLoading } = useNostrEvent(
-    ticket.ticketedEventId,
-  );
+  const { data: ticketedEvent } = useNostrEvent(ticket.ticketedEventId);
 
   const [showQRDialog, setShowQRDialog] = useState(false);
   const { height } = useMiniMusicPlayer();
-
-  if (isLoading) {
-    return <ActivityIndicator />;
-  }
 
   // if there is no event, we render some defaults
   const [titleTag, title] = ticketedEvent?.tags.find(
@@ -79,7 +73,7 @@ const Ticketrow = ({
               fontSize: 20,
             }}
           >
-            {ticket.id}
+            {ticket.secret}
           </Text>
           <Text
             style={{
