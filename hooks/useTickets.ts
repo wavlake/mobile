@@ -10,12 +10,14 @@ import { useEffect, useState } from "react";
 
 export interface Ticket {
   id: string;
-  eventId: string;
+  secret: string;
+  ticketedEventId: string;
   quantity: number;
+  eventId: string;
 }
 
 const DELIMITER = " | ";
-
+const ticketBotPubkey = process.env.EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY;
 export const useTickets = () => {
   const { pubkey } = useAuth();
   const queryClient = useQueryClient();
@@ -33,25 +35,26 @@ export const useTickets = () => {
     refetchOnMount: "always",
     enabled: !!pubkey,
     queryFn: async () => {
-      if (!pubkey) {
+      if (!pubkey || !ticketBotPubkey) {
         return [];
       }
 
       const since = getQueryTimestamp(queryClient, queryKey);
 
       const ticketFilter: Filter = {
-        kinds: [4], // Assuming 4 is the kind for encrypted DMs
+        kinds: [4],
         "#p": [pubkey],
+        authors: [ticketBotPubkey],
         since,
       };
 
       const ticketEvents = await querySync(ticketFilter, readRelayList);
       const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
-
+      console.log("ticketEvents", ticketEvents);
       if (ticketEvents.length > 0) {
         updateQueryTimestamp(queryClient, queryKey, ticketEvents);
         const newCache = mergeEventsIntoCache(ticketEvents, oldCache);
-
+        console.log("newCache", newCache);
         cacheEventsById(ticketEvents);
         return newCache;
       }
@@ -66,43 +69,47 @@ export const useTickets = () => {
       const loggedInUserSeckey = await getSeckey();
       if (!loggedInUserSeckey) return;
 
-      const newTickets = await Promise.all(
-        ticketEvents.map(async (event) => {
-          try {
-            const decrypted = await nip04.decrypt(
-              loggedInUserSeckey,
-              event.pubkey,
-              event.content,
-            );
+      try {
+        const newTickets = await Promise.all(
+          ticketEvents.map(async (event) => {
+            try {
+              const decrypted = await nip04.decrypt(
+                loggedInUserSeckey,
+                event.pubkey,
+                event.content,
+              );
+              console.log(decrypted);
+              // Parse the ticket data
+              const [
+                message,
+                secret,
+                ticketId = "failed-to-get-ticket-id",
+                quantity = "1",
+                eventId = "1",
+              ] = decrypted.split(DELIMITER);
 
-            // Parse the ticket data
-            const [
-              message,
-              title,
-              timestamp,
-              location,
-              ticketId = "failed-to-get-ticket-id",
-              quantity = "1",
-              eventId = "1",
-            ] = decrypted.split(DELIMITER);
+              return {
+                secret: secret,
+                id: ticketId,
+                ticketedEventId: eventId,
+                quantity: parseInt(quantity),
+                eventId: event.id,
+              };
+            } catch (e) {
+              console.error("Error decrypting ticket", e);
+              return null;
+            }
+          }),
+        );
 
-            return {
-              id: ticketId,
-              eventId: eventId,
-              quantity: parseInt(quantity),
-            };
-          } catch (e) {
-            console.error("Error decrypting ticket", e);
-            return null;
-          }
-        }),
-      );
-
-      // Filter out failed decryptions
-      const validTickets = newTickets.filter(
-        (ticket): ticket is Ticket => ticket !== null,
-      );
-      setTickets(validTickets);
+        // Filter out failed decryptions
+        const validTickets = newTickets.filter(
+          (ticket): ticket is Ticket => ticket !== null,
+        );
+        setTickets(validTickets);
+      } catch (e) {
+        console.error("Error decrypting tickets", e);
+      }
     };
     decryptTickets();
   }, [ticketEvents]);
