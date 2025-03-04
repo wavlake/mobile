@@ -14,6 +14,7 @@ interface RSVPParams {
   freeOrBusy?: FreeOrBusy; // Optional free/busy indicator
   comment?: string; // Optional comment for the content field
   calendarEvent: Event; // The original calendar event for zapping
+  ticketCount?: number; // Number of tickets to RSVP for
   paymentAmountInSats?: number; // Amount to zap if payment is required
   paymentComment?: string; // Comment for the payment zap
 }
@@ -43,6 +44,7 @@ export const useTicketRSVP = () => {
       freeOrBusy,
       comment = "",
       calendarEvent,
+      ticketCount = 1,
       paymentAmountInSats,
       paymentComment = "Ticket payment for event id: " + calendarEvent.id,
     }: RSVPParams): Promise<RSVPResult> => {
@@ -72,11 +74,12 @@ export const useTicketRSVP = () => {
           paymentAmountInSats > 0
         ) {
           try {
-            // await sendZap({
-            //   event: calendarEvent,
-            //   comment: paymentComment,
-            //   amountInSats: paymentAmountInSats,
-            // });
+            await sendZap({
+              event: calendarEvent,
+              comment: paymentComment,
+              amountInSats: paymentAmountInSats,
+              customRequestTags: [["count", ticketCount.toString()]],
+            });
           } catch (error) {
             const errorMessage =
               error instanceof Error ? error.message : "Unknown payment error";
@@ -96,15 +99,6 @@ export const useTicketRSVP = () => {
 
         if (freeOrBusy) {
           tags.push(["fb", freeOrBusy]);
-        }
-
-        // Add payment information to the RSVP if applicable
-        if (paymentAmountInSats && paymentAmountInSats > 0) {
-          tags.push(["payment", paymentAmountInSats.toString()]);
-          tags.push([
-            "payment_status",
-            result.paymentSuccess ? "completed" : "pending",
-          ]);
         }
 
         // Create the unsigned event

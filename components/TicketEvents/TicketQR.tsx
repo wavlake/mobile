@@ -30,7 +30,7 @@ export const TicketQR = ({ ticket }: { ticket: Ticket }) => {
       >
         <LogoIcon width={40} height={40} fill={brandColors.black.DEFAULT} />
       </View>
-      <QRCode value={ticket.id} ecl="H" size={250} quietZone={10} />
+      <QRCode value={ticket.secret} ecl="H" size={250} quietZone={10} />
     </View>
   );
 };

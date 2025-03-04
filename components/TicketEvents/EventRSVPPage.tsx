@@ -24,7 +24,6 @@ export const EventRSVPPage = () => {
   const { convertUSDToSats } = useBitcoinPrice();
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState("");
-  const [zapAmount, setZapAmount] = useState("");
   const [amountError, setAmountError] = useState("");
   const { pubkey } = useAuth();
   const { height } = useMiniMusicPlayer();
@@ -35,7 +34,10 @@ export const EventRSVPPage = () => {
   const { data: event, isLoading: isLoadingTicketEvent } = useNostrEvent(
     eventId as string,
   );
-
+  const [feeTag, fee, unit] =
+    event?.tags.find((tag) => tag[0] === "price") || [];
+  const satAmount = convertUSDToSats(Number(fee));
+  const [zapAmount, setZapAmount] = useState(satAmount?.toString() || "");
   const { submitRSVP, isSubmitting, isZapSuccess, lastResult } =
     useTicketRSVP();
 
@@ -71,9 +73,6 @@ export const EventRSVPPage = () => {
     );
   }
 
-  const [feeTag, fee, unit] =
-    event.tags.find((tag) => tag[0] === "price") || [];
-  const satAmount = convertUSDToSats(Number(fee));
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
 
   const onSubmit = async () => {
@@ -82,7 +81,15 @@ export const EventRSVPPage = () => {
       return;
     }
     setAmountError("");
-    const parsedZapAmount = parseInt(zapAmount);
+
+    const parsedZapAmount = Number.isNaN(parseInt(zapAmount, 10))
+      ? 0
+      : parseInt(zapAmount, 10);
+    if (parsedZapAmount === 0) {
+      setAmountError("Please enter a valid number");
+      return;
+    }
+
     const total = satAmount * quantity;
     if (parsedZapAmount < total) {
       setAmountError(`Must be more than ${total} sats`);
@@ -94,8 +101,9 @@ export const EventRSVPPage = () => {
       status: "accepted",
       freeOrBusy: "busy",
       comment: message,
+      ticketCount: quantity,
       paymentAmountInSats: parsedZapAmount,
-      paymentComment: `Ticket payment for event id: ${event.id}`,
+      paymentComment: message,
     });
   };
 

@@ -21,6 +21,7 @@ type SendZap = (props: {
   event: Event;
   comment?: string;
   amountInSats: number;
+  customRequestTags?: string[][];
 }) => Promise<void>;
 
 export const useZapEvent = (): {
@@ -57,7 +58,12 @@ export const useZapEvent = (): {
       settings?.nwcCommands.includes(payInvoiceCommand),
   );
 
-  const sendZap: SendZap = async ({ event, comment = "", amountInSats }) => {
+  const sendZap: SendZap = async ({
+    event,
+    comment = "",
+    amountInSats,
+    customRequestTags,
+  }) => {
     if (shouldPayWithNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
       toast.show(
         `Amount must be less than your NWC maximum of ${maxNWCPayment} sats`,
@@ -101,6 +107,12 @@ export const useZapEvent = (): {
         relays: [...relays],
         comment,
       });
+
+      // add custom tags if provided
+      if (customRequestTags) {
+        zapRequest.tags = [...zapRequest.tags, ...customRequestTags];
+      }
+
       const signedZapRequest = await signEvent(zapRequest);
       if (!signedZapRequest) {
         toast.show("Failed to sign zap request.");
