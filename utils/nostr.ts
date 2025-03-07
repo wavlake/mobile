@@ -461,7 +461,13 @@ export const fetchInvoice = async ({
   zapRequest: VerifiedEvent;
   amountInSats: number;
   zapEndpoint?: string;
-}): Promise<{ pr: string } | { status: string; reason: string }> => {
+}): Promise<{
+  pr?: string;
+  status?: string;
+  reason?: string;
+  success?: boolean;
+  error?: string;
+}> => {
   const url = `${zapEndpoint}?amount=${
     amountInSats * 1000
   }&nostr=${encodeURIComponent(JSON.stringify(zapRequest))}`;

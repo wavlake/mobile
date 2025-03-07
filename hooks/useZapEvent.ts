@@ -19,7 +19,7 @@ import { useNostrProfile } from "./nostrProfile";
 import { parseInvoice } from "@/utils/bolts";
 
 // Add new types for confirmation handling
-type ConfirmationData = {
+export type ZapConfirmationData = {
   invoice: string;
   amount: number;
   eventId: string;
@@ -27,7 +27,7 @@ type ConfirmationData = {
   ticketCount?: number;
 };
 
-type ConfirmCallback = (data: ConfirmationData) => Promise<boolean>;
+type ConfirmCallback = (data: ZapConfirmationData) => Promise<boolean>;
 
 type SendZap = (props: {
   event: Event;
@@ -36,18 +36,18 @@ type SendZap = (props: {
   customRequestTags?: string[][];
   showConfirmation?: boolean;
   onConfirm?: ConfirmCallback;
-}) => Promise<void>;
+}) => Promise<{ success: boolean; error?: string }>;
 
 export const useZapEvent = (): {
   isLoading: boolean;
   isSuccess: boolean;
   sendZap: SendZap;
-  confirmationData: ConfirmationData | null;
+  zapConfirmationData: ZapConfirmationData | null;
 } => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [confirmationData, setConfirmationData] =
-    useState<ConfirmationData | null>(null);
+  const [zapConfirmationData, setZapConfirmationData] =
+    useState<ZapConfirmationData | null>(null);
 
   const { data: settings } = useSettings();
   const { enableNWC } = settings || {};
@@ -88,14 +88,20 @@ export const useZapEvent = (): {
       toast.show(
         `Amount must be less than your NWC maximum of ${maxNWCPayment} sats`,
       );
-      return;
+      return {
+        success: false,
+        error: "Amount exceeds NWC maximum payment",
+      };
     }
 
     const userProfileEvent = await getProfileMetadata(event.pubkey);
     const userProfile = decodeProfileMetadata(userProfileEvent);
     if (!userProfile?.lud16) {
       toast.show("Unable to find author's LNURL.");
-      return;
+      return {
+        success: false,
+        error: "Unable to find author's LNURL",
+      };
     }
 
     try {
@@ -113,7 +119,10 @@ export const useZapEvent = (): {
             maxSendable / 1000
           } sats`,
         );
-        return;
+        return {
+          success: false,
+          error: "Invalid payment amount",
+        };
       }
 
       setIsLoading(true);
@@ -136,7 +145,10 @@ export const useZapEvent = (): {
       if (!signedZapRequest) {
         toast.show("Failed to sign zap request.");
         setIsLoading(false);
-        return;
+        return {
+          success: false,
+          error: "Failed to sign zap request",
+        };
       }
 
       const response = await fetchInvoice({
@@ -145,10 +157,31 @@ export const useZapEvent = (): {
         zapEndpoint: callback,
       });
 
-      if ("reason" in response) {
+      if ("reason" in response && typeof response.reason === "string") {
         toast.show(response.reason);
         setIsLoading(false);
-        return;
+        return {
+          success: false,
+          error: response.reason,
+        };
+      }
+
+      if ("error" in response && typeof response.error === "string") {
+        toast.show(response.error);
+        setIsLoading(false);
+        return {
+          success: false,
+          error: response.error,
+        };
+      }
+
+      if (!response.pr) {
+        toast.show("No invoice received. Please try again later.");
+        setIsLoading(false);
+        return {
+          success: false,
+          error: "No invoice received",
+        };
       }
 
       const invoice = response.pr;
@@ -160,7 +193,7 @@ export const useZapEvent = (): {
       // Handle confirmation
       if (showConfirmation && onConfirm) {
         // Create confirmation data
-        const confirmData: ConfirmationData = {
+        const confirmData: ZapConfirmationData = {
           invoice,
           amount: amount || amountInSats,
           eventId: event.id,
@@ -170,17 +203,20 @@ export const useZapEvent = (): {
         };
 
         // Set confirmation data to trigger UI display
-        setConfirmationData(confirmData);
+        setZapConfirmationData(confirmData);
 
         // Pause execution here and wait for confirmation callback
         const confirmed = await onConfirm(confirmData);
 
         // Clear confirmation data
-        setConfirmationData(null);
+        setZapConfirmationData(null);
 
         if (!confirmed) {
           setIsLoading(false);
-          return;
+          return {
+            success: false,
+            error: "User declined payment",
+          };
         }
       }
 
@@ -190,6 +226,9 @@ export const useZapEvent = (): {
           if (zapReceipt) {
             setIsLoading(false);
             setIsSuccess(true);
+            return {
+              success: true,
+            };
           }
         });
       } catch {
@@ -213,7 +252,10 @@ export const useZapEvent = (): {
             toast.show(
               `Something went wrong, result_type: ${result_type}. Please try again later.`,
             );
-            return;
+            return {
+              success: false,
+              error: "Something went wrong with the NWC payment",
+            };
           }
           if (error?.message) {
             const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
@@ -221,7 +263,10 @@ export const useZapEvent = (): {
             toast.show(
               `Something went wrong: ${errorMsg}. Please try again later.`,
             );
-            return;
+            return {
+              success: false,
+              error: errorMsg,
+            };
           }
           if (result?.balance) {
             setBalance(result.balance);
@@ -245,13 +290,15 @@ export const useZapEvent = (): {
 
     // all done
     setIsLoading(false);
-    return;
+    return {
+      success: true,
+    };
   };
 
   return {
     isLoading,
     isSuccess,
     sendZap,
-    confirmationData,
+    zapConfirmationData,
   };
 };

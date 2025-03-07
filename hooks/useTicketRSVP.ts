@@ -20,11 +20,9 @@ interface RSVPParams {
 }
 
 interface RSVPResult {
-  success: boolean;
   rsvpEventId?: string;
+  success?: boolean;
   error?: string;
-  paymentSuccess?: boolean;
-  paymentError?: string;
 }
 
 export const useTicketRSVP = () => {
@@ -36,7 +34,7 @@ export const useTicketRSVP = () => {
     sendZap,
     isLoading: isZapLoading,
     isSuccess: isZapSuccess,
-    confirmationData,
+    zapConfirmationData,
   } = useZapEvent();
 
   const [confirmationPromiseResolve, setConfirmationPromiseResolve] = useState<
@@ -89,7 +87,7 @@ export const useTicketRSVP = () => {
       try {
         if (status === "accepted") {
           try {
-            await sendZap({
+            const paymentResult = await sendZap({
               event: calendarEvent,
               comment: paymentComment,
               // the backend will determine the sats amount
@@ -99,11 +97,15 @@ export const useTicketRSVP = () => {
               showConfirmation: true,
               onConfirm: confirmationCallback,
             });
+
+            if (!paymentResult.success) {
+              result.error = paymentResult.error || "Failed to send payment";
+            }
+            result.success = paymentResult.success;
           } catch (error) {
             const errorMessage =
               error instanceof Error ? error.message : "Unknown payment error";
-            result.paymentSuccess = false;
-            result.paymentError = errorMessage;
+            result.error = errorMessage;
           }
         }
 
@@ -141,7 +143,6 @@ export const useTicketRSVP = () => {
           // Publish to relays
           await publishEvent(writeRelayList, signedEvent);
 
-          result.success = true;
           result.rsvpEventId = signedEvent.id;
         }
 
@@ -177,7 +178,7 @@ export const useTicketRSVP = () => {
     isZapLoading,
     isZapSuccess,
     lastResult,
-    confirmationData,
+    zapConfirmationData,
     handleConfirmation,
   };
 };

@@ -11,7 +11,12 @@ import { Button } from "../shared/Button";
 import { EventHeader } from "./common";
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import { useAuth, useTicketRSVP, useTickets } from "@/hooks";
+import {
+  ZapConfirmationData,
+  useAuth,
+  useTicketRSVP,
+  useTickets,
+} from "@/hooks";
 import { DialogWrapper } from "../DialogWrapper";
 import { useMiniMusicPlayer } from "../MiniMusicPlayerProvider";
 import { Center } from "../shared/Center";
@@ -44,19 +49,19 @@ export const EventRSVPPage = () => {
   const {
     submitRSVP,
     isSubmitting,
-    isZapSuccess,
     lastResult,
-    confirmationData,
+    zapConfirmationData,
     handleConfirmation,
   } = useTicketRSVP();
 
   useEffect(() => {
-    if (lastResult?.success && isZapSuccess) {
+    console.log("lastResult", { lastResult });
+    if (lastResult?.success) {
       // show success dialog
       setTicketSuccess(true);
       refetchTix();
     }
-  }, [lastResult, isZapSuccess]);
+  }, [lastResult]);
 
   if (!pubkey) {
     return (
@@ -123,53 +128,10 @@ export const EventRSVPPage = () => {
           </Button>
         </View>
       </DialogWrapper>
-
-      {/* Payment Confirmation Dialog */}
-      <DialogWrapper
-        isOpen={confirmationData !== null}
-        setIsOpen={() => handleConfirmation(false)}
-      >
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 20,
-          }}
-        >
-          <Text bold style={{ fontSize: 18, textAlign: "center" }}>
-            Confirm Payment
-          </Text>
-          <Text>
-            You are about to pay {confirmationData?.amount} sats for{" "}
-            {confirmationData?.ticketCount || 1} ticket
-            {(confirmationData?.ticketCount || 1) > 1 ? "s" : ""} to event.
-          </Text>
-          <Text>Recipient: {confirmationData?.recipient}</Text>
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              justifyContent: "space-between",
-              gap: 10,
-            }}
-          >
-            <Button
-              onPress={() => handleConfirmation(false)}
-              style={{ flex: 1, backgroundColor: colors.border }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onPress={() => handleConfirmation(true)}
-              style={{ flex: 1 }}
-            >
-              Confirm
-            </Button>
-          </View>
-        </View>
-      </DialogWrapper>
-
+      <ConfirmPayment
+        zapConfirmationData={zapConfirmationData}
+        handleConfirmation={handleConfirmation}
+      />
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <KeyboardAvoidingView
           behavior="position"
@@ -252,7 +214,11 @@ export const EventRSVPPage = () => {
                 >
                   Submit
                 </Button>
-                <Button title="Cancel" onPress={() => router.back()}>
+                <Button
+                  title="Cancel"
+                  color="white"
+                  onPress={() => router.back()}
+                >
                   Cancel
                 </Button>
               </View>
@@ -261,5 +227,54 @@ export const EventRSVPPage = () => {
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </>
+  );
+};
+
+export const ConfirmPayment = ({
+  zapConfirmationData,
+  handleConfirmation,
+}: {
+  zapConfirmationData: ZapConfirmationData | null;
+  handleConfirmation: (confirmed: boolean) => void;
+}) => {
+  const { colors } = useTheme();
+
+  return (
+    <DialogWrapper
+      isOpen={zapConfirmationData !== null}
+      setIsOpen={() => handleConfirmation(false)}
+    >
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 20,
+        }}
+      >
+        <Text bold style={{ fontSize: 18, textAlign: "center" }}>
+          Confirm Payment
+        </Text>
+        <Text>
+          You are about to pay {zapConfirmationData?.amount} sats for{" "}
+          {zapConfirmationData?.ticketCount || 1} ticket
+          {(zapConfirmationData?.ticketCount || 1) > 1 ? "s" : ""}.
+        </Text>
+        <View
+          style={{
+            flexDirection: "column",
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+          }}
+        >
+          <Button onPress={() => handleConfirmation(true)}>Confirm</Button>
+          <Button onPress={() => handleConfirmation(false)} color="white">
+            Cancel
+          </Button>
+        </View>
+      </View>
+    </DialogWrapper>
   );
 };
