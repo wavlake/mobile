@@ -16,21 +16,39 @@ import { useUser } from "./useUser";
 import { fetchLNURLPaymentInfo, validateLNURLPayAmount } from "@/utils/luds";
 import { DEFAULT_WRITE_RELAY_URIS } from "@/utils/shared";
 import { useNostrProfile } from "./nostrProfile";
+import { parseInvoice } from "@/utils/bolts";
+
+// Add new types for confirmation handling
+type ConfirmationData = {
+  invoice: string;
+  amount: number;
+  eventId: string;
+  recipient: string;
+  ticketCount?: number;
+};
+
+type ConfirmCallback = (data: ConfirmationData) => Promise<boolean>;
 
 type SendZap = (props: {
   event: Event;
   comment?: string;
   amountInSats: number;
   customRequestTags?: string[][];
+  showConfirmation?: boolean;
+  onConfirm?: ConfirmCallback;
 }) => Promise<void>;
 
 export const useZapEvent = (): {
   isLoading: boolean;
   isSuccess: boolean;
   sendZap: SendZap;
+  confirmationData: ConfirmationData | null;
 } => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [confirmationData, setConfirmationData] =
+    useState<ConfirmationData | null>(null);
+
   const { data: settings } = useSettings();
   const { enableNWC } = settings || {};
   const { data, setBalance, refetch: refetchBalance } = useWalletBalance();
@@ -63,6 +81,8 @@ export const useZapEvent = (): {
     comment = "",
     amountInSats,
     customRequestTags,
+    showConfirmation = false,
+    onConfirm,
   }) => {
     if (shouldPayWithNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
       toast.show(
@@ -96,7 +116,6 @@ export const useZapEvent = (): {
         return;
       }
 
-      // Rest of the existing zap flow using callback as zapEndpoint
       setIsLoading(true);
       // TODO - determine which relays to use for the pubkey being zapped
       const relays = DEFAULT_WRITE_RELAY_URIS;
@@ -129,11 +148,42 @@ export const useZapEvent = (): {
       if ("reason" in response) {
         toast.show(response.reason);
         setIsLoading(false);
-
         return;
       }
 
       const invoice = response.pr;
+      const amount = parseInvoice(invoice);
+      const ticketCount = customRequestTags?.find(
+        (tag) => tag[0] === "count",
+      )?.[1];
+
+      // Handle confirmation
+      if (showConfirmation && onConfirm) {
+        // Create confirmation data
+        const confirmData: ConfirmationData = {
+          invoice,
+          amount: amount || amountInSats,
+          eventId: event.id,
+          recipient:
+            userProfile.name || userProfile.display_name || event.pubkey,
+          ticketCount: ticketCount ? parseInt(ticketCount) : undefined,
+        };
+
+        // Set confirmation data to trigger UI display
+        setConfirmationData(confirmData);
+
+        // Pause execution here and wait for confirmation callback
+        const confirmed = await onConfirm(confirmData);
+
+        // Clear confirmation data
+        setConfirmationData(null);
+
+        if (!confirmed) {
+          setIsLoading(false);
+          return;
+        }
+      }
+
       // start listening for payment ASAP
       try {
         getZapReceipt(invoice).then((zapReceipt) => {
@@ -202,5 +252,6 @@ export const useZapEvent = (): {
     isLoading,
     isSuccess,
     sendZap,
+    confirmationData,
   };
 };
