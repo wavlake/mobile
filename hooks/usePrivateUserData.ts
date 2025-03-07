@@ -7,7 +7,7 @@ export const usePrivateUserData = (enabled: boolean) => {
       const { data } = await catalogApiClient
         .get<ResponseObject<PrivateUserData>>(`/accounts`)
         .catch((error) => {
-          console.log("usePrivateUserData error", error);
+          console.log("error usePrivateUserData", error);
           throw error;
         });
 

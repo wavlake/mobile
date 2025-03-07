@@ -25,7 +25,7 @@ type SendZap = (
     amount: number;
     useNavReplace: boolean;
   }> | void,
-) => Promise<void>;
+) => Promise<{ success: boolean; error?: string }>;
 
 export const useZapContent = ({
   isPodcast,
@@ -63,7 +63,10 @@ export const useZapContent = ({
 
   const sendZap: SendZap = async (props) => {
     if (!trackId || !parentContentId) {
-      return;
+      return {
+        success: false,
+        error: "Invalid track or album ID",
+      };
     }
 
     const {
@@ -76,7 +79,10 @@ export const useZapContent = ({
       toast.show(
         `Your wallet's zap limit is ${maxNWCPayment} sats. Please try a lower amount or adjust your wallet limits.`,
       );
-      return;
+      return {
+        success: false,
+        error: "Amount exceeds zap limit",
+      };
     }
 
     setIsLoading(true);
@@ -95,7 +101,10 @@ export const useZapContent = ({
     if (!signedZapRequestEvent) {
       toast.show("Failed to sign zap request.");
       setIsLoading(false);
-      return;
+      return {
+        success: false,
+        error: "Failed to sign zap request",
+      };
     }
 
     const response = await fetchInvoice({
@@ -103,13 +112,17 @@ export const useZapContent = ({
       zapRequest: signedZapRequestEvent,
     });
 
-    if ("reason" in response) {
-      toast.show(response.reason);
-      setIsLoading(false);
-
-      return;
-    }
     const invoice = response.pr;
+    if (!invoice) {
+      const errorMsg = response.reason || "Failed to fetch invoice";
+      toast.show(errorMsg);
+      setIsLoading(false);
+      return {
+        success: false,
+        error: errorMsg,
+      };
+    }
+
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then((zapReceipt) => {
@@ -170,7 +183,10 @@ export const useZapContent = ({
 
         if (result_type !== "pay_invoice") {
           toast.show("Something went wrong. Please try again later.");
-          return;
+          return {
+            success: false,
+            error: "Something went wrong with the NWC payment",
+          };
         }
         if (error?.message) {
           const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
@@ -186,13 +202,19 @@ export const useZapContent = ({
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
       }
     } catch (e) {
-      console.log("useZapContent error", e);
+      console.log("error useZapContent", e);
       toast.show("Something went wrong. Please try again later.");
+      return {
+        success: false,
+        error: "Something went wrong while paying the invoice",
+      };
     }
 
     // all done
     setIsLoading(false);
-    return;
+    return {
+      success: true,
+    };
   };
 
   return {

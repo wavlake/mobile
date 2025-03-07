@@ -145,23 +145,8 @@ export default function ZapPage() {
           value={comment}
           inputHeight={96}
         />
-        <View style={{ flexDirection: "row", marginTop: -16 }}>
-          <View style={{ flex: 1, marginRight: 8 }}>
-            <Text bold>Publish comments to nostr</Text>
-            <Text>Comments will show up in other clients.</Text>
-          </View>
-          <Switch
-            value={settings?.publishKind1 ?? false}
-            onValueChange={togglePublishKind1}
-            color={brandColors.pink.DEFAULT}
-            trackColor={{
-              false: colors.border,
-              true: brandColors.pink.DEFAULT,
-            }}
-            thumbColor={colors.text}
-          />
-        </View>
-        {!pubkey && (
+
+        {!pubkey ? (
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <View style={{ flex: 1, marginRight: 8 }}>
               <Text>
@@ -185,6 +170,23 @@ export default function ZapPage() {
                 />
               </View>
             </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={{ flexDirection: "row", marginTop: -16 }}>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text bold>Publish comments to nostr</Text>
+              <Text>Comments will show up in other clients.</Text>
+            </View>
+            <Switch
+              value={settings?.publishKind1 ?? false}
+              onValueChange={togglePublishKind1}
+              color={brandColors.pink.DEFAULT}
+              trackColor={{
+                false: colors.border,
+                true: brandColors.pink.DEFAULT,
+              }}
+              thumbColor={colors.text}
+            />
           </View>
         )}
         <Button
