@@ -2,26 +2,38 @@
 // https://github.com/lightning/bolts/blob/master/11-payment-encoding.md
 export function parseInvoice(x: string) {
   const SATS_PER_BTC = 100_000_000;
-  const re = new RegExp(`(lnbc)([1234567890]{1,})(\\w)1\\w+`);
-  const [zero, first, second, third] = x.match(re) || [];
-  const secondInt = Number(second);
+
+  // Updated regex to match the actual BOLT11 format more accurately
+  // This matches "lnbc" followed by digits, followed by a denomination character
+  const re = /lnbc(\d+)([munp])/;
+  const match = x.match(re);
+
+  if (!match) {
+    throw new Error("Invalid invoice format");
+  }
+
+  const [_, amountStr, denomination] = match;
+  const amount = Number(amountStr);
+
+  if (!Number.isInteger(amount)) {
+    throw new Error("Invalid invoice, amount is not an integer");
+  }
+
   try {
-    if (!third || !second || !Number.isInteger(secondInt)) {
-      throw "Invalid invoice, please ensure there is an amount specified";
-    }
-    switch (third) {
+    switch (denomination) {
       case "m":
-        return (secondInt * SATS_PER_BTC) / 1000; // milli (0.001 BTC)
+        return (amount * SATS_PER_BTC) / 1000; // milli (0.001 BTC)
       case "u":
-        return (secondInt * SATS_PER_BTC) / 1_000_000; // micro (0.000001 BTC)
+        return (amount * SATS_PER_BTC) / 1_000_000; // micro (0.000001 BTC)
       case "n":
-        return (secondInt * SATS_PER_BTC) / 1_000_000_000; // nano (0.000000001 BTC)
+        return (amount * SATS_PER_BTC) / 1_000_000_000; // nano (0.000000001 BTC)
       case "p":
-        return (secondInt * SATS_PER_BTC) / 1_000_000_000_000; // pico (0.000000000001 BTC)
+        return (amount * SATS_PER_BTC) / 1_000_000_000_000; // pico (0.000000000001 BTC)
       default:
-        throw "Invalid invoice";
+        throw new Error("Invalid denomination");
     }
   } catch (error) {
-    console.log("invoiceAmount error", error);
+    console.error("Invoice parsing error:", error);
+    throw error; // Re-throw the error to handle it at a higher level
   }
 }
