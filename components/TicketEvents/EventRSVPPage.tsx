@@ -55,7 +55,6 @@ export const EventRSVPPage = () => {
   } = useTicketRSVP();
 
   useEffect(() => {
-    console.log("lastResult", { lastResult });
     if (lastResult?.success) {
       // show success dialog
       setTicketSuccess(true);
@@ -237,8 +236,6 @@ export const ConfirmPayment = ({
   zapConfirmationData: ZapConfirmationData | null;
   handleConfirmation: (confirmed: boolean) => void;
 }) => {
-  const { colors } = useTheme();
-
   return (
     <DialogWrapper
       isOpen={zapConfirmationData !== null}

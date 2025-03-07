@@ -103,13 +103,17 @@ export const useZapContent = ({
       zapRequest: signedZapRequestEvent,
     });
 
-    if ("reason" in response) {
-      toast.show(response.reason);
-      setIsLoading(false);
-
-      return;
-    }
     const invoice = response.pr;
+    if (!invoice) {
+      const errorMsg = response.reason || "Failed to fetch invoice";
+      toast.show(errorMsg);
+      setIsLoading(false);
+      return {
+        success: false,
+        error: errorMsg,
+      };
+    }
+
     // start listening for payment ASAP
     try {
       getZapReceipt(invoice).then((zapReceipt) => {
@@ -186,7 +190,7 @@ export const useZapContent = ({
         openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
       }
     } catch (e) {
-      console.log("useZapContent error", e);
+      console.log("error useZapContent", e);
       toast.show("Something went wrong. Please try again later.");
     }
 

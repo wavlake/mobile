@@ -463,25 +463,52 @@ export const fetchInvoice = async ({
   zapEndpoint?: string;
 }): Promise<{
   pr?: string;
+  routes?: any[];
   status?: string;
   reason?: string;
-  success?: boolean;
-  error?: string;
 }> => {
   const url = `${zapEndpoint}?amount=${
     amountInSats * 1000
   }&nostr=${encodeURIComponent(JSON.stringify(zapRequest))}`;
 
   try {
-    const { data } = await axios(url, {
+    const response = await axios(url, {
       validateStatus: (status) => {
-        return status < 500; // Resolve only if the status code is less than 500, else reject
+        // Accept both 200 (success) and 400/500 (error) statuses
+        // as we need to handle LUD-06 error responses properly
+        return status >= 200 && status < 600;
       },
     });
-    return data;
+
+    const { data } = response;
+
+    // Check if the response is a LUD-06 error format
+    if (data.status === "ERROR") {
+      return {
+        status: "ERROR",
+        reason: data.reason || "Unknown error",
+      };
+    }
+
+    // Check if we have a valid LUD-06 success response (must have pr field)
+    if (data.pr) {
+      return {
+        pr: data.pr,
+        routes: data.routes || [],
+      };
+    }
+
+    // If we got here, the response doesn't match either expected format
+    return {
+      status: "ERROR",
+      reason: "Invalid response format from server",
+    };
   } catch (error) {
     console.error("fetch invoice", error, url);
-    return { status: "error", reason: "Failed to fetch invoice" };
+    return {
+      status: "ERROR",
+      reason: "Failed to fetch invoice",
+    };
   }
 };
 

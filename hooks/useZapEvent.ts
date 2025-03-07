@@ -157,34 +157,17 @@ export const useZapEvent = (): {
         zapEndpoint: callback,
       });
 
-      if ("reason" in response && typeof response.reason === "string") {
-        toast.show(response.reason);
-        setIsLoading(false);
-        return {
-          success: false,
-          error: response.reason,
-        };
-      }
-
-      if ("error" in response && typeof response.error === "string") {
-        toast.show(response.error);
-        setIsLoading(false);
-        return {
-          success: false,
-          error: response.error,
-        };
-      }
-
-      if (!response.pr) {
-        toast.show("No invoice received. Please try again later.");
-        setIsLoading(false);
-        return {
-          success: false,
-          error: "No invoice received",
-        };
-      }
-
       const invoice = response.pr;
+      if (!invoice) {
+        const errorMsg = response.reason || "Failed to fetch invoice";
+        toast.show(errorMsg);
+        setIsLoading(false);
+        return {
+          success: false,
+          error: errorMsg,
+        };
+      }
+
       const amount = parseInvoice(invoice);
       const ticketCount = customRequestTags?.find(
         (tag) => tag[0] === "count",

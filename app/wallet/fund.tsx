@@ -56,21 +56,47 @@ export default function Fund({}: {}) {
   const fetchInvoice = async () => {
     if (!catalogUser?.profileUrl) {
       toast.show("Error fetching invoice: missing profile url");
-      return;
+      return null;
     }
-    const amountMsats = Number(amount) * 1000;
-    const url = buildUri(
-      `https://wavlake.com/api/lnurlp/${catalogUser.profileUrl}`,
-      {
-        amount: amountMsats.toString(),
-      },
-    );
 
-    const response = await fetch(url);
-    const data = await response.json();
-    const invoice = data?.pr as string;
+    try {
+      const amountMsats = Number(amount) * 1000;
+      const url = buildUri(
+        `https://wavlake.com/api/lnurlp/${catalogUser.profileUrl}`,
+        {
+          amount: amountMsats.toString(),
+        },
+      );
 
-    return invoice;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        // Handle HTTP error status
+        const errorData = await response.json();
+        toast.show(`Error: ${errorData?.reason || "Failed to fetch invoice"}`);
+        return null;
+      }
+
+      const data = await response.json();
+
+      // Check for LUD-06 error format
+      if (data.status === "ERROR") {
+        toast.show(`Error: ${data.reason || "Unknown error"}`);
+        return null;
+      }
+
+      // Check for missing PR in successful response
+      if (!data?.pr) {
+        toast.show("Error: Invoice data missing from response");
+        return null;
+      }
+
+      return data.pr;
+    } catch (error) {
+      console.error("Error fetching invoice:", error);
+      toast.show("Error fetching invoice: network or server issue");
+      return null;
+    }
   };
 
   useEffect(() => {
