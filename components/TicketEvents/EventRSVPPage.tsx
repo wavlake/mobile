@@ -37,7 +37,7 @@ export const EventRSVPPage = () => {
   const [feeTag, fee, unit] =
     event?.tags.find((tag) => tag[0] === "price") || [];
   const satAmount = convertUSDToSats(Number(fee));
-  const [zapAmount, setZapAmount] = useState(satAmount?.toString() || "");
+  const [zapAmount, setZapAmount] = useState("3"); // satAmount?.toString() || "");
   const { submitRSVP, isSubmitting, isZapSuccess, lastResult } =
     useTicketRSVP();
 
@@ -76,11 +76,11 @@ export const EventRSVPPage = () => {
   const [titleTag, title] = event.tags.find((tag) => tag[0] === "title") || [];
 
   const onSubmit = async () => {
-    if (!satAmount) {
-      setAmountError("Something went wrong, please try again later");
-      return;
-    }
-    setAmountError("");
+    // if (!satAmount) {
+    //   setAmountError("Something went wrong, please try again later");
+    //   return;
+    // }
+    // setAmountError("");
 
     const parsedZapAmount = Number.isNaN(parseInt(zapAmount, 10))
       ? 0
@@ -90,11 +90,11 @@ export const EventRSVPPage = () => {
       return;
     }
 
-    const total = satAmount * quantity;
-    if (parsedZapAmount < total) {
-      setAmountError(`Must be more than ${total} sats`);
-      return;
-    }
+    // const total = satAmount * quantity;
+    // if (parsedZapAmount < total) {
+    //   setAmountError(`Must be more than ${total} sats`);
+    //   return;
+    // }
 
     await submitRSVP({
       calendarEvent: event,
