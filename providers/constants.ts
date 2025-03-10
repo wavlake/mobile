@@ -65,13 +65,19 @@ export const defaultNostrEventContext: Partial<NostrEventContextType> = {};
 
 // [cache data type (nostr), data format, event type, related id or pubkey]
 export const nostrQueryKeys = {
-  userTickets: (pubkey: string) => [
+  userTickets: (pubkey: string, ticketBotPubkey: string) => [
     "nostr",
     "event-list",
     "userTickets",
     pubkey,
+    ticketBotPubkey,
   ],
-  ticketedEvents: () => ["nostr", "event-list", "ticketedEvents"],
+  ticketedEvents: (ticketBotPubkey: string) => [
+    "nostr",
+    "event-list",
+    "ticketedEvents",
+    ticketBotPubkey,
+  ],
   ticketZapReceipts: (pubkey: string) => [
     "nostr",
     "event-list",
