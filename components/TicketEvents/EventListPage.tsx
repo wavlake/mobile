@@ -55,6 +55,7 @@ const EventRow = ({
         }}
         title={title}
         image={image}
+        eventId={event.id}
       >
         <Text
           bold

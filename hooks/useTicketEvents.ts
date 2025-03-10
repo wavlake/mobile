@@ -12,7 +12,7 @@ export const useTicketEvents = () => {
   const queryClient = useQueryClient();
   const { readRelayList } = useNostrRelayList();
   const { querySync, cacheEventsById } = useNostrEvents();
-  const queryKey = nostrQueryKeys.ticketedEvents();
+  const queryKey = nostrQueryKeys.ticketedEvents(ticketBotPubkey ?? "");
 
   return useNostrQuery<Event[]>({
     queryKey,
@@ -23,28 +23,30 @@ export const useTicketEvents = () => {
         return [];
       }
 
-      const since = getQueryTimestamp(queryClient, queryKey);
+      // skip since for now
+      // const since = getQueryTimestamp(queryClient, queryKey);
 
       const ticketFilter: Filter = {
         kinds: [31923],
         authors: [ticketBotPubkey],
-        since,
+        // since,
       };
 
       const ticketEvents = await querySync(ticketFilter, readRelayList);
-      const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
+      return ticketEvents;
+      // const oldCache = queryClient.getQueryData<Event[]>(queryKey) ?? [];
 
-      if (ticketEvents.length > 0) {
-        updateQueryTimestamp(queryClient, queryKey, ticketEvents);
-        const newCache = mergeEventsIntoCache(ticketEvents, oldCache);
+      // if (ticketEvents.length > 0) {
+      //   updateQueryTimestamp(queryClient, queryKey, ticketEvents);
+      //   const newCache = mergeEventsIntoCache(ticketEvents, oldCache);
 
-        // Cache events individually
-        cacheEventsById(ticketEvents);
+      //   // Cache events individually
+      //   cacheEventsById(ticketEvents);
 
-        return newCache;
-      }
+      //   return newCache;
+      // }
 
-      return oldCache;
+      // return oldCache;
     },
   });
 };
