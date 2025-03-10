@@ -33,7 +33,7 @@ export const EventDetailPage = () => {
   const router = useRouter();
   const { data: event, isLoading } = useNostrEvent(eventId as string);
   const { convertUSDToSats } = useBitcoinPrice();
-  console.log(eventId);
+
   if (isLoading) {
     return (
       <Center>
