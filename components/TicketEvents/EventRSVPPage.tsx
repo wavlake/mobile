@@ -146,8 +146,8 @@ export const EventRSVPPage = () => {
           >
             <EventHeader event={event} />
             <Text style={{ marginBottom: 4, opacity: 0.8 }}>
-              This event requires a min of {satAmount} sats to RSVP ({fee} USD),
-              per ticket.
+              Ticket price is approximately {satAmount} sats (${fee} USD) per
+              ticket.
             </Text>
             <View
               style={{

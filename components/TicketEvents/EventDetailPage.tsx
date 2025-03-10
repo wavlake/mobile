@@ -32,7 +32,8 @@ export const EventDetailPage = () => {
   const { eventId } = useLocalSearchParams();
   const router = useRouter();
   const { data: event, isLoading } = useNostrEvent(eventId as string);
-
+  const { convertUSDToSats } = useBitcoinPrice();
+  console.log(eventId);
   if (isLoading) {
     return (
       <Center>
@@ -52,7 +53,6 @@ export const EventDetailPage = () => {
   const [imageTag, image] = event.tags.find((tag) => tag[0] === "image") || [];
   const [feeTag, fee, unit] =
     event.tags.find((tag) => tag[0] === "price") || [];
-  const { convertUSDToSats } = useBitcoinPrice();
   const satAmount = convertUSDToSats(Number(fee));
   const artistPubkeys =
     event.tags
@@ -151,7 +151,7 @@ export const EventDetailPage = () => {
             })
           }
         >
-          RSVP
+          Purchase
         </SlimButton>
       </View>
     </View>
