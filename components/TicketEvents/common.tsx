@@ -84,7 +84,7 @@ export const EventHeader: React.FC<{ event: Event }> = ({ event }) => {
 interface ItemRowProps extends ViewProps {
   title: string;
   image?: string;
-  eventId: string;
+  eventId?: string;
 }
 
 // Replace with final values
@@ -102,7 +102,7 @@ export const ItemRow: React.FC<ItemRowProps> = ({
   eventId,
   ...rest
 }) => {
-  const isOllieEvent = OLLIE_EVENTS.includes(eventId);
+  const isOllieEvent = eventId ? OLLIE_EVENTS.includes(eventId) : false;
 
   return (
     <View {...rest}>
