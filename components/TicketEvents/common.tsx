@@ -87,14 +87,6 @@ interface ItemRowProps extends ViewProps {
   eventId?: string;
 }
 
-// Replace with final values
-const OLLIE_EVENTS = [
-  "ed06b8f13b11dcd5e8a2a68317cea08cd461ace19e1bb53e90893df4268448ef",
-  "a8704e55638a8a73a0933a8ad2fd08680e434f11948e1b2b9e2b54486eaf380f",
-  "3944fec341330cfec3a74303ab6cbd3a17c5b998fc626c66d99c607497db7661",
-  "975bbfe6a87c35b08c2dab1898362209bb04524d3aab89e16476cc8ec9155af0",
-];
-
 export const ItemRow: React.FC<ItemRowProps> = ({
   title,
   image,
@@ -102,7 +94,7 @@ export const ItemRow: React.FC<ItemRowProps> = ({
   eventId,
   ...rest
 }) => {
-  const isOllieEvent = eventId ? OLLIE_EVENTS.includes(eventId) : false;
+  const isOllieEvent = true;
 
   return (
     <View {...rest}>
