@@ -173,18 +173,17 @@ export const useZapEvent = (): {
         (tag) => tag[0] === "count",
       )?.[1];
 
+      // Create confirmation data
+      const confirmData: ZapConfirmationData = {
+        invoice,
+        amount: amount || amountInSats,
+        eventId: event.id,
+        recipient: userProfile.name || userProfile.display_name || event.pubkey,
+        ticketCount: ticketCount ? parseInt(ticketCount) : undefined,
+      };
+
       // Handle confirmation
       if (showConfirmation && onConfirm) {
-        // Create confirmation data
-        const confirmData: ZapConfirmationData = {
-          invoice,
-          amount: amount || amountInSats,
-          eventId: event.id,
-          recipient:
-            userProfile.name || userProfile.display_name || event.pubkey,
-          ticketCount: ticketCount ? parseInt(ticketCount) : undefined,
-        };
-
         // Set confirmation data to trigger UI display
         setZapConfirmationData(confirmData);
 
@@ -219,7 +218,9 @@ export const useZapEvent = (): {
       }
 
       const amountMoreThanNWCBudget =
-        maxNWCPaymentSettings && amountMsats > maxNWCPaymentSettings;
+        maxNWCPaymentSettings &&
+        confirmData.amount * 1000 > maxNWCPaymentSettings;
+
       amountMoreThanNWCBudget &&
         toast.show(
           `Amount exceeds your NWC budget, opening in external wallet`,
@@ -264,7 +265,10 @@ export const useZapEvent = (): {
           }
         } else {
           // fallback to opening the invoice in the default wallet
-          openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
+          await openInvoiceInWallet(
+            settings?.defaultZapWallet ?? "default",
+            invoice,
+          );
         }
       } catch (e) {
         console.error("useZapEvent error", e);
@@ -280,7 +284,7 @@ export const useZapEvent = (): {
     // all done
     setIsLoading(false);
     return {
-      success: true,
+      success: false,
     };
   };
 
