@@ -84,6 +84,12 @@ export const useZapEvent = (): {
     showConfirmation = false,
     onConfirm,
   }) => {
+    let zapResult: {
+      success: boolean;
+      error?: string;
+    } = {
+      success: false,
+    };
     // if (shouldPayWithNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
     //   toast.show(
     //     `Amount must be less than your NWC maximum of ${maxNWCPayment} sats`,
@@ -119,10 +125,8 @@ export const useZapEvent = (): {
             maxSendable / 1000
           } sats`,
         );
-        return {
-          success: false,
-          error: "Invalid payment amount",
-        };
+        zapResult.error = "Invalid payment amount";
+        return zapResult;
       }
 
       setIsLoading(true);
@@ -145,10 +149,8 @@ export const useZapEvent = (): {
       if (!signedZapRequest) {
         toast.show("Failed to sign zap request.");
         setIsLoading(false);
-        return {
-          success: false,
-          error: "Failed to sign zap request",
-        };
+        zapResult.error = "Failed to sign zap request";
+        return zapResult;
       }
 
       const response = await fetchInvoice({
@@ -162,10 +164,8 @@ export const useZapEvent = (): {
         const errorMsg = response.reason || "Failed to fetch invoice";
         toast.show(errorMsg);
         setIsLoading(false);
-        return {
-          success: false,
-          error: errorMsg,
-        };
+        zapResult.error = errorMsg;
+        return zapResult;
       }
 
       const amount = parseInvoice(invoice);
@@ -195,10 +195,8 @@ export const useZapEvent = (): {
 
         if (!confirmed) {
           setIsLoading(false);
-          return {
-            success: false,
-            error: "User declined payment",
-          };
+          zapResult.error = "User declined payment";
+          return zapResult;
         }
       }
 
@@ -208,9 +206,8 @@ export const useZapEvent = (): {
           if (zapReceipt) {
             setIsLoading(false);
             setIsSuccess(true);
-            return {
-              success: true,
-            };
+            zapResult.success = true;
+            return zapResult;
           }
         });
       } catch {
@@ -242,10 +239,8 @@ export const useZapEvent = (): {
             toast.show(
               `Something went wrong, result_type: ${result_type}. Please try again later.`,
             );
-            return {
-              success: false,
-              error: "Something went wrong with the NWC payment",
-            };
+            zapResult.error = "Something went wrong with the NWC payment";
+            return zapResult;
           }
           if (error?.message) {
             const errorMsg = `${error.code ?? "Error"}: ${error.message}`;
@@ -253,11 +248,13 @@ export const useZapEvent = (): {
             toast.show(
               `Something went wrong: ${errorMsg}. Please try again later.`,
             );
-            return {
-              success: false,
-              error: errorMsg,
-            };
+            zapResult.error = errorMsg;
+            return zapResult;
           }
+
+          // payment successful
+          zapResult.success = true;
+
           if (result?.balance) {
             setBalance(result.balance);
           } else {
@@ -283,9 +280,7 @@ export const useZapEvent = (): {
 
     // all done
     setIsLoading(false);
-    return {
-      success: false,
-    };
+    return zapResult;
   };
 
   return {
