@@ -244,9 +244,10 @@ export const ConfirmPayment = ({
     maxNWCPayment: 0,
     enableNWC: false,
   };
-
+  const invoiceAmountMsat = invoiceAmount * 1000;
   const showOpenWalletButton =
-    maxNWCPayment && enableNWC && invoiceAmount > maxNWCPayment;
+    maxNWCPayment && enableNWC && invoiceAmountMsat > maxNWCPayment;
+
   return (
     <DialogWrapper
       isOpen={zapConfirmationData !== null}
