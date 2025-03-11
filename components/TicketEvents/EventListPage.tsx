@@ -76,9 +76,16 @@ const EventRow = ({
 export const EventListPage = () => {
   const { data: eventList = [], refetch, isLoading } = useTicketEvents();
 
+  const futureEvents = eventList.filter((event) => {
+    const [startTag, startTimestamp] =
+      event.tags.find((tag) => tag[0] === "start") || [];
+    const timestamp = new Date(parseInt(startTimestamp) * 1000);
+    return timestamp > new Date();
+  });
+
   return (
     <FlatList
-      data={eventList}
+      data={futureEvents}
       renderItem={({ item, index }) => {
         return (
           <EventRow

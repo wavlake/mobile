@@ -114,7 +114,7 @@ export const EventRSVPPage = () => {
           }}
         >
           <Text>
-            Payment successful! You've RSVP'd for {quantity} ticket
+            Payment successful! You've purchased {quantity} ticket
             {quantity > 1 ? "s" : ""} to {title}.
           </Text>
           <Text>You can view your ticket details on the ticket tab.</Text>
@@ -270,10 +270,16 @@ export const ConfirmPayment = ({
           {(zapConfirmationData?.ticketCount || 1) > 1 ? "s" : ""}.
         </Text>
         {showOpenWalletButton && (
-          <Text>
-            This payment is above your configured budget. Please increase your
-            wallet limits in settings, or use an external wallet.
-          </Text>
+          <>
+            <Text>
+              This payment is above your configured budget. Please increase your
+              wallet limits in settings, or use an external wallet.
+            </Text>
+            <Text>
+              Please check the ticket tab after payment, you may need to swipe
+              down to refresh your tickets.
+            </Text>
+          </>
         )}
         <View
           style={{

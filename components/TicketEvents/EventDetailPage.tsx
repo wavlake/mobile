@@ -17,6 +17,7 @@ import { SlimButton } from "../shared/SlimButton";
 import { useBitcoinPrice } from "../BitcoinPriceProvider";
 import { satsFormatter } from "../WalletLabel";
 import { useNostrEvent } from "@/hooks/useNostrEvent";
+import { ParsedTextWrapper } from "../Comments/ParsedTextRenderer";
 
 interface ArtistMetadata {
   image: string;
@@ -93,14 +94,7 @@ export const EventDetailPage = () => {
         <EventHeader event={event} />
         {description && (
           <EventSection title="Event Info">
-            <Text
-              style={{
-                fontSize: 16,
-                color: "gray",
-              }}
-            >
-              {description}
-            </Text>
+            <ParsedTextWrapper content={description} />
           </EventSection>
         )}
       </ScrollView>
