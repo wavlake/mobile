@@ -79,6 +79,7 @@ export const EventListPage = () => {
   const futureEvents = eventList.filter((event) => {
     const [startTag, startTimestamp] =
       event.tags.find((tag) => tag[0] === "start") || [];
+    if (!startTimestamp) return false;
     const timestamp = new Date(parseInt(startTimestamp) * 1000);
     return timestamp > new Date();
   });
