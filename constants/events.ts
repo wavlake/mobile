@@ -2,9 +2,8 @@ import { Event, UnsignedEvent } from "nostr-tools";
 
 const CD_AD =
   "\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.";
-export const WAVLAKE_AD = [
-  "\n\nVisit the Wavlake app to purchase tickets. Limited availability.",
-];
+export const WAVLAKE_AD =
+  "\n\nVisit the Wavlake app to purchase tickets. Limited availability.";
 export const ShowEvents: UnsignedEvent[] = [
   {
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
