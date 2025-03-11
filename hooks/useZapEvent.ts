@@ -50,7 +50,7 @@ export const useZapEvent = (): {
     useState<ZapConfirmationData | null>(null);
 
   const { data: settings } = useSettings();
-  const { enableNWC } = settings || {};
+  const { enableNWC, maxNWCPayment: maxNWCPaymentSettings } = settings || {};
   const { data, setBalance, refetch: refetchBalance } = useWalletBalance();
   const { max_payment: maxNWCPayment } = data || {};
   const { pubkey, userIsLoggedIn } = useAuth();
@@ -84,15 +84,15 @@ export const useZapEvent = (): {
     showConfirmation = false,
     onConfirm,
   }) => {
-    if (shouldPayWithNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
-      toast.show(
-        `Amount must be less than your NWC maximum of ${maxNWCPayment} sats`,
-      );
-      return {
-        success: false,
-        error: "Amount exceeds NWC maximum payment",
-      };
-    }
+    // if (shouldPayWithNWC && maxNWCPayment && amountInSats > maxNWCPayment) {
+    //   toast.show(
+    //     `Amount must be less than your NWC maximum of ${maxNWCPayment} sats`,
+    //   );
+    //   return {
+    //     success: false,
+    //     error: "Amount exceeds NWC maximum payment",
+    //   };
+    // }
 
     const userProfileEvent = await getProfileMetadata(event.pubkey);
     const userProfile = decodeProfileMetadata(userProfileEvent);
@@ -173,18 +173,17 @@ export const useZapEvent = (): {
         (tag) => tag[0] === "count",
       )?.[1];
 
+      // Create confirmation data
+      const confirmData: ZapConfirmationData = {
+        invoice,
+        amount: amount || amountInSats,
+        eventId: event.id,
+        recipient: userProfile.name || userProfile.display_name || event.pubkey,
+        ticketCount: ticketCount ? parseInt(ticketCount) : undefined,
+      };
+
       // Handle confirmation
       if (showConfirmation && onConfirm) {
-        // Create confirmation data
-        const confirmData: ZapConfirmationData = {
-          invoice,
-          amount: amount || amountInSats,
-          eventId: event.id,
-          recipient:
-            userProfile.name || userProfile.display_name || event.pubkey,
-          ticketCount: ticketCount ? parseInt(ticketCount) : undefined,
-        };
-
         // Set confirmation data to trigger UI display
         setZapConfirmationData(confirmData);
 
@@ -218,9 +217,17 @@ export const useZapEvent = (): {
         // Fail silently if unable to connect to relay to get zap receipt.
       }
 
+      const amountMoreThanNWCBudget =
+        maxNWCPaymentSettings &&
+        confirmData.amount * 1000 > maxNWCPaymentSettings;
+
+      amountMoreThanNWCBudget &&
+        toast.show(
+          `Amount exceeds your NWC budget, opening in external wallet`,
+        );
       // pay the invoice
       try {
-        if (shouldPayWithNWC && settings) {
+        if (shouldPayWithNWC && settings && !amountMoreThanNWCBudget) {
           // use NWC, responds with preimage if successful
           const response = await payWithNWC({
             userIdOrPubkey,
@@ -258,7 +265,10 @@ export const useZapEvent = (): {
           }
         } else {
           // fallback to opening the invoice in the default wallet
-          openInvoiceInWallet(settings?.defaultZapWallet ?? "default", invoice);
+          await openInvoiceInWallet(
+            settings?.defaultZapWallet ?? "default",
+            invoice,
+          );
         }
       } catch (e) {
         console.error("useZapEvent error", e);
@@ -274,7 +284,7 @@ export const useZapEvent = (): {
     // all done
     setIsLoading(false);
     return {
-      success: true,
+      success: false,
     };
   };
 

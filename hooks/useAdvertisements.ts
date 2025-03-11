@@ -17,7 +17,9 @@ export const useAdvertisements = () => {
   const { catalogUser, initializingAuth } = useUser();
   const { data: promos = [] } = usePromos();
 
+  // TODO: temporarily disabling earn feature
   const userIsEligibleToEarn =
+    false &&
     catalogUser?.isRegionVerified &&
     !catalogUser?.isLocked &&
     catalogUser?.emailVerified &&

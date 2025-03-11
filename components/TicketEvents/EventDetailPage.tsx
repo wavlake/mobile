@@ -59,11 +59,8 @@ export const EventDetailPage = () => {
       .filter((tag) => tag[0] === "p")
       .map(([pTag, pubkey]) => pubkey) || [];
 
-  // strip out any Wavlake app advertisements
-  const description = WAVLAKE_AD.reduce(
-    (newDesc, adText) => newDesc.replace(adText, ""),
-    event.content,
-  );
+  // strip out any Wavlake app ads
+  const description = event.content.replace(WAVLAKE_AD, "");
 
   return (
     <View

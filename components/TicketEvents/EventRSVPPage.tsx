@@ -14,6 +14,7 @@ import { Picker } from "@react-native-picker/picker";
 import {
   ZapConfirmationData,
   useAuth,
+  useSettingsManager,
   useTicketRSVP,
   useTickets,
 } from "@/hooks";
@@ -236,6 +237,17 @@ export const ConfirmPayment = ({
   zapConfirmationData: ZapConfirmationData | null;
   handleConfirmation: (confirmed: boolean) => void;
 }) => {
+  const { settings } = useSettingsManager();
+
+  const invoiceAmount = zapConfirmationData?.amount ?? 0;
+  const { maxNWCPayment, enableNWC } = settings || {
+    maxNWCPayment: 0,
+    enableNWC: false,
+  };
+  const invoiceAmountMsat = invoiceAmount * 1000;
+  const showOpenWalletButton =
+    maxNWCPayment && enableNWC && invoiceAmountMsat > maxNWCPayment;
+
   return (
     <DialogWrapper
       isOpen={zapConfirmationData !== null}
@@ -257,6 +269,12 @@ export const ConfirmPayment = ({
           {zapConfirmationData?.ticketCount || 1} ticket
           {(zapConfirmationData?.ticketCount || 1) > 1 ? "s" : ""}.
         </Text>
+        {showOpenWalletButton && (
+          <Text>
+            This payment is above your configured budget. Please increase your
+            wallet limits in settings, or use an external wallet.
+          </Text>
+        )}
         <View
           style={{
             flexDirection: "column",
@@ -266,7 +284,13 @@ export const ConfirmPayment = ({
             gap: 10,
           }}
         >
-          <Button onPress={() => handleConfirmation(true)}>Confirm</Button>
+          {showOpenWalletButton ? (
+            <Button onPress={() => handleConfirmation(true)}>
+              Open in Wallet
+            </Button>
+          ) : (
+            <Button onPress={() => handleConfirmation(true)}>Confirm</Button>
+          )}
           <Button onPress={() => handleConfirmation(false)} color="white">
             Cancel
           </Button>

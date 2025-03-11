@@ -28,7 +28,7 @@ export const DEFAULT_CONNECTION_SETTINGS: Omit<
   "connectionName"
 > = {
   msatBudget: 210000000,
-  maxMsatPaymentAmount: 21000000,
+  maxMsatPaymentAmount: 75000000,
   requestMethods: ["get_balance", "pay_invoice"],
 };
 

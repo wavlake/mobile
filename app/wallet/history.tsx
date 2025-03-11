@@ -8,7 +8,7 @@ const GREEN = "#49DE80";
 const UI_TYPE_OVERRIDE: Record<string, string> = {
   "Top Up": "Listen to Earn",
 };
-const INCOMING_TYPES = ["Zap", "Deposit", "Earnings", "Top Up"];
+const INCOMING_TYPES = ["Zap", "Deposit", "Earnings", "Top Up", "Ticket Sale"];
 type DateTxMap<T> = {
   [date: string]: T[];
 };

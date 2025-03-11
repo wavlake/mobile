@@ -1,20 +1,18 @@
 import { Event, UnsignedEvent } from "nostr-tools";
 
-export const WAVLAKE_AD = [
-  " | Visit the Wavlake app to purchase tickets. Limited availability.",
-];
+const CD_AD =
+  "\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.";
+export const WAVLAKE_AD =
+  "\n\nVisit the Wavlake app to purchase tickets. Limited availability.";
 export const ShowEvents: UnsignedEvent[] = [
   {
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `21+ Event, $15 USD Tickets, Doors 7PM${WAVLAKE_AD}`,
+    content: `21+ Event, $15 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "Seattle, WA (Barboza)"],
-      [
-        "summary",
-        "May 2, 2025 - Seattle, WA (Barboza)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
-      ],
+      ["summary", "May 2, 2025 - Seattle, WA (Barboza)"],
       ["start", "1746237600"],
       ["end", "1746252000"],
       ["start_tzid", "America/Los_Angeles"],
@@ -34,13 +32,10 @@ export const ShowEvents: UnsignedEvent[] = [
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `All Ages, $21.25 USD Tickets, Doors 6:30PM${WAVLAKE_AD}`,
+    content: `All Ages, $21.25 USD Tickets, Doors 6:30PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "Los Angeles, CA (Moroccan Lounge)"],
-      [
-        "summary",
-        "May 4, 2025 - Los Angeles, CA (Moroccan Lounge)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
-      ],
+      ["summary", "May 4, 2025 - Los Angeles, CA (Moroccan Lounge)"],
       ["start", "1746409800"],
       ["end", "1746424200"],
       ["start_tzid", "America/Los_Angeles"],
@@ -60,13 +55,10 @@ export const ShowEvents: UnsignedEvent[] = [
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `16+ Event, £17 or $29.81 USD Tickets, Doors 7PM${WAVLAKE_AD}`,
+    content: `16+ Event, £17 or $29.81 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "Brooklyn, NY (Elsewhere)"],
-      [
-        "summary",
-        "May 11, 2025 - Brooklyn, NY (Elsewhere)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
-      ],
+      ["summary", "May 11, 2025 - Brooklyn, NY (Elsewhere)"],
       ["start", "1746985200"],
       ["end", "1746999600"],
       ["start_tzid", "America/New_York"],
@@ -86,13 +78,10 @@ export const ShowEvents: UnsignedEvent[] = [
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `14+ Event, £17 or $21.40 USD Tickets, Doors 7PM${WAVLAKE_AD}`,
+    content: `14+ Event, £17 or $21.40 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "London, England (The Grace)"],
-      [
-        "summary",
-        "October 17, 2025 - London, England (The Grace)\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.",
-      ],
+      ["summary", "October 17, 2025 - London, England (The Grace)"],
       ["start", "1760685600"],
       ["end", "1760700000"],
       ["start_tzid", "Europe/London"],
