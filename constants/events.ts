@@ -1,7 +1,7 @@
 import { Event, UnsignedEvent } from "nostr-tools";
 
 const CD_AD =
-  "\n\nEach Wavlake ticket includes a free signed CD, available for pickup at the merch table on the night of the show.";
+  "\n\nEach Wavlake ticket includes a signed CD, available for pickup at the merch table on the night of the show.";
 export const WAVLAKE_AD =
   "\n\nVisit the Wavlake app to purchase tickets. Limited availability.";
 export const ShowEvents: UnsignedEvent[] = [
@@ -9,7 +9,7 @@ export const ShowEvents: UnsignedEvent[] = [
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `21+ Event, $15 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
+    content: `21+ Event, $20 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "Seattle, WA (Barboza)"],
       ["summary", "May 2, 2025 - Seattle, WA (Barboza)"],
@@ -20,19 +20,20 @@ export const ShowEvents: UnsignedEvent[] = [
       ["location_link", "https://maps.app.goo.gl/VTcgPXjgGUi6fqvJA"],
       ["location", "925 E Pike St, Seattle, WA 98122"],
       ["t", "concert"],
-      ["price", "15", "USD"],
+      ["price", "20", "USD"],
       ["g", "c23nbecd"],
       [
         "image",
         "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
+      ["d", "827a3dc3-7906-4949-b1c2-18cbb47976b3"],
     ],
   },
   {
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `All Ages, $21.25 USD Tickets, Doors 6:30PM${CD_AD}${WAVLAKE_AD}`,
+    content: `All Ages, $26.25 USD Tickets, Doors 6:30PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "Los Angeles, CA (Moroccan Lounge)"],
       ["summary", "May 4, 2025 - Los Angeles, CA (Moroccan Lounge)"],
@@ -43,19 +44,20 @@ export const ShowEvents: UnsignedEvent[] = [
       ["location_link", "https://maps.app.goo.gl/hjXBboMXFfGmfGfJA"],
       ["location", "901 E 1st St, Los Angeles, CA 90012"],
       ["t", "concert"],
-      ["price", "21.25", "USD"],
+      ["price", "26.25", "USD"],
       ["g", "9q5ctw2g"],
       [
         "image",
         "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
+      ["d", "59d9d56e-fa2d-449f-a2db-c39495d9eafd"],
     ],
   },
   {
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `16+ Event, £17 or $29.81 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
+    content: `16+ Event, $34.81 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "Brooklyn, NY (Elsewhere)"],
       ["summary", "May 11, 2025 - Brooklyn, NY (Elsewhere)"],
@@ -66,19 +68,20 @@ export const ShowEvents: UnsignedEvent[] = [
       ["location_link", "https://maps.app.goo.gl/EtWShkrX4VQdeQgR7"],
       ["location", "599 Johnson Ave, Brooklyn, NY 11237"],
       ["t", "concert"],
-      ["price", "29.81", "USD"],
+      ["price", "34.81", "USD"],
       ["g", "dr5rtffv"],
       [
         "image",
         "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
+      ["d", "c6d88af5-1e6f-41b2-9a21-b0c21fc79e83"],
     ],
   },
   {
     pubkey: "7759fb14ce9324de4c450d42dbbbd011d3540b49ce91a76912a27738f9a97be4",
     created_at: 1713818000,
     kind: 31923,
-    content: `14+ Event, £17 or $21.40 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
+    content: `14+ Event, £22 or $28.50 USD Tickets, Doors 7PM${CD_AD}${WAVLAKE_AD}`,
     tags: [
       ["title", "London, England (The Grace)"],
       ["summary", "October 17, 2025 - London, England (The Grace)"],
@@ -89,12 +92,13 @@ export const ShowEvents: UnsignedEvent[] = [
       ["location_link", "https://maps.app.goo.gl/FJLP6tHR6xuDMmmf8"],
       ["location", "20-22 Highbury Corner, London N5 1RD, UK"],
       ["t", "concert"],
-      ["price", "21.4", "USD"],
+      ["price", "28.5", "USD"],
       ["g", "gcpvjxu1"],
       [
         "image",
         "https://firebasestorage.googleapis.com/v0/b/wavlake-alpha.appspot.com/o/ticket-events%2Follie-tickets.png?alt=media&token=4b3683b8-2755-4453-918b-a4c7f4232b3f",
       ],
+      ["d", "6825eaa7-31ee-4af4-93e9-308e3528cd25"],
     ],
   },
 ];
