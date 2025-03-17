@@ -47,6 +47,7 @@ import {
   DEFAULT_WRITE_RELAY_URIS,
   PURPLE_PAGES_RELAY,
   wavlakeFeedPubkey,
+  WAVLAKE_RELAY,
 } from "./shared";
 import { pool } from "./relay-pool";
 import { NostrUserProfile } from "./types";
@@ -55,7 +56,6 @@ import { parseInvoice } from "./bolts";
 
 export { getPublicKey, generateSecretKey } from "nostr-tools";
 
-const wavlakeRelayUri = "wss://relay.wavlake.com/";
 const wavlakeTrackKind = 32123;
 const ticketEventKind = 31923;
 const ticketBotPublicKey =
@@ -410,13 +410,13 @@ export const makeZapRequest = async ({
   const zapRequestEvent = await nip57.makeZapRequest({
     profile: wavlakeFeedPubkey,
     amount: amountInSats * 1000,
-    relays: [wavlakeRelayUri, ...relays],
+    relays: [WAVLAKE_RELAY, ...relays],
     comment,
     event: null,
   });
   zapRequestEvent.tags = [
     ...zapRequestEvent.tags,
-    ["a", nostrEventAddressPointer, wavlakeRelayUri],
+    ["a", nostrEventAddressPointer, WAVLAKE_RELAY],
     ["timestamp", timestamp?.toString() ?? ""],
     ...iTags,
   ];
@@ -441,13 +441,13 @@ export const makeTicketZapRequest = async ({
   const zapRequestEvent = await nip57.makeZapRequest({
     profile: ticketBotPublicKey,
     amount: amountInSats * 1000,
-    relays: [wavlakeRelayUri, ...relays],
+    relays: [WAVLAKE_RELAY, ...relays],
     comment,
     event: null,
   });
   zapRequestEvent.tags = [
     ...zapRequestEvent.tags,
-    ["a", nostrEventAddressPointer, wavlakeRelayUri],
+    ["a", nostrEventAddressPointer, WAVLAKE_RELAY],
     ...customTags,
   ];
   return zapRequestEvent;
@@ -530,7 +530,7 @@ export const parseZapRequestFromReceipt = (event: Event) => {
 
 export const getZapReceipt = async (
   invoice: string,
-  relay = "wss://relay.wavlake.com",
+  relay = WAVLAKE_RELAY,
 ): Promise<Event | null> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -615,7 +615,7 @@ export const subscribeToTicket = async (pubkey: string) => {
     authors: ShowEvents.map((event) => event.pubkey),
   };
 
-  return getEventFromRelay("wss://relay.wavlake.com", filter).catch((e) => {
+  return getEventFromRelay(WAVLAKE_RELAY, filter).catch((e) => {
     return null;
   });
 };

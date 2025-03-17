@@ -10,7 +10,7 @@ import { useUser } from "./useUser";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
 import { useSettingsManager } from "./useSettingsManager";
-import { walletServicePubkey } from "@/utils/shared";
+import { walletServicePubkey, WAVLAKE_RELAY } from "@/utils/shared";
 import {
   useCreateConnection,
   WalletConnectionMethods,
@@ -31,8 +31,6 @@ export const DEFAULT_CONNECTION_SETTINGS: Omit<
   maxMsatPaymentAmount: 75000000,
   requestMethods: ["get_balance", "pay_invoice"],
 };
-
-export const WAVLAKE_RELAY = "wss://relay.wavlake.com";
 
 // this hook auto connects the wavlake wallet to the app using NWC
 export const useAutoConnectNWC = () => {

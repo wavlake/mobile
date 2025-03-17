@@ -1,6 +1,8 @@
-export const WAVLAKE_RELAY = "wss://relay.wavlake.com";
+export const WAVLAKE_RELAY = "wss://nostr.wavlake.com";
+const DEPRECATED_WAVLAKE_RELAY = "wss://relay.wavlake.com";
 export const DEFAULT_READ_RELAY_URIS = [
   WAVLAKE_RELAY,
+  DEPRECATED_WAVLAKE_RELAY,
   "wss://purplepag.es",
   "wss://relay.nostr.band",
   "wss://relay.damus.io",
@@ -15,6 +17,7 @@ export const DEFAULT_WRITE_RELAY_URIS = [
   "wss://relay.nostr.band",
   "wss://relay.damus.io",
   WAVLAKE_RELAY,
+  DEPRECATED_WAVLAKE_RELAY,
 ];
 
 // this npub published zap receipts and label events
