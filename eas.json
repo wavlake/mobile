@@ -7,7 +7,10 @@
         "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58",
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
       },
-      "channel": "production"
+      "channel": "production",
+      "ios": {
+        "image": "latest"
+      }
     },
     "external": {
       "env": {
