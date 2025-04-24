@@ -86,6 +86,8 @@ class Logger {
             kind: event.kind,
             id: event.id,
             pubkey: event.pubkey,
+            created_at: event.created_at,
+            tags: event.tags,
           }
         : undefined,
     });
