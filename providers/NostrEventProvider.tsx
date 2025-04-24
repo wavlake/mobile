@@ -10,7 +10,7 @@ const NostrEventContext = createContext<NostrEventContextType | null>(null);
 
 export function NostrEventProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const { readRelayList } = useNostrRelayList();
+  const { readRelayList, writeRelayList } = useNostrRelayList();
 
   const getLatestEvent = useCallback(
     async (filter: Filter, relays: string[] = readRelayList) => {
@@ -52,6 +52,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
 
   const querySync = useCallback(
     async (filter: Filter, relays: string[] = readRelayList) => {
+      console.log("querySync", filter, relays);
       return pool.querySync(relays, filter);
     },
     [readRelayList],
@@ -85,6 +86,15 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
     [queryClient, readRelayList],
   );
 
+  const publishEvent = useCallback(
+    async (event: Event) => {
+      const queryKey = nostrQueryKeys.event(event.id);
+      queryClient.setQueryData(queryKey, event);
+      await pool.publish(writeRelayList, event);
+    },
+    [queryClient],
+  );
+
   return (
     <NostrEventContext.Provider
       value={{
@@ -94,6 +104,7 @@ export function NostrEventProvider({ children }: { children: ReactNode }) {
         cacheEventById,
         cacheEventsById,
         getEventRelatedEvents,
+        publishEvent,
       }}
     >
       {children}

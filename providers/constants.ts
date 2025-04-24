@@ -59,6 +59,7 @@ export type NostrEventContextType = {
   cacheEventById: (event: Event) => void;
   cacheEventsById: (events: Event[]) => void;
   getEventRelatedEvents: (event: Event, since?: number) => Promise<Event[]>;
+  publishEvent: (event: Event) => Promise<void>;
 };
 
 export const defaultNostrEventContext: Partial<NostrEventContextType> = {};

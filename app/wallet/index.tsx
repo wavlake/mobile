@@ -70,6 +70,26 @@ export default function Wallet({}: {}) {
             History
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            flexGrow: 1,
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+          onPress={() => {
+            router.push({
+              pathname: "/wallet/cashu",
+            });
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 20,
+            }}
+          >
+            eCash
+          </Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
