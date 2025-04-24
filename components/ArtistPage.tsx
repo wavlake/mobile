@@ -93,7 +93,7 @@ export const ArtistPage = () => {
     <ScrollView>
       <ArtistBanner uri={artist.artworkUrl} />
       <ContentPageButtons
-        type="artist"
+        contentType="artist"
         shareUrl={`https://wavlake.com/${artist.artistUrl}`}
         content={artist}
         trackListId={artist.id}
