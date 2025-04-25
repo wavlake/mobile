@@ -4,7 +4,7 @@
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog.wavlake.com/v1",
         "EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL": "https://accounting.wavlake.com/v1",
-        "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58",
+        "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fed821f62af2b1279d6bdbca0bb87d70bf0015a4957611ee35b46b5fadba",
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
       },
       "channel": "production",
@@ -16,7 +16,7 @@
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog.wavlake.com/v1",
         "EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL": "https://accounting.wavlake.com/v1",
-        "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58",
+        "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fed821f62af2b1279d6bdbca0bb87d70bf0015a4957611ee35b46b5fadba",
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
       },
       "distribution": "store",
@@ -26,7 +26,7 @@
       "env": {
         "EXPO_PUBLIC_WAVLAKE_API_URL": "https://catalog.wavlake.com/v1",
         "EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL": "https://accounting.wavlake.com/v1",
-        "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58",
+        "EXPO_PUBLIC_WALLET_SERVICE_PUBKEY": "7759fed821f62af2b1279d6bdbca0bb87d70bf0015a4957611ee35b46b5fadba",
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
       },
       "distribution": "internal",
