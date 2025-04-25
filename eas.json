@@ -20,7 +20,10 @@
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
       },
       "distribution": "store",
-      "channel": "staging"
+      "channel": "staging",
+      "ios": {
+        "image": "latest"
+      }
     },
     "internal": {
       "env": {
@@ -30,7 +33,10 @@
         "EXPO_PUBLIC_WAVLAKE_FEED_PUBKEY": "7759fb24cec56fc57550754ca8f6d2c60183da2537c8f38108fdf283b20a0e58"
       },
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "ios": {
+        "image": "latest"
+      }
     },
     "development": {
       "env": {
@@ -41,7 +47,10 @@
       },
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "ios": {
+        "image": "latest"
+      }
     },
     "development-simulator": {
       "developmentClient": true,
