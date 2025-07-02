@@ -17,10 +17,72 @@ const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
     return 1;
   }
 };
-const isProduction = process.env.NODE_ENV === "production";
+
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
 export default ({ config }: ConfigContext): ExpoConfig => {
+  // Only include dev client plugins for development builds
+  const isDevelopmentBuild =
+    process.env.EAS_BUILD_PROFILE === "development" ||
+    process.env.EAS_BUILD_PROFILE === "development-simulator";
+
+  const basePlugins = [
+    "expo-router",
+    "@react-native-firebase/app",
+    "@react-native-firebase/auth",
+    "@react-native-google-signin/google-signin",
+    "expo-font",
+    "expo-secure-store",
+    "expo-apple-authentication",
+    [
+      "expo-camera",
+      {
+        cameraPermission:
+          "Allow $(PRODUCT_NAME) to use your camera to scan QR codes for wallet connections.",
+      },
+    ],
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          useFrameworks: "static",
+          deploymentTarget: "13.4",
+        },
+        android: {
+          compileSdkVersion: 35,
+          targetSdkVersion: 35,
+          buildToolsVersion: "35.0.0",
+        },
+      },
+    ],
+    [
+      "expo-image-picker",
+      {
+        photosPermission:
+          "The app accesses your photos to let you choose a profile picture.",
+      },
+    ],
+    [
+      "@sentry/react-native/expo",
+      {
+        url: "https://sentry.io/",
+        project: "mobile",
+        organization: "wavlake",
+      },
+    ],
+    [
+      "expo-check-installed-apps",
+      {
+        android: ["com.greenart7c3.nostrsigner"],
+      },
+    ],
+  ];
+
+  // Add dev client plugins only for development builds
+  const plugins = isDevelopmentBuild
+    ? [...basePlugins, "expo-dev-client", "expo-dev-menu"]
+    : basePlugins;
+
   return {
     ...config,
     name: "Wavlake",
@@ -94,57 +156,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       googleServicesFile:
         process.env.IOS_FILE_SECRET ?? "./GoogleService-Info.plist",
     },
-    plugins: [
-      "expo-router",
-      "@react-native-firebase/app",
-      "@react-native-firebase/auth",
-      "@react-native-google-signin/google-signin",
-      "expo-font",
-      "expo-secure-store",
-      "expo-apple-authentication",
-      [
-        "expo-camera",
-        {
-          cameraPermission:
-            "Allow $(PRODUCT_NAME) to use your camera to scan QR codes for wallet connections.",
-        },
-      ],
-      [
-        "expo-build-properties",
-        {
-          ios: {
-            useFrameworks: "static",
-            deploymentTarget: "13.4",
-          },
-          android: {
-            compileSdkVersion: 35,
-            targetSdkVersion: 35,
-            buildToolsVersion: "35.0.0",
-          },
-        },
-      ],
-      [
-        "expo-image-picker",
-        {
-          photosPermission:
-            "The app accesses your photos to let you choose a profile picture.",
-        },
-      ],
-      [
-        "@sentry/react-native/expo",
-        {
-          url: "https://sentry.io/",
-          project: "mobile",
-          organization: "wavlake",
-        },
-      ],
-      [
-        "expo-check-installed-apps",
-        {
-          android: ["com.greenart7c3.nostrsigner"],
-        },
-      ],
-    ],
+    plugins,
     experiments: {
       tsconfigPaths: true,
     },
