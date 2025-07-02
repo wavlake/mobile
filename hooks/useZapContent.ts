@@ -18,7 +18,8 @@ import { useWalletBalance } from "./useWalletBalance";
 import { usePublishComment } from "./usePublishComment";
 import { Event, nip19 } from "nostr-tools";
 import { useUser } from "./useUser";
-import * as Sentry from "@sentry/react-native";
+// import * as Sentry from "@sentry/react-native"; // Temporarily disabled due to C++ compilation issues
+const Sentry = (global as any).Sentry; // Use mock Sentry from _layout.tsx
 
 type SendZap = (
   props: Partial<{
@@ -164,7 +165,7 @@ export const useZapContent = ({
           try {
             // Don't show a "posting" toast here as it might be confusing during the zap flow
             await publishComment(commentWithLinks, id, iTags);
-            
+
             Sentry.addBreadcrumb({
               message: "Successfully published zap comment to Nostr",
               category: "zap.publish_comment.success",
@@ -175,8 +176,9 @@ export const useZapContent = ({
               },
             });
           } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+
             Sentry.addBreadcrumb({
               message: "Failed to publish zap comment to Nostr",
               category: "zap.publish_comment.error",
@@ -187,8 +189,8 @@ export const useZapContent = ({
                 error: errorMessage,
               },
             });
-            
-            Sentry.withScope((scope) => {
+
+            Sentry.withScope((scope: any) => {
               scope.setTag("zap.operation", "publish_comment");
               scope.setTag("track.id", trackId);
               scope.setTag("content.type", isPodcast ? "podcast" : "music");
@@ -204,10 +206,12 @@ export const useZapContent = ({
               });
               Sentry.captureException(error);
             });
-            
+
             // Show user-friendly error message - be specific about what happened
-            toast.show("⚡ Zap sent! Having trouble posting your comment to Nostr right now.");
-            
+            toast.show(
+              "⚡ Zap sent! Having trouble posting your comment to Nostr right now.",
+            );
+
             // Don't throw here - we don't want to break the zap flow
             console.error("Failed to publish zap comment:", error);
           }

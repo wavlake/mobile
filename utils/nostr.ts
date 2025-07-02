@@ -28,7 +28,8 @@ import {
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
 import { base64 } from "@scure/base";
-import * as Sentry from "@sentry/react-native";
+// import * as Sentry from "@sentry/react-native"; // Temporarily disabled due to C++ compilation issues
+const Sentry = (global as any).Sentry; // Use mock Sentry from _layout.tsx
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import axios from "axios";
@@ -406,7 +407,7 @@ export const publishEvent = async (
     );
 
     // Add additional context to Sentry error
-    Sentry.withScope((scope) => {
+    Sentry.withScope((scope: any) => {
       scope.setTag("nostr.operation", "publish_event");
       scope.setTag("nostr.event_kind", event.kind);
       scope.setLevel("error");
