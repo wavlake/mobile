@@ -37,17 +37,22 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
 Sentry.init({
   dsn: SENTRY_DSN,
-  tracesSampleRate: 0.1,
-  // profilesSampleRate: 0.1, // Disabled due to C++ compilation issues
+  tracesSampleRate: 0, // Disabled due to C++ compilation issues
+  profilesSampleRate: 0, // Disabled due to C++ compilation issues
   environment: NODE_ENV,
   release,
   enabled: NODE_ENV !== "development",
-  // https://docs.sentry.io/platforms/react-native/session-replay/
-  _experiments: {
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 0.3,
-  },
-  integrations: [Sentry.mobileReplayIntegration()],
+  enableAutoPerformanceTracing: false,
+  enableAppStartTracking: false,
+  enableNativeFramesTracking: false,
+  enableStallTracking: false,
+  enableUserInteractionTracing: false,
+  // Disable session replay as well for now
+  // _experiments: {
+  //   replaysSessionSampleRate: 0.1,
+  //   replaysOnErrorSampleRate: 0.3,
+  // },
+  // integrations: [Sentry.mobileReplayIntegration()],
 });
 
 // Catch any errors thrown by the Layout component.
