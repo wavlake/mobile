@@ -224,21 +224,14 @@ export const getRelayListMetadata = async (pubkey: string) => {
   });
 };
 
-const FALLBACK_RELAYS = [
-  "wss://nos.lol",
-  "wss://relay.nostr.bg",
-  "wss://nostr.oxtr.dev",
-  "wss://relay.nostrati.com",
-];
-
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Toast notification system for Nostr publishing feedback
- * 
+ *
  * This provides a way for the low-level Nostr utilities to show user-friendly
  * messages without directly depending on React components or hooks.
- * 
+ *
  * Usage:
  * 1. Call setToastCallback() early in your component lifecycle to register
  *    your toast.show function
@@ -266,18 +259,19 @@ const showToast = (message: string) => {
 };
 
 export const publishEventWithRetry = async (
-  relayUris: string[], 
-  event: Event, 
-  maxRetries: number = 2
+  relayUris: string[],
+  event: Event,
+  maxRetries: number = 2,
 ): Promise<void> => {
   let lastError: Error = new Error("All publish attempts failed");
-  
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       // Deduplicate relay URLs to prevent duplicate attempts
-      const allRelays = attempt === 0 ? relayUris : [...relayUris, ...FALLBACK_RELAYS];
+      const allRelays =
+        attempt === 0 ? relayUris : [...relayUris, ...DEFAULT_WRITE_RELAY_URIS];
       const currentRelays = [...new Set(allRelays)];
-      
+
       Sentry.addBreadcrumb({
         message: `Publishing attempt ${attempt + 1}/${maxRetries + 1}`,
         category: "nostr.publish.attempt",
@@ -289,9 +283,9 @@ export const publishEventWithRetry = async (
           usingFallbacks: attempt > 0,
         },
       });
-      
+
       await publishEvent(currentRelays, event);
-      
+
       // Success - add breadcrumb and show user feedback if it was a retry
       Sentry.addBreadcrumb({
         message: `Successfully published on attempt ${attempt + 1}`,
@@ -302,21 +296,25 @@ export const publishEventWithRetry = async (
           eventId: event.id,
         },
       });
-      
+
       // Show success message if this was a retry (not the first attempt)
       if (attempt > 0) {
-        showToast("✅ Connection restored! Your action completed successfully.");
+        showToast(
+          "✅ Connection restored! Your action completed successfully.",
+        );
       }
-      
+
       return;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       if (attempt < maxRetries) {
         const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
-        
+
         Sentry.addBreadcrumb({
-          message: `Publish attempt ${attempt + 1} failed, retrying in ${delay}ms`,
+          message: `Publish attempt ${
+            attempt + 1
+          } failed, retrying in ${delay}ms`,
           category: "nostr.publish.retry",
           level: "warning",
           data: {
@@ -325,26 +323,29 @@ export const publishEventWithRetry = async (
             error: error instanceof Error ? error.message : String(error),
           },
         });
-        
+
         // Show user feedback with more context
         if (attempt === 0) {
           showToast("🔄 Connection issue. Trying backup servers...");
         } else if (attempt === maxRetries - 1) {
           showToast("⏳ Still having trouble. Making final attempt...");
         }
-        
+
         await sleep(delay);
       }
     }
   }
-  
+
   // All retries failed - show final user feedback
   showToast("❌ Unable to connect to Nostr servers. Please try again later.");
-  
+
   throw lastError;
 };
 
-export const publishEvent = async (relayUris: string[], event: Event): Promise<void> => {
+export const publishEvent = async (
+  relayUris: string[],
+  event: Event,
+): Promise<void> => {
   Sentry.addBreadcrumb({
     message: "Starting to publish Nostr event",
     category: "nostr.publish",
@@ -364,20 +365,21 @@ export const publishEvent = async (relayUris: string[], event: Event): Promise<v
   const wrappedPromises = promises.map((promise, index) =>
     promise.catch((error) => {
       const relay = relayUris[index];
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorInfo = {
         relay,
         error: errorMessage || "Unknown error",
       };
       errors.push(errorInfo);
-      
+
       Sentry.addBreadcrumb({
         message: `Relay publish failed: ${relay}`,
         category: "nostr.publish.relay_error",
         level: "warning",
         data: errorInfo,
       });
-      
+
       return Promise.reject(errorInfo);
     }),
   );
@@ -398,9 +400,11 @@ export const publishEvent = async (relayUris: string[], event: Event): Promise<v
     });
 
     const detailedError = new Error(
-      `All publish attempts failed. Tried ${relayUris.length} relays: ${errors.map(e => `${e.relay}: ${e.error}`).join("; ")}`
+      `All publish attempts failed. Tried ${relayUris.length} relays: ${errors
+        .map((e) => `${e.relay}: ${e.error}`)
+        .join("; ")}`,
     );
-    
+
     // Add additional context to Sentry error
     Sentry.withScope((scope) => {
       scope.setTag("nostr.operation", "publish_event");
@@ -418,7 +422,7 @@ export const publishEvent = async (relayUris: string[], event: Event): Promise<v
 
     throw detailedError;
   });
-  
+
   // Function implicitly returns void on success
 };
 
