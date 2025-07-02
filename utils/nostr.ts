@@ -233,13 +233,32 @@ const FALLBACK_RELAYS = [
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Simple toast-like notification - you might want to replace this with your actual toast implementation
+/**
+ * Toast notification system for Nostr publishing feedback
+ * 
+ * This provides a way for the low-level Nostr utilities to show user-friendly
+ * messages without directly depending on React components or hooks.
+ * 
+ * Usage:
+ * 1. Call setToastCallback() early in your component lifecycle to register
+ *    your toast.show function
+ * 2. The publishing utilities will automatically show appropriate messages
+ * 3. Messages are only shown once per retry cycle to avoid spam
+ */
 let showToastCallback: ((message: string) => void) | null = null;
 
+/**
+ * Register a toast callback function for user notifications
+ * Should be called from a React component that has access to useToast()
+ */
 export const setToastCallback = (callback: (message: string) => void) => {
   showToastCallback = callback;
 };
 
+/**
+ * Internal function to show toast messages if a callback is registered
+ * Only shows messages if setToastCallback was called with a valid function
+ */
 const showToast = (message: string) => {
   if (showToastCallback) {
     showToastCallback(message);
@@ -255,7 +274,9 @@ export const publishEventWithRetry = async (
   
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const currentRelays = attempt === 0 ? relayUris : [...relayUris, ...FALLBACK_RELAYS];
+      // Deduplicate relay URLs to prevent duplicate attempts
+      const allRelays = attempt === 0 ? relayUris : [...relayUris, ...FALLBACK_RELAYS];
+      const currentRelays = [...new Set(allRelays)];
       
       Sentry.addBreadcrumb({
         message: `Publishing attempt ${attempt + 1}/${maxRetries + 1}`,
@@ -271,7 +292,7 @@ export const publishEventWithRetry = async (
       
       await publishEvent(currentRelays, event);
       
-      // Success - add breadcrumb and return
+      // Success - add breadcrumb and show user feedback if it was a retry
       Sentry.addBreadcrumb({
         message: `Successfully published on attempt ${attempt + 1}`,
         category: "nostr.publish.success",
@@ -282,9 +303,14 @@ export const publishEventWithRetry = async (
         },
       });
       
+      // Show success message if this was a retry (not the first attempt)
+      if (attempt > 0) {
+        showToast("✅ Connection restored! Your action completed successfully.");
+      }
+      
       return;
     } catch (error) {
-      lastError = error as Error;
+      lastError = error instanceof Error ? error : new Error(String(error));
       
       if (attempt < maxRetries) {
         const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
@@ -300,9 +326,11 @@ export const publishEventWithRetry = async (
           },
         });
         
-        // Show user feedback only on first retry to avoid spam
+        // Show user feedback with more context
         if (attempt === 0) {
           showToast("🔄 Connection issue. Trying backup servers...");
+        } else if (attempt === maxRetries - 1) {
+          showToast("⏳ Still having trouble. Making final attempt...");
         }
         
         await sleep(delay);
@@ -310,7 +338,9 @@ export const publishEventWithRetry = async (
     }
   }
   
-  // All retries failed
+  // All retries failed - show final user feedback
+  showToast("❌ Unable to connect to Nostr servers. Please try again later.");
+  
   throw lastError;
 };
 
