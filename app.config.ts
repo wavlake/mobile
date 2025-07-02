@@ -3,9 +3,9 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 
 // must not be higher than 99, otherwise the versionCode may be lower than the previous version
-export const BUILD_NUM = 2;
+export const BUILD_NUM = 1;
 // values must be single digits; 0-9
-export const VERSION = "1.1.5";
+export const VERSION = "1.1.6";
 // Android version code must always be higher than the previous version
 const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
   try {
@@ -117,9 +117,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             deploymentTarget: "18.0",
           },
           android: {
-            compileSdkVersion: 34,
-            targetSdkVersion: 34,
-            buildToolsVersion: "34.0.0",
+            compileSdkVersion: 35,
+            targetSdkVersion: 35,
+            buildToolsVersion: "35.0.0",
           },
         },
       ],
