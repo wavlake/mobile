@@ -26,7 +26,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     process.env.EAS_BUILD_PROFILE === "development" ||
     process.env.EAS_BUILD_PROFILE === "development-simulator";
 
-  const basePlugins = [
+  const basePlugins: (string | [] | [string] | [string, any])[] = [
     "expo-router",
     "@react-native-firebase/app",
     "@react-native-firebase/auth",
