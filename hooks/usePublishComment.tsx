@@ -153,7 +153,57 @@ export const usePublishComment = () => {
         }
 
         // save event id to catalog db
-        await saveCommentEventId(event.id, zapRequestEventId);
+        try {
+          await saveCommentEventId(event.id, zapRequestEventId);
+        } catch (catalogError: any) {
+          // Log the catalog API error but don't fail the entire flow
+          const errorMessage = catalogError instanceof Error ? catalogError.message : String(catalogError);
+          const isNotFoundError = catalogError?.response?.status === 404;
+          
+          Sentry.addBreadcrumb({
+            message: isNotFoundError 
+              ? "Comment not found in catalog (timing issue)" 
+              : "Failed to save comment to catalog database",
+            category: isNotFoundError 
+              ? "nostr.comment.catalog_timing" 
+              : "nostr.comment.catalog_error",
+            level: isNotFoundError ? "info" : "warning",
+            data: {
+              eventId: event.id,
+              zapRequestEventId,
+              catalogError: errorMessage,
+              statusCode: catalogError?.response?.status,
+              // Add more context for debugging
+              contentLength: content.length,
+              customTagsCount: customTags?.length || 0,
+            },
+          });
+          
+          Sentry.withScope((scope) => {
+            scope.setTag("api.operation", "save_comment_event_id");
+            scope.setTag("api.endpoint", "comments/event-id");
+            scope.setTag("api.status_code", catalogError?.response?.status?.toString() || "unknown");
+            scope.setLevel(isNotFoundError ? "info" : "error");
+            scope.setContext("catalog_api_failure", {
+              zapRequestEventId,
+              kind1EventId: event.id,
+              errorMessage,
+              statusCode: catalogError?.response?.status,
+              isTimingIssue: isNotFoundError,
+              requestUrl: `/comments/event-id/${zapRequestEventId}/${event.id}`,
+            });
+            Sentry.captureException(catalogError);
+          });
+          
+          console.warn("Failed to save comment to catalog:", {
+            zapRequestEventId,
+            kind1EventId: event.id,
+            error: catalogError
+          });
+          
+          // Still show success to user since Nostr publishing worked
+          // The comment exists on Nostr even if catalog linking failed
+        }
 
         Sentry.addBreadcrumb({
           message: "Comment publish process completed successfully",
@@ -165,7 +215,7 @@ export const usePublishComment = () => {
           },
         });
 
-        toast.show("Comment published to Nostr!");
+        toast.show("✅ Comment posted to Nostr!");
         resolve();
       } catch (error: any) {
         const errorMessage =
