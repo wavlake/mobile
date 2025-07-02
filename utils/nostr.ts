@@ -28,6 +28,7 @@ import {
 
 // TODO: remove base64, sha256, and bytesToHex once getAuthToken copy pasta is removed
 import { base64 } from "@scure/base";
+import * as Sentry from "@sentry/react-native";
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import axios from "axios";
@@ -223,18 +224,206 @@ export const getRelayListMetadata = async (pubkey: string) => {
   });
 };
 
-export const publishEvent = async (relayUris: string[], event: Event) => {
-  const promises = pool.publish(relayUris, event);
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  // Mimic Promise.any behavior using Promise.race
-  const wrappedPromises = promises.map((p) =>
-    p.catch((error) => Promise.reject(error)),
+/**
+ * Toast notification system for Nostr publishing feedback
+ *
+ * This provides a way for the low-level Nostr utilities to show user-friendly
+ * messages without directly depending on React components or hooks.
+ *
+ * Usage:
+ * 1. Call setToastCallback() early in your component lifecycle to register
+ *    your toast.show function
+ * 2. The publishing utilities will automatically show appropriate messages
+ * 3. Messages are only shown once per retry cycle to avoid spam
+ */
+let showToastCallback: ((message: string) => void) | null = null;
+
+/**
+ * Register a toast callback function for user notifications
+ * Should be called from a React component that has access to useToast()
+ */
+export const setToastCallback = (callback: (message: string) => void) => {
+  showToastCallback = callback;
+};
+
+/**
+ * Internal function to show toast messages if a callback is registered
+ * Only shows messages if setToastCallback was called with a valid function
+ */
+const showToast = (message: string) => {
+  if (showToastCallback) {
+    showToastCallback(message);
+  }
+};
+
+export const publishEventWithRetry = async (
+  relayUris: string[],
+  event: Event,
+  maxRetries: number = 2,
+): Promise<void> => {
+  let lastError: Error = new Error("All publish attempts failed");
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      // Deduplicate relay URLs to prevent duplicate attempts
+      const allRelays =
+        attempt === 0 ? relayUris : [...relayUris, ...DEFAULT_WRITE_RELAY_URIS];
+      const currentRelays = [...new Set(allRelays)];
+
+      Sentry.addBreadcrumb({
+        message: `Publishing attempt ${attempt + 1}/${maxRetries + 1}`,
+        category: "nostr.publish.attempt",
+        level: "info",
+        data: {
+          attempt: attempt + 1,
+          totalAttempts: maxRetries + 1,
+          relayCount: currentRelays.length,
+          usingFallbacks: attempt > 0,
+        },
+      });
+
+      await publishEvent(currentRelays, event);
+
+      // Success - add breadcrumb and show user feedback if it was a retry
+      Sentry.addBreadcrumb({
+        message: `Successfully published on attempt ${attempt + 1}`,
+        category: "nostr.publish.success",
+        level: "info",
+        data: {
+          attempt: attempt + 1,
+          eventId: event.id,
+        },
+      });
+
+      // Show success message if this was a retry (not the first attempt)
+      if (attempt > 0) {
+        showToast(
+          "✅ Connection restored! Your action completed successfully.",
+        );
+      }
+
+      return;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      if (attempt < maxRetries) {
+        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
+
+        Sentry.addBreadcrumb({
+          message: `Publish attempt ${
+            attempt + 1
+          } failed, retrying in ${delay}ms`,
+          category: "nostr.publish.retry",
+          level: "warning",
+          data: {
+            attempt: attempt + 1,
+            nextRetryDelay: delay,
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
+
+        // Show user feedback with more context
+        if (attempt === 0) {
+          showToast("🔄 Connection issue. Trying backup servers...");
+        } else if (attempt === maxRetries - 1) {
+          showToast("⏳ Still having trouble. Making final attempt...");
+        }
+
+        await sleep(delay);
+      }
+    }
+  }
+
+  // All retries failed - show final user feedback
+  showToast("❌ Unable to connect to Nostr servers. Please try again later.");
+
+  throw lastError;
+};
+
+export const publishEvent = async (
+  relayUris: string[],
+  event: Event,
+): Promise<void> => {
+  Sentry.addBreadcrumb({
+    message: "Starting to publish Nostr event",
+    category: "nostr.publish",
+    level: "info",
+    data: {
+      eventKind: event.kind,
+      eventId: event.id,
+      relayCount: relayUris.length,
+      relays: relayUris,
+    },
+  });
+
+  const promises = pool.publish(relayUris, event);
+  const errors: Array<{ relay: string; error: any }> = [];
+
+  // Wrap each promise to track individual relay failures
+  const wrappedPromises = promises.map((promise, index) =>
+    promise.catch((error) => {
+      const relay = relayUris[index];
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorInfo = {
+        relay,
+        error: errorMessage || "Unknown error",
+      };
+      errors.push(errorInfo);
+
+      Sentry.addBreadcrumb({
+        message: `Relay publish failed: ${relay}`,
+        category: "nostr.publish.relay_error",
+        level: "warning",
+        data: errorInfo,
+      });
+
+      return Promise.reject(errorInfo);
+    }),
   );
 
-  return Promise.race(wrappedPromises).catch((error) => {
-    // Handle the case where all promises reject
-    throw new Error("All publish attempts failed");
+  await Promise.race(wrappedPromises).catch(() => {
+    // All promises rejected - add comprehensive error context
+    Sentry.addBreadcrumb({
+      message: "All Nostr relay publish attempts failed",
+      category: "nostr.publish.all_failed",
+      level: "error",
+      data: {
+        eventKind: event.kind,
+        eventId: event.id,
+        totalRelays: relayUris.length,
+        failedRelays: errors.length,
+        errors: errors,
+      },
+    });
+
+    const detailedError = new Error(
+      `All publish attempts failed. Tried ${relayUris.length} relays: ${errors
+        .map((e) => `${e.relay}: ${e.error}`)
+        .join("; ")}`,
+    );
+
+    // Add additional context to Sentry error
+    Sentry.withScope((scope) => {
+      scope.setTag("nostr.operation", "publish_event");
+      scope.setTag("nostr.event_kind", event.kind);
+      scope.setLevel("error");
+      scope.setContext("nostr_publish_failure", {
+        eventId: event.id,
+        eventKind: event.kind,
+        relayUris,
+        errors,
+        totalAttempts: relayUris.length,
+      });
+      Sentry.captureException(detailedError);
+    });
+
+    throw detailedError;
   });
+
+  // Function implicitly returns void on success
 };
 
 export const makeProfileEvent = (profile: NostrUserProfile): EventTemplate => {

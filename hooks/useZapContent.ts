@@ -18,6 +18,7 @@ import { useWalletBalance } from "./useWalletBalance";
 import { usePublishComment } from "./usePublishComment";
 import { Event, nip19 } from "nostr-tools";
 import { useUser } from "./useUser";
+import * as Sentry from "@sentry/react-native";
 
 type SendZap = (
   props: Partial<{
@@ -48,8 +49,7 @@ export const useZapContent = ({
   sendZap: SendZap;
 } => {
   const toast = useToast();
-  const { save: publishComment, isSaving: isPublishingComment } =
-    usePublishComment();
+  const { save: publishComment } = usePublishComment();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { pubkey, userIsLoggedIn } = useAuth();
@@ -125,8 +125,8 @@ export const useZapContent = ({
 
     // start listening for payment ASAP
     try {
-      getZapReceipt(invoice).then((zapReceipt) => {
-        const [descTag, zapRequest] =
+      getZapReceipt(invoice).then(async (zapReceipt) => {
+        const [, zapRequest] =
           zapReceipt?.tags.find(([tag]) => tag === "description") || [];
 
         if (
@@ -145,7 +145,72 @@ export const useZapContent = ({
           const commentWithLinks =
             comment + "\n\n" + shareUrl + "\n\n" + eventUrl;
 
-          publishComment(commentWithLinks, id, iTags);
+          Sentry.addBreadcrumb({
+            message: "Publishing zap comment to Nostr",
+            category: "zap.publish_comment",
+            level: "info",
+            data: {
+              zapRequestId: id,
+              commentLength: comment.length,
+              finalContentLength: commentWithLinks.length,
+              trackId,
+              isPodcast,
+              iTagsCount: iTags.length,
+              shareUrl,
+              publishKind1Setting: settings?.publishKind1,
+            },
+          });
+
+          try {
+            // Don't show a "posting" toast here as it might be confusing during the zap flow
+            await publishComment(commentWithLinks, id, iTags);
+            
+            Sentry.addBreadcrumb({
+              message: "Successfully published zap comment to Nostr",
+              category: "zap.publish_comment.success",
+              level: "info",
+              data: {
+                zapRequestId: id,
+                trackId,
+              },
+            });
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            
+            Sentry.addBreadcrumb({
+              message: "Failed to publish zap comment to Nostr",
+              category: "zap.publish_comment.error",
+              level: "error",
+              data: {
+                zapRequestId: id,
+                trackId,
+                error: errorMessage,
+              },
+            });
+            
+            Sentry.withScope((scope) => {
+              scope.setTag("zap.operation", "publish_comment");
+              scope.setTag("track.id", trackId);
+              scope.setTag("content.type", isPodcast ? "podcast" : "music");
+              scope.setLevel("error");
+              scope.setContext("zap_comment_failure", {
+                zapRequestId: id,
+                trackId,
+                isPodcast,
+                commentLength: comment.length,
+                finalContentLength: commentWithLinks.length,
+                iTagsCount: iTags.length,
+                publishKind1Setting: settings?.publishKind1,
+              });
+              Sentry.captureException(error);
+            });
+            
+            // Show user-friendly error message - be specific about what happened
+            toast.show("⚡ Zap sent! Having trouble posting your comment to Nostr right now.");
+            
+            // Don't throw here - we don't want to break the zap flow
+            console.error("Failed to publish zap comment:", error);
+          }
         }
         const navEvent = {
           pathname: "/zap/success",
