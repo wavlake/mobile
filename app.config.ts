@@ -102,6 +102,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-font",
       "expo-secure-store",
       "expo-apple-authentication",
+      ["expo-dev-menu", { enabled: process.env.NODE_ENV !== "production" }],
       [
         "expo-camera",
         {
