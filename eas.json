@@ -1,4 +1,7 @@
 {
+  "cli": {
+    "appVersionSource": "appConfig"
+  },
   "build": {
     "production": {
       "env": {
