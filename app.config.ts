@@ -105,7 +105,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "expo-dev-menu",
         {
-          enabled: !isProduction,
+          enabled: false, // this resolves a build error
+        },
+      ],
+      [
+        "expo-dev-launcher",
+        {
+          enabled: false, // this resolves a build error
         },
       ],
       [
