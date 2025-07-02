@@ -17,7 +17,7 @@ const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
     return 1;
   }
 };
-
+const isProduction = process.env.NODE_ENV === "production";
 export const getUserAgent = (modelName: string = "mobile") =>
   `Wavlake/${VERSION} ${modelName}/${BUILD_NUM} https://wavlake.com`;
 export default ({ config }: ConfigContext): ExpoConfig => {
@@ -102,7 +102,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-font",
       "expo-secure-store",
       "expo-apple-authentication",
-      ["expo-dev-menu", { enabled: process.env.NODE_ENV !== "production" }],
+      [
+        "expo-dev-menu",
+        {
+          enabled: !isProduction,
+        },
+      ],
       [
         "expo-camera",
         {
