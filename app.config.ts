@@ -136,6 +136,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           url: "https://sentry.io/",
           project: "mobile",
           organization: "wavlake",
+          enableNativeNagger: false,
         },
       ],
       [
