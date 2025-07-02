@@ -18,8 +18,7 @@ import { useWalletBalance } from "./useWalletBalance";
 import { usePublishComment } from "./usePublishComment";
 import { Event, nip19 } from "nostr-tools";
 import { useUser } from "./useUser";
-// import * as Sentry from "@sentry/react-native"; // Temporarily disabled due to C++ compilation issues
-const Sentry = (global as any).Sentry; // Use mock Sentry from _layout.tsx
+import * as Sentry from "@sentry/react-native";
 
 type SendZap = (
   props: Partial<{
