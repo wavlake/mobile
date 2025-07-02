@@ -1,5 +1,5 @@
 // https://docs.expo.dev/develop/development-builds/use-development-builds/
-import "expo-dev-client";
+// import "expo-dev-client"; // Removed to fix build issues
 
 // this is needed to polyfill crypto.subtle which nostr-tools uses
 import PolyfillCrypto from "react-native-webview-crypto";

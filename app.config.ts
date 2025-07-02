@@ -103,18 +103,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       "expo-secure-store",
       "expo-apple-authentication",
       [
-        "expo-dev-menu",
-        {
-          enabled: false, // this resolves a build error
-        },
-      ],
-      [
-        "expo-dev-launcher",
-        {
-          enabled: false, // this resolves a build error
-        },
-      ],
-      [
         "expo-camera",
         {
           cameraPermission:
