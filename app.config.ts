@@ -120,6 +120,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             compileSdkVersion: 34,
             targetSdkVersion: 34,
             buildToolsVersion: "34.0.0",
+            minifyEnabled: true,
+            enableProguardInReleaseBuilds: true,
           },
         },
       ],
