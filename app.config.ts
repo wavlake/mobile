@@ -5,7 +5,7 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 // must not be higher than 99, otherwise the versionCode may be lower than the previous version
 export const BUILD_NUM = 1;
 // values must be single digits; 0-9
-export const VERSION = "1.1.6";
+export const VERSION = "1.1.7";
 // Android version code must always be higher than the previous version
 const calcNumberBasedOnVersion = (version: string, buildNum: number) => {
   try {
