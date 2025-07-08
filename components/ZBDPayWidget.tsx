@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
 import { View, ActivityIndicator, Alert } from "react-native";
 import { WebView } from "react-native-webview";
-import { Text, Button } from "@/components";
+import { Text } from "./shared/Text";
+import { Button } from "./shared/Button";
 import { brandColors } from "@/constants";
 
 interface ZBDPayWidgetProps {

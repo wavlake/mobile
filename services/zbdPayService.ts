@@ -44,6 +44,15 @@ export const zbdPayService = {
     } catch (error: any) {
       console.error("Error creating ZBD Pay session:", error);
       
+      // Check if it's a 404 error (API not deployed yet)
+      if (error?.response?.status === 404) {
+        return {
+          success: false,
+          error: "Feature not available",
+          message: "The Buy Bitcoin feature is not yet available. Please check back later.",
+        };
+      }
+      
       if (error?.response?.data) {
         return {
           success: false,
@@ -69,6 +78,15 @@ export const zbdPayService = {
       return response.data;
     } catch (error: any) {
       console.error("Error getting ZBD Pay session:", error);
+      
+      // Check if it's a 404 error (API not deployed yet)
+      if (error?.response?.status === 404) {
+        return {
+          success: false,
+          error: "Feature not available",
+          message: "The Buy Bitcoin feature is not yet available. Please check back later.",
+        };
+      }
       
       if (error?.response?.data) {
         return {

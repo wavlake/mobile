@@ -108,7 +108,7 @@ export default function BuyBitcoin() {
     if (isCompleted) {
       return (
         <View style={{ alignItems: "center", gap: 20 }}>
-          <Text style={{ fontSize: 24, color: brandColors.green.DEFAULT }}>
+          <Text style={{ fontSize: 24, color: brandColors.up.DEFAULT }}>
             Purchase Completed!
           </Text>
           <Button
@@ -148,7 +148,7 @@ export default function BuyBitcoin() {
           <Text style={{ fontSize: 24, color: brandColors.orange.DEFAULT }}>
             Session Expired
           </Text>
-          <Text style={{ fontSize: 16, color: brandColors.white.light }}>
+          <Text style={{ fontSize: 16, color: brandColors.black.light }}>
             Your session has expired. Please start a new purchase.
           </Text>
           <Button
@@ -190,7 +190,7 @@ export default function BuyBitcoin() {
                 style={{
                   fontSize: 16,
                   textAlign: "center",
-                  color: brandColors.white.light,
+                  color: brandColors.black.light,
                   lineHeight: 24,
                 }}
               >
@@ -200,15 +200,28 @@ export default function BuyBitcoin() {
             </View>
 
             {createError && (
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: brandColors.pink.DEFAULT,
-                  textAlign: "center",
-                }}
-              >
-                {createError.message}
-              </Text>
+              <View style={{ alignItems: "center", gap: 10 }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: brandColors.pink.DEFAULT,
+                    textAlign: "center",
+                  }}
+                >
+                  {createError.message}
+                </Text>
+                {createError.message.includes("not yet available") && (
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: brandColors.black.light,
+                      textAlign: "center",
+                    }}
+                  >
+                    The backend API is being deployed. Please try again later.
+                  </Text>
+                )}
+              </View>
             )}
 
             {isCreating ? (
@@ -230,7 +243,7 @@ export default function BuyBitcoin() {
           <View style={{ flex: 1, width: "100%" }}>
             {remainingTime > 0 && (
               <View style={{ padding: 10, alignItems: "center" }}>
-                <Text style={{ fontSize: 14, color: brandColors.white.light }}>
+                <Text style={{ fontSize: 14, color: brandColors.black.light }}>
                   Session expires in {remainingTime} minutes
                 </Text>
               </View>
