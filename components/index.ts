@@ -78,3 +78,4 @@ export * from "./TrackPage";
 export * from "./TrackCommentPage";
 export * from "./PressableDialogRow";
 export * from "./AmberLoginButton";
+export * from "./ZBDPayWidget";

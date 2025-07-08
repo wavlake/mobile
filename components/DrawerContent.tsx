@@ -136,6 +136,18 @@ export const DrawerContent = (props: DrawerContentComponentProps) => {
         )}
         {showEarn && (
           <DrawerItem
+            label={() => <Text style={{ fontSize: 24 }}>Buy Bitcoin</Text>}
+            icon={({ color, size }) => (
+              <FontAwesome5 name="bitcoin" size={size} color={color} />
+            )}
+            onPress={async () => {
+              router.push({ pathname: "/buy-bitcoin" });
+              props.navigation.closeDrawer();
+            }}
+          />
+        )}
+        {showEarn && (
+          <DrawerItem
             label={() => <Text style={{ fontSize: 24 }}>Earn</Text>}
             icon={({ color, size }) => (
               <FontAwesome5 name="coins" size={size} color={color} />

@@ -1,9 +1,11 @@
 # Wavlake Mobile App - Context for Claude
 
 ## Project Overview
+
 This is the Wavlake mobile application built with React Native and Expo. Wavlake is a music streaming platform that integrates with Nostr (a decentralized social protocol) and Bitcoin Lightning payments.
 
 ## Tech Stack
+
 - **Framework**: React Native with Expo (SDK 51)
 - **Navigation**: Expo Router (file-based routing)
 - **Language**: TypeScript (strict mode enabled)
@@ -14,6 +16,7 @@ This is the Wavlake mobile application built with React Native and Expo. Wavlake
 - **Build System**: EAS (Expo Application Services)
 
 ## Key Features
+
 1. Music streaming with Bitcoin Lightning payments
 2. Nostr social integration (comments, profiles, activity feeds)
 3. User library management (albums, artists, tracks, playlists)
@@ -22,6 +25,7 @@ This is the Wavlake mobile application built with React Native and Expo. Wavlake
 6. Offline support via React Query persistence
 
 ## Project Structure
+
 ```
 mobile/
 ├── app/                    # Expo Router pages (file-based routing)
@@ -43,13 +47,16 @@ mobile/
 ```
 
 ## Environment Configuration
+
 The app uses different build profiles defined in `eas.json`:
+
 - **production**: Main production build
 - **external**: TestFlight/staging builds
 - **internal**: Internal testing
 - **development**: Local development with staging APIs
 
 Environment variables:
+
 - `EXPO_PUBLIC_WAVLAKE_API_URL`: Main catalog API
 - `EXPO_PUBLIC_WAVLAKE_ACCOUNTING_API_URL`: Accounting/wallet API
 - `EXPO_PUBLIC_WALLET_SERVICE_PUBKEY`: Nostr pubkey for wallet service
@@ -58,6 +65,7 @@ Environment variables:
 ## Build & Development
 
 ### Prerequisites
+
 1. Node.js and npm installed
 2. EAS CLI: `npm install -g eas-cli`
 3. Device setup with `eas device:create` (required for native audio modules)
@@ -67,6 +75,7 @@ Environment variables:
    - iOS: `GoogleService-Info.plist`
 
 ### Local Development
+
 ```bash
 # Install dependencies
 npm install
@@ -82,6 +91,7 @@ eas build --profile development --platform ios
 ```
 
 ### Deployment
+
 ```bash
 # Build for TestFlight
 eas build --platform ios --profile external
@@ -94,6 +104,7 @@ eas metadata:push
 ```
 
 ## Key APIs & Services
+
 1. **Wavlake Catalog API**: Music metadata, search, content
 2. **Wavlake Accounting API**: Wallet operations, transactions
 3. **Nostr Protocol**: Social features, comments, profiles
@@ -101,6 +112,7 @@ eas metadata:push
 5. **Sentry**: Error tracking and monitoring
 
 ## Important Files
+
 - `app.config.ts`: Expo configuration (version, build settings, plugins)
 - `eas.json`: Build profiles and environment configs
 - `store.config.json`: App Store metadata
@@ -109,7 +121,9 @@ eas metadata:push
 - `providers/UserContextProvider.tsx`: User authentication state
 
 ## Nostr Integration
+
 The app deeply integrates with Nostr:
+
 - User profiles sync with Nostr
 - Comments are Nostr events
 - Wallet connections use NWC (Nostr Wallet Connect)
@@ -117,17 +131,21 @@ The app deeply integrates with Nostr:
 - Supports Amber (external Nostr signer) for Android
 
 ## Deep Linking
+
 Configured paths that open in the app:
+
 - `/playlist/*`
 - `/album/*`
 - `/track/*`
 - `/verification-link`
 
 Deep link configuration:
+
 - iOS: Uses AASA file hosted at `wavlake.com/.well-known/apple-app-site-association`
 - Android: Configured in `app.config.ts` with verification at `wavlake.com/.well-known/assetlinks.json`
 
 ## Current Version
+
 - Version: 1.1.5
 - Build Number: 1
 - iOS Deployment Target: 18.0
@@ -136,26 +154,31 @@ Deep link configuration:
 ## Common Development Tasks
 
 ### Adding a new screen
+
 1. Create file in appropriate `app/` directory
 2. File name becomes the route (e.g., `app/newscreen.tsx` → `/newscreen`)
 3. Use `_layout.tsx` files for nested navigation
 
 ### Working with the music player
+
 - Global player state in `MusicPlayerProvider`
 - Use `useTrackPlayer` hook from react-native-track-player
 - Mini player shown via `MiniMusicPlayerProvider`
 
 ### Managing user library
+
 - Hooks in `hooks/library/` for CRUD operations
 - Data persisted via React Query + AsyncStorage
 - Syncs with backend API
 
 ### Nostr operations
+
 - Use hooks in `hooks/nostrProfile/`
 - Relay pool managed in `utils/relay-pool.ts`
 - Event signing handled by `utils/signing.ts`
 
 ## Testing Considerations
+
 - Test deep links on physical devices
 - Test wallet operations with testnet
 - Verify Nostr event publishing
@@ -163,8 +186,12 @@ Deep link configuration:
 - Test on both iOS and Android
 
 ## Security Notes
+
 - Firebase config files contain secrets (gitignored)
 - Nostr private keys stored in secure storage
 - NWC connections use encrypted storage
 - API calls use auth tokens when available
+
+```
+
 ```
