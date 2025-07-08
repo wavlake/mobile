@@ -42,7 +42,9 @@ eas build --platform android --profile production
 ## Architecture Overview
 
 ### Navigation Structure
+
 The app uses Expo Router with nested navigation:
+
 - `(drawer)` - Main drawer navigation
   - `(tabs)` - Bottom tab navigation
     - `(home)` - Home tab with nested screens
@@ -52,12 +54,14 @@ The app uses Expo Router with nested navigation:
 - `zap/` - Lightning payment flows
 
 ### State Management Pattern
+
 - **React Query** for server state and caching
 - **React Context** for global app state (UserProvider, MusicPlayerProvider)
 - **Persistent queries** stored in AsyncStorage
 - **Nostr events** handled through dedicated hooks
 
 ### Key Service Layers
+
 - `/services/authService.ts` - Firebase authentication
 - `/services/trackPlayer/` - Audio playback management
 - `/utils/nostr/` - Nostr protocol utilities
@@ -66,19 +70,25 @@ The app uses Expo Router with nested navigation:
 ## Important Implementation Details
 
 ### Audio Playback
+
 The app uses react-native-track-player for background audio. Key files:
+
 - `/services/trackPlayer/service.ts` - Background service
 - `/services/trackPlayer/trackQueue.ts` - Queue management
 - `/hooks/usePlayback.ts` - Main playback control hook
 
 ### Lightning Payments
+
 Zapping (tipping) artists is core functionality:
+
 - `/app/zap/` - Zap flow screens
 - `/utils/nwc.ts` - Wallet connection logic
 - `/hooks/useZap.ts` - Zap transaction hook
 
 ### Nostr Integration
+
 Social features use Nostr protocol:
+
 - `/utils/nostr/` - Protocol implementation
 - `/hooks/useProfile.ts` - User profile management
 - `/hooks/useNostrProfileEvent.ts` - Profile event handling
@@ -87,11 +97,13 @@ Social features use Nostr protocol:
 ## Setup Requirements
 
 1. **Firebase Configuration**
+
    - Add `google-services.json` to `/android/app/`
    - Add `GoogleService-Info.plist` to `/ios/`
 
 2. **Environment Variables**
    Set in Expo configuration or locally:
+
    - API endpoints are configured per build profile in `eas.json`
 
 3. **Native Development**
@@ -104,33 +116,39 @@ Social features use Nostr protocol:
 ## Common Tasks
 
 ### Adding a New Screen
+
 1. Create file in appropriate route directory under `/app`
 2. Export default React component
 3. File path becomes the route (e.g., `/app/artist/[artistId].tsx` → `/artist/123`)
 
 ### Working with Audio Player
+
 ```typescript
-import { usePlayback } from '@/hooks/usePlayback';
+import { usePlayback } from "@/hooks/usePlayback";
 const { play, pause, skip } = usePlayback();
 ```
 
 ### Implementing Zaps
+
 ```typescript
-import { useZap } from '@/hooks/useZap';
+import { useZap } from "@/hooks/useZap";
 const { zap } = useZap();
 await zap({ amount, comment, recipientPubkey });
 ```
 
 ### Fetching Data
+
 Use React Query hooks:
+
 ```typescript
-import { useQuery } from '@tanstack/react-query';
-import { catalogApi } from '@/services/api';
+import { useQuery } from "@tanstack/react-query";
+import { catalogApi } from "@/services/api";
 ```
 
 ## Testing Approach
 
 Currently no automated tests. When implementing:
+
 - Use React Native Testing Library for components
 - Mock react-native-track-player for audio tests
 - Mock Firebase for auth tests

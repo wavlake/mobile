@@ -23,7 +23,7 @@ export interface GetRampSessionResponse {
   success: boolean;
   data?: {
     sessionId: string;
-    status: 'pending' | 'completed' | 'failed' | 'expired';
+    status: "pending" | "completed" | "failed" | "expired";
     widgetUrl: string;
     expiresAt: string;
     createdAt: string;
@@ -37,30 +37,37 @@ export const zbdPayService = {
   /**
    * Create a new ZBD Pay ramp widget session
    */
-  async createRampSession(request: CreateRampSessionRequest): Promise<CreateRampSessionResponse> {
+  async createRampSession(
+    request: CreateRampSessionRequest,
+  ): Promise<CreateRampSessionResponse> {
     try {
       const response = await accountingApiClient.post("/ramp-widget", request);
       return response.data;
     } catch (error: any) {
       console.error("Error creating ZBD Pay session:", error);
-      
+
       // Check if it's a 404 error (API not deployed yet)
       if (error?.response?.status === 404) {
         return {
           success: false,
           error: "Feature not available",
-          message: "The Buy Bitcoin feature is not yet available. Please check back later.",
+          message:
+            "The Buy Bitcoin feature is not yet available. Please check back later.",
         };
       }
-      
+
       if (error?.response?.data) {
         return {
           success: false,
-          error: error.response.data.error || error.response.data.message || "Failed to create session",
-          message: error.response.data.message || "Failed to create ZBD Pay session",
+          error:
+            error.response.data.error ||
+            error.response.data.message ||
+            "Failed to create session",
+          message:
+            error.response.data.message || "Failed to create ZBD Pay session",
         };
       }
-      
+
       return {
         success: false,
         error: "Unknown error occurred",
@@ -74,28 +81,35 @@ export const zbdPayService = {
    */
   async getRampSession(sessionId: string): Promise<GetRampSessionResponse> {
     try {
-      const response = await accountingApiClient.get(`/ramp-widget/${sessionId}`);
+      const response = await accountingApiClient.get(
+        `/ramp-widget/${sessionId}`,
+      );
       return response.data;
     } catch (error: any) {
       console.error("Error getting ZBD Pay session:", error);
-      
+
       // Check if it's a 404 error (API not deployed yet)
       if (error?.response?.status === 404) {
         return {
           success: false,
           error: "Feature not available",
-          message: "The Buy Bitcoin feature is not yet available. Please check back later.",
+          message:
+            "The Buy Bitcoin feature is not yet available. Please check back later.",
         };
       }
-      
+
       if (error?.response?.data) {
         return {
           success: false,
-          error: error.response.data.error || error.response.data.message || "Failed to get session",
-          message: error.response.data.message || "Failed to get ZBD Pay session",
+          error:
+            error.response.data.error ||
+            error.response.data.message ||
+            "Failed to get session",
+          message:
+            error.response.data.message || "Failed to get ZBD Pay session",
         };
       }
-      
+
       return {
         success: false,
         error: "Unknown error occurred",

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { View, ActivityIndicator, Alert } from "react-native";
-import { WebView } from "react-native-webview";
+import { WebView, WebViewErrorEvent } from "react-native-webview";
 import { Text } from "./shared/Text";
 import { Button } from "./shared/Button";
 import { brandColors } from "@/constants";
@@ -12,6 +12,30 @@ interface ZBDPayWidgetProps {
   onClose?: () => void;
 }
 
+interface ZBDPayMessage {
+  type: string;
+  payload?: any;
+}
+
+// Validate ZBD Pay widget URL
+const isValidZBDPayUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    return (
+      parsedUrl.hostname === "ramp.zbdpay.com" ||
+      parsedUrl.hostname === "zbdpay.com" ||
+      parsedUrl.hostname.endsWith(".zbdpay.com")
+    );
+  } catch {
+    return false;
+  }
+};
+
+// Validate message structure
+const isValidZBDPayMessage = (data: any): data is ZBDPayMessage => {
+  return data && typeof data === "object" && typeof data.type === "string";
+};
+
 export const ZBDPayWidget: React.FC<ZBDPayWidgetProps> = ({
   widgetUrl,
   onSuccess,
@@ -22,12 +46,46 @@ export const ZBDPayWidget: React.FC<ZBDPayWidgetProps> = ({
   const [error, setError] = useState<string | null>(null);
   const webViewRef = useRef<WebView>(null);
 
+  // Validate widget URL
+  if (!isValidZBDPayUrl(widgetUrl)) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 20,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 18,
+            textAlign: "center",
+            color: brandColors.pink.DEFAULT,
+          }}
+        >
+          Invalid widget URL provided
+        </Text>
+        {onClose && (
+          <Button
+            onPress={onClose}
+            color="gray"
+            width={120}
+            style={{ marginTop: 10 }}
+          >
+            Close
+          </Button>
+        )}
+      </View>
+    );
+  }
+
   const handleLoad = () => {
     setIsLoading(false);
     setError(null);
   };
 
-  const handleError = (syntheticEvent: any) => {
+  const handleError = (syntheticEvent: WebViewErrorEvent) => {
     const { nativeEvent } = syntheticEvent;
     const errorMessage = `Failed to load widget: ${nativeEvent.description}`;
     setError(errorMessage);
@@ -38,13 +96,19 @@ export const ZBDPayWidget: React.FC<ZBDPayWidgetProps> = ({
   const handleMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      
+
+      // Validate message structure
+      if (!isValidZBDPayMessage(data)) {
+        console.warn("Invalid message structure from ZBD Pay widget:", data);
+        return;
+      }
+
       switch (data.type) {
         case "zbd_pay_success":
           onSuccess?.(data.payload);
           break;
         case "zbd_pay_error":
-          onError?.(data.payload.message || "Payment failed");
+          onError?.(data.payload?.message || "Payment failed");
           break;
         case "zbd_pay_close":
           onClose?.();
@@ -116,16 +180,13 @@ export const ZBDPayWidget: React.FC<ZBDPayWidgetProps> = ({
             zIndex: 1,
           }}
         >
-          <ActivityIndicator
-            size="large"
-            color={brandColors.orange.DEFAULT}
-          />
+          <ActivityIndicator size="large" color={brandColors.orange.DEFAULT} />
           <Text style={{ marginTop: 10, fontSize: 16 }}>
             Loading Bitcoin purchase...
           </Text>
         </View>
       )}
-      
+
       <WebView
         ref={webViewRef}
         source={{ uri: widgetUrl }}
@@ -154,14 +215,7 @@ export const ZBDPayWidget: React.FC<ZBDPayWidgetProps> = ({
             }
           });
           
-          // Handle page visibility changes
-          document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-              console.log('Widget hidden');
-            } else {
-              console.log('Widget visible');
-            }
-          });
+          // ZBD Pay widget integration complete
           
           true; // Required for injected JavaScript
         `}

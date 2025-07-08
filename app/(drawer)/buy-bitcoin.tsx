@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  SafeAreaView,
-  View,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+import { SafeAreaView, View, ActivityIndicator, Alert } from "react-native";
 import { Text, Button, ZBDPayWidget } from "@/components";
 import { useRouter } from "expo-router";
 import { useZBDPay } from "@/hooks";
@@ -16,7 +11,6 @@ export default function BuyBitcoin() {
     createSession,
     clearSession,
     session,
-    isSessionValid,
     remainingTime,
     isCreating,
     isLoading,
@@ -39,7 +33,7 @@ export default function BuyBitcoin() {
       console.error("Error initializing ZBD Pay session:", error);
       Alert.alert(
         "Error",
-        "Failed to initialize Bitcoin purchase. Please try again."
+        "Failed to initialize Bitcoin purchase. Please try again.",
       );
     }
   };
@@ -57,7 +51,7 @@ export default function BuyBitcoin() {
             router.back();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -79,7 +73,7 @@ export default function BuyBitcoin() {
           },
           style: "cancel",
         },
-      ]
+      ],
     );
   };
 
@@ -100,7 +94,7 @@ export default function BuyBitcoin() {
           },
           style: "destructive",
         },
-      ]
+      ],
     );
   };
 
@@ -131,11 +125,7 @@ export default function BuyBitcoin() {
           <Text style={{ fontSize: 24, color: brandColors.pink.DEFAULT }}>
             Purchase Failed
           </Text>
-          <Button
-            onPress={() => clearSession()}
-            color="orange"
-            width={200}
-          >
+          <Button onPress={() => clearSession()} color="orange" width={200}>
             Try Again
           </Button>
         </View>
@@ -151,11 +141,7 @@ export default function BuyBitcoin() {
           <Text style={{ fontSize: 16, color: brandColors.black.light }}>
             Your session has expired. Please start a new purchase.
           </Text>
-          <Button
-            onPress={() => clearSession()}
-            color="orange"
-            width={200}
-          >
+          <Button onPress={() => clearSession()} color="orange" width={200}>
             Start New Purchase
           </Button>
         </View>
@@ -166,7 +152,9 @@ export default function BuyBitcoin() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: brandColors.black.DEFAULT }}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: brandColors.black.DEFAULT }}
+    >
       <View
         style={{
           flex: 1,
@@ -225,16 +213,12 @@ export default function BuyBitcoin() {
             )}
 
             {isCreating ? (
-              <ActivityIndicator 
-                size="large" 
-                color={brandColors.orange.DEFAULT} 
+              <ActivityIndicator
+                size="large"
+                color={brandColors.orange.DEFAULT}
               />
             ) : (
-              <Button
-                onPress={initializeSession}
-                color="orange"
-                width={200}
-              >
+              <Button onPress={initializeSession} color="orange" width={200}>
                 Get Started
               </Button>
             )}
@@ -248,7 +232,7 @@ export default function BuyBitcoin() {
                 </Text>
               </View>
             )}
-            
+
             <ZBDPayWidget
               widgetUrl={session.widgetUrl}
               onSuccess={handleSuccess}
@@ -259,14 +243,14 @@ export default function BuyBitcoin() {
         ) : (
           <View style={{ alignItems: "center", gap: 20 }}>
             {renderSessionStatus()}
-            
+
             {isLoading && (
-              <ActivityIndicator 
-                size="large" 
-                color={brandColors.orange.DEFAULT} 
+              <ActivityIndicator
+                size="large"
+                color={brandColors.orange.DEFAULT}
               />
             )}
-            
+
             {sessionError && (
               <Text
                 style={{
