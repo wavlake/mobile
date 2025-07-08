@@ -1,16 +1,4 @@
-import axios from "axios";
-import { createAuthHeader } from "@/utils/create-api-client";
-import { configureLoggingInterceptors } from "@/utils/api-interceptors";
-
-const baseURL = process.env.EXPO_PUBLIC_WAVLAKE_API_URL;
-
-// Create dedicated client for ZBD Pay API calls
-const zbdPayClient = axios.create({ 
-  baseURL,
-  timeout: 30000, // 30 second timeout for widget creation
-});
-
-configureLoggingInterceptors(zbdPayClient, "ZBDPay");
+import { accountingApiClient } from "@/utils/authTokenAccountingApi";
 
 export interface CreateRampSessionRequest {
   email?: string;
@@ -51,25 +39,16 @@ export const zbdPayService = {
    */
   async createRampSession(request: CreateRampSessionRequest): Promise<CreateRampSessionResponse> {
     try {
-      const authHeader = await createAuthHeader("/accounting/v1/ramp-widget", "post", request);
-      
-      const response = await zbdPayClient.post("/accounting/v1/ramp-widget", request, {
-        headers: {
-          ...authHeader,
-          "Content-Type": "application/json",
-        },
-      });
-
+      const response = await accountingApiClient.post("/ramp-widget", request);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating ZBD Pay session:", error);
       
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.message || error.message || "Failed to create session";
+      if (error?.response?.data) {
         return {
           success: false,
-          error: errorMessage,
-          message: errorMessage,
+          error: error.response.data.error || error.response.data.message || "Failed to create session",
+          message: error.response.data.message || "Failed to create ZBD Pay session",
         };
       }
       
@@ -86,24 +65,16 @@ export const zbdPayService = {
    */
   async getRampSession(sessionId: string): Promise<GetRampSessionResponse> {
     try {
-      const authHeader = await createAuthHeader(`/accounting/v1/ramp-widget/${sessionId}`, "get");
-      
-      const response = await zbdPayClient.get(`/accounting/v1/ramp-widget/${sessionId}`, {
-        headers: {
-          ...authHeader,
-        },
-      });
-
+      const response = await accountingApiClient.get(`/ramp-widget/${sessionId}`);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting ZBD Pay session:", error);
       
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.message || error.message || "Failed to get session";
+      if (error?.response?.data) {
         return {
           success: false,
-          error: errorMessage,
-          message: errorMessage,
+          error: error.response.data.error || error.response.data.message || "Failed to get session",
+          message: error.response.data.message || "Failed to get ZBD Pay session",
         };
       }
       
