@@ -27,11 +27,6 @@ export const useAdvertisements = () => {
     promos.length > 0;
 
   const advertisements: Advertisement[] = [
-    // ollie events
-    {
-      path: "/events",
-      source: OLLIE_TOUR_IMAGE,
-    },
     ...(userIsEligibleToEarn
       ? [
           {
