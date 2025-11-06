@@ -36,6 +36,8 @@
     "expo-check-installed-apps": "^0.2.9",
     "expo-clipboard": "~6.0.3",
     "expo-constants": "~16.0.2",
+    "expo-dev-client": "~4.0.29",
+    "expo-dev-menu": "^7.0.16",
     "expo-font": "~12.0.10",
     "expo-image": "~1.12.15",
     "expo-image-picker": "~15.0.7",
