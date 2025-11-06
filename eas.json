@@ -12,7 +12,7 @@
       },
       "channel": "production",
       "ios": {
-        "image": "stable"
+        "image": "latest"
       }
     },
     "external": {
