@@ -57,7 +57,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             },
             {
               scheme: "https",
+              host: "wavlake.com",
+              pathPrefix: "/playlist/",
+            },
+            {
+              scheme: "https",
               host: "*.wavlake.com",
+              pathPrefix: "/album/",
+            },
+            {
+              scheme: "https",
+              host: "wavlake.com",
               pathPrefix: "/album/",
             },
             {
@@ -67,7 +77,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             },
             {
               scheme: "https",
+              host: "wavlake.com",
+              pathPrefix: "/verification-link",
+            },
+            {
+              scheme: "https",
               host: "*.wavlake.com",
+              pathPrefix: "/track/",
+            },
+            {
+              scheme: "https",
+              host: "wavlake.com",
               pathPrefix: "/track/",
             },
           ],
