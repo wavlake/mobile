@@ -566,6 +566,7 @@ export const makeZapRequest = async ({
   contentId,
   parentContentId,
   parentContentType,
+  artistId,
   amountInSats,
   relays = [],
   comment,
@@ -575,6 +576,7 @@ export const makeZapRequest = async ({
   contentId: string;
   parentContentId: string;
   parentContentType: "podcast" | "album" | "artist";
+  artistId: string;
   amountInSats: number;
   relays?: string[];
   comment: string;
@@ -590,10 +592,7 @@ export const makeZapRequest = async ({
     ],
     [
       "i",
-      `podcast:publisher:guid:${getPodcastFeedGuid(
-        parentContentType,
-        parentContentId,
-      )}`,
+      `podcast:publisher:guid:${getPodcastFeedGuid("artist", artistId)}`,
     ],
   ];
   const zapRequestEvent = await nip57.makeZapRequest({

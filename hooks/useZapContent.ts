@@ -33,6 +33,7 @@ export const useZapContent = ({
   trackId,
   title,
   artist,
+  artistId,
   artworkUrl,
   timestamp,
   parentContentId,
@@ -41,6 +42,7 @@ export const useZapContent = ({
   trackId?: string;
   title?: string;
   artist?: string;
+  artistId?: string;
   artworkUrl?: string;
   timestamp?: number;
   parentContentId?: string;
@@ -62,10 +64,10 @@ export const useZapContent = ({
   const { enableNWC, defaultZapAmount } = settings || {};
 
   const sendZap: SendZap = async (props) => {
-    if (!trackId || !parentContentId) {
+    if (!trackId || !parentContentId || !artistId) {
       return {
         success: false,
-        error: "Invalid track or album ID",
+        error: "Invalid track, album, or artist ID",
       };
     }
 
@@ -94,6 +96,7 @@ export const useZapContent = ({
       timestamp,
       parentContentId,
       parentContentType: isPodcast ? "podcast" : "album",
+      artistId,
     });
 
     const signedZapRequestEvent = await signEvent(zapRequest);
