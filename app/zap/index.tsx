@@ -28,6 +28,7 @@ export default function ZapPage() {
     defaultZapAmount,
     title,
     artist,
+    artistId,
     artworkUrl,
     trackId,
     timestamp,
@@ -37,6 +38,7 @@ export default function ZapPage() {
     defaultZapAmount: string;
     title: string;
     artist: string;
+    artistId: string;
     artworkUrl: string;
     trackId: string;
     timestamp: string;
@@ -52,6 +54,7 @@ export default function ZapPage() {
     trackId,
     title,
     artist,
+    artistId,
     artworkUrl,
     timestamp: timestamp ? parseInt(timestamp) : 0,
     isPodcast: isPodcast === "true",
