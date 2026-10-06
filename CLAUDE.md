@@ -2,6 +2,34 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Status: legacy platform, maintenance mode (read this first)
+
+_Written 2026-10-06. Dates here are expectations, not commitments._
+
+This repository is the mobile app of the **legacy** Wavlake platform. It talks to the legacy catalog backend (`wavlake/catalog`) and the legacy site. A new listener app is being built in the `wavlake/monorepo` repository (`apps/mobile`); this app is not being developed further.
+
+**What is coming**
+
+1. **Friends & family launch** of the new platform on `preview.wavlake.com`. `wavlake.com` stays on the legacy site.
+2. **Public launch (the cutover)**, expected within the next one to two months; no date is set. `wavlake.com` moves to the new client. From that moment:
+   - the legacy platform is **read-only** for content and accounts. Withdrawing, migrating to the new platform and deleting an account stay allowed, and the payment path stays up, so legacy balances keep receiving money;
+   - legacy usernames are frozen and reserved on the new platform;
+   - the legacy site lives on at `legacy.wavlake.com` for people who have not migrated;
+   - legacy feed URLs (`wavlake.com/feed/...`) keep working for good. Podcast apps hold them and each feed's `podcast:guid` is derived from the URL, so they can never change. They are served through the new platform's feeds service, which redirects a feed once its owner has moved.
+3. **Sunset**, roughly 6 to 12 months after the public launch, no committed date. Order: public launch, legacy RSS shut-off, the deadline for moving funds out, the migration cut-off, then shutdown.
+
+**How to work here until then**
+
+- Maintenance mode. Accept only: work the launch needs, security fixes, and fixes that protect people's money or data.
+- Make the smallest change that does the job. No refactors, no new features, no dependency upgrades for their own sake, no hardening or clean-up follow-ups. Code that will be deleted in a year does not need to be improved.
+- Before changing an API call, check it against the legacy backend's read-only mode: after the public launch the backend refuses writes to content and accounts.
+- The plan, the rulings and the launch runbooks live in the monorepo (`docs/runbooks/launch-friends-and-family.md`, `docs/runbooks/launch-public-cutover.md`; the sunset checklist is monorepo issue 4068). If this section and the monorepo disagree, the monorepo is newer.
+
+**Open question**
+
+- What this app does once the legacy platform is read-only has not been decided (2026-10-06). Do not assume it keeps working unchanged after the public launch, and do not ship a release without asking.
+
+
 ## Project Overview
 
 Wavlake is a React Native mobile app built with Expo that provides music streaming with integrated Bitcoin Lightning payments. The app uses Nostr protocol for social features and enables direct artist payments through the Lightning Network.
