@@ -35,19 +35,19 @@ const release = `${VERSION}-${BUILD_NUM}`;
 const NODE_ENV = process.env.NODE_ENV;
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
+// Sentry is OFF for this legacy app (2026-11-07): the app is no longer
+// developed, and its errors are not acted on. `enabled: false` stops the JS
+// SDK sending anything, `enableNative: false` keeps the native crash
+// reporter from starting, and tracing stays at 0. Reaches installed 1.1.8
+// builds only through an EAS Update on the production channel.
+// Guarded by tests/sentryDisabled.test.mjs.
 Sentry.init({
   dsn: SENTRY_DSN,
-  tracesSampleRate: 0.1,
-  // profilesSampleRate: 0.1, // Keep disabled for build stability
+  enabled: false,
+  enableNative: false,
+  tracesSampleRate: 0,
   environment: NODE_ENV,
   release,
-  enabled: NODE_ENV !== "development",
-  // Disable session replay for build stability
-  // _experiments: {
-  //   replaysSessionSampleRate: 0.1,
-  //   replaysOnErrorSampleRate: 0.3,
-  // },
-  // integrations: [Sentry.mobileReplayIntegration()],
 });
 
 // Catch any errors thrown by the Layout component.
